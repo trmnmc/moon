@@ -272,11 +272,15 @@ function computeMoon(date) {
 
   const cycleFraction = phaseAngle / 360;
 
-  // Days since the true new moon that started this lunation.  A real lunation
-  // can run up to ~29.83 days; the contract bounds `age` by the mean synodic
-  // month, so the final few hours of an unusually long lunation clamp to the
-  // maximum rather than overflow the documented range.
-  const age = Math.min(jd - instants[0][0], SYNODIC_MONTH);
+  // Days since the true new moon that started this lunation.
+  //
+  // NOT clamped to the mean synodic month. An earlier revision clamped to
+  // SYNODIC_MONTH (29.5306) to satisfy a contract that wrongly used the MEAN
+  // lunation as an upper bound; real lunations run to ~29.84 days, so that clamp
+  // silently under-reported age by up to ~7 hours in the closing hours of a long
+  // lunation — while the documented meaning is plain elapsed time. Reporting the
+  // true elapsed value is the only reading consistent with the documentation.
+  const age = jd - instants[0][0];
 
   // Nearest quarter instant decides instant-phase naming.
   let nearest = 0;

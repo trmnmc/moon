@@ -255,7 +255,11 @@ test('ranges hold across a 40-year daily sweep (1995-2035)', () => {
     assert.ok(m.illumination >= 0 && m.illumination <= 1, `illum ${m.illumination}`);
     assert.ok(m.phaseAngle >= 0 && m.phaseAngle < 360, `angle ${m.phaseAngle}`);
     assert.ok(m.cycleFraction >= 0 && m.cycleFraction < 1, `cf ${m.cycleFraction}`);
-    assert.ok(m.age >= 0 && m.age <= SYNODIC, `age ${m.age}`);
+    // Upper bound is the longest REAL lunation (~29.84 d), not the mean synodic
+    // month. Bounding by the mean was the bug the cycle-1 QA pass found: it is
+    // not an upper bound on lunation length at all, and clamping to it hid a
+    // ~7-hour under-report. The gate is kept, at the correct value.
+    assert.ok(m.age >= 0 && m.age <= 29.9, `age ${m.age}`);
     assert.ok(PHASE_NAMES.includes(m.phaseName));
     assert.equal(typeof m.isInstantPhase, 'boolean');
   }
@@ -319,4 +323,30 @@ test('anchor: full moon of the 2000-01-21 total lunar eclipse', () => {
   const fm = nextFullMoon(new Date(Date.UTC(2000, 0, 10)));
   assert.ok(Math.abs(fm.getTime() - Date.UTC(2000, 0, 21, 4, 44)) < 3 * HOUR_MS,
     `computed ${fm.toISOString()}`);
+});
+
+// --- regression, cycle 1 QA -------------------------------------------------
+// `age` was clamped to the MEAN synodic month (29.530589), which silently
+// under-reported by up to ~7 hours in the closing hours of a long lunation.
+// Real lunations run to ~29.84 days. Found by adversarial QA, not by the suite.
+test('age reports true elapsed time and is never clamped to the mean lunation', () => {
+  // one hour before the new moon ending the unusually long k=222 lunation
+  const m = computeMoon(new Date(Date.UTC(2018, 0, 17, 1, 17, 0)));
+  assert.ok(
+    m.age > 29.6,
+    `age was clamped: got ${m.age}, expected the true elapsed time (~29.78 d)`
+  );
+  // and it must still be a real lunation length, not runaway
+  assert.ok(m.age < 29.9, `age implausibly large: ${m.age}`);
+});
+
+test('age never exceeds the true maximum lunation length across 60 years', () => {
+  let max = 0;
+  for (let t = Date.UTC(2000, 0, 1); t < Date.UTC(2060, 0, 1); t += 6 * 3600 * 1000) {
+    const a = computeMoon(new Date(t)).age;
+    assert.ok(a >= 0, `negative age at ${new Date(t).toISOString()}`);
+    if (a > max) max = a;
+  }
+  assert.ok(max > 29.6, `clamp appears to be back: max age only ${max}`);
+  assert.ok(max < 29.9, `age exceeded any real lunation: ${max}`);
 });

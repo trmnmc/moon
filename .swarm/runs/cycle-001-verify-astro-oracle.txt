@@ -1,0 +1,22 @@
+samples=1600 span=400d worst |dIllumination|=0.292pp at 2026-10-29T12:00:00.000Z
+worst |d cycle-angle| = 0.504 deg  (oracle self-accuracy ~0.3 deg)
+PASS  illumination within 0.6pp of independent oracle (got 0.292pp)
+PASS  phase angle within 0.6 deg of independent oracle (got 0.504 deg)
+discriminator: a mean-only implementation would show >4pp; observed 0.292pp
+new-moon wraps=13 mean gap=29.5000d (true synodic 29.5306d)
+PASS  mean synodic month = 29.5000d
+  nextFullMoon from 2026-03-03: mine=2026-03-03T11:37:51.398Z oracle=2026-03-03T11:41:11.566Z diff=3.3min
+  nextFullMoon from 2026-04-03: mine=2026-05-01T17:23:10.432Z oracle=2026-05-01T17:26:13.865Z diff=3.1min
+  nextFullMoon from 2026-05-03: mine=2026-05-31T08:45:11.274Z oracle=2026-05-31T08:47:48.650Z diff=2.6min
+  nextFullMoon from 2026-06-03: mine=2026-06-29T23:56:38.185Z oracle=2026-06-29T23:59:25.290Z diff=2.8min
+  nextFullMoon from 2026-07-03: mine=2026-07-29T14:35:37.963Z oracle=2026-07-29T14:37:37.931Z diff=2.0min
+  nextFullMoon from 2026-08-03: mine=2026-08-28T04:18:25.225Z oracle=2026-08-28T04:19:07.832Z diff=0.7min
+  nextFullMoon from 2026-09-03: mine=2026-09-26T16:48:57.357Z oracle=2026-09-26T16:49:25.415Z diff=0.5min
+  nextFullMoon from 2026-10-03: mine=2026-10-26T04:11:42.854Z oracle=2026-10-26T04:13:37.117Z diff=1.9min
+PASS  nextFullMoon within 90 min of oracle (oracle timing precision ~35 min); worst 3.3min
+PASS  nextFullMoon is in the future
+PASS  illumination at the returned full moon = 100.00% (expect ~100)
+PASS  phase names cohere with illumination + waxing/waning over 1200 samples (0 violations)
+PASS  illumination/cycleFraction/age/julianDay all in range over 800 samples (0 violations)
+
+GATE: ALL CHECKS PASSED

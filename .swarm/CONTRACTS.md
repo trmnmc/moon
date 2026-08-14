@@ -18,7 +18,11 @@ function computeMoon(date)
 
 /** @typedef {Object} MoonState
  * @property {number} julianDay      Julian Day for `date`
- * @property {number} age            days since last new moon, 0 .. 29.530588861
+ * @property {number} age            days since last new moon, 0 .. ~29.84
+ *                                   (the TRUE elapsed time, never clamped —
+ *                                   real lunations exceed the 29.530589 mean;
+ *                                   the original bound here was wrong and was
+ *                                   corrected in cycle 1 after QA)
  * @property {number} cycleFraction  0 .. 1  (0 = new, 0.25 = first quarter, 0.5 = full)
  * @property {number} phaseAngle     degrees, 0 .. 360
  * @property {number} illumination   0 .. 1  (0 = new, 1 = full)
