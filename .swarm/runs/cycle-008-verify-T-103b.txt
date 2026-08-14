@@ -1,0 +1,13 @@
+PASS  C1 scope: README.md only :: [" M README.md"] numstat="5\t0\tREADME.md"
+PASS  C2 module constant located :: 1000..3000
+PASS  C2b added text carries both endpoints :: 1000/3000
+PASS  C3 no invented magnitudes :: numerals=["1000","3000"] orphan=[]
+PASS  C4a hedge vocabulary present :: sampl
+PASS  C4b no UNNEGATED proof-strength assertion :: clean (negated uses allowed)
+PASS  C4c negated-guarantee construction mirrors src/astro.js :: src/astro.js: "nothing about them guarantees the two stay in step"
+PASS  C5 attributes to test/astro.test.js
+PASS  C6 consequence named
+PASS  C7 non-vacuous: states domain + outside behavior
+INFO  house spelling in HEAD: behavior=1 behaviour=0; added uses behaviour x1
+
+GATE PASSED (all checks)

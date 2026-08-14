@@ -168,6 +168,11 @@ Independently checked properties:
 - new→full interval over 36 lunations spans 13.942–15.576 days, mean **14.764** against
   a theoretical half-synodic of 14.765.
 
+`phaseName` and `illumination` come from two different Meeus series, so nothing
+guarantees they stay in step forever. Over years **1000–3000**, `test/astro.test.js`
+samples that domain and finds no contradiction between them; outside it, behaviour is
+unspecified and the two fields may disagree.
+
 ## Non-goals
 
 - **No network access, ever.** Everything is computed locally.

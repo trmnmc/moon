@@ -2,8 +2,8 @@
   "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
-  "phase": "BUILD",
-  "cycle": 7,
+  "phase": "REVIEW",
+  "cycle": 8,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -117,6 +117,21 @@
       "cycle": 7,
       "what": "wave autotune read this as the REVERTED branch, not as 'any other outcome': k_current 4 -> 3, wave_streak 0",
       "why": "At k=1 the run dispatches into the working tree rather than a branch (recorded cycle 6), so a failed gate reverts with `git checkout` - cycle 6 recorded that this gives the same guarantee as dropping a branch, and the equivalence has to hold in both directions or it is just a convenience. One failed verify out of one item dispatched is a 100% failure rate for the wave. Also corrects an overhang cycle 6 flagged against itself: k_current had climbed to 4 on two clean k=1 waves, ahead of anything this run has actually exercised, while the gear cap of 1 is what binds. No practical effect this cycle - min(3, gear cap 1) is still 1."
+    },
+    {
+      "cycle": 8,
+      "what": "T-103b PASSED on attempt 2; the two gate flags that fired were both defects in my own gate script and were fixed in the instrument, never by relaxing the standard",
+      "why": "C1 (scope) fired because .trim() strips git porcelain's leading status-column space so my anchored regex missed, and then fired a second time because my OWN evidence file (.swarm/runs/cycle-008-verify-T-103b.txt) showed up as untracked inside the fence I was measuring. C4b fired on the word 'guarantees' in 'nothing guarantees they stay in step' - a NEGATED guarantee, which is the hedge itself and is lifted near-verbatim from src/astro.js. A blunt regex with no polarity handling would have failed the run's last must-have for using the module's own words. The distinction that matters: cycle.md step 6.5 forbids opening a gate by WEAKENING it, and none of these edits weaken anything - C4b got STRICTER (clause-split with negation handling), and I added C4c, which cross-checks that the negated-guarantee construction actually exists in the module, so my allowance cannot be something I invented to let the item through. An instrument that cannot tell a claim from its negation is not measuring the standard; repairing it is not lowering the bar."
+    },
+    {
+      "cycle": 8,
+      "what": "the British 'behaviour' in the landed paragraph was filed as T-111, not patched by the conductor and not used to fail the item",
+      "why": "Measured first rather than argued: across HEAD's README.md + src/astro.js + test/astro.test.js, 'behavior' appears 1x and 'behaviour' 0x, so this genuinely is the repo's first British spelling - a real inconsistency, not a preference. But T-103b's acceptance is domain figures + consequence + sampled-test attribution, and all three passed; failing the run's last open must-have over one letter is gate inflation, and cycle 7 already recorded that wording arguments dissolve into taste unless mechanised. Nor did I fix it myself: cycle 7 established that a conductor editing the artifact leaves nothing independent checking the conductor's wording, and a rule that only binds when the repair is expensive is not a rule. Same disposition as T-110, found at the cycle-7 gate under identical circumstances."
+    },
+    {
+      "cycle": 8,
+      "what": "KI-7 stays in known_issues at severity low with documented_cycle 8; it was NOT moved to resolved_issues even though its must-have is now satisfied",
+      "why": "The SPEC must-have reads 'KI-7 bounded by a declared+SAMPLED supported domain', and that is now true in both halves - module constant plus sampled test at cycle 6, README statement at cycle 8. But the underlying defect is untouched: the ch.49 and ch.48 series still diverge at absurd epochs, nothing enforces the domain at runtime (deliberately - a runtime guard is a behavior change the non-goals forbid), and the bound is sampled-clean rather than proven. Moving it to resolved_issues would let the morning report read as though a bug had been fixed when what actually happened is that an unbounded unknown became a bounded, documented, machine-checked one. Those are different things and the record should not blur them."
     }
   ],
   "known_issues": [
@@ -142,10 +157,11 @@
     },
     {
       "id": "KI-7",
-      "desc": "At absurd epochs (+/-270,000 years) phaseName and illumination can contradict each other, because phaseName derives from the ch.49 instant tables and illumination from the ch.48 elongation series, and the two polynomials diverge. Zero contradictions across 350,592 states sampled over 2020-2040. Noted so it is not rediscovered as a live bug. BOUNDED (module half) at cycle 6 by T-103a: src/astro.js exports PHASE_ILLUMINATION_CONSISTENCY_DOMAIN declaring years 1000-3000, and test/astro.test.js samples 4000 deterministic points across it asserting the phase-name band discriminator (new below 0.10, crescents below 0.5, gibbous above 0.5, full above 0.90; quarters straddle and are exempt). Conductor-verified non-vacuous (3733 of 4000 samples reach a real assertion, all four bands exercised) and failable (widening the constant to year 80000 turns it red at +045200-07-01, proving the test reads the constant rather than a re-typed literal). Independently re-sampled at N=9973 and N=50021 on a jittered off-lattice: 0 violations. The bound is SAMPLED-clean, not proven, and is DECLARATIVE ONLY - nothing enforces it at runtime, deliberately, since a runtime guard is a behavior change the run's non-goals forbid. The README half is T-103b; the must-have cannot be checked off until it lands.",
+      "desc": "At absurd epochs (+/-270,000 years) phaseName and illumination can contradict each other, because phaseName derives from the ch.49 instant tables and illumination from the ch.48 elongation series, and the two polynomials diverge. Zero contradictions across 350,592 states sampled over 2020-2040. Noted so it is not rediscovered as a live bug. BOUNDED (module half) at cycle 6 by T-103a: src/astro.js exports PHASE_ILLUMINATION_CONSISTENCY_DOMAIN declaring years 1000-3000, and test/astro.test.js samples 4000 deterministic points across it asserting the phase-name band discriminator (new below 0.10, crescents below 0.5, gibbous above 0.5, full above 0.90; quarters straddle and are exempt). Conductor-verified non-vacuous (3733 of 4000 samples reach a real assertion, all four bands exercised) and failable (widening the constant to year 80000 turns it red at +045200-07-01, proving the test reads the constant rather than a re-typed literal). Independently re-sampled at N=9973 and N=50021 on a jittered off-lattice: 0 violations. The bound is SAMPLED-clean, not proven, and is DECLARATIVE ONLY - nothing enforces it at runtime, deliberately, since a runtime guard is a behavior change the run's non-goals forbid. The README half LANDED at cycle 8 (T-103b attempt 2): README.md's ## Accuracy section now states the 1000-3000 domain, attributes it to test/astro.test.js as SAMPLED ('samples that domain and finds no contradiction'), and names the consequence of leaving it. The SPEC must-have 'KI-7 bounded by a declared+SAMPLED supported domain' is therefore SATISFIED. The issue stays OPEN at severity low because nothing was fixed: the two series still diverge at absurd epochs and the domain is declarative only. Bounded and documented is not the same as resolved.",
       "severity": "low",
       "cycle_found": 1,
-      "bounded_cycle": 6
+      "bounded_cycle": 6,
+      "documented_cycle": 8
     }
   ],
   "qa": {
@@ -154,16 +170,16 @@
     "last_taste_cycle": 1
   },
   "counters": {
-    "consecutive_no_value": 1,
+    "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 3,
-    "wave_streak": 0,
+    "wave_streak": 1,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "n": 7,
-    "work": "build-wave k=1 (gear-1 crawl): T-103b at haiku - state the declared KI-7 supported date domain in README, sourced to the shipping sampled test",
-    "outcome": "0 VERIFIED - GATE FAILED, reverted. Scope fence held (README.md only), domain figures 1000/3000 matched src/astro.js:72-73, zero invented magnitudes, consequence named concretely, 106/106 green throughout. Failed on the acceptance clause requiring the bound be attributed to the SAMPLED test: the added text said 'are mutually consistent -- confirmed by test/astro.test.js' with no sampling hedge, while src/astro.js says 'SAMPLED-clean, not proven' and test/astro.test.js:386 says 'This SAMPLES -- never exhaustively sweeps --'. Measured: 4000 sampled points over a 730,485-day domain = 0.548% of distinct days. T-103b -> todo, attempts 1, escalated haiku -> sonnet with the correction written into the retry brief. Residual found in the module itself filed as T-110."
+    "n": 8,
+    "work": "build-wave k=1 (gear-1 crawl): T-103b retry at sonnet - state the declared KI-7 supported date domain in README, sourced to the shipping sampled test",
+    "outcome": "1 VERIFIED. Gate passed all 10 conductor-authored checks; 106/106 green (KI-7 sampled test among them). Hedge parity achieved - 'samples that domain and finds no contradiction' mirrors src/astro.js, and the only guarantee-word is negated. Scope 5+/0- README.md only; added-line numerals {1000, 3000}, zero invented magnitudes. ALL FOUR SPEC MUST-HAVES ARE NOW MET (KI-1 cycle 4, KI-6 cycle 3, KI-5 cycle 5, KI-7 cycles 6+8) -> phase BUILD -> REVIEW. Two gate flags fired and both were defects in my own script, fixed in the instrument (C4b made stricter, C4c added as a cross-check). Residual filed as T-111."
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [
