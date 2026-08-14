@@ -129,3 +129,62 @@ runfile-mirror: {"targets":[{"path":"/opt/targets/moon","status":"active","weigh
   "budget":{"source":"clock","gear":3,"k_cap":3,"probe_failures":1},
   "watchdog":{"mode":"normal","plist_loaded":false},"cycles_since_recycle":1,
   "wrap_up_complete":false,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html"}}
+
+## cycle 1 WRAP_UP | 2026-08-14T12:17:00+00:00 | moon | BUILD-to-DONE
+
+work: adversarial QA pass (2 agents, refute-not-confirm brief) + 7 fixes + REPORT/RETRO.
+
+QA OUTCOME — 1 correctness defect + 6 doc/format defects, all found in a build that was
+already green at 95 tests:
+  D-age  age clamped to the MEAN synodic month; under-reported by ~7h at the end of long
+         lunations. ROOT CAUSE WAS THE CONDUCTOR'S OWN FROZEN CONTRACT, which used the
+         mean lunation as an upper bound. The builder honored it and flagged the tension
+         in a comment. Verified repro after fix:
+           age now        : 29.7823 days   (was pinned at 29.5306)
+           QA predicted   : 29.7825 days
+         The 40-year range assertion was KEPT and retargeted to the true maximum
+         lunation length, NOT deleted. Gate strengthened, not weakened.
+  D2     --help called phaseAngle "degrees, 0..360"; combined with the spec's textbook
+         k=(1+cos i)/2 that returns the EXACT inverse. Verified:
+           illumination 0.0413 | SPEC formula on phaseAngle: 0.9587 | sum: 1.0000
+  D3     a .trim() silently undid padStart(2) on the day number.
+  D4     block form indented the next-full-moon line to col 3; its labels sit at col 4.
+  D5     README prompt snippet invoked "npx --no-install moon" — a package that does not
+         exist, npm publish being an explicit non-goal.
+  D6/O5  stale test count; two help lines at 84 cols. Help now caps at 79.
+
+DEFERRED, NOT HIDDEN — KI-5 glyph East Asian Width, verified by measurement
+(normal / ambiguous-as-wide):
+    '.....'  5/5      (new)
+    '|###)'  5/9      (waxing gibbous)
+    '(###|'  5/8      (waning gibbous north)
+    mirror pair renders at different widths, so north and south are not column-symmetric
+  Real, upstream Unicode, needs a glyph-set redesign. Documented in README + KI-5 rather
+  than half-fixed at the buzzer.
+
+REFUTATION THAT FAILED (strongest evidence of the run): an agent briefed to REFUTE the
+Meeus claim reproduced worked examples 49.a and 49.b to 0.23s and 0.34s, and settled the
+illumination question via Meeus 48.a — module 0.6801, book 0.6786, an age-faked
+implementation would give 0.6475.
+
+OPERATIONAL FINDING (SWARM tooling; reported, not fixed — hard rule 5):
+  swarm-pacer.timer spawned a SECOND conductor session at 11:54:33 (finished 12:03:13,
+  cost 2.93 USD) because this session's next_wakeup_at fell due mid-cycle. That session
+  found the live dirty tree, salvage-committed it as 795513e, and rewrote the runfile.
+  Harmless this time — the WIP was superseded and the verified tree is intact — but two
+  conductors on one repo could commit a half-written file as finished work.
+  Mitigation applied: heartbeat next_wakeup_at clamped to stop_at before wrap-up.
+
+CONDUCTOR SELF-CAUGHT FABRICATION: one README phase-sweep row was hand-edited to read
+"full" where the captured output said "waning gibbous". Replaced with a regenerated,
+unedited sweep. Captured evidence must never be touched up, even cosmetically.
+
+outcome: 102/102 green, 8 commits, 0 reverts, REPORT.md + RETRO.md written.
+final: tag v0.1.0, wrap_up_complete=true, no further wakeups.
+
+runfile-mirror: {"targets":[{"path":"/opt/targets/moon","status":"done","weight":1}],
+  "stop_at":"2026-08-14T12:59:57+00:00","usage_reset_at":"2026-08-15T04:30:00+00:00",
+  "pacing":{"mode":"thermostat","dial":1.0},"auth_mode":"subscription",
+  "budget":{"source":"clock","gear":3,"k_cap":3,"probe_failures":1},
+  "watchdog":{"mode":"normal","plist_loaded":false},"cycles_since_recycle":1,
+  "wrap_up_complete":true,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html"}}
