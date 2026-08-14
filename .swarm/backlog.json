@@ -332,7 +332,25 @@
       "acceptance": "README.md:186 'colour themes' and the README.md:219 heading '## Licence' use the US spellings, matching package.json's \"license\": \"MIT\". No other change; src/ comment tokens ('centre column', 'equation of centre') are OUT of scope -- 'equation of the center' is an astronomical term of art, not a stray Briticism, and the conductor will not have a haiku builder adjudicate Meeus terminology.",
       "packages": [],
       "attempts": 0,
-      "notes": "FOUND AT THE CYCLE-20 GATE by the conductor's own check, not by the builder: verifying T-111 meant sweeping the repo for British spellings, and the sweep contradicted T-111's premise. Filed rather than conductor-patched, per the standing cycle-7 rule (a conductor editing the artifact leaves nothing independent checking the conductor's own wording). PRIORITY 9 ON PURPOSE, and the conductor's own read is that the VALUE_LOOP ratchet REJECTS it: 'would the target user notice?' is a weak maybe and 'would they still care after 10 minutes?' is a no. The one non-cosmetic thread is that the '## Licence' heading disagrees with package.json's \"license\" field and there is no LICENSE file in the repo at all -- that second half (a missing license file) is a real gap, and is NOT in this item's scope because adding one is a decision for the repo owner, not a polish builder. Recorded so the morning report can show the residual was seen and priced, not missed.",
+      "notes": "FOUND AT THE CYCLE-20 GATE by the conductor's own check, not by the builder: verifying T-111 meant sweeping the repo for British spellings, and the sweep contradicted T-111's premise. Filed rather than conductor-patched, per the standing cycle-7 rule (a conductor editing the artifact leaves nothing independent checking the conductor's own wording). PRIORITY 9 ON PURPOSE, and the conductor's own read is that the VALUE_LOOP ratchet REJECTS it: 'would the target user notice?' is a weak maybe and 'would they still care after 10 minutes?' is a no. The one non-cosmetic thread is that the '## Licence' heading disagrees with package.json's \"license\" field and there is no LICENSE file in the repo at all -- that second half (a missing license file) is a real gap, and is NOT in this item's scope because adding one is a decision for the repo owner, not a polish builder. Recorded so the morning report can show the residual was seen and priced, not missed.\nCYCLE-21 RATCHET RULING: still not dropped, still not built. Left todo rather than status `dropped` because it is the only remaining cosmetic residual and a human may want it; but it stays behind T-117 and behind anything with a machine-checkable claim. If wrap-up arrives with it still todo, that is the correct outcome, not a miss.",
+      "status": "todo"
+    },
+    {
+      "id": "T-117",
+      "title": "Add a GitHub Actions workflow so the suite runs on push and pull request",
+      "kind": "polish",
+      "priority": 3,
+      "value": "M",
+      "effort": "S",
+      "model": "haiku",
+      "deps": [],
+      "files_hint": [
+        ".github/workflows/ci.yml"
+      ],
+      "acceptance": "A single new file .github/workflows/ci.yml that runs the repo's real test command on push and on pull_request, on a Node version the package's engines field actually permits, with third-party actions pinned to at least a major version tag. Zero new dependencies of any kind. No badge, no publish step, no linter or coverage tooling the repo does not have. No file outside .github/ touched.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "PICKED AT CYCLE 21 out of SPEC.md's Nice-to-haves, which are gated on 'do not start these until every must-have is verified green' -- that gate is now open: all four must-haves (KI-1 closed, KI-6 fixed, KI-7 bounded+sampled, KI-5 pinned) are conductor-verified, and the backlog held only the p9 cosmetic T-116. Chosen over the OTHER nice-to-have (KI-5 actually fixed via glyph-set redesign) purely on gear: that one is L-effort and gear 1 forbids L-effort, exactly the reason SPEC gave for cutting it from must-haves in the first place. Ratchet: 'would the target user notice?' -- the target user is the next person to change this code, and a suite that runs itself on push is the difference between a claim and a check; 'would they still care after 10 minutes?' -- yes, it keeps running after everyone leaves. This is the only item in the backlog that passes both halves. NOT flagged craft:ui (a workflow yml is not a UI surface), so the craft.ui pack was deliberately not spliced into the builder brief.",
       "status": "todo"
     }
   ]
