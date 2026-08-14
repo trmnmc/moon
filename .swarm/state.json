@@ -82,6 +82,16 @@
       "cycle": 4,
       "what": "the no-unsourced-numbers docs gate is restated as a frame rule, not an existence rule: a quantity may appear only in the frame in which the repo already computes it",
       "why": "the cycle-2 wording ('do not quantify unless the number is computed in-repo and shown') passes attempt 1's fabrication only because that exact string was absent. It would NOT have caught the same defect written as 'nearly four hours off' - a phrasing the repo does contain, in a different frame. The frame rule catches both: a single-lunation comparison may not be re-used as a general per-package bound. Applied to T-108, which inherits the last docs work of the run."
+    },
+    {
+      "cycle": 5,
+      "what": "T-104 (priority 4) built ahead of T-103 (priority 3, H-value) because gear 1 makes T-103 INELIGIBLE, not merely lower-value",
+      "why": "Gear 1's work-choice rule allows haiku-priced work plus S-effort sonnet builds only, and T-103 is M-effort. This is a different reason from cycle 3's T-102-over-T-101 call, which was a value tiebreak between two eligible items - recording the distinction so the retro does not read a posture constraint as a judgement about T-103's worth. T-103 remains the top must-have and should be the first pick in any cycle that clears gear 1; its attempts counter is untouched. The rule also had a real cost worth naming: KI-7, a named must-have, is now waiting on a budget posture rather than on anything about the work."
+    },
+    {
+      "cycle": 5,
+      "what": "T-104 stayed at sonnet under a gear that demotes; a test-authoring item is build-class, not docs/polish",
+      "why": "Gear 1 sets demote=true, which drops non-judgment items one rung - but its sonnet->haiku step is explicitly scoped to docs/polish items, and build/fix never drops below sonnet. An item whose output is executable test code is build-class work: the cycle-2 failure showed what happens when a tier that cannot check itself is handed work whose defects are invisible to a reader. Consistent with gear 1's own 'S-effort sonnet builds only' allowance, which would be incoherent if the demotion rule then pushed those same builds to haiku."
     }
   ],
   "known_issues": [
@@ -128,7 +138,7 @@
     "n": 5,
     "work": "build-wave k=1 (gear-1 crawl): T-104 at sonnet - pin KI-5 with a test measuring the documented disc glyph widths",
     "outcome": "1 VERIFIED. Conductor gate reproduced the glyph set independently (10 codepoints, exact match) and confirmed non-vacuity by mutation - the pin fails when a glyph is added, dropped, or changed. 105/105 green. KI-5 pinned; new doc gap T-109 opened.",
-    "commit": "PENDING"
+    "commit": "f65e6c3"
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [
