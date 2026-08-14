@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "REVIEW",
-  "cycle": 15,
+  "cycle": 16,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -21,7 +21,7 @@
     {
       "cycle": 0,
       "what": "port a documented Meeus/Duffett-Smith algorithm into zero-dep Node rather than fork prior art",
-      "why": "prior-art scout returned stance `extend` — the phoon lineage (Poskanzer -> moontool -> wwn-phoon-rs) is grep-verified to do real phase math offline, so re-deriving the core would be wasted work. But the cleanest candidate is Rust, which conflicts with the user's explicit node/npx/zero-install choice — and npx distribution is itself one of the three things NO prior art does. Resolution: honor `extend` in substance by porting a published algorithm and using tidecal (MIT, Meeus ch.47 in JS) as reference and wwn-phoon-rs as a cross-check oracle, while keeping the Node surface."
+      "why": "prior-art scout returned stance `extend` \u2014 the phoon lineage (Poskanzer -> moontool -> wwn-phoon-rs) is grep-verified to do real phase math offline, so re-deriving the core would be wasted work. But the cleanest candidate is Rust, which conflicts with the user's explicit node/npx/zero-install choice \u2014 and npx distribution is itself one of the three things NO prior art does. Resolution: honor `extend` in substance by porting a published algorithm and using tidecal (MIT, Meeus ch.47 in JS) as reference and wwn-phoon-rs as a cross-check oracle, while keeping the Node surface."
     },
     {
       "cycle": 0,
@@ -172,6 +172,11 @@
       "cycle": 11,
       "what": "the run's ONE review-fix pass is formally deferred pending an allocator posture change, and WRAP_UP reports it as NOT RUN rather than quietly omitting it",
       "why": "eleven consecutive cycles have deferred it for the same reason and the reason has not moved: review-fix is the most premium-heavy work type in the pipeline (reviewer opus, adversarial verifier fable) and allow_premium_pct has been 0 under trickle posture throughout. Gear 1's work-choice list (planning, backlog hygiene, docs, test triage, S-effort sonnet builds) does not include it, and the fable verifier seat CANNOT be demoted - the fable guard exempts judgment seats in every gear, which is correct: a cheap-tiered adversarial verifier is how a fake gate gets built. So there is no honest cheaper version to run. Recording it as a decision now, with ~19.7h to stop_at, so the morning report carries a deliberate deferral with a reason rather than an eleventh silent omission. If the posture leaves trickle before stop_at, this decision is superseded and the pass runs."
+    },
+    {
+      "cycle": 16,
+      "what": "the 'module comment gloss wider than the code' pattern reached its FOURTH instance (T-110, T-112, T-113, now T-105) and is promoted from one-off backlog rows to a candidate playbook lesson for WRAP_UP distillation",
+      "why": "T-113's own notes set the trigger: 'Third instance this run. If a fourth appears, the pattern is worth a playbook lesson rather than another one-off item.' T-105's gate hit it in a NEW form -- not a doc-comment glossing a constant, but a test comment claiming a cross-file coupling ('if that suite ever spawns a different file, this diverges and fails here first') that the code did not implement: it compared package.json against a second hardcoded copy of the same literal. Two conductor-authored mutants (repoint cli.test.js's BIN; repoint astro.test.js's require, manifest untouched) both SURVIVED the first draft, which is the empirical proof the coupling was decorative. The fix made the claim true rather than softening it -- the test now parses the sibling suites. The generalizable lesson is the mutant shape, not the wording: a comment asserting that A tracks B is testable by mutating B and leaving A alone, and a claim that survives that mutation is decoration."
     }
   ],
   "known_issues": [
@@ -213,8 +218,8 @@
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
-    "k_current": 3,
-    "wave_streak": 1,
+    "k_current": 4,
+    "wave_streak": 0,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
