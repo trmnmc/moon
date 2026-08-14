@@ -9,7 +9,7 @@
 
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { execFileSync } = require('node:child_process')
+const { execFileSync, spawnSync } = require('node:child_process')
 const path = require('node:path')
 
 const BIN = path.join(__dirname, '..', 'bin', 'moon.js')
@@ -118,5 +118,23 @@ test('no emoji anywhere in any output mode', () => {
       assert.ok(ch.codePointAt(0) < 0x1F000,
         `emoji leaked into output for ${JSON.stringify(args)}: ${ch}`)
     }
+  }
+})
+
+// REPORT.md claims "nothing on stderr on success" as VERIFIED, but every helper above
+// spawns with execFileSync and no stdio override, so stderr is inherited by this test
+// process rather than captured — a stray console.error or deprecation warning on a
+// passing run would print to the terminal and go completely unasserted. Use spawnSync
+// (never a shell pipe, per L-010) to capture stderr directly and hold every successful
+// invocation mode to the same bar: exit 0 and a silent stderr channel.
+test('every successful invocation mode writes nothing to stderr', () => {
+  const modes = [[], ['--compact'], ['--block'], ['--json'], ['--help']]
+  for (const args of modes) {
+    const result = spawnSync(process.execPath, [BIN, ...args], {
+      encoding: 'utf8',
+      env: { ...process.env, TZ: 'UTC' }
+    })
+    assert.equal(result.status, 0, `${JSON.stringify(args)} must exit 0, got ${result.status}`)
+    assert.equal(result.stderr, '', `${JSON.stringify(args)} wrote to stderr: ${result.stderr}`)
   }
 })
