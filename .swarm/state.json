@@ -203,9 +203,10 @@
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "n": 8,
-    "work": "build-wave k=1 (gear-1 crawl): T-103b retry at sonnet - state the declared KI-7 supported date domain in README, sourced to the shipping sampled test",
-    "outcome": "1 VERIFIED. Gate passed all 10 conductor-authored checks; 106/106 green (KI-7 sampled test among them). Hedge parity achieved - 'samples that domain and finds no contradiction' mirrors src/astro.js, and the only guarantee-word is negated. Scope 5+/0- README.md only; added-line numerals {1000, 3000}, zero invented magnitudes. ALL FOUR SPEC MUST-HAVES ARE NOW MET (KI-1 cycle 4, KI-6 cycle 3, KI-5 cycle 5, KI-7 cycles 6+8) -> phase BUILD -> REVIEW. Two gate flags fired and both were defects in my own script, fixed in the instrument (C4b made stricter, C4c added as a cross-check). Residual filed as T-111."
+    "cycle": 9,
+    "work": "build-wave k=1 [T-109] at sonnet",
+    "outcome": "1 verified, 106/106 green, 2 residuals filed (T-112, T-113)",
+    "commit": "c52a224"
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [
