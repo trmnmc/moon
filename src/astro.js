@@ -313,10 +313,13 @@ function nextFullMoon(date) {
   }
   const jd = dateToJulianDay(date);
   // Full moon of the lunation containing jd, else the following one.
-  let k = lunationK(jd);
-  let full = truePhaseJD(k + 0.5);
-  if (full <= jd) full = truePhaseJD(k + 1.5);
-  return new Date(Math.round((full - JD_UNIX_EPOCH) * DAY_MS));
+  // Compare in rounded milliseconds so "strictly after" holds at the exact
+  // returned Date (JD -> ms rounding can otherwise land 1 ms on either side).
+  const k = lunationK(jd);
+  const toMs = (j) => Math.round((j - JD_UNIX_EPOCH) * DAY_MS);
+  let fullMs = toMs(truePhaseJD(k + 0.5));
+  if (fullMs <= date.getTime()) fullMs = toMs(truePhaseJD(k + 1.5));
+  return new Date(fullMs);
 }
 
 module.exports = { computeMoon, nextFullMoon, PHASE_NAMES };

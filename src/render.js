@@ -55,12 +55,17 @@ const SUB = 12;
 const SHADE = ['░', '▒', '▓', '█']; // ░ ▒ ▓ █
 
 /**
- * Limb ramp for the outermost cell of the one-line disc. These carry the
- * roundness of the moon's edge and the hairline of a very thin crescent.
- * Index: 0 unlit, 1 hairline, 2 partial, 3 full round limb.
+ * Glyphs for the outermost cell of the one-line disc, where the moon's edge is.
+ *
+ * A partly lit outer cell must draw its light against the side the sunlight is
+ * on — the right of the cell while waxing, the left while waning — otherwise
+ * the terminator lands on the wrong side of a character. Only the fully lit
+ * case is positional: there the glyph is the round limb itself.
  */
-const LIMB_LEFT = ['░', '▏', '▌', '◖']; // ░ ▏ ▌ ◖
-const LIMB_RIGHT = ['░', '▕', '▐', '◗']; // ░ ▕ ▐ ◗
+const LIMB_DARK = '░'; // ░
+const HAIRLINE = { right: '▕', left: '▏' }; // ▕ ▏
+const HALF = { right: '▐', left: '▌' }; // ▐ ▌
+const ROUND_LIMB = { right: '◗', left: '◖' }; // ◗ ◖
 
 /** Horizontal-mirror map. Anything absent mirrors onto itself. */
 const MIRROR = new Map([
@@ -157,9 +162,12 @@ function lineArt(k, waxing) {
     const x1 = -1 + (2 * (c + 1)) / LINE_CELLS;
     const { cover } = sampleCell(x0, x1, -1, 1, k, waxing);
     if (c === 0 || c === LINE_CELLS - 1) {
-      const ramp = c === 0 ? LIMB_LEFT : LIMB_RIGHT;
-      const idx = cover < 0.02 ? 0 : cover < 0.45 ? 1 : cover < 0.9 ? 2 : 3;
-      out += ramp[idx];
+      // Sunlight sits on the right of every cell while waxing, the left while waning.
+      const sunward = waxing ? 'right' : 'left';
+      if (cover < 0.02) out += LIMB_DARK;
+      else if (cover < 0.3) out += HAIRLINE[sunward];
+      else if (cover < 0.88) out += HALF[sunward];
+      else out += ROUND_LIMB[c === 0 ? 'left' : 'right'];
     } else {
       out += SHADE[Math.round(clamp(cover, 0, 1) * (SHADE.length - 1))];
     }
