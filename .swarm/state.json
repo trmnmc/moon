@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "REVIEW",
-  "cycle": 16,
+  "cycle": 17,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -177,6 +177,11 @@
       "cycle": 16,
       "what": "the 'module comment gloss wider than the code' pattern reached its FOURTH instance (T-110, T-112, T-113, now T-105) and is promoted from one-off backlog rows to a candidate playbook lesson for WRAP_UP distillation",
       "why": "T-113's own notes set the trigger: 'Third instance this run. If a fourth appears, the pattern is worth a playbook lesson rather than another one-off item.' T-105's gate hit it in a NEW form -- not a doc-comment glossing a constant, but a test comment claiming a cross-file coupling ('if that suite ever spawns a different file, this diverges and fails here first') that the code did not implement: it compared package.json against a second hardcoded copy of the same literal. Two conductor-authored mutants (repoint cli.test.js's BIN; repoint astro.test.js's require, manifest untouched) both SURVIVED the first draft, which is the empirical proof the coupling was decorative. The fix made the claim true rather than softening it -- the test now parses the sibling suites. The generalizable lesson is the mutant shape, not the wording: a comment asserting that A tracks B is testable by mutating B and leaving A alone, and a claim that survives that mutation is decoration."
+    },
+    {
+      "cycle": 17,
+      "what": "T-110's fix accepted in the 'half-open range of years 1000-3000' framing rather than 'years 1000-2999', and the residual README readability question deliberately NOT filed as a fifth prose item",
+      "why": "Two framings were true. 'Half-open' restates the bracket notation the repo already prints one line below in src/astro.js and introduces no new quantity; '2999' is a derived number that appears nowhere in the source, and this run's standing docs frame rule (cycles 2 and 4) says a quantity may appear only in the frame the repo already computes it in. The builder chose the framing that needs no new number and applied it identically at all three sites, which is the stronger reading of the rule. The residual I weighed and rejected: in README and REPORT the phrase stands without adjacent bracket notation, so a reader who does not know the term learns the extent but not which endpoint is open. That is a register question, not a truth question - the sentence is true as written, README's Accuracy section is already technical enough to discuss Meeus series and band discriminators, and the spec_digest names CHURN as this run's chief risk. Filing a fifth one-off prose row to re-word a true sentence is precisely the failure the digest warns against, so the gate passes and nothing is filed."
     }
   ],
   "known_issues": [
@@ -203,11 +208,12 @@
     },
     {
       "id": "KI-7",
-      "desc": "At absurd epochs (+/-270,000 years) phaseName and illumination can contradict each other, because phaseName derives from the ch.49 instant tables and illumination from the ch.48 elongation series, and the two polynomials diverge. Zero contradictions across 350,592 states sampled over 2020-2040. Noted so it is not rediscovered as a live bug. BOUNDED (module half) at cycle 6 by T-103a: src/astro.js exports PHASE_ILLUMINATION_CONSISTENCY_DOMAIN declaring years 1000-3000, and test/astro.test.js samples 4000 deterministic points across it asserting the phase-name band discriminator (new below 0.10, crescents below 0.5, gibbous above 0.5, full above 0.90; quarters straddle and are exempt). Conductor-verified non-vacuous (3733 of 4000 samples reach a real assertion, all four bands exercised) and failable (widening the constant to year 80000 turns it red at +045200-07-01, proving the test reads the constant rather than a re-typed literal). Independently re-sampled at N=9973 and N=50021 on a jittered off-lattice: 0 violations. The bound is SAMPLED-clean, not proven, and is DECLARATIVE ONLY - nothing enforces it at runtime, deliberately, since a runtime guard is a behavior change the run's non-goals forbid. The README half LANDED at cycle 8 (T-103b attempt 2): README.md's ## Accuracy section now states the 1000-3000 domain, attributes it to test/astro.test.js as SAMPLED ('samples that domain and finds no contradiction'), and names the consequence of leaving it. The SPEC must-have 'KI-7 bounded by a declared+SAMPLED supported domain' is therefore SATISFIED. The issue stays OPEN at severity low because nothing was fixed: the two series still diverge at absurd epochs and the domain is declarative only. Bounded and documented is not the same as resolved.",
+      "desc": "At absurd epochs (+/-270,000 years) phaseName and illumination can contradict each other, because phaseName derives from the ch.49 instant tables and illumination from the ch.48 elongation series, and the two polynomials diverge. Zero contradictions across 350,592 states sampled over 2020-2040. Noted so it is not rediscovered as a live bug. BOUNDED (module half) at cycle 6 by T-103a: src/astro.js exports PHASE_ILLUMINATION_CONSISTENCY_DOMAIN declaring years 1000-3000, and test/astro.test.js samples 4000 deterministic points across it asserting the phase-name band discriminator (new below 0.10, crescents below 0.5, gibbous above 0.5, full above 0.90; quarters straddle and are exempt). Conductor-verified non-vacuous (3733 of 4000 samples reach a real assertion, all four bands exercised) and failable (widening the constant to year 80000 turns it red at +045200-07-01, proving the test reads the constant rather than a re-typed literal). Independently re-sampled at N=9973 and N=50021 on a jittered off-lattice: 0 violations. The bound is SAMPLED-clean, not proven, and is DECLARATIVE ONLY - nothing enforces it at runtime, deliberately, since a runtime guard is a behavior change the run's non-goals forbid. The README half LANDED at cycle 8 (T-103b attempt 2): README.md's ## Accuracy section now states the 1000-3000 domain, attributes it to test/astro.test.js as SAMPLED ('samples that domain and finds no contradiction'), and names the consequence of leaving it. The SPEC must-have 'KI-7 bounded by a declared+SAMPLED supported domain' is therefore SATISFIED. The issue stays OPEN at severity low because nothing was fixed: the two series still diverge at absurd epochs and the domain is declarative only. Bounded and documented is not the same as resolved. PROSE CORRECTED cycle 17 (T-110): all three sites that describe the domain (the src/astro.js doc comment, README's Accuracy paragraph, REPORT's KI-7 row) had glossed the half-open interval [Date.UTC(1000,0,1), Date.UTC(3000,0,1)) as an inclusive 'years 1000 through 3000' - one calendar year more than the constant defines and more than the test reaches (its last sample is 2999-07-02). All three now name the range as half-open, identically. The constant, the test, the stride and every assertion were left untouched; nothing about the issue itself changed.",
       "severity": "low",
       "cycle_found": 1,
       "bounded_cycle": 6,
-      "documented_cycle": 8
+      "documented_cycle": 8,
+      "prose_corrected_cycle": 17
     }
   ],
   "qa": {
@@ -219,14 +225,14 @@
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 4,
-    "wave_streak": 0,
+    "wave_streak": 1,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "cycle": 15,
-    "work": "build-wave k=1 (T-115) at haiku",
-    "outcome": "1 verified, 108/108 green, gate 15/15 pre-merge, 6/6 mutants killed",
-    "ts": 1786740372
+    "cycle": 17,
+    "work": "build-wave k=1 (T-110) at sonnet",
+    "outcome": "1 verified, 113/113 green on merged main, domain discriminator: last sample 2999-07-02, year 3000 outside",
+    "ts": 1786742355
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [

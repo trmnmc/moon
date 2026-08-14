@@ -1,0 +1,68 @@
+cycle 17 — T-110 verification evidence (conductor-run, on merged main)
+=====================================================================
+
+Gate checks authored at verification time. The builder never saw any of them.
+
+--- 1. diff scope: prose only, three files, constant + test untouched -----------
+$ git status --porcelain     (before commit, on item/T-110)
+ M README.md
+ M REPORT.md
+ M src/astro.js
+
+$ git diff --stat            (the merge into main)
+ README.md    | 6 +++---
+ REPORT.md    | 2 +-
+ src/astro.js | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+
+test/astro.test.js: NOT in the changed set. PHASE_ILLUMINATION_CONSISTENCY_DOMAIN
+(src/astro.js:71-74) is outside the diff hunk, which ends at line 52.
+
+--- 2. discriminator: is the half-open framing a FACT about the constant AND the
+       sampled test, or only a plausible-sounding hedge? ----------------------
+Conductor script (SAMPLE_COUNT re-read out of test/astro.test.js:399, not taken
+from the builder's report; bounds imported from the shipping constant):
+
+$ node tmp-t110-verify.mjs
+startMs         -30610224000000 1000-01-01
+endMs           32503680000000 3000-01-01
+first sample    -30610224000000 1000-01-01
+last sample     32487901524000 2999-07-02
+last < endMs    true
+endMs is Jan 1 of year 3000: true
+last sample calendar year   : 2999
+year 3000 inside domain?     false
+year 2999 inside domain?     true
+year 1000 inside domain?     true
+
+The old prose ("calendar years 1000 through 3000") is FALSE at the top end by
+this check; the new prose ("the half-open range of years 1000-3000") is TRUE of
+both the constant and of what the test actually reaches. A merely-cosmetic edit
+could not have produced a last sample of 2999-07-02.
+
+--- 3. no unqualified inclusive gloss survives in any shipped file -------------
+$ grep -rn "1000 through 3000\|years 1000" --include=*.js --include=*.md .
+src/astro.js:49: * years 1000-3000 (i.e. [Date.UTC(1000,0,1), Date.UTC(3000,0,1))).
+REPORT.md:98:  ... the half-open range of calendar years 1000-3000 ...
+(remaining hits are .swarm/journal.md and .swarm/ideas-ledger.md — run records,
+ not product docs, and out of this item's scope)
+README.md's hit is on the rewrapped line and reads "the half-open range of years
+**1000-3000**".
+
+--- 4. full test_cmd, run by the conductor on merged main ----------------------
+$ node --test test/*.test.js
+ℹ tests 113
+ℹ suites 0
+ℹ pass 113
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1278.362846
+
+--- 5. CLI smoke on merged main -----------------------------------------------
+$ node bin/moon.js
+░░░░▐   6%  waxing crescent
+            next full moon  28 Aug
+
+GATE PASSED. T-110 -> done.
