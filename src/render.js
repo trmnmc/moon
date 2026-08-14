@@ -11,8 +11,9 @@
  *   - No emoji. Ever. Geometric / block glyphs only (U+2588..U+2595, U+25D6,
  *     U+25D7, U+2500 box drawing) so the output degrades legibly in a plain
  *     monospace font with no ligatures and no Nerd Font.
- *   - Fixed-width fields. renderLine is always the same number of columns
- *     regardless of phase name or illumination, so a MOTD line never jitters.
+ *   - Fixed column offsets. Every field ahead of the phase name has a constant
+ *     width, so a MOTD line never jitters as the illumination ticks over from
+ *     9% to 10% to 100%. The name is last, so nothing trails it.
  *   - The shade ramp (U+2591 U+2592 U+2593 U+2588) is antialiasing of the
  *     terminator, not sparkle: the dithered cells appear only where the
  *     light/dark boundary actually crosses a character cell.
@@ -45,11 +46,11 @@ const ILLUM_WIDTH = 4;
 const LINE_CELLS = 5;
 
 /** The framed block's disc. 2:1 to compensate for character aspect ratio. */
-const BLOCK_ROWS = 7;
-const BLOCK_COLS = 14;
+const BLOCK_ROWS = 5;
+const BLOCK_COLS = 12;
 
 /** Sub-samples per axis when integrating a character cell. */
-const SUB = 12;
+const SUB = 16;
 
 /** Interior shade ramp, darkest to brightest. All are mirror-symmetric. */
 const SHADE = ['░', '▒', '▓', '█']; // ░ ▒ ▓ █
@@ -79,7 +80,7 @@ const BOX = { h: '─', v: '│', tl: '┌', tr: '┐', bl: '└', br: '┘' };
 
 /** Detail rows of the block: label column + right-aligned value column. */
 const LABEL_WIDTH = 12;
-const VALUE_WIDTH = 16;
+const VALUE_WIDTH = NAME_WIDTH + 1; // widest value is the longest phase name
 const BLOCK_INNER = 2 + LABEL_WIDTH + VALUE_WIDTH + 2;
 
 /**
@@ -177,25 +178,51 @@ function lineArt(k, waxing) {
 
 /**
  * The framed block's disc: the same geometry sampled on a grid and masked to
- * the circle. Uses only mirror-symmetric glyphs, so mirroring is a reversal.
+ * the circle.
  * @param {number} k @param {boolean} waxing
  * @returns {string[]} BLOCK_ROWS rows of exactly BLOCK_COLS characters
  */
 function blockArt(k, waxing) {
+  const sunward = waxing ? 'right' : 'left';
   const rows = [];
   for (let r = 0; r < BLOCK_ROWS; r++) {
     const y0 = -1 + (2 * r) / BLOCK_ROWS;
     const y1 = -1 + (2 * (r + 1)) / BLOCK_ROWS;
-    let row = '';
+    const row = [];
+    const cells = [];
     for (let c = 0; c < BLOCK_COLS; c++) {
       const x0 = -1 + (2 * c) / BLOCK_COLS;
       const x1 = -1 + (2 * (c + 1)) / BLOCK_COLS;
-      const { cover, presence } = sampleCell(x0, x1, y0, y1, k, waxing);
-      row += presence < 0.35 ? ' ' : SHADE[Math.round(clamp(cover, 0, 1) * (SHADE.length - 1))];
+      const cell = sampleCell(x0, x1, y0, y1, k, waxing);
+      cells.push(cell);
+      row.push(
+        cell.presence < 0.5 ? ' ' : SHADE[Math.round(clamp(cell.cover, 0, 1) * (SHADE.length - 1))],
+      );
     }
-    rows.push(row);
+
+    // A crescent thinner than a sixth of a cell rounds away to the dark shade,
+    // which would break the crescent into disconnected rows. Where that
+    // happens on the disc's sunlit edge, keep it as a hairline instead: the
+    // moon really is lit there, and this row would otherwise read as new.
+    const limb = waxing ? lastDrawn(row) : firstDrawn(row);
+    if (limb >= 0 && row[limb] === SHADE[0] && cells[limb].cover > 0.02) {
+      row[limb] = HAIRLINE[sunward];
+    }
+
+    rows.push(row.join(''));
   }
   return rows;
+}
+
+/** Index of the first non-blank cell in a rendered row, or -1. */
+function firstDrawn(row) {
+  return row.findIndex((ch) => ch !== ' ');
+}
+
+/** Index of the last non-blank cell in a rendered row, or -1. */
+function lastDrawn(row) {
+  for (let i = row.length - 1; i >= 0; i--) if (row[i] !== ' ') return i;
+  return -1;
 }
 
 /**
@@ -210,19 +237,26 @@ function illumField(moon) {
 
 /**
  * @param {MoonState} moon
- * @returns {string} exactly NAME_WIDTH characters, left aligned
+ * @returns {string}
  */
-function nameField(moon) {
-  const name = typeof moon.phaseName === 'string' ? moon.phaseName : '';
-  return name.padEnd(NAME_WIDTH, ' ');
+function phaseName(moon) {
+  return typeof moon.phaseName === 'string' ? moon.phaseName : '';
 }
 
 /**
  * PRIMARY interface. Exactly one line, no trailing newline.
  *
- * Layout, fixed at 27 columns for every phase and every illumination:
+ * Layout — three columns at fixed offsets, so nothing shifts as the phase or
+ * the illumination changes:
  *
- *   [disc:5] [space] [phase name:15] [two spaces] [illumination:4]
+ *   cols  1..5   the disc
+ *   col      6   space
+ *   cols  7..10  illumination, right aligned:  "  0%" .. "100%"
+ *   cols 11..12  two spaces
+ *   cols 13..    the phase name
+ *
+ * The phase name is last and unpadded on purpose: this string goes in a prompt
+ * or a MOTD, where a run of trailing spaces is a defect.
  *
  * @param {MoonState} moon
  * @param {"north"|"south"} hemisphere
@@ -232,7 +266,7 @@ function renderLine(moon, hemisphere) {
   const { k, waxing } = opticalState(moon);
   let disc = lineArt(k, waxing);
   if (hemisphere === 'south') disc = mirrorArt(disc);
-  return `${disc} ${nameField(moon)}  ${illumField(moon)}`;
+  return `${disc} ${illumField(moon)}  ${phaseName(moon)}`;
 }
 
 /**
@@ -259,7 +293,7 @@ function renderBlock(moon, hemisphere) {
   lines.push(BOX.tl + BOX.h.repeat(BLOCK_INNER) + BOX.tr);
   for (const row of art) lines.push(BOX.v + left + row + right + BOX.v);
   lines.push(BOX.v + ' '.repeat(BLOCK_INNER) + BOX.v);
-  lines.push(BOX.v + detail('phase', nameField(moon).trimEnd()) + BOX.v);
+  lines.push(BOX.v + detail('phase', phaseName(moon)) + BOX.v);
   lines.push(BOX.v + detail('illuminated', illumField(moon).trimStart()) + BOX.v);
   lines.push(BOX.v + detail('hemisphere', south ? 'southern' : 'northern') + BOX.v);
   lines.push(BOX.bl + BOX.h.repeat(BLOCK_INNER) + BOX.br);

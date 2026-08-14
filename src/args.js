@@ -11,6 +11,10 @@ const OPTIONS = {
   south: { type: 'boolean' },
   north: { type: 'boolean' },
   block: { type: 'boolean' },
+  // Suppresses the next-full-moon line, leaving exactly one line of output.
+  // Exists so the MOTD/shell-prompt use case (the primary interface, per SPEC
+  // must-have 6) survives the next-full-moon line being on by default.
+  compact: { type: 'boolean' },
   help: { type: 'boolean', short: 'h' },
 };
 
@@ -103,6 +107,7 @@ function parseArgs(argv) {
     json: parsed.values.json === true,
     hemisphere,
     block: parsed.values.block === true,
+    compact: parsed.values.compact === true,
     help: parsed.values.help === true,
   };
 }
