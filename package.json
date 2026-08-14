@@ -1,0 +1,33 @@
+{
+  "name": "moon",
+  "version": "0.1.0",
+  "description": "Prints the current moon phase — accurate, hemisphere-aware, offline, zero dependencies.",
+  "bin": {
+    "moon": "bin/moon.js"
+  },
+  "main": "src/astro.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "start": "node bin/moon.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md"
+  ],
+  "keywords": [
+    "moon",
+    "moon-phase",
+    "lunar",
+    "cli",
+    "astronomy",
+    "meeus",
+    "terminal"
+  ],
+  "license": "MIT",
+  "private": false
+}

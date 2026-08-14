@@ -42,7 +42,11 @@ anyone piping `--json` into a script.
 <!-- EXPLICITLY CUT at lock per the taste judge's scope-fits-night score of 6. Do not
      start these until every must-have is verified green. -->
 
-- Countdown to the next new and next full moon — CUT
+- Countdown to the next new moon — CUT
+- **Date of the next FULL moon, printed under the phase line — UN-CUT by user injection
+  during cycle 1.** Implemented additively (`nextFullMoon()` export + a conductor-composed
+  second output line) so the frozen mid-wave contract was never edited. Sequenced after
+  must-have verification; the first thing cut if the clock bites.
 - `--date <iso>` to query an arbitrary date — CUT
 - Moon age in days — CUT
 
