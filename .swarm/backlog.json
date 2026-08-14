@@ -1,3 +1,157 @@
 {
-  "items": []
+  "items": [
+    {
+      "id": "T-101",
+      "title": "Propagate the KI-1 prior-art finding into README and REPORT",
+      "kind": "docs",
+      "priority": 1,
+      "value": "H",
+      "effort": "S",
+      "model": "haiku",
+      "deps": [],
+      "files_hint": [
+        "README.md",
+        "REPORT.md"
+      ],
+      "acceptance": "README's differentiation claim and REPORT's KI-1 row both state the completed prior-art finding verbatim from SPEC.md (nearest npm package lunarphase-js v2.0.3 is a naive mean-synodic modulo with zero periodic corrections and emoji-only 'hemisphere support', not a CLI; astronomia v4.2.0 is a genuine Meeus port deliberately not adopted as a dependency) in place of the old 'never swept / permission-blocked' language.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "PLAN grep (conductor-verified): zero hits for lunarphase-js|astronomia|prior-art in README.md; REPORT.md's KI-1 row still reads 'never swept... permission-blocked', which is now stale. The finding is written out in SPEC.md 'Domain rules' - copy it, do not re-derive it. L-026: never hand-edit captured output.",
+      "status": "todo"
+    },
+    {
+      "id": "T-102",
+      "title": "Fix KI-6: nextFullMoon throws instead of returning an out-of-range Invalid Date",
+      "kind": "fix",
+      "priority": 2,
+      "value": "H",
+      "effort": "S",
+      "model": "sonnet",
+      "deps": [],
+      "files_hint": [
+        "src/astro.js",
+        "test/astro.test.js"
+      ],
+      "acceptance": "Calling nextFullMoon() with a valid Date whose resulting full-moon instant falls outside the representable JS Date range throws a TypeError, matching the module's existing throw-on-bad-input behaviour, instead of silently returning an Invalid Date that later surfaces as an uncaught RangeError from --json's toISOString().",
+      "packages": [],
+      "attempts": 0,
+      "notes": "CONDUCTOR-REPRODUCED at cycle 1, first-hand:\n  nextFullMoon(new Date(8.64e15)) -> Invalid Date   (silent)\n  .toISOString()                  -> RangeError: Invalid time value\n  nextFullMoon('not a date')      -> TypeError: nextFullMoon expects a valid Date\nPLAN grep (conductor-verified): test/astro.test.js has no hits for RangeError|8640000000000000|275760; its two nextFullMoon throw-tests cover bad INPUT only, never the out-of-range OUTPUT path. Do NOT touch the Meeus math - this is a guard clause on the return value.",
+      "status": "todo"
+    },
+    {
+      "id": "T-103",
+      "title": "Bound KI-7: declare a supported date domain and add a SAMPLED consistency test",
+      "kind": "fix",
+      "priority": 3,
+      "value": "H",
+      "effort": "M",
+      "model": "sonnet",
+      "deps": [],
+      "files_hint": [
+        "src/astro.js",
+        "README.md",
+        "test/astro.test.js"
+      ],
+      "acceptance": "src/astro.js and README.md both state an explicit supported date-range domain for phaseName/illumination consistency, and a test SAMPLES points across that domain (sampling, never an exhaustive sweep) confirming phaseName and illumination never contradict each other inside it.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "CONDUCTOR-MEASURED at cycle 1 - use this, it is sharper than the KI-7 text. The right invariant is a DISCRIMINATOR (L-024): the phase name's illumination BAND must contain the reported illumination - crescent < 0.5, gibbous > 0.5, new < 0.10, full > 0.90 (quarters straddle, exempt). Observed contradictions outside the domain:\n  new Date(4.0e15)  -> 'waning gibbous'  ill=0.0385   (gibbous but 3.85% lit)\n  new Date(-8.0e15) -> 'waning crescent' ill=0.8053   (crescent but 80.5% lit)\nMeasured clean region: 0 violations in 32,004 sampled states from year -2000 to 6000; first violation ~72,500 years from 1970. Recommend declaring year 1000-3000 as the supported domain - comfortably inside the measured-clean region with margin. SAMPLED, not exhaustive (taste judge, scope-fits-night).",
+      "status": "todo"
+    },
+    {
+      "id": "T-104",
+      "title": "Pin KI-5 with a test that measures the documented disc glyph widths",
+      "kind": "test",
+      "priority": 4,
+      "value": "M",
+      "effort": "S",
+      "model": "sonnet",
+      "deps": [],
+      "files_hint": [
+        "test/render.test.js"
+      ],
+      "acceptance": "A test inspects the exact glyph set renderLine/renderBlock draw for the disc across a representative sweep of phases and confirms it matches the documented East Asian Width partition (U+2591, U+2590 Neutral; U+2592, U+2593, U+2588, U+258C, U+258F, U+2595 Ambiguous), so a future glyph change fails the gate instead of drifting silently from the documented widths.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "PLAN grep (conductor-verified): zero hits for east asian|Ambiguous|2591|2592|258C across test/. KI-5's measured widths exist ONLY as prose in README/REPORT. This item PINS the defect; it does NOT fix it - the glyph-set redesign stays deferred by budget decision.",
+      "status": "todo"
+    },
+    {
+      "id": "T-105",
+      "title": "Test package-manifest integrity: bin path, main field, zero deps, files list",
+      "kind": "test",
+      "priority": 5,
+      "value": "M",
+      "effort": "S",
+      "model": "sonnet",
+      "deps": [],
+      "files_hint": [
+        "test/manifest.test.js"
+      ],
+      "acceptance": "A test confirms package.json's bin.moon path resolves to the same file the CLI suites spawn, its main field resolves to an existing module, it declares no dependencies and no devDependencies, and its files allowlist matches what the package actually ships.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "PLAN grep (conductor-verified): zero hits for package.json|require.resolve|dependencies across test/. REPORT.md lists 'zero runtime dependencies' as a VERIFIED claim that no test has ever checked. NOTE: this item READS package.json but must not MODIFY it - manifests are excluded from builder write scope.",
+      "status": "todo"
+    },
+    {
+      "id": "T-106",
+      "title": "Test the next-full-moon date label's year-boundary branch",
+      "kind": "test",
+      "priority": 6,
+      "value": "M",
+      "effort": "S",
+      "model": "sonnet",
+      "deps": [],
+      "files_hint": [
+        "test/regressions.test.js"
+      ],
+      "acceptance": "A test drives the CLI with a clock positioned so the next full moon falls in a later calendar year than the current date and confirms the printed date includes that year; a same-year case confirms the year suffix stays omitted.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "PLAN grep (conductor-verified): getFullYear appears exactly once in the repo, at bin/moon.js:61 - the ternary that appends or omits the year. No test references it in either direction; the one date-formatting regression pins day-padding at a fixed 2026-01-01 clock that never crosses a year boundary.",
+      "status": "todo"
+    },
+    {
+      "id": "T-107",
+      "title": "Test that successful CLI invocations write nothing to stderr",
+      "kind": "test",
+      "priority": 7,
+      "value": "M",
+      "effort": "S",
+      "model": "sonnet",
+      "deps": [],
+      "files_hint": [
+        "test/cli.test.js"
+      ],
+      "acceptance": "A test confirms every successful invocation mode (default, --compact, --block, --json, --help) produces empty stderr, closing the gap between REPORT.md's 'nothing on stderr on success' VERIFIED claim and a suite that never captures stderr on a passing run.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "PLAN grep (conductor-verified): 'stderr' appears in test/ only inside the single --bogus exit-2 test (cli.test.js:107-112). L-010: capture the exit status directly, never through a pipe - use spawnSync and read .status/.stderr, do not shell-pipe.",
+      "status": "todo"
+    },
+    {
+      "id": "T-108",
+      "title": "Reconcile REPORT.md's Known Issues and hand-off with this run's fixes",
+      "kind": "docs",
+      "priority": 8,
+      "value": "H",
+      "effort": "S",
+      "model": "haiku",
+      "deps": [
+        "T-101",
+        "T-102",
+        "T-103",
+        "T-104"
+      ],
+      "files_hint": [
+        "REPORT.md"
+      ],
+      "acceptance": "REPORT.md's Known Issues table and hand-off section state the resolved/bounded status of KI-1, KI-6 and KI-7 and the newly machine-checked status of KI-5, with no remaining claim that any of them is still open, unswept, or documented in prose only.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "Not a test item. Runs LAST by deps - once T-101..T-104 land, REPORT's current statements become false, which is the exact doc-truth failure mode SPEC must-have 6 and L-026 warn about. Also record KI-3 as resolved (remote + gh auth verified at kickoff).",
+      "status": "todo"
+    }
+  ]
 }

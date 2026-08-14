@@ -290,3 +290,106 @@ runfile-mirror:
 ```json
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786721555,"next_wakeup_at":1786724255,"pid":100338,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786721555,"last_real_probe_ts":0,"probe_failures":1,"probe_note":"bin/swarm-budget.sh is NOT allowlisted for this headless session (KI-2, recurring) - permission denied, counted as one probe failure. Gear is NOT a clock-cruise guess: it is evidence-backed from runs/allocator.json (source=probe) showing posture=trickle, allow_premium_pct=0, opus_used_pct=95, weekly_used_pct=65 at week_elapsed_pct=63. Crawl is the conservative direction and matches the allocator brief's 'haiku-priced work types'.","weekly":{"ok":true,"weekly_used_pct":65.0,"opus_used_pct":95,"week_elapsed_pct":63.42,"weekly_heat":1.03,"opus_heat":1.5,"ceiling":1,"promote_blocked":true}},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":0,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+
+## cycle 1 | %Y-%m-%dT%H:%M:%S+00:00 | moon | PLAN -> BUILD
+
+work: inline PLAN (one sonnet Plan subagent proposes; the CONDUCTOR writes backlog.json).
+why: backlog was empty after the improvement-run reset, and the PLAN gate holds until every
+SPEC must-have is covered by an item. Gear 1 crawl (k_cap 1) makes PLAN the only sensible
+opener anyway - a 45-min build wave does not admit at 1 item per wave without a backlog.
+
+models: Plan subagent = sonnet (PLAN is not a listed judgment seat, so it is demotable;
+gear-1 demote does not drop it below sonnet).
+
+BACKLOG WRITTEN - 8 items, all todo:
+  T-101 p1 docs  S haiku   propagate KI-1 prior-art finding -> README + REPORT
+  T-102 p2 fix   S sonnet  KI-6: nextFullMoon throws instead of returning Invalid Date
+  T-103 p3 fix   M sonnet  KI-7: declare supported domain + SAMPLED consistency test
+  T-104 p4 test  S sonnet  KI-5: pin the documented glyph widths with a measuring test
+  T-105 p5 test  S sonnet  package-manifest integrity (bin/main/zero-deps/files)
+  T-106 p6 test  S sonnet  next-full-moon year-boundary branch
+  T-107 p7 test  S sonnet  successful invocations write nothing to stderr
+  T-108 p8 docs  S haiku   reconcile REPORT known-issues + hand-off (deps 101-104)
+
+TRUST-NOTHING CHECK ON THE PLAN AGENT (hard rule 2 - its greps are CLAIMS). Every
+"this surface is untested" claim was re-grepped by the conductor independently. All five
+held; not one item was churn:
+  T-105  grep -rn "package.json|require.resolve|dependencies" test/  -> ZERO hits
+  T-107  grep -rn "stderr" test/  -> only cli.test.js:107-112, the --bogus exit-2 test
+  T-106  grep -rn "getFullYear" src/ bin/ test/  -> exactly one hit, bin/moon.js:61 (the
+         ternary that appends/omits the year); no test touches it in either direction
+  T-104  grep -rniE "east asian|Ambiguous|2591|2592|258C" test/  -> ZERO hits
+  T-103  grep -rniE "domain|supported range" src/astro.js README.md -> only a comment
+         referencing the SPEC section; no domain is declared anywhere
+  T-102  grep -rniE "RangeError|8640000000000000|275760" test/ -> ZERO; the two existing
+         nextFullMoon throw-tests cover bad INPUT only, never out-of-range OUTPUT
+
+CONDUCTOR-REPRODUCED DEFECTS (I did not take the known-issues text on trust):
+  KI-6, reproduced exactly as documented:
+    nextFullMoon(new Date(8.64e15)) -> Invalid Date        (silent)
+    .toISOString()                  -> RangeError: Invalid time value
+    nextFullMoon('not a date')      -> TypeError: nextFullMoon expects a valid Date
+    -> the inconsistency is real: every other bad input throws, this one returns.
+  KI-7, reproduced AND SHARPENED. The known-issue says the two series "contradict"; the
+  usable form is a DISCRIMINATOR (L-024) - the phase name's illumination band must contain
+  the reported illumination:
+    new Date(4.0e15)  -> "waning gibbous"  ill=0.0385   gibbous but 3.85% lit
+    new Date(-8.0e15) -> "waning crescent" ill=0.8053   crescent but 80.5% lit
+  Domain bisect (conductor-measured, feeds T-103's declared range):
+    violations in year -2000..6000, 32,004 sampled states : 0
+    first band violation                                  : ~72,500 years from 1970
+    -> recommending year 1000-3000 as the declared domain: inside the measured-clean
+       region with wide margin, and it covers every realistic use.
+  CLI exit codes, probed with spawnSync and the status read DIRECTLY (L-010, never
+  through a pipe):
+    no-args 0 | --json 0 | --help 0 | --south 0 | --block 0 | --bogus 2 (80b stderr)
+    unknown-flag stderr: "moon: unknown option '--bogus' - run 'moon --help' ..."
+    -> exit-code hygiene is already correct; NOT worth an item. One oddity noted but not
+       filed: `--south --north` together exits 0 with no complaint (undocumented
+       precedence). Left unfiled deliberately - pinning it would be inventing a contract
+       the spec never made, and this run bans churn.
+
+VERIFICATION EVIDENCE (PLAN gate - conductor-authored at verification time):
+  coverage check: python3 cycle1-verify.py
+    SPEC must-have checkboxes : 7
+    coverage map entries      : 7
+    KI-1 closed with evidence          T-101,T-108              COVERED
+    KI-6 fixed                         T-102                    COVERED
+    KI-7 bounded                       T-103                    COVERED
+    KI-5 pinned by test                T-104                    COVERED
+    Test hardening / named-surface     T-104,T-105,T-106,T-107  COVERED
+    Playbook lessons applied           *process*                COVERED
+    Docs polished for truth            T-101,T-108              COVERED
+    anti-churn: T-104/105/106/107 all NAMED   non-goal scan: clean
+    RESULT: PASS   exit status read directly (L-010) -> 0
+  test_cmd: node --test test/*.test.js
+    tests 102 | pass 102 | fail 0 | duration_ms 1384.948646   exit status -> 0   PASS
+  -> PLAN gate SATISFIED. phase advances PLAN -> BUILD.
+
+MUST-HAVE 6 ("playbook lessons applied") is covered by PROCESS, not by a backlog item, and
+is recorded that way rather than padded with a filler item - inventing an item to tick a
+checkbox is precisely the churn this SPEC bans. L-003/L-008/L-016/L-023/L-024 reach agents
+through runfile.playbook.directives.prompt_lines; L-010 and L-024 are conductor verify
+practice and were both exercised this cycle (exit statuses via spawnSync; the KI-7 band
+discriminator instead of a remembered reference value).
+
+ROUTING DEVIATION, recorded so the retro can check it: playbook L-026 recommends routing
+the correctness core to fable even when small. T-102 and T-103 both touch src/astro.js but
+NEITHER changes the Meeus math - T-102 adds a guard clause on a return value, T-103 adds a
+declared constant plus a sampled test whose domain the conductor already measured. Neither
+was flagged route_class:"core"; both route sonnet. Under trickle posture (allow_premium_pct
+0, opus_used_pct 95) fable here would buy nothing.
+
+WAKEUP MECHANISM: ScheduleWakeup NOT called - this is a VPS headless cycle and
+swarm-pacer.timer (verified active) is the firing mechanism; it reads
+heartbeat.next_wakeup_at, which is written above as now+90. cycle.md step 9: the conductor
+writes next_wakeup_at identically either way, only the reader differs.
+
+outcome: PLAN complete, 8-item backlog covering every must-have, 0 churn items, suite still
+102/102 green. Next cycle: BUILD, k=1 (gear-1 crawl), starting T-101.
+
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786722585,"next_wakeup_at":1786722675,"pid":100338,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786721555,"last_real_probe_ts":0,"probe_failures":1,"probe_note":"bin/swarm-budget.sh is NOT allowlisted for this headless session (KI-2, recurring) - permission denied, counted as one probe failure. Gear is NOT a clock-cruise guess: it is evidence-backed from runs/allocator.json (source=probe) showing posture=trickle, allow_premium_pct=0, opus_used_pct=95, weekly_used_pct=65 at week_elapsed_pct=63. Crawl is the conservative direction and matches the allocator brief's 'haiku-priced work types'.","weekly":{"ok":true,"weekly_used_pct":65.0,"opus_used_pct":95,"week_elapsed_pct":63.42,"weekly_heat":1.03,"opus_heat":1.5,"ceiling":1,"promote_blocked":true}},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":1,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

@@ -2,8 +2,8 @@
   "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
-  "phase": "PLAN",
-  "cycle": 0,
+  "phase": "BUILD",
+  "cycle": 1,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -52,6 +52,11 @@
       "cycle": 0,
       "what": "astronomia v4.2.0 (MIT, a genuine Meeus port in JS) found by the scout and deliberately NOT adopted as a cross-check oracle",
       "why": "zero runtime dependencies is a must-have of the original spec. Even as a devDependency it would weaken the zero-dep story for a convenience the existing hand-computed Meeus 49.a/49.b fixtures already provide."
+    },
+    {
+      "cycle": 1,
+      "what": "T-102 and T-103 routed to sonnet, NOT flagged route_class:'core' despite playbook L-026 (route the correctness core to fable)",
+      "why": "both touch src/astro.js, but neither changes the Meeus math: T-102 adds a guard clause on a return value and T-103 adds a declared constant plus a sampled test whose domain the conductor already measured. L-026 earned its keep on items requiring astronomy judgement; spending fable here under trickle posture (allow_premium_pct=0, opus_used_pct=95) would buy nothing. Recorded so the retro can check whether this call held."
     }
   ],
   "known_issues": [
@@ -107,9 +112,9 @@
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "n": 0,
-    "work": "improvement-run kickoff: stress-test, prior-art sweep (closed KI-1), taste judge, spec lock",
-    "outcome": "spec written, baseline re-verified 102/102 green by the conductor",
+    "n": 1,
+    "work": "inline PLAN - named-surface backlog, 8 items",
+    "outcome": "backlog covers every SPEC must-have; all 5 untested-surface claims conductor-verified by independent grep",
     "commit": ""
   },
   "run_label": "improvement-2026-08-14",
