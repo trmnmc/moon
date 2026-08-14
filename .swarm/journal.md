@@ -393,3 +393,113 @@ runfile-mirror:
 ```json
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786722585,"next_wakeup_at":1786722675,"pid":100338,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786721555,"last_real_probe_ts":0,"probe_failures":1,"probe_note":"bin/swarm-budget.sh is NOT allowlisted for this headless session (KI-2, recurring) - permission denied, counted as one probe failure. Gear is NOT a clock-cruise guess: it is evidence-backed from runs/allocator.json (source=probe) showing posture=trickle, allow_premium_pct=0, opus_used_pct=95, weekly_used_pct=65 at week_elapsed_pct=63. Crawl is the conservative direction and matches the allocator brief's 'haiku-priced work types'.","weekly":{"ok":true,"weekly_used_pct":65.0,"opus_used_pct":95,"week_elapsed_pct":63.42,"weekly_heat":1.03,"opus_heat":1.5,"ceiling":1,"promote_blocked":true}},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":1,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 2 | 2026-08-14T16:00:29+00:00 | moon | BUILD
+
+clock: now=1786723005, stop_at=2026-08-15T15:32:27+00:00 (~23.6 h remaining). Not near
+WRAP_UP. heartbeat.limp=false. PID walk resolved the conductor to 104001
+(`claude -p /swarm cycle ... --add-dir /opt/targets/moon`), replacing the stale 100338.
+
+budget: `bin/swarm-budget.sh` PERMISSION-DENIED AGAIN — KI-2 recurring for the third
+consecutive cycle. probe_failures 1 -> 2. Gear is NOT a clock-cruise guess: evidence comes
+from runs/allocator.json (source=probe, refreshed 15:55:45, i.e. 30 s before this cycle
+opened): posture=trickle, allow_premium_pct=0, opus_used_pct=96, weekly_used_pct=66 at
+week_elapsed_pct=63.65, dial=0.30. opus_heat 96/63.65 = 1.51, weekly_heat 66/63.65 = 1.04
+-> governor ceiling 1, promote blocked. guest mode clamps 1-3. GEAR 1 CRAWL, wave cap 1,
+demote=true. Hysteresis: previous applied gear was also 1, so no step.
+
+orient: tree CLEAN at entry (no crashed-cycle salvage needed). control channel polled via
+`swarm-notify.sh poll` -> no output; runs/control.json pending=[] applied=[] inject=[] —
+nothing to apply, nothing to triage. craft pack built clean, `degraded: []`.
+
+work: build-wave, effective k = min(k_current 3, gear cap 1) = 1 -> T-101 alone
+("Propagate the KI-1 prior-art finding into README and REPORT", docs/S/haiku). Dispatched
+as a DIRECT Agent call, not the Workflow tool — Workflow is review-gated in a `-p` session
+(documented failure-table fallback); a single agent needs no worktree isolation. Builder
+prompt carried the docs craft pack and the playbook builder line (sole-committer).
+
+### VERIFICATION EVIDENCE — T-101 (gate: FAIL)
+
+Check 1 — diff scope confined to the two permitted files:
+
+```
+ M README.md
+ M REPORT.md
+ README.md | 5 +++++
+ REPORT.md | 2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+```
+
+PASS. No stray writes to src/, test/, bin/, package.json, or .swarm/.
+
+Check 2 — full test_cmd, run by the conductor, not reported by the agent:
+
+```
+node --test test/*.test.js
+ℹ tests 102 | ℹ pass 102 | ℹ fail 0 | ℹ cancelled 0 | ℹ skipped 0 | ℹ todo 0
+ℹ duration_ms 1234.763102
+```
+
+PASS (expected — docs-only change; recorded so a later regression has a baseline).
+
+Check 3 — SOURCE-TRACING every factual claim the builder added. This is the check the
+item actually turned on, and it FAILED. The README note asserted the naive modulo gives
+"**4-hour phase errors**". Conductor grep across README.md, REPORT.md, .swarm/SPEC.md and
+src/astro.js:
+
+```
+/opt/targets/moon/README.md:55:correction terms, giving 4-hour phase errors. Its "hemisphere support" swaps emoji
+```
+
+ONE hit — the line the builder had just written. The string appears nowhere else in the
+repo. SPEC.md's prior-art bullet (lines 99-106, re-read verbatim) states "zero periodic
+correction terms" and never quantifies the resulting error. The number was invented.
+
+It is also probably WRONG, in the direction that hurts us: Meeus ch.49's single largest
+periodic term for the new/full instants is ~0.40720 d ~= 9.8 h and the terms sum, so the
+true divergence is well past 4 h. A fabricated understatement silently WEAKENS this
+project's own differentiation claim while being unverifiable by any reader.
+
+GATE FAIL. Per cycle.md step 6.4 the working tree was reverted
+(`git checkout -- README.md REPORT.md`), re-verified clean, and the "4-hour" string
+confirmed gone. T-101 -> status todo, attempts 0 -> 1, model escalated haiku -> sonnet.
+
+SECOND DEFECT, recorded but NOT the gate-failer: the builder wrote the string "closed"
+into the REPORT.md Known Issues table's **severity** column (whose other values are
+medium/low), conflating status with severity and dropping KI-1's real severity (state.json:
+low). Flagged in the T-101 notes and pointed at T-108, which owns the table reconciliation.
+A resolved-status convention is a real design question for that item; a builder must not
+invent one unilaterally mid-row.
+
+Nothing was hand-fixed by the conductor. Fixing the builder's output and then passing my
+own gate on it is self-dealing — the item goes back to todo and the next attempt earns it.
+
+decisions recorded this cycle (both in state.json): (1) a ladder escalation earned by a
+FAILED gate outranks the gear-1 docs demotion rule — T-101 retries at sonnet and must not
+be pushed back to haiku, because that is the exact tier that just fabricated; evidence
+about this item beats a budget posture. (2) a standing no-unsourced-numbers gate check now
+applies to every remaining docs item (T-101 retry, T-108): structural claims are
+verifiable from the repo, magnitudes are not unless computed in-repo and shown.
+
+wave autotune: the wave had a reverted change -> k_current 3 -> 2, wave_streak = 0. (Gear
+cap 1 binds anyway.) counters.consecutive_no_value 0 -> 1, consecutive_failures 0 -> 1.
+Churn breaker not yet triggered (forced work-type switch at 2).
+
+SWARM-side defect for the morning report (hard rule 5 forbids fixing it mid-run): the
+cycle-1 journal header at line 295 reads a literal, unexpanded
+`## cycle 1 | %Y-%m-%dT%H:%M:%S+00:00 | moon | PLAN -> BUILD` — a date format string that
+was never passed through `date`. Cosmetic, but it makes that block's timestamp useless.
+
+WAKEUP MECHANISM: ScheduleWakeup NOT called — VPS headless cycle, swarm-pacer.timer is the
+firing mechanism and reads heartbeat.next_wakeup_at, written below as now+900 (a failed
+cycle, so the post-no-value 900-1800 s band applies rather than the 90 s base).
+
+outcome: NO VERIFIED VALUE. One item attempted, gate-failed on a fabricated fact, reverted.
+Suite still 102/102 green; no regression, no debris. The finding itself is the cycle's
+real product and is now pinned in the backlog so the retry cannot repeat it. Next cycle:
+BUILD, k=1, T-101 retry at sonnet.
+
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786723229,"next_wakeup_at":1786724129,"pid":104001,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786723229,"last_real_probe_ts":0,"probe_failures":2,"probe_note":"bin/swarm-budget.sh permission-denied for the third consecutive cycle (KI-2, recurring). Gear evidence from runs/allocator.json (source=probe, refreshed 30s pre-cycle): posture=trickle, allow_premium_pct=0, opus_used_pct=96, weekly_used_pct=66 at week_elapsed_pct=63.65.","weekly":{"ok":true,"weekly_used_pct":66.0,"opus_used_pct":96,"week_elapsed_pct":63.65,"weekly_heat":1.04,"opus_heat":1.51,"ceiling":1,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":2,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

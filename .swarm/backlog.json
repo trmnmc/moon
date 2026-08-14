@@ -7,7 +7,7 @@
       "priority": 1,
       "value": "H",
       "effort": "S",
-      "model": "haiku",
+      "model": "sonnet",
       "deps": [],
       "files_hint": [
         "README.md",
@@ -15,8 +15,8 @@
       ],
       "acceptance": "README's differentiation claim and REPORT's KI-1 row both state the completed prior-art finding verbatim from SPEC.md (nearest npm package lunarphase-js v2.0.3 is a naive mean-synodic modulo with zero periodic corrections and emoji-only 'hemisphere support', not a CLI; astronomia v4.2.0 is a genuine Meeus port deliberately not adopted as a dependency) in place of the old 'never swept / permission-blocked' language.",
       "packages": [],
-      "attempts": 0,
-      "notes": "PLAN grep (conductor-verified): zero hits for lunarphase-js|astronomia|prior-art in README.md; REPORT.md's KI-1 row still reads 'never swept... permission-blocked', which is now stale. The finding is written out in SPEC.md 'Domain rules' - copy it, do not re-derive it. L-026: never hand-edit captured output.",
+      "attempts": 1,
+      "notes": "PLAN grep (conductor-verified): zero hits for lunarphase-js|astronomia|prior-art in README.md; REPORT.md's KI-1 row still reads 'never swept... permission-blocked', which is now stale. The finding is written out in SPEC.md 'Domain rules' - copy it, do not re-derive it. L-026: never hand-edit captured output.\n\nATTEMPT 1 FAILED THE GATE (cycle 2), reverted. Model escalated haiku->sonnet. Two defects, both must be avoided on the retry:\n(1) GATE-FAILER - FABRICATED MAGNITUDE. The README note asserted the naive modulo gives '4-hour phase errors'. Conductor-verified: the string '4-hour' appears NOWHERE in the repo except the line the builder wrote - not in SPEC.md, not in src/astro.js, not in any prior doc. SPEC's prior-art bullet states 'zero periodic correction terms' and never quantifies the error. It is also probably wrong in the understating direction (Meeus ch.49's single largest periodic term for new/full moon is ~0.40720 d ~= 9.8 h, and the terms sum), so it silently WEAKENS our own differentiation claim while being unverifiable. RULE FOR THE RETRY: state the structural fact (zero periodic corrections vs a full Meeus series) and do NOT quantify the error at all unless the number is computed in-repo and shown.\n(2) SHOULD-FIX - the retry put the string 'closed' in the REPORT.md Known Issues table's SEVERITY column, whose other values are medium/low. That conflates status with severity and drops KI-1's real severity (state.json: low). Keep severity a severity; if a resolved-status convention is needed, T-108 owns the table reconciliation - coordinate, do not invent a convention unilaterally here.\nCONDUCTOR RULING: this escalation to sonnet must SURVIVE the gear-1 docs demotion rule (which would otherwise push docs items sonnet->haiku). The failure mode was fabrication under the cheaper tier; demoting it back would just reproduce the defect.",
       "status": "todo"
     },
     {
