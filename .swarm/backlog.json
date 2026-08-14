@@ -375,6 +375,46 @@
       "attempts": 0,
       "notes": "FOUND BY THE CYCLE-21 LIVE CI RUN, and findable no other way: the yaml is valid, the pins satisfy every static rule the gate applies, and both jobs went green. GitHub's own annotation on run 31846401111 is the entire evidence -- 'Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4' -- raised on both matrix legs. Currently cosmetic (the forced upgrade to Node 24 is why the jobs still pass) but it is a dated warning about a forced fallback, so it is a real expiry, not style. Latest majors confirmed live against the GitHub API this cycle, not remembered: actions/checkout v7.0.1, actions/setup-node v7.0.0 -- a v4->v7 jump across three majors, which is exactly why this is filed for a deliberate pass with a live re-run rather than patched inline at the end of a verification. NOTE the confusable pair of 20s: the DEPRECATED 20 is the actions' own JS runtime, unrelated to this repo's node-version: [20, 22] test matrix, which is pinned by package.json engines>=20 and must NOT be touched while fixing this.\nCYCLE-22 OUTCOME: done. Recomputed at pick time to SONNET, not the haiku recorded at plan time: routing table line 30 puts every build/fix item at sonnet, and the gear-1 demotion rule explicitly never drops build/fix below sonnet. Builder touched only the two `uses:` lines (2 insertions, 2 deletions, 1 file); the [20, 22] test matrix was named as the confusable and left untouched. Verified against GitHub's own execution of the pushed sha (c7b4cf2, run 31847987358), not against the yaml, with the v4 sha as a live control.",
       "status": "done"
+    },
+    {
+      "id": "T-119",
+      "title": "REPORT's Quick Start annotates the test command '# 106 tests'; HEAD runs 114",
+      "kind": "fix",
+      "priority": 2,
+      "value": "M",
+      "effort": "S",
+      "model": "sonnet",
+      "deps": [],
+      "files_hint": [
+        "REPORT.md"
+      ],
+      "acceptance": "REPORT.md:136's annotation states the count the suite actually reports at HEAD. REPORT.md:5's '102/102 tests green' is OUT of scope and must not change -- it describes the original v0.1.0 run, where 102 was correct, and is true in its own frame.",
+      "packages": [],
+      "attempts": 0,
+      "status": "done",
+      "notes": "FOUND BY the run's review-fix pass, cycle 23 (stage 1, sonnet reviewer), reproduced by the conductor at stage 2, fixed at stage 3. This is the false-doc-claim family the run has been closing all night.",
+      "opened_cycle": 23,
+      "closed_cycle": 23
+    },
+    {
+      "id": "T-120",
+      "title": "KI-7 sampled test's comment miscomputes its own stride gloss (~6 hours short, actually ~9)",
+      "kind": "fix",
+      "priority": 3,
+      "value": "L",
+      "effort": "S",
+      "model": "sonnet",
+      "deps": [],
+      "files_hint": [
+        "test/astro.test.js"
+      ],
+      "acceptance": "The comment above the KI-7 sampled test states a shortfall that is arithmetically correct against the convention the same sentence names (183 days). Comment-only: SAMPLE_COUNT, the stride computation, and every assertion unchanged; suite still 114/114.",
+      "packages": [],
+      "attempts": 0,
+      "status": "done",
+      "notes": "FIFTH instance of the 'doc-comment gloss wider than the code' family promoted to a standing pattern at cycle 16 (T-110, T-112, T-105, T-113 were the first four). Found by the review-fix pass at cycle 23.",
+      "opened_cycle": 23,
+      "closed_cycle": 23
     }
   ]
 }

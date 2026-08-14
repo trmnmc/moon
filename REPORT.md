@@ -133,7 +133,7 @@ node bin/moon.js              # single line + next full moon
 node bin/moon.js --compact    # exactly one line, for a shell prompt
 node bin/moon.js --block      # framed readout
 node bin/moon.js --json       # structured output
-node --test test/*.test.js    # 106 tests
+node --test test/*.test.js    # 114 tests
 ```
 
 No install step, no dependencies, no network access at any point.

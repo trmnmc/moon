@@ -392,7 +392,7 @@ test('age never exceeds the true maximum lunation length across 60 years', () =>
 
 test('KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)', () => {
   const { startMs, endMs } = PHASE_ILLUMINATION_CONSISTENCY_DOMAIN;
-  // 4000 samples over ~2000 years is a stride of ~6 hours short of 6 months
+  // 4000 samples over ~2000 years is a stride of ~9 hours short of 6 months
   // (~183 days) -- dense enough to hit every phase name many times over,
   // sparse enough (4000 computeMoon calls, pure arithmetic) to stay well
   // under a second, alongside the rest of this ~1-second suite.
