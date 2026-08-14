@@ -124,7 +124,7 @@
     "n": 3,
     "work": "build-wave k=1 (gear-1 crawl): T-102 KI-6 out-of-range guard, sonnet",
     "outcome": "1 VERIFIED. Gate passed six conductor-run checks incl. a non-vacuity replay against pre-fix HEAD. 102 -> 104 green. KI-6 resolved.",
-    "commit": ""
+    "commit": "3da2ef4"
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [
