@@ -1,0 +1,14 @@
+A. full suite: exit status = 0 | tests 105 pass 105 fail 0
+[PASS] A full suite green -- tests 105 pass 105 fail 0
+[PASS] A new pin test present and ran
+B. conductor-derived disc glyph set: U+2588 U+258C U+258F U+2590 U+2591 U+2592 U+2593 U+2595 U+25D6 U+25D7
+B. builder-claimed set:             U+2588 U+258C U+258F U+2590 U+2591 U+2592 U+2593 U+2595 U+25D6 U+25D7
+[PASS] B independent derivation matches the claim
+[PASS] B round-limb glyphs really are drawn (the doc gap is real)
+[PASS] C pin FAILS under mutation: add an undocumented Block Element (shade ramp ▒ -> ▚) -- exit=1; failing tests: renderBlock: exact output for a waxing crescent, both hemispheres | renderBlock: exact output for a waning gibbous, both hemispheres | renderBlock: a hair-thin crescent stays continuous down the limb | the whole cycle renders without throwing and never widens the disc | KI-5 pin: disc glyph set matches the documented East Asian Width partition
+[PASS] C pin FAILS under mutation: drop a documented glyph (shade ramp ▓ -> ▒, collapsing the ramp) -- exit=1; failing tests: renderLine: exact output across the full cycle, northern hemisphere | renderLine: exact output across the full cycle, southern hemisphere | renderBlock: exact output for a waxing crescent, both hemispheres | renderBlock: exact output for a waning gibbous, both hemispheres | KI-5 pin: disc glyph set matches the documented East Asian Width partition
+[PASS] C pin FAILS under mutation: change the undocumented round limb (◗ -> ◕) -- exit=1; failing tests: renderLine: exact output across the full cycle, northern hemisphere | renderLine: exact output across the full cycle, southern hemisphere | renderLine: a waxing moon is lit on the right in the north, the left in the south | renderLine emits only geometric block glyphs, digits, letters and spaces | renderLine disc is always exactly five cells | the whole cycle renders without throwing and never widens the disc | KI-5 pin: disc glyph set matches the documented East Asian Width partition
+[PASS] C src/render.js restored byte-identical
+[PASS] D suite green after mutation harness -- tests 105 pass 105 fail 0
+
+GATE: PASS

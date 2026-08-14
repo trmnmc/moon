@@ -73,8 +73,8 @@
       "acceptance": "A test inspects the exact glyph set renderLine/renderBlock draw for the disc across a representative sweep of phases and confirms it matches the documented East Asian Width partition (U+2591, U+2590 Neutral; U+2592, U+2593, U+2588, U+258C, U+258F, U+2595 Ambiguous), so a future glyph change fails the gate instead of drifting silently from the documented widths.",
       "packages": [],
       "attempts": 0,
-      "notes": "PLAN grep (conductor-verified): zero hits for east asian|Ambiguous|2591|2592|258C across test/. KI-5's measured widths exist ONLY as prose in README/REPORT. This item PINS the defect; it does NOT fix it - the glyph-set redesign stays deferred by budget decision.",
-      "status": "todo"
+      "notes": "PLAN grep (conductor-verified): zero hits for east asian|Ambiguous|2591|2592|258C across test/. KI-5's measured widths exist ONLY as prose in README/REPORT. This item PINS the defect; it does NOT fix it - the glyph-set redesign stays deferred by budget decision.\n\nGATE PASS cycle 5. Conductor-authored gate (.swarm/runs/verify-gate-T-104.mjs, written at verification time): independent conductor-side derivation of the disc glyph set reproduced the builder's 10 codepoints EXACTLY, and the pin FAILS under all three glyph mutations (add an undocumented Block Element, drop a documented one, change the round limb) - so it is a real pin, not a tautology. Evidence: .swarm/runs/cycle-005-verify-T-104.txt",
+      "status": "done"
     },
     {
       "id": "T-105",
@@ -151,6 +151,24 @@
       "packages": [],
       "attempts": 0,
       "notes": "Not a test item. Runs LAST by deps - once T-101..T-104 land, REPORT's current statements become false, which is the exact doc-truth failure mode SPEC must-have 6 and L-026 warn about. Also record KI-3 as resolved (remote + gh auth verified at kickoff).\n\nHANDOFF FROM T-101 (cycle 4), three things this item now owns:\n(1) RESOLVED-STATUS CONVENTION. KI-1 and KI-6 are both in state.json resolved_issues, but REPORT.md's Known Issues table still LISTS them as rows (KI-1's row now carries the completed finding at severity low; KI-6's row still reads as open). T-101 was explicitly forbidden from inventing a convention in the severity column - that column must stay severities only. THIS item decides the convention (a separate status column, a struck row, a Resolved section - conductor's call) and applies it to KI-1, KI-3, KI-6, and KI-7 once bounded. Do NOT put status strings in the severity column.\n(2) The table header still says 'Known issues (7)'. If rows move out, the count moves with them.\n(3) RESIDUAL flagged by the T-101 gate, not fixed there because it was outside that item's acceptance: README.md line ~27 opens 'Most terminal moon phase tools compute the phase with a naive synodic-month modulo, which drifts by hours to days.' The sweep substantiates that for ONE package (the nearest), not for 'most', and 'hours to days' is an unsourced pre-existing magnitude. The standing no-unsourced-numbers rule says a quantity may appear only in the frame the repo already computes it in. Either source it, scope it to the one package the sweep actually examined, or drop the magnitude.",
+      "status": "todo"
+    },
+    {
+      "id": "T-109",
+      "title": "README's KI-5 glyph list omits the round-limb glyphs it actually draws",
+      "kind": "docs",
+      "priority": 4,
+      "value": "M",
+      "effort": "S",
+      "model": "haiku",
+      "deps": [],
+      "files_hint": [
+        "README.md"
+      ],
+      "acceptance": "README.md's 'Known limitation: terminal glyph width' section accounts for U+25D6 and U+25D7, the round-limb glyphs the disc actually draws for a fully-lit outer cell - either by adding them to the width partition with their correct East Asian Width class, or by explicitly scoping the section's claim to the Block Element shade ramp. No unsourced magnitude may be introduced (standing docs frame rule, cycle 2/4).",
+      "packages": [],
+      "attempts": 0,
+      "notes": "FOUND BY THE T-104 BUILD, cycle 5, and independently CONDUCTOR-CONFIRMED by the gate: the disc's observed glyph alphabet is 10 codepoints - the 8 Block Elements the README lists, PLUS U+25D6 and U+25D7 (ROUND_LIMB in src/render.js, drawn for a fully-lit outer cell). The README's width caveat names only the 8. The builder correctly refused to widen the documented table to make its test pass and pinned the two separately in UNDOCUMENTED_DISC_GLYPHS instead, so the test tells the truth about what is and is not covered; this item closes the doc side.\nOPEN QUESTION for whoever takes it: this run has NOT established the EAW class of U+25D6/U+25D7 (both are in fact Ambiguous per Unicode, but that is not machine-checked here and must not be asserted from memory - no EAW table may ship, the zero-dep non-goal forbids it). Scoping the section's claim to the Block Element ramp is the honest S-effort option; classifying the two glyphs requires a source. Do not state a class this repo cannot check.",
       "status": "todo"
     }
   ]

@@ -550,3 +550,114 @@ test('the whole cycle renders without throwing and never widens the disc', () =>
     }
   }
 });
+
+// ---------------------------------------------------------------------------
+// KI-5 pin — disc glyphs vs. the documented East Asian Width partition
+//
+// README.md, "Known limitation: terminal glyph width" (~line 188-196), makes
+// a prose claim about the disc's Block Element glyphs:
+//   Neutral:   U+2591 ░   U+2590 ▐
+//   Ambiguous: U+2592 ▒   U+2593 ▓   U+2588 █   U+258C ▌   U+258F ▏   U+2595 ▕
+// That split across two East Asian Width classes is KI-5: in a terminal that
+// renders Ambiguous as double-width, the disc is 5-9 columns instead of a
+// constant 5. The glyph-set redesign that would fix it is deliberately
+// deferred — this block does not fix it, it pins it: no EAW table ships as a
+// dependency, so this map IS the machine-checkable copy of the README's
+// claim, and the test below derives the glyph set the disc actually draws
+// (never hand-typed against itself) and checks it against this table, so an
+// unannounced glyph change fails the gate instead of drifting silently.
+// ---------------------------------------------------------------------------
+
+/** The Block Element partition documented in README.md, transcribed verbatim. */
+const DOCUMENTED_EAW = new Map([
+  [0x2591, 'Neutral'], // ░
+  [0x2590, 'Neutral'], // ▐
+  [0x2592, 'Ambiguous'], // ▒
+  [0x2593, 'Ambiguous'], // ▓
+  [0x2588, 'Ambiguous'], // █
+  [0x258c, 'Ambiguous'], // ▌
+  [0x258f, 'Ambiguous'], // ▏
+  [0x2595, 'Ambiguous'], // ▕
+]);
+
+/**
+ * The disc is also observed (below) to draw two round-limb glyphs —
+ * U+25D6/U+25D7, Geometric Shapes, not Block Elements — for a fully-lit
+ * outer cell. The README's width caveat never mentions them: it is scoped to
+ * the Block Element shade ramp and does not claim completeness over every
+ * glyph the disc can emit. That is a real documentation gap, not a bug in
+ * this test. They are pinned separately below, apart from the documented
+ * partition, so this test tells the truth about what is and is not covered.
+ */
+const UNDOCUMENTED_DISC_GLYPHS = new Set([0x25d6, 0x25d7]); // ◖ ◗
+
+/**
+ * The disc-region characters of a renderBlock output: the art rows only,
+ * frame and padding stripped. Art rows run from row 1 (under the top frame)
+ * up to, but not including, the first row whose interior is nothing but
+ * spaces — the blank separator ahead of the phase/illuminated/hemisphere
+ * detail rows. Padding spaces and off-disc background cells are both just
+ * ' ', so neither is a glyph; only non-space characters in that band belong
+ * to the disc. Box-drawing frame characters (BOX.h/v/tl/tr/bl/br) are
+ * excluded by construction: the loop never looks past column 0 or before the
+ * last column of each row, and stops before the label rows entirely.
+ */
+function blockDiscChars(block) {
+  const rows = block.split('\n');
+  const out = [];
+  for (let i = 1; i < rows.length; i++) {
+    const inner = chars(rows[i]).slice(1, -1); // strip the leading/trailing '│'
+    if (inner.every((ch) => ch === ' ')) break; // blank separator: art is over
+    for (const ch of inner) if (ch !== ' ') out.push(ch);
+  }
+  return out;
+}
+
+test('KI-5 pin: disc glyph set matches the documented East Asian Width partition', () => {
+  // Representative sweep: the named cycle plus a finer illumination sweep,
+  // both hemispheres, both renderLine and renderBlock.
+  const sweep = [...CYCLE];
+  for (let f = 0; f <= 1.0001; f += 1 / 96) {
+    const k = (1 - Math.cos(2 * Math.PI * f)) / 2;
+    sweep.push(state(f < 0.5 ? 'waxing gibbous' : 'waning gibbous', Math.min(f, 1), k));
+  }
+
+  const observed = new Map(); // codepoint -> glyph, as actually drawn
+  for (const moon of sweep) {
+    for (const hemisphere of ['north', 'south']) {
+      for (const ch of disc(renderLine(moon, hemisphere))) observed.set(ch.codePointAt(0), ch);
+      for (const ch of blockDiscChars(renderBlock(moon, hemisphere))) observed.set(ch.codePointAt(0), ch);
+    }
+  }
+
+  // Split what was actually drawn into Block Elements (the family the
+  // README's caveat is about) and everything else.
+  const observedBlockElements = [...observed.keys()].filter((cp) => cp >= 0x2580 && cp <= 0x259f);
+  const observedOther = [...observed.keys()].filter((cp) => !(cp >= 0x2580 && cp <= 0x259f));
+
+  const byCp = (a, b) => a - b;
+  const hex = (cps) => cps.map((cp) => `U+${cp.toString(16).toUpperCase()}`);
+
+  // The Block Element glyphs the disc draws must be EXACTLY the documented
+  // partition: no fewer (a stale caveat about a glyph the code stopped
+  // drawing) and no more (an undocumented glyph silently joined the mix).
+  assert.deepEqual(
+    observedBlockElements.sort(byCp),
+    [...DOCUMENTED_EAW.keys()].sort(byCp),
+    `disc Block Element glyphs drifted from the documented partition: observed ${JSON.stringify(hex(observedBlockElements))}`,
+  );
+
+  // The documented glyphs really do split across two EAW classes — the
+  // width hazard the README describes is real, not a typo.
+  assert.deepEqual([...new Set(DOCUMENTED_EAW.values())].sort(), ['Ambiguous', 'Neutral']);
+
+  // Pin the undocumented round-limb glyphs too, kept apart from the table
+  // above: if this ever fails, either they were removed (revisit this
+  // comment and UNDOCUMENTED_DISC_GLYPHS) or some other new glyph joined the
+  // disc outside the documented partition (a fresh doc gap to report).
+  assert.deepEqual(
+    observedOther.sort(byCp),
+    [...UNDOCUMENTED_DISC_GLYPHS].sort(byCp),
+    `undocumented disc glyphs changed: observed ${JSON.stringify(hex(observedOther))}, expected ${JSON.stringify(hex([...UNDOCUMENTED_DISC_GLYPHS]))}`,
+  );
+});

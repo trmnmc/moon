@@ -897,3 +897,170 @@ permission-denied regardless (KI-2).
 Artifact publish: skipped correctly, and not counted as a failure — the Artifact tool is
 absent in this headless VPS session, so the local file write IS the publication (caddy
 serves it at the dashboard URL). publish_failures stays 0.
+
+## cycle 5 | 2026-08-14T17:00:26+00:00 | moon | BUILD
+
+**Clock.** now=1786726284 at open. stop_at 2026-08-15T15:32:27+00:00 is ~46.6 h out —
+no WRAP_UP pressure, no admission-control squeeze; a 2700 s build-wave budget fits with
+enormous margin. heartbeat.limp false. PID 110026 (`claude -p /swarm cycle`), captured by
+walking up from the tool shell; the `$$`-based walk in cycle.md step 0 is blocked by this
+host's bash hook ("Contains simple_expansion"), so the PID came from `pgrep -af claude`
+matching the documented fallback intent.
+
+**Budget.** `bin/swarm-budget.sh` permission-denied AGAIN (KI-2, 6th consecutive cycle) →
+probe_failures 5. `last_real_probe_ts` stays 0, so npx never ran; `PROBE_CMD=false` is
+equally unrunnable, so the clock-cruise fallback is still unavailable. Gear rests on
+`runs/allocator.json`, which the pacer DID refresh since cycle 4 (week_elapsed_pct moved
+64.02 → 64.2, source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0,
+opus_used_pct=96, weekly_used_pct=67.0, dial 0.30. Guest mode clamps to gears 1–3 and the
+weekly governor's ceiling is 1 → **gear 1, k_cap 1, demote true, promote blocked**.
+Over-determined: the same answer with or without a burn probe. Evidence, not a guess.
+
+**Control channel.** `bin/swarm-notify.sh poll` is permission-denied (KI-2) — non-fatal per
+cycle.md step 2, so file-sourced only. `runs/control.json`: `pending: []`, `inject: []`.
+Nothing to apply, nothing to triage, no ack due.
+
+**Orient.** Tree clean at open (no crashed-cycle salvage needed). HEAD 533e7cd. Baseline
+`node --test test/*.test.js` → 104/104, matching state.json's recorded count exactly.
+
+**Step 3 — cycle 5 is a `cycle % 5 == 0` cycle**, so the full SPEC.md re-read ran, not just
+the digest restatement. Backlog hygiene: 9 items, all live, no duplicates, none stale, well
+under the ~30 cap — nothing dropped or reprioritised. Re-anchored: the definition of done is
+KI-1/6/7 resolved-or-bounded with machine-checked assertions, KI-5 **pinned** by a measuring
+test, every added test traceable to a named untested surface, docs accurate about
+verified-vs-deferred, 102 pre-existing tests still green, zero new deps.
+
+**Pick — T-104** (S, test, sonnet), k=1 = min(k_current 3, gear cap 1, hard max 5).
+
+Why T-104 over the alternatives, recorded because backlog priority did NOT settle it:
+- **T-103 (priority 3, H-value) was NOT eligible.** It is M-effort, and gear 1's work-choice
+  rule permits haiku-priced work plus **S-effort sonnet builds only**. Deferred by posture,
+  not by value — it stays the top must-have for the first cycle that clears gear 1.
+- **T-108 (priority 8, H-value) is deps-blocked** on T-103 and T-104; wave assembly requires
+  deps done. T-104 landing today advances that dependency.
+- Among the eligible S items (T-104..T-107), **T-104 is the only one that closes a NAMED
+  must-have box** ("KI-5 pinned by test"). T-105/106/107 all serve the broader test-hardening
+  box, which is already partly covered. At k=1 a cycle buys exactly one item, so it should
+  buy the one that checks a box.
+
+**Routing.** T-104 stayed at **sonnet**. The gear-1 demotion rule drops non-judgment items one
+rung, but its sonnet→haiku step is scoped to docs/polish items; a test-authoring item is
+build-class work, and build/fix never drops below sonnet. Consistent with gear 1's own
+"S-effort sonnet builds only" allowance.
+
+**Dispatch.** Direct `Agent` call, not `Workflow` — this is a `-p` headless session where the
+Workflow tool is review-gated, which is the documented failure-table fallback. k=1, so the
+disjoint-file-scope requirement for concurrent agents is vacuous. Builder scope was hard-limited
+to `test/render.test.js`; `src/`, `README.md`, and all manifests were declared read-only to it.
+Playbook builder line spliced in ("the conductor is the SOLE committer"). Craft pack ran clean
+(`bin/swarm-craft.mjs` succeeded — no `degraded` entries); the item is not UI-flagged (its only
+file is a `.test.js`), so craft.ui was carried but not emphasised.
+
+The brief deliberately withheld any verify command (hard rule 2) and instead required the test
+to *derive* the glyph set from real render output rather than assert a hand-typed list against
+itself — the L-024 discriminator shape. It also pre-authorised the honest failure mode: if the
+observed set disagreed with the README, the builder was told to assert the measured truth and
+report the gap, explicitly **not** to widen the table or edit the README to force a pass.
+
+### VERIFICATION EVIDENCE — T-104 (conductor-authored gate, written at verification time)
+
+Gate script: `.swarm/runs/verify-gate-T-104.mjs` (committed this cycle). The builder never saw
+it. Full output: `.swarm/runs/cycle-005-verify-T-104.txt`.
+
+```
+A. full suite: exit status = 0 | tests 105 pass 105 fail 0
+[PASS] A full suite green -- tests 105 pass 105 fail 0
+[PASS] A new pin test present and ran
+B. conductor-derived disc glyph set: U+2588 U+258C U+258F U+2590 U+2591 U+2592 U+2593 U+2595 U+25D6 U+25D7
+B. builder-claimed set:              U+2588 U+258C U+258F U+2590 U+2591 U+2592 U+2593 U+2595 U+25D6 U+25D7
+[PASS] B independent derivation matches the claim
+[PASS] B round-limb glyphs really are drawn (the doc gap is real)
+[PASS] C pin FAILS under mutation: add an undocumented Block Element (shade ramp ▒ -> ▚)
+[PASS] C pin FAILS under mutation: drop a documented glyph (shade ramp ▓ -> ▒)
+[PASS] C pin FAILS under mutation: change the undocumented round limb (◗ -> ◕)
+[PASS] C src/render.js restored byte-identical
+[PASS] D suite green after mutation harness -- tests 105 pass 105 fail 0
+GATE: PASS
+```
+
+What each check actually establishes:
+- **A** — the suite is green and the new test genuinely executed. Exit status read from
+  `spawnSync(...).status`, never through a shell pipe (L-010). The TAP reporter is pinned
+  explicitly with `--test-reporter=tap`: Node's default reporter varies by TTY, and a gate that
+  parses whichever format it happens to receive is not a gate.
+- **B** — the conductor re-derived the disc alphabet with a *different* extraction from the
+  builder's (strip spaces + box-drawing from the whole render and filter to ≥ U+2000, versus the
+  builder's row-band walk), over a 721-step sweep in both hemispheres and both render forms. Same
+  10 codepoints, exactly. So the builder's `blockDiscChars` helper is not mis-scoped — it is
+  neither swallowing frame characters nor missing disc cells.
+- **C** — the non-vacuity check, and the one that matters. A pin that passes no matter what the
+  glyphs are is worthless. Three mutations were applied to `src/render.js` one at a time; the new
+  test failed in all three. `git status` after the harness shows `src/render.js` unmodified and
+  the gate re-read it byte-identical.
+
+**Scope check:** `git diff --stat` → `test/render.test.js | 111 ++++`, **111 insertions, 0
+deletions**. No existing test was weakened, deleted, or relaxed to accommodate the new one — the
+gate is not open because it was widened.
+
+**A mutation I had to correct, recorded because it is the interesting part.** My first drop-probe
+mutated `HAIRLINE.right` ▕ → ▏ and the pin did *not* fail, which initially read as a hole in the
+test. It is not: `MIRROR` swaps ▏↔▕, so the southern-hemisphere render puts ▕ straight back into
+the observed set and the alphabet is genuinely unchanged. The defective artefact was my probe, not
+the item's test. Replaced with a shade-ramp collapse (▓ → ▒, both mirror-symmetric), which really
+does remove a codepoint — and the pin failed as required. Two earlier gate runs also failed on my
+own bugs (a wrong MoonState fixture — `phaseFraction`/`illuminated` instead of
+`cycleFraction`/`illumination` — and TAP-vs-spec reporter parsing). Logged so the retro reads
+these as conductor-side gate defects, not as builder attempts: **T-104's `attempts` counter stays
+0 and was never incremented.**
+
+### Honest limits on this evidence
+
+- The test pins the README's East Asian Width classification **self-consistently**; it does not
+  independently verify that the classification is *correct* per Unicode. That claim was measured
+  at cycle 1 and is inherited here, not re-established. No EAW table can ship (zero-dep non-goal),
+  so an in-repo check of the classes themselves is not available at this budget.
+- KI-5 remains **unfixed and deliberately deferred**. This cycle converted a prose-only caveat into
+  a machine-checked one; the disc is still 5–9 columns wide in ambiguous-as-double terminals.
+- KI-4 (terminal font/width variance needs a human look) is untouched and still requires a human.
+- **collision-scan gate: not applicable.** `bin/collision-scan.mjs` targets browser projects built
+  from classic non-module scripts; moon is a Node CLI with no browser surface. Reported as
+  not-run, never as passed.
+- **qa-verify look pass: correctly skipped.** The build-wave post-merge look pass triggers only on
+  user-visible merged files (html/css/client-js/template/static). The sole merged file is
+  `test/render.test.js`. `state.json.qa.last_look_cycle` is therefore unchanged at 1.
+
+### New finding → T-109 (doc gap, conductor-confirmed)
+
+The disc's real glyph alphabet is **10** codepoints: the 8 Block Elements the README's width
+caveat lists, plus **U+25D6 ◖ and U+25D7 ◗** (`ROUND_LIMB`, drawn for a fully-lit outer cell).
+The README section never mentions them. The builder handled this exactly right — it refused to
+widen `DOCUMENTED_EAW` to make its own test pass, and pinned the two separately in
+`UNDOCUMENTED_DISC_GLYPHS` with a comment naming the gap, so the test tells the truth about what
+is and is not covered. Filed as **T-109** (S, docs, haiku) rather than fixed here: it is outside
+T-104's acceptance, and the standing docs frame rule (cycles 2 and 4) applies to it.
+
+T-109 carries an explicit open question: this run has **not** established the EAW class of
+U+25D6/U+25D7. Scoping the README's claim to the Block Element ramp is the honest S-effort close;
+asserting a class for the round-limb glyphs needs a source this repo cannot currently check, and
+the item says so rather than inviting the next builder to fill it in from memory.
+
+### Wave autotune
+
+Wave was **CLEAN** — zero reverted merges, zero failed verifies. `wave_streak` 0 → 1;
+`k_current` stays 3 (bump happens at streak 2). Note the effective wave size this cycle was
+bound by the **gear cap of 1**, not by `k_current`, so the streak is measuring a k=1 wave.
+`consecutive_no_value` reset 1 → 0 by the verified item.
+
+### Step 8 — dashboard + notifications
+
+Local render of `runs/dashboard.html` refreshed (mandatory every cycle; on the VPS the file write
+IS the publication). Notification diff vs the previous render: phase unchanged (BUILD → BUILD), no
+target became stalled, `publish_failures` did not reach 3 → no push due. `bin/swarm-notify.sh` is
+permission-denied regardless (KI-2). Artifact publish skipped correctly and NOT counted as a
+failure: the Artifact tool is absent in this headless VPS session, so `publish_failures` stays 0.
+
+### runfile-mirror
+
+```json
+{"version": 1, "run_label": "improvement-2026-08-14", "run_kind": "improvement", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-15T15:32:27+00:00", "usage_reset_at": "2026-08-14T20:32:35+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "pacing": {"mode": "guest", "dial": 0.3}, "heartbeat": {"ts": 1786726909, "next_wakeup_at": 1786726999, "pid": 110026, "limp": false, "degraded_tiers": []}, "budget": {"source": "allocator", "gear": 1, "gear_target": 1, "ratio": null, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0.0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786726909, "last_real_probe_ts": 0, "probe_failures": 5, "probe_note": "cycle 5: the 30-min re-probe was DUE (last_real_probe_ts=0) and was attempted; bin/swarm-budget.sh permission-denied AGAIN (KI-2, 6th consecutive cycle) -> probe_failures 5. npx never ran, so last_real_probe_ts stays 0; PROBE_CMD=false is equally unrunnable, so the clock-cruise fallback remains unavailable. Gear rests on runs/allocator.json, which the pacer DID refresh since cycle 4 (week_elapsed_pct 64.02 -> 64.2, source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct=67.0, dial 0.30. Guest mode clamps to gears 1-3 and the weekly governor ceiling is 1, so gear 1 is over-determined - the same answer with or without a burn probe. Evidence, not a guess.", "weekly": {"ok": true, "weekly_used_pct": 67.0, "opus_used_pct": 96, "week_elapsed_pct": 64.2, "weekly_heat": 1.05, "opus_heat": 1.5, "ceiling": 1, "promote_blocked": true}}, "playbook": {"mode": "auto", "applied": ["L-003", "L-008", "L-016", "L-023-moon", "L-024-moon", "L-026-repo-atlas"], "vetoed": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "veto_reason": "conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.", "id_collision_warning": "playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.", "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "wrap_up_complete": false, "cycles_since_recycle": 5, "artifact": {"file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
+```
