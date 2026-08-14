@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "BUILD",
-  "cycle": 3,
+  "cycle": 4,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -72,16 +72,19 @@
       "cycle": 3,
       "what": "T-102 (KI-6 fix) built this cycle instead of the priority-1 T-101 docs retry",
       "why": "both are H-value S-effort must-haves, so backlog priority does not settle it and cycle.md step 4 makes value scoring the authority. The tiebreak was gate objectivity after a no-value cycle: T-102's acceptance is checkable by running the module (it throws or it does not), whereas T-101's is source-tracing prose - the same class of check that just failed. At k=1 under gear-1 crawl a cycle buys exactly one item, so it should buy the one most likely to convert to verified value. T-101 stays priority 1 and is next; its attempts counter is untouched by this deferral."
+    },
+    {
+      "cycle": 4,
+      "what": "the cycle-2 gate's STATED reason for failing T-101 is corrected in the record: the ~4-hour figure DOES exist in-repo (README.md:156-157, REPORT.md:34, test/astro.test.js:96). The gate DECISION is upheld unchanged.",
+      "why": "cycle 2 recorded 'the string 4-hour appears NOWHERE in the repo', which was a grep for the hyphenated literal only; the repo carries it in words. Leaving that in the record would have been a false premise sitting in the retro and in the item notes, and worse, a builder retrying the item would grep, find the number, and reasonably conclude the prohibition was mistaken. The real defect is narrower and survives the correction: the figure is one hand-computed datapoint for the 2000-01-06 lunation, shown with its work in README's Accuracy section, and attempt 1 lifted it into a general per-package error claim about lunarphase-js - a package nobody ran. Unsupported generalization, understating besides (largest single ch.49 periodic term ~0.40720 d ~= 9.8 h, and the terms sum). The retry brief was written WITH the correction in it, which is why attempt 2 introduced no magnitude at all instead of arguing with a premise it could disprove."
+    },
+    {
+      "cycle": 4,
+      "what": "the no-unsourced-numbers docs gate is restated as a frame rule, not an existence rule: a quantity may appear only in the frame in which the repo already computes it",
+      "why": "the cycle-2 wording ('do not quantify unless the number is computed in-repo and shown') passes attempt 1's fabrication only because that exact string was absent. It would NOT have caught the same defect written as 'nearly four hours off' - a phrasing the repo does contain, in a different frame. The frame rule catches both: a single-lunation comparison may not be re-used as a general per-package bound. Applied to T-108, which inherits the last docs work of the run."
     }
   ],
   "known_issues": [
-    {
-      "id": "KI-1",
-      "desc": "SWEEP COMPLETED AT IMPROVEMENT-RUN KICKOFF 2026-08-14 (was: never swept, permission-blocked). Finding, grep-verified not README-read: nearest npm package is lunarphase-js v2.0.3 (ISC) whose core is frac((JD-2451550.1)/29.53058770576) - the naive mean-synodic modulo, ZERO periodic corrections (grep meeus|periodic|correction|evection: no hits); its 'hemisphere support' swaps emoji, not mirrored art; no bin field so it is a library, not a CLI. astronomia v4.2.0 (MIT) is a real Meeus port but is a dependency (zero-dep non-goal forbids). GitHub topic/free-text sweep surfaced no competing hemisphere-aware Unicode CLI. Conclusion: the accuracy claim and hemisphere-mirrored ASCII remain differentiated. REMAINING WORK: propagate this finding into README/REPORT - that is a must-have of the improvement run.",
-      "severity": "low",
-      "cycle_found": 0,
-      "sweep_completed_cycle": 0
-    },
     {
       "id": "KI-2",
       "desc": "settings.json allowlist edit denied AGAIN at the improvement-run kickoff 2026-08-14 (recurring, same as the original run). permissions.additionalDirectories is still [] and bin/swarm-budget.sh + bin/swarm-playbook.sh are not allowlisted, so the budget probe and playbook parser are both unrunnable from a headless conductor and were worked around (allocator.json for gear evidence; direct file read for the playbook). Headless relaunches must keep passing --add-dir explicitly. SWARM-side tooling gap, not a target defect - hard rule 5 forbids fixing it from inside a run.",
@@ -116,18 +119,25 @@
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
-    "k_current": 2,
-    "wave_streak": 1,
+    "k_current": 3,
+    "wave_streak": 0,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "n": 3,
-    "work": "build-wave k=1 (gear-1 crawl): T-102 KI-6 out-of-range guard, sonnet",
-    "outcome": "1 VERIFIED. Gate passed six conductor-run checks incl. a non-vacuity replay against pre-fix HEAD. 102 -> 104 green. KI-6 resolved.",
-    "commit": "3da2ef4"
+    "n": 4,
+    "work": "build-wave k=1 (gear-1 crawl): T-101 retry at sonnet - propagate the KI-1 prior-art finding into README + REPORT",
+    "outcome": "1 VERIFIED. Gate passed seven conductor-run checks; zero magnitudes introduced (every numeric token on an added line adjudicated), severity column kept clean, stale never-swept language gone from both the table row and the hand-off section. 104/104 green. KI-1 resolved.",
+    "commit": "PENDING"
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [
+    {
+      "id": "KI-1",
+      "desc": "npm/pypi/web prior art was never swept (scout permission-blocked at the original run). Sweep completed at the improvement-run kickoff (cycle 0); the remaining half - propagating the finding into README and REPORT - closed at cycle 4.",
+      "resolved_cycle": 4,
+      "evidence": "Finding, grep-verified against source not READMEs: nearest npm package is lunarphase-js v2.0.3 (ISC), core frac((JD-2451550.1)/29.53058770576) - the naive mean-synodic modulo, ZERO periodic corrections (grep meeus|periodic|correction|evection: no hits); its 'hemisphere support' swaps emoji, not mirrored art; no bin field so it is a library, not a CLI. astronomia v4.2.0 (MIT) is a genuine Meeus port but is a dependency (zero-dep non-goal forbids). GitHub topic/free-text sweep surfaced no competing hemisphere-aware Unicode CLI. Propagation verified at cycle 4: README.md:32/35 carry the finding (zero occurrences of either package name before this cycle); REPORT.md's KI-1 row replaced, severity corrected medium->low to match state.json; conductor grep for 'never swept|permission-blocked|may already occupy|Nobody swept' across README.md+REPORT.md returns zero hits, which also caught and closed the duplicate stale claim in REPORT's hand-off section. Version/license strings match SPEC.md verbatim in both directions. No error magnitude introduced - every numeric token on an added line adjudicated (only 'KI-1', a list ordinal, v2.0.3, v4.2.0). Full evidence: .swarm/runs/cycle-004-verify-T-101.txt",
+      "open_thread": "T-108 owns the REPORT table's resolved-status convention. KI-1 is resolved here but its ROW still sits in REPORT's 'Known issues (7)' table (carrying the correct finding at severity low). That is a deliberate handoff, not an oversight: T-101 was forbidden from inventing a status convention in the severity column."
+    },
     {
       "id": "KI-3",
       "desc": "no git remote / gh auth unverified",

@@ -1,0 +1,38 @@
+{
+  "cycle": 4,
+  "work_type": "build-wave",
+  "dispatch": "direct Agent call (Workflow tool is review-gated in headless -p sessions; documented failure-table fallback). k=1, no worktree needed at k=1.",
+  "wave_size_derivation": "min(counters.k_current=2, gear cap=1, hard max 5) = 1",
+  "items": [
+    {
+      "id": "T-101",
+      "title": "Propagate the KI-1 prior-art finding into README and REPORT",
+      "model": "sonnet",
+      "model_note": "attempt 2. Ladder escalation from the cycle-2 gate failure (haiku->sonnet) SURVIVES the gear-1 docs demotion rule (sonnet->haiku for docs), per the cycle-2 conductor ruling: escalation responds to observed evidence about THIS item, demotion is a budget posture, evidence wins. Demoting would have returned the item to the tier that fabricated.",
+      "craft": "docs",
+      "craft_note": "craft pack fetched via bin/swarm-craft.mjs, degraded: []. craft.docs spliced into the builder prompt (docs item). craft.ui not spliced - no .html/.css/.jsx/.tsx/.vue/.svelte in files_hint and no UI surface in the title.",
+      "playbook_prompt_lines": ["The conductor is the SOLE committer - never commit or push yourself"],
+      "agent_id": "a8f8b58d667922ae4",
+      "returned": "done"
+    }
+  ],
+  "agent_return": {
+    "files_changed": ["/opt/targets/moon/README.md", "/opt/targets/moon/REPORT.md"],
+    "readme_change": "In the 'Why this one' section (after the existing naive-modulo/sprite-mirroring critique), added a paragraph naming lunarphase-js as the concrete instance of that critique (mean-synodic modulo, zero periodic corrections, emoji-swap hemisphere support, no bin entry so not a CLI), plus a one-line note that astronomia is a real Meeus port but a disqualifying dependency. Added a parenthetical pointer '(see Accuracy below)' to the following sentence so the existing hand-computed comparison is the pointer target rather than a restated number.",
+    "report_change": "REPORT.md:93 KI-1 row content replaced with the completed prior-art finding, drawn verbatim in substance from .swarm/SPEC.md 'Domain rules'. Severity cell corrected from 'medium' to 'low' (matching .swarm/state.json). Also updated the 'Honest hand-off' item 3 (previously 'Nobody swept npm... One search answers it') to reflect closure and point back to the KI-1 row, since it echoed the same stale never-swept language within the same document.",
+    "magnitudes_written": "none",
+    "severity_cell": "low",
+    "self_check": "no new numbers in a generalized frame; severity column holds only severities; only README.md and REPORT.md touched; suite 104/104 green"
+  },
+  "conductor_gate": {
+    "verdict": "PASS",
+    "checks_run": 7,
+    "evidence_file": ".swarm/runs/cycle-004-verify-T-101.txt",
+    "note": "All seven checks authored at verification time and run by the conductor; the builder saw none of them. Every claim in agent_return above was independently confirmed - notably 'magnitudes_written: none', which was verified by mechanically extracting every numeric token from the added lines rather than by trusting the assertion.",
+    "correction_recorded": "The cycle-2 gate's STATED reason (the string '4-hour' appears nowhere in the repo) was too narrow - the figure exists in words at README.md:156-157, REPORT.md:34 and test/astro.test.js:96. The gate DECISION stands: that figure is a single-lunation hand-computed datapoint, and attempt 1 lifted it into a general per-package claim. Full correction in the evidence file."
+  },
+  "post_merge_checks": {
+    "collision_scan": "NOT APPLICABLE - gated on user-visible browser assets. Zero-dependency stdout CLI, no browser surface, and this cycle's diff is two markdown files. Recorded rather than silently omitted.",
+    "qa_verify_look": "NOT APPLICABLE - same gate. No merged file is served to a browser."
+  }
+}

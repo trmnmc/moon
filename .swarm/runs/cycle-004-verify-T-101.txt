@@ -1,0 +1,177 @@
+VERIFICATION GATE — cycle 4 — T-101 "Propagate the KI-1 prior-art finding into README and REPORT"
+Attempt 2 (attempt 1 failed the gate at cycle 2 and was reverted). Model: sonnet.
+All checks authored AT VERIFICATION TIME by the conductor and run by the conductor.
+The builder never saw any of them.
+
+================================================================================
+CHECK 1 — file scope: only the two in-scope files were touched
+================================================================================
+$ git -C /opt/targets/moon status --porcelain
+ M README.md
+ M REPORT.md
+
+$ git -C /opt/targets/moon diff --stat
+ README.md | 9 +++++++--
+ REPORT.md | 7 ++++---
+ 2 files changed, 11 insertions(+), 5 deletions(-)
+
+PASS — no src/, no test/, no package.json, no .swarm/ writes, no new files.
+
+================================================================================
+CHECK 2 — test_cmd (full suite), run by the conductor
+================================================================================
+$ cd /opt/targets/moon && node --test test/*.test.js
+ℹ tests 104
+ℹ suites 0
+ℹ pass 104
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1288.338464
+
+PASS — 104/104, unchanged from the cycle-3 baseline. Docs-only change, no regression.
+
+================================================================================
+CHECK 3 — the attempt-1 gate-failer: NO new magnitude introduced
+================================================================================
+Every numeric token on an ADDED line of the diff, extracted mechanically:
+
+$ git -C /opt/targets/moon diff -U0 -- README.md REPORT.md | grep "^+" \
+    | grep -o "[0-9][0-9.,]*" | sort -u
+1
+2.0.3
+3.
+4.2.0
+
+Adjudication of all four:
+  1      — the literal "KI-1" identifier. Not a quantity.
+  3.     — the ordinal of hand-off list item 3 in REPORT.md. Not a quantity.
+  2.0.3  — lunarphase-js version. Sourced (check 4).
+  4.2.0  — astronomia version. Sourced (check 4).
+
+NO error magnitude, NO drift figure, NO time quantity appears anywhere in the added
+text. The builder's claim `"magnitudes_written": "none"` is TRUE as verified, not as
+asserted.
+
+PASS.
+
+================================================================================
+CHECK 4 — the two version/license strings are verbatim from the locked SPEC
+================================================================================
+$ grep -o "lunarphase-js\` v2\.0\.3 (ISC)\|astronomia\` v4\.2\.0 (MIT)" \
+    /opt/targets/moon/.swarm/SPEC.md /opt/targets/moon/REPORT.md
+/opt/targets/moon/REPORT.md:lunarphase-js` v2.0.3 (ISC)
+/opt/targets/moon/REPORT.md:astronomia` v4.2.0 (MIT)
+/opt/targets/moon/.swarm/SPEC.md:lunarphase-js` v2.0.3 (ISC)
+/opt/targets/moon/.swarm/SPEC.md:astronomia` v4.2.0 (MIT)
+
+PASS — both strings match the SPEC "Domain rules" bullet character-for-character in
+both directions. Carried across, not re-derived.
+
+================================================================================
+CHECK 5 — the attempt-1 should-fix: severity column holds ONLY severities
+================================================================================
+$ node -e "const l=require('fs').readFileSync('REPORT.md','utf8').split('\n')
+           .filter(x=>/^\| KI-/.test(x));
+           l.forEach(r=>{const c=r.split('|').slice(1,-1).map(s=>s.trim());
+           console.log(c.length+' cells | id='+c[0]+' | sev='+c[1])});"
+3 cells | id=KI-5 | sev=medium
+3 cells | id=KI-1 | sev=low
+3 cells | id=KI-3 | sev=medium
+3 cells | id=KI-2 | sev=medium
+3 cells | id=KI-4 | sev=low
+3 cells | id=KI-6 | sev=low
+3 cells | id=KI-7 | sev=low
+
+PASS on three counts:
+  (a) the string "closed" does NOT appear in any severity cell — attempt 1's defect 2
+      is not reproduced;
+  (b) every row still has exactly 3 cells, so no unescaped "|" in the new prose broke
+      the table;
+  (c) KI-1's severity now reads "low", matching .swarm/state.json's KI-1 severity
+      ("low"). It previously read "medium", which contradicted state.json.
+
+================================================================================
+CHECK 6 — the stale claim is GONE, everywhere in both files
+================================================================================
+$ grep -rn "never swept\|permission-blocked\|may already occupy\|Nobody swept" \
+    README.md REPORT.md
+(no output — zero hits)
+
+PASS. Note this caught more than the KI-1 table row: REPORT.md's "Honest hand-off"
+item 3 independently repeated the never-swept language ("Nobody swept npm... One
+search answers it") and the builder corrected it too. Had it not, this check would
+have failed the item — a document that closes a finding in one place and reasserts it
+as open two sections later is not accurate.
+
+================================================================================
+CHECK 7 — the finding actually landed in README, and its pointer resolves
+================================================================================
+$ grep -n "lunarphase-js\|astronomia\|^## Accuracy" README.md
+32:That's not a straw man: the nearest package on npm, `lunarphase-js`, is exactly this —
+35:(`astronomia` is a genuine Meeus port, but it's a dependency — this project has none.)
+153:## Accuracy
+
+PASS — README carried zero occurrences of either name before this cycle. The new text
+routes the reader to "Accuracy" for the size of the difference instead of restating a
+number; that heading exists at line 153, below the reference at line 34, so "see
+Accuracy below" resolves.
+
+$ node bin/moon.js --compact
+░░░░▐   5%  waxing crescent
+
+Product still runs.
+
+================================================================================
+CORRECTION TO THE CYCLE-2 GATE RECORD (conductor, this cycle)
+================================================================================
+The cycle-2 gate failed attempt 1 for asserting that lunarphase-js's missing periodic
+corrections give "4-hour phase errors", and recorded the reason as: the string
+"4-hour" appears NOWHERE in the repo.
+
+That stated reason was too narrow and is corrected here. The grep was for the
+hyphenated literal; the repo does carry the figure in words:
+
+$ grep -rn "four hours\|4 hours\|4-hour\|14:20" --include=*.md --include=*.js .
+README.md:156: computes **18:15 UTC**. A mean-formula-only implementation lands at
+               14:20 UTC, nearly
+README.md:157: four hours off.
+REPORT.md:34:  | Accuracy is within the ~1h target | True new moon of 2000-01-06
+               computed **18:15 UTC** vs published 18:14. The mean formula lands at
+               14:20 — nearly 4h off. |
+test/astro.test.js:96: // moon (2000-01-06 14:20 TT); with the ch. 49 periodic
+
+The GATE DECISION was nonetheless correct, for a reason worth stating precisely: the
+~4h figure is a single hand-computed datapoint for ONE lunation (2000-01-06), shown
+with its work in README §Accuracy. Attempt 1 lifted it into a general per-package
+error claim about lunarphase-js — a package nobody has run. That is an unsupported
+generalization, and it understates besides (the largest single ch.49 periodic term for
+new/full moon is ~0.40720 d ≈ 9.8 h, and the terms sum), so it weakened our own
+differentiation claim while being unverifiable.
+
+The retry brief was written with this correction in it, warning the builder that a
+naive grep WOULD find the number and that finding it does not license reusing it in a
+new frame. Attempt 2 introduced no magnitude at all (check 3) and instead pointed at
+the existing, sourced comparison (check 7) — the intended outcome.
+
+Standing rule for the remaining docs item (T-108), unchanged and now sharper: a
+quantity may appear only in the frame in which the repo already computes it.
+
+================================================================================
+RESIDUAL NOTED, NOT GATE-FAILING (out of this item's scope)
+================================================================================
+README's pre-existing line 27 still opens "Most terminal moon phase tools compute the
+phase with a naive synodic-month modulo, which drifts by hours to days". The sweep
+substantiates that critique for ONE package (the nearest), not for "most", and "hours
+to days" is a pre-existing unsourced magnitude this item did not introduce and did not
+touch. The new text is careful to say "the nearest package on npm" (singular) and does
+not assert prevalence, so it does not compound the claim. Recorded for the retro and
+for T-108's consideration rather than silently fixed here — rewriting a sentence
+outside the item's acceptance would be scope drift.
+
+================================================================================
+VERDICT: PASS. T-101 -> done. Attempt count stays 1 (the failed attempt); this attempt
+succeeded. KI-1's remaining work ("propagate this finding into README/REPORT") is now
+complete, so KI-1 moves to resolved_issues.
+================================================================================

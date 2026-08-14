@@ -666,3 +666,205 @@ runfile-mirror:
 
 commit: 3da2ef4 "cycle 3: T-102 build-wave k=1 - KI-6 out-of-range guard [1 verified, 104/104 green]" (pushed to origin/main, fd72cbc..3da2ef4)
 next wakeup: heartbeat.next_wakeup_at = commit time + 90 s, read by swarm-pacer.timer.
+
+---
+
+## cycle 4 | 2026-08-14T16:40:31+00:00 | moon | BUILD
+
+clock: now=1786725631, stop_at=1786807947 (2026-08-15T15:32:27+00:00) — 22h51m remaining.
+Nowhere near the 900 s WRAP_UP trigger. heartbeat.limp false. PID 107894 (headless
+`claude -p /swarm cycle` spawned by swarm-pacer.timer at 16:33:27).
+
+budget: the 30-min re-probe was DUE (probe_failures was 3 but last_real_probe_ts is 0, so
+`now − last_real_probe_ts ≥ 1800` holds) and was ATTEMPTED. `bin/swarm-budget.sh` was
+permission-denied again — KI-2, now the 5th consecutive cycle. probe_failures 3 → 4;
+last_real_probe_ts stays 0 because npx never ran. `PROBE_CMD=false` is denied by the same
+rule, so even the zero-cost clock-cruise fallback is unavailable. `bin/swarm-notify.sh
+poll` was denied too, so the control channel was read from `runs/control.json` directly
+(file-sourced fallback, cycle.md step 2): `pending: []`, `inject: []` — nothing to apply,
+no acks to send. Non-fatal, journaled, cycle continued.
+
+gear 1 crawl, and worth stating that this is over-determined rather than probe-dependent:
+`runs/allocator.json` (source=probe, refreshed by the pacer at 16:33) reads posture=trickle,
+allow_overall_pct=0, allow_premium_pct=0, opus_used_pct=96, weekly_used_pct=67.0 at
+week_elapsed_pct=64.02, dial 0.30. Guest mode clamps the reachable range to gears 1–3; the
+weekly governor's ceiling is 1 (opus_heat 1.50, weekly_heat 1.05). Gear 1 is the answer with
+or without a burn probe — the missing probe costs precision this cycle did not need.
+k_cap 1, demote true, promote blocked.
+
+orient: tree CLEAN at entry (no salvage needed). HEAD a4e9e2a. Cycle 4, not a multiple of
+5, so no full SPEC re-read; re-anchor from spec_digest — improvement run on the shipped
+v0.1.0 CLI: close known issues, harden tests against NAMED untested surfaces, make the docs
+true. No new features, no new deps, core astronomy untouched.
+
+pick: **T-101** (docs, S, H-value, priority 1, attempts 1) — the retry deferred at cycle 3.
+Effective wave size = min(k_current 2, gear cap 1, hard max 5) = **1**. T-103 is M-effort and
+stays inadmissible under gear 1 (S-effort sonnet builds only). Among the S-effort candidates
+T-101 is the only one that is a must-have of this run rather than a test-coverage item, and
+it was already ruled next.
+
+routing: sonnet. The cycle-2 ladder escalation (haiku→sonnet, earned by a failed gate)
+SURVIVES the gear-1 docs demotion rule that would push docs items sonnet→haiku — the cycle-2
+ruling stands, and it mattered: the failure mode was fabrication under the cheaper tier, so
+demoting would have returned the item to the exact tier that produced the defect.
+
+craft: `bin/swarm-craft.mjs` ran clean, `degraded: []`. craft.docs spliced into the builder
+prompt; craft.ui deliberately not (no UI surface — two markdown files). Playbook builder
+prompt line appended ("the conductor is the SOLE committer").
+
+dispatch: direct Agent call, not the Workflow tool (review-gated in headless `-p` sessions;
+documented failure-table fallback). k=1 so no worktree and no disjoint-scope problem.
+
+---
+
+### VERIFICATION EVIDENCE — T-101 (7 conductor-authored checks, all run by the conductor)
+
+Full transcript: `.swarm/runs/cycle-004-verify-T-101.txt`. Excerpt:
+
+```
+CHECK 1 file scope
+$ git status --porcelain
+ M README.md
+ M REPORT.md          -> only the two in-scope files; no src/, test/, package.json, .swarm/
+
+CHECK 2 test_cmd
+$ node --test test/*.test.js
+tests 104   pass 104   fail 0            -> unchanged from the cycle-3 baseline
+
+CHECK 3 no new magnitude (the attempt-1 gate-failer)
+$ git diff -U0 | grep "^+" | grep -o "[0-9][0-9.,]*" | sort -u
+1        -> the "KI-1" identifier
+2.0.3    -> lunarphase-js version, SPEC-verbatim
+3.       -> a list ordinal
+4.2.0    -> astronomia version, SPEC-verbatim
+   NO error magnitude, NO drift figure, NO time quantity anywhere in the added text.
+
+CHECK 5 severity column holds only severities (the attempt-1 should-fix)
+3 cells | id=KI-5 | sev=medium      3 cells | id=KI-4 | sev=low
+3 cells | id=KI-1 | sev=low         3 cells | id=KI-6 | sev=low
+3 cells | id=KI-3 | sev=medium      3 cells | id=KI-7 | sev=low
+3 cells | id=KI-2 | sev=medium
+   no "closed" in any severity cell; every row still 3 cells (no "|" broke the table);
+   KI-1 corrected medium -> low, now matching state.json.
+
+CHECK 6 the stale claim is gone from BOTH files
+$ grep -rn "never swept|permission-blocked|may already occupy|Nobody swept" README.md REPORT.md
+(zero hits)
+
+CHECK 7 the finding actually landed, and its pointer resolves
+32: That's not a straw man: the nearest package on npm, `lunarphase-js`, is exactly this
+35: (`astronomia` is a genuine Meeus port, but it's a dependency — this project has none.)
+153: ## Accuracy          -> "see Accuracy below" resolves; README had 0 hits before.
+$ node bin/moon.js --compact
+░░░░▐   5%  waxing crescent
+```
+
+Check 4 (not excerpted): both version+license strings match `.swarm/SPEC.md` character-for-
+character in both grep directions — carried across, not re-derived.
+
+Check 3 is the one that matters. The builder ASSERTED `"magnitudes_written": "none"`; that
+assertion was not accepted. Every numeric token on an added line was extracted mechanically
+and adjudicated one by one. The claim happened to be true — but it is recorded as verified,
+not as reported.
+
+Check 6 caught more than its item: REPORT's "Honest hand-off" section independently repeated
+the never-swept language two sections below the table. A document that closes a finding in
+one place and reasserts it as open elsewhere is not accurate, so the grep was written
+file-wide rather than row-scoped. The builder had already fixed it.
+
+**GATE: PASS.** T-101 → done. attempts stays 1 (the failed attempt); this one succeeded.
+
+---
+
+### CORRECTION TO THE CYCLE-2 GATE RECORD
+
+Cycle 2 failed attempt 1 for asserting lunarphase-js's missing corrections give "4-hour
+phase errors", and recorded the reason as: *the string "4-hour" appears NOWHERE in the repo*.
+
+That stated reason was a grep for the hyphenated literal only. The figure IS in the repo, in
+words:
+
+```
+README.md:156-157  ...computes **18:15 UTC**. A mean-formula-only implementation lands at
+                   14:20 UTC, nearly four hours off.
+REPORT.md:34       ...The mean formula lands at 14:20 — nearly 4h off.
+test/astro.test.js:96   // moon (2000-01-06 14:20 TT); with the ch. 49 periodic
+```
+
+The gate DECISION is upheld, on a narrower and correct basis: that figure is a single
+hand-computed datapoint for the 2000-01-06 lunation, shown with its work in README §Accuracy.
+Attempt 1 lifted it into a general per-package error claim about a package nobody has run.
+That is an unsupported generalization — and an understating one, since the largest single
+ch.49 periodic term for new/full moon is ~0.40720 d ≈ 9.8 h and the terms sum, so quoting ~4h
+in a general frame silently weakens our own differentiation claim while being unverifiable.
+
+This correction was written INTO the retry brief rather than quietly dropped. The builder was
+told explicitly that a naive grep would find the number and that finding it does not license
+reusing it in a new frame. That is very likely why attempt 2 introduced no magnitude at all
+instead of arguing with a premise it could trivially disprove — a false premise in a brief is
+not a harmless one.
+
+Consequent rule change, recorded as a decision: the docs gate is now a FRAME rule, not an
+existence rule — *a quantity may appear only in the frame in which the repo already computes
+it*. The cycle-2 wording would not have caught the same defect phrased as "nearly four hours
+off", a string the repo does contain. T-108 inherits the frame rule.
+
+---
+
+### RESIDUAL, flagged not fixed
+
+README:27 still opens "Most terminal moon phase tools compute the phase with a naive
+synodic-month modulo, which drifts by hours to days." The sweep substantiates that critique
+for ONE package (the nearest), not for "most", and "hours to days" is an unsourced
+pre-existing magnitude. The new text is careful to say "the nearest package on npm"
+(singular) and does not assert prevalence, so it does not compound the claim — but under the
+frame rule just adopted, that sentence does not pass. Not fixed here: rewriting prose outside
+T-101's acceptance is scope drift. Filed into T-108's notes, which owns the run's last docs
+pass.
+
+### KI-1 → resolved
+
+Both halves are now complete: the sweep (cycle 0) and the propagation (this cycle). Moved to
+`resolved_issues` with the full finding and the gate evidence. known_issues 5 → 4 (KI-2,
+KI-4, KI-5, KI-7 remain).
+
+Deliberate transient: REPORT's "Known issues (7)" table still LISTS the KI-1 row (now
+carrying the correct finding at severity low), and KI-6's row still reads as open. T-101 was
+forbidden from inventing a resolved-status convention in the severity column — that is
+exactly the conflation that failed attempt 1. **T-108 owns the convention** and now carries
+the handoff in its notes, along with the header count. Recorded so the inconsistency reads as
+a scheduled handoff rather than a doc-truth defect.
+
+collision-scan + qa-verify look pass: NOT APPLICABLE, deliberately skipped. Both gate on
+user-visible browser assets. This target is a zero-dependency stdout CLI, and this cycle's
+diff is two markdown files. Recorded rather than silently omitted.
+
+wave autotune: CLEAN wave — zero reverted merges, zero failed verifies. wave_streak 1 → 2,
+which trips the bump: k_current 2 → **3**, wave_streak reset to 0. The gear-1 cap of 1 still
+binds the effective wave size, so this is stored capacity for when the posture lifts, not a
+change to the next cycle. consecutive_no_value stays 0.
+
+SWARM-side defects for the morning report (hard rule 5 forbids fixing them mid-run, carried
+forward unresolved): (1) **KI-2** — the settings allowlist still denies `bin/swarm-budget.sh`
+and `bin/swarm-notify.sh`, 5th consecutive cycle; this run has never once had a real budget
+probe and has driven entirely on `allocator.json` evidence. (2) `playbook/learnings.md`
+carries duplicate ids L-023, L-025, L-026. (3) the cycle-1 journal header at line 295 is a
+literal unexpanded `%Y-%m-%dT%H:%M:%S+00:00`.
+
+WAKEUP MECHANISM: ScheduleWakeup not called — VPS headless cycle; `swarm-pacer.timer` is the
+firing mechanism and reads `heartbeat.next_wakeup_at`, rewritten below to commit time + 90 s
+(verified-value cycle, so the 90 s base delay applies, not the 900–1800 s no-value band).
+Clamp holds trivially: wakeup + 900 sits ~22 h inside stop_at 2026-08-15T15:32:27+00:00.
+
+next: T-104 (pin KI-5 with a glyph-width measuring test, S) or T-103 (bound KI-7, M — still
+inadmissible at gear 1). If trickle persists, the S-effort test items T-104..T-107 come first
+and T-103 waits for a gear lift; T-108 runs last by deps and now carries three inherited
+obligations.
+
+outcome: 1 VERIFIED. KI-1 closed with machine-checked evidence, docs made true in both files,
+104/104 green, no debris, no regression.
+
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786725269,"next_wakeup_at":1786727969,"pid":107894,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786725631,"last_real_probe_ts":0,"probe_failures":4,"probe_note":"cycle 4: last_real_probe_ts=0 so the 30-min re-probe was DUE and was attempted; bin/swarm-budget.sh was permission-denied again (KI-2, 5th consecutive cycle) -> probe_failures 4. npx never ran, so last_real_probe_ts stays 0. PROBE_CMD=false is equally unrunnable, so the clock-cruise fallback remains unavailable. Gear 1 rests on runs/allocator.json (source=probe, refreshed 16:33 by the pacer): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct=67.0 at week_elapsed_pct=64.02, dial 0.30. Guest mode clamps to gears 1-3 and the weekly governor's ceiling is 1, so gear 1 is over-determined here - it is the same answer with or without a burn probe. Evidence, not a guess.","weekly":{"ok":true,"weekly_used_pct":67,"opus_used_pct":96,"week_elapsed_pct":64.02,"weekly_heat":1.05,"opus_heat":1.5,"ceiling":1,"promote_blocked":true}},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":4,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

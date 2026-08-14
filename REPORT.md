@@ -90,7 +90,7 @@ return.
 | id | severity | issue |
 |---|---|---|
 | KI-5 | medium | **Glyph width.** The disc mixes East Asian Width classes (`░` `▐` are Neutral; `▒ ▓ █ ▌ ▏ ▕` are Ambiguous). In terminals rendering ambiguous-width as double (CJK locales, iTerm2 setting, `xterm -cjk_width`) the disc is 5–9 columns instead of 5: the line jitters between nights, the two-line form stops aligning, and the `--block` frame does not close. **Verified real by measurement.** Correct in default Western-locale terminals. Not fixed — it needs a glyph-set redesign, and there was not enough clock to do that safely. Deferred deliberately rather than half-fixed at the buzzer. |
-| KI-1 | medium | **npm/pypi/web prior art was never swept.** The scout's `gh`/WebSearch and a direct npm registry query were all permission-blocked. An npm CLI may already occupy this niche. Flagged to the user at lock; the build proceeded with this unknown. |
+| KI-1 | low | **Prior-art sweep completed, grep-verified against source (not READMEs).** Nearest npm package is `lunarphase-js` v2.0.3 (ISC): its core is the naive mean-synodic modulo with zero periodic correction terms, its "hemisphere support" swaps emoji glyphs rather than mirroring art, and it has no `bin` field, so it is a library, not a CLI. `astronomia` v4.2.0 (MIT) is a genuine Meeus port but is a dependency, which this project's zero-dependency non-goal forbids. This project's accuracy claim and hemisphere-mirrored ASCII rendering remain differentiated. |
 | KI-3 | medium | **No git remote.** `gh auth` could not be verified; all 8 commits are local only. Nothing is pushed. |
 | KI-2 | medium | `settings.json` allowlist edit was denied, so `additionalDirectories` does not list the target. Headless relaunches must pass `--add-dir`. |
 | KI-4 | low | Terminal font variance beyond width (ligatures, exotic fonts) remains unverified — no automated check can cover it. |
@@ -150,8 +150,9 @@ If this tool tells you the moon is 41% waxing crescent, that number is trustwort
    emoji-free — it satisfies the brief as written. Whether it feels like *a tiny precision
    instrument* is a judgement no assertion makes. That was your phrase, and you are the
    only one who can say whether it landed.
-3. **Check the npm gap (KI-1).** Nobody swept npm. If a well-loved moon-phase CLI already
-   exists there, that changes what this project is for. One search answers it.
+3. **npm gap, closed (KI-1).** The sweep found no competing hemisphere-aware Unicode CLI;
+   the nearest package, `lunarphase-js`, is a naive-modulo library with no `bin` entry. See
+   the KI-1 row above for the finding.
 4. **Push it somewhere.** Eight commits sit on a local branch with no remote.
 
 **The one thing I would not have you take on trust:** every "verified" claim in this

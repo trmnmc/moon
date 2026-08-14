@@ -29,8 +29,13 @@ which drifts by hours to days, and draw the moon from a fixed set of sprites, wh
 **backwards for the southern hemisphere** — a waxing crescent is lit on the right in
 Edinburgh and on the left in Sydney.
 
-This one uses the Meeus algorithm with its full periodic correction terms, and mirrors
-the disc when you're south of the equator.
+That's not a straw man: the nearest package on npm, `lunarphase-js`, is exactly this —
+a mean-synodic modulo with zero periodic correction terms, hemisphere support that swaps
+*emoji glyphs* rather than mirroring the art, and no `bin` entry, so it isn't even a CLI.
+(`astronomia` is a genuine Meeus port, but it's a dependency — this project has none.)
+
+This one uses the Meeus algorithm with its full periodic correction terms (see Accuracy
+below), and mirrors the disc when you're south of the equator.
 
 ```
 north                          south
