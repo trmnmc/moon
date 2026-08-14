@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "REVIEW",
-  "cycle": 14,
+  "cycle": 15,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -214,14 +214,14 @@
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 3,
-    "wave_streak": 0,
+    "wave_streak": 1,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "cycle": 14,
-    "work": "build-wave k=1 (T-106) at sonnet",
-    "outcome": "1 verified, 108/108 green, 4/4 mutants killed",
-    "ts": 1786739800
+    "cycle": 15,
+    "work": "build-wave k=1 (T-115) at haiku",
+    "outcome": "1 verified, 108/108 green, gate 15/15 pre-merge, 6/6 mutants killed",
+    "ts": 1786740372
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [

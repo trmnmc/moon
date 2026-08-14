@@ -310,7 +310,9 @@
       "packages": [],
       "attempts": 0,
       "notes": "FOUND BY THE CYCLE-11 GATE (check 9's second residual). Unusual direction for this run: every other doc defect here has been a claim slightly WIDER than the evidence, and this is a disclosure slightly NARROWER than the gap it discloses. Both are the same underlying error - prose that does not track what is actually true - and an under-disclosure in the honesty section is the more corrosive of the two, because that section is exactly where a reader stops checking.\nT-108 still improved on the status quo here: before this cycle REPORT.md said nothing at all about review-fix coverage. That is why this is a follow-on item and not a gate failure.\nDepends on nothing, but if the review-fix pass DOES run before wrap-up this item is obsolete and should be dropped rather than built.",
-      "status": "todo"
+      "status": "done",
+      "completed_cycle": 15,
+      "verify_note": "Conductor gate cycle 15: 15/15 pre-merge checks, 13/13 content checks re-run on main (checks 1 and 9 are working-tree-diff checks, vacuous on a clean tree post-merge and reported as N/A, never as passed). Gate proven failable: 6/6 mutants killed, including one un-wrapped variant killed solely by the line-wrap check. 108/108 tests green on main."
     }
   ]
 }

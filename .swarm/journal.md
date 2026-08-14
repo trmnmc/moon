@@ -2756,3 +2756,257 @@ runfile-mirror:
 ```json
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786739800,"next_wakeup_at":1786741925,"pid":134948,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786739800,"last_real_probe_ts":0,"probe_failures":14,"probe_note":"cycle 14: bin/swarm-budget.sh permission-denied AGAIN (KI-2, 15th consecutive cycle) -> probe_failures 14. Both the plain invocation and a bash-wrapped one were refused at the permission layer before executing, so PROBE_CMD=false remains equally unreachable and the documented clock-cruise fallback is still unavailable. last_real_probe_ts stays 0: the >=30min re-probe window was open, the real probe WAS attempted, and it never executed. Gear rests on runs/allocator.json, refreshed by the pacer (source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct 69.0, week_elapsed_pct 66.34, dial 0.30. Weekly governor still DISENGAGED (weekly_heat 1.044 < 1.1 -> ceiling 5); opus_heat 1.453 > 1.2 keeps promote blocked. Binding constraint unchanged for fourteen straight cycles: allocator trickle posture plus the guest-mode 1-3 clamp -> gear 1, k_cap 1. bin/swarm-notify.sh is denied on the same allowlist gap, so the control poll ran file-only again (control.json pending[] and inject[] both empty) and the phase-change push owed since cycle 8 still cannot be sent.","weekly":{"ok":true,"weekly_used_pct":69,"opus_used_pct":96,"week_elapsed_pct":66.34,"weekly_heat":1.044,"opus_heat":1.453,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":14,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 15 — 2026-08-14T20:46:12+00:00 (epoch 1786740372)
+
+### Step 0 — runfile, target, heartbeat
+
+Runfile read, `model_policy` re-read (`value-routing`). Single active target,
+`rotation_schedule` `[0]` -> moon. Heartbeat stamped at 1786740066 with pid **138432**. The
+documented `ps -o ppid=` walk was again refused by the permission layer (it trips the
+"simple_expansion" guard), so the PID came from `pgrep -af claude`, which returned exactly
+one conductor-shaped process — `claude -p /swarm cycle --output-format json
+--permission-mode acceptEdits --add-dir /opt/targets/moon`. Same value, sourced
+differently, recorded so the substitution is not silent. `next_wakeup_at` set to the
+worst-case 2700s and left there once step 4 picked a build-wave (also 2700s).
+
+`cycles_since_recycle` 14 -> 15. Below 25, so not a RECYCLE cycle. Ten cycles of headroom
+remain before one is due.
+
+### Step 1 — clock + burn probe
+
+`date +%s` -> 1786739979 at open. `stop_at` 1786807947, so **18.88 h remain**. No
+admission-control pressure: every work type fits on time alone.  `heartbeat.limp` false, so
+no short-circuit.
+
+**Budget probe: NOT RUN — KI-2, sixteenth consecutive cycle.** Both
+`RUNFILE=... /opt/swarm/bin/swarm-budget.sh` and the bare invocation were refused at the
+permission layer before executing. The `PROBE_CMD=false` clock-cruise fallback is
+unreachable by the same gap — it is the same script. `probe_failures` 14 -> 15;
+`last_real_probe_ts` stays 0 because the re-probe window WAS open, the probe WAS attempted,
+and it never executed. **No burn evidence exists for this cycle.**
+
+Gear therefore rests on `runs/allocator.json` (written by the pacer, `source=probe`):
+posture **trickle**, `allow_premium_pct` **0**, `allow_overall_pct` 0, `opus_used_pct` 96,
+`weekly_used_pct` 69.0, `week_elapsed_pct` 66.46, dial 0.30. Weekly governor DISENGAGED
+(weekly_heat 1.044 < 1.1 -> ceiling 5); `opus_heat` 1.453 > 1.2 keeps promote blocked.
+Binding constraint unchanged for fifteen straight cycles: trickle posture plus the
+guest-mode 1-3 clamp -> **gear 1, k_cap 1**.
+
+### Step 2 — orient
+
+`git status --porcelain` on moon: **clean**. No crashed-cycle salvage needed. `git log`
+confirms cycle 14 committed at a113a76.
+
+**Control channel: `bin/swarm-notify.sh poll` NOT RUN (KI-2, denied).** Poll ran file-only
+against `runs/control.json`: `pending[]` empty, `inject[]` empty, `since_cursor`
+1786709879. Nothing to apply, nothing to triage. The phase-change push owed since cycle 8
+remains unsent and unsendable.
+
+### Step 3 — re-anchor
+
+Cycle 15 satisfies `cycle % 5 == 0`, so this was a **full SPEC.md re-read**, not a digest
+restatement. The contract is unchanged: harden tests, close or precisely bound the open
+known-issues, make the docs tell the truth about verified-vs-deferred. No new features, no
+new runtime deps, the astronomy core is not to be touched. The taste risk named in the spec
+is **CHURN** — "one test pinning a real defect beats ten restating a pass".
+
+**Backlog hygiene** (also due this cycle): 16 live items, well under the ~30 cap. No
+duplicates, no stale entries, priority ordering coherent (lower number = higher priority;
+T-108 shipped at p1). Nothing deduped, nothing dropped, nothing reprioritized. Hygiene was
+a genuine no-op, recorded as such rather than skipped.
+
+### Step 4 — pick work
+
+Phase gates: DESIGN satisfied (decisions recorded), PLAN satisfied (backlog covers every
+must-have), and the must-have BUILD items are all `done`. That puts the cycle in the
+step-4.4 band. Five todos remained, all S-effort:
+
+| id | p | kind | model | title |
+|---|---|---|---|---|
+| T-115 | 3 | docs | haiku | REPORT's review-fix disclosure says 'this cycle' where the truth is run-wide |
+| T-110 | 4 | fix | sonnet | KI-7 domain doc comment glosses a half-open interval as inclusive |
+| T-113 | 5 | fix | sonnet | 'Fully lit outer cell' understates when the disc draws a round limb |
+| T-111 | 6 | polish | haiku | README's KI-7 paragraph uses British 'behaviour' |
+| T-105 | 7 | test | sonnet | Test package-manifest integrity |
+
+**T-115 picked.** It is the highest-priority todo AND the best gear-1 fit: gear 1 calls for
+haiku-priced useful work, and T-115 is a haiku docs item. The value case is the stronger
+argument though — T-115 corrects an **under-disclosure in the honesty section**, which is
+precisely where a reader stops checking. Every other doc defect this run has been a claim
+slightly WIDER than its evidence; this is a disclosure slightly NARROWER than the gap it
+discloses, which is the more corrosive direction.
+
+Its backlog note says the item is obsolete if the review-fix pass runs before wrap-up.
+It has not run and will not (premium allowance 0), so the item stands.
+
+**Effective wave size** = min(k_current 3, gear cap 1, hard max 5) = **1**.
+
+### Step 5 — execute (build-wave k=1)
+
+Craft pack: `node bin/swarm-craft.mjs` returned clean, `degraded: []`. The `docs` pack was
+spliced into the builder brief.
+
+Dispatched as a **direct Agent call**, not the Workflow tool — this is a headless `-p`
+session where Workflow is review-gated, the documented fallback and the same shape cycles
+5-14 used. k=1 means the disjoint-file-scope requirement is trivially met.
+
+Builder brief carried: the acceptance (never the verify check — builders must not be able
+to code to the gate), the ground truth it was permitted to rely on, an explicit ban on
+inventing figures, the repo's austere-US-English style constraints, the docs craft lines,
+and the playbook builder line **"the conductor is the SOLE committer"**.
+
+### Step 6 — verification gate
+
+**The builder's wording was right on the first pass and its formatting was not.** The
+returned text was substantively correct — run-wide, reasoned, unsoftened — but written as a
+single **242-character line**. Measured, not asserted: across REPORT.md at HEAD the longest
+prose line is 91 chars and **zero** lines exceed 100. The new line was 2.6x the widest line
+in the document.
+
+That is outside T-115's stated acceptance, which is about content. Three ways to handle it,
+and the choice is worth recording:
+
+1. *Fail the gate* -> costs a whole additional cycle at gear 1 for a mechanical re-wrap.
+   Gate inflation of the kind cycle 7 warned against.
+2. *Conductor patches it* -> violates the cycle-7 ruling that a conductor editing the
+   artifact leaves nothing independently checking the conductor's own work.
+3. *Send it back to the same builder* -> costs one haiku call, no extra cycle, and keeps
+   the cycle-7 rule intact.
+
+**Option 3 taken.** The re-dispatch forbade any word change and stated the check that
+would be applied: the paragraph's text with whitespace collapsed must be byte-identical to
+what the builder had already written. That makes a prose edit mechanically detectable, which
+is exactly what the cycle-7 concern needs and what a wording review cannot give.
+
+Gate authored at verification time in `.swarm/runs/verify-gate-T-115.py`, 15 checks over
+five axes: scope, word-preservation of the re-wrap, widened-to-run-wide, states-the-why,
+not-softened, plus the repo's wrap/US-English/no-emoji conventions.
+
+**Pre-merge: GATE 15/15.**
+
+```
+[PASS] 1 scope: builder touched only REPORT.md
+       builder-attributable = ['REPORT.md']
+[PASS] 3 re-wrap byte-identical under whitespace collapse -> True
+[PASS] 4a run-wide claim present ('in any cycle') -> True
+[PASS] 4b narrow 'this cycle' claim gone from the paragraph -> True
+[PASS] 4c the ORIGINAL narrow sentence is gone from the whole file -> True
+[PASS] 5a states the reason (mentions premium cost) -> True
+[PASS] 6  disclosure not softened (refusal clause retained) -> True
+[PASS] 6b no hedge implying the pass is still coming; hedges found = []
+[PASS] 7  no prose line exceeds the pre-existing max (91 chars); lines over = []
+GATE: 15/15 checks passed
+```
+
+**A defect in the conductor's own gate, disclosed.** Check 1 failed on its first run
+reporting `changed files = ['.swarm/runs/verify-gate-T-115.py', 'EPORT.md']`. That truncated
+name was my bug, not the builder's: I called `.strip()` on the whole `git status --porcelain`
+output, which ate the leading space of the status column and shifted the first path by one
+character. Fixed by not stripping, and by naming the conductor's own verify artifact in an
+explicit `CONDUCTOR_ARTIFACTS` set rather than filtering it out with a loose pattern. Recorded
+because a gate that miscounts in the conductor's favour is the one failure mode this run
+exists to prevent — it happened to fail loudly here, but it could as easily have passed.
+
+**Falsifiability — 6/6 mutants killed** (`.swarm/runs/mutate-T-115.py`):
+
+```
+KILLED M1 revert to the original narrow 'this cycle' claim      GATE:  8/15
+KILLED M2 run-wide but drops the WHY                            GATE: 11/15
+KILLED M3 softened: hedges that the pass is still coming        GATE: 10/15
+KILLED M4 refusal clause deleted (disclosure gutted)            GATE: 12/15
+KILLED M5 correct words but un-wrapped                          GATE: 13/15
+KILLED M6 word smuggled in during re-wrap                       GATE: 12/15
+6/6 mutants killed
+original restored byte-identical: True
+```
+
+Attribution matters more than the count. **M5 — the correct words in an un-wrapped line — is
+killed by check 7 alone.** That is the exact defect caught this cycle, and it proves the
+wrap check does independent work rather than free-riding on the content checks. **M6** proves
+check 3 discriminates a smuggled word from a pure re-wrap: inserting "nearly" survives every
+content check and still fails. **M3** is the important negative: a softened disclosure that
+still reads fluently is caught, which is the failure mode T-115 exists to prevent.
+
+**Post-merge on main: 13/13 content checks pass, 2 reported N/A.** Checks 1 and 9 read the
+working-tree diff, which is empty once the merge lands — they are vacuous post-merge, not
+regressions. Reported as N/A, never as passed.
+
+**`test_cmd` run by the conductor** (not asked of the agent) at three points — on the branch,
+and again on main after the merge:
+
+```
+ℹ tests 108
+ℹ pass 108
+ℹ fail 0
+ℹ duration_ms 1254.281264
+```
+
+**CLI smoke on main** — the product still renders:
+
+```
+░░░░▐   6%  waxing crescent
+            next full moon  28 Aug
+```
+
+**Final text as shipped** (79/80/81 chars):
+
+```
+The run's review-fix pass has not been run in any cycle; review-fix is the most
+premium-heavy work type in the pipeline, and the allocator premium allowance has
+remained zero throughout. Nothing above should be read as claiming that coverage.
+```
+
+**GATE PASSED. T-115 -> done.** Backlog: 11 done, 5 todo.
+
+**Wave autotune:** clean wave — zero reverts, zero failed verifies -> `wave_streak` 0 -> 1.
+Threshold is 2, so `k_current` stays 3. Moot while the gear cap of 1 binds, but recorded so
+a posture change finds the learned value ready.
+
+### Not-run signals, reported as not-run
+
+- **review-fix: NOT RUN, sixteenth cycle** — deliberate premium deferral under trickle
+  posture (`allow_premium_pct` 0, `opus_used_pct` 96), decision recorded at cycle 11. As of
+  this cycle REPORT.md itself now discloses this run-wide rather than per-cycle, which was
+  the whole point of T-115. The morning report must still carry it as not-run, never passed.
+- **budget probe: NOT RUN** (KI-2, denied, 16th consecutive). No burn evidence this cycle.
+- **`bin/swarm-notify.sh`: NOT RUN** (KI-2, denied). Control poll ran file-only.
+- **collision-scan: NOT APPLICABLE, reported as not-run** — a browser gate; moon is a stdout
+  CLI. No merged file is served to a browser.
+- **qa-verify look pass: correctly skipped** — the merged change is a Markdown report, never
+  served. `qa.last_look_cycle` stays 1.
+- **QA / TASTE passes: last run at cycle 1.** Neither re-run since. Not claimed as current.
+- **KI-5 is UNFIXED.** Pinned by a test since cycle 6; the width defect is untouched and the
+  glyph-set redesign is unbuilt.
+- **KI-4** still needs a human look. No machine check covers it.
+- **KI-2** has now blocked the budget probe and the notify channel for sixteen straight
+  cycles. Hard rule 5 forbids fixing it mid-run; it remains the single highest-value thing a
+  human could clear before the next run.
+
+### Step 7 — persist + commit
+
+`state.json` and `backlog.json` written atomically (`.tmp` + `mv`). This block appended.
+Runfile written + mirrored to `current.json.bak`. Target repo committed and pushed.
+
+### Step 8 — dashboard + notifications
+
+Local render of `runs/dashboard.html` refreshed (mandatory; on the VPS the file write IS the
+publication). Notification diff vs the previous render: no phase change (REVIEW -> REVIEW),
+no target stalled, `publish_failures` still 0. Artifact publish skipped correctly and NOT
+counted as a failure — the Artifact tool is absent in this headless VPS session.
+
+### Candidate lesson for the retro
+
+When a gate finds a defect that is real but outside the item's stated acceptance, and the fix
+is **mechanical** (no authored prose), re-dispatching the same builder with a
+machine-checkable invariant beats both failing the gate and conductor-patching. It preserves
+the "conductor never edits the artifact" rule at the cost of one cheap call instead of a full
+cycle. The invariant is what makes it safe: "whitespace-collapsed text must be byte-identical"
+is checkable in a way "don't change the wording" is not.
+
+next wakeup: +90s (verified-value cycle, base delay)
+
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786740372,"next_wakeup_at":1786740462,"pid":138432,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786740372,"last_real_probe_ts":0,"probe_failures":15,"probe_note":"cycle 15: bin/swarm-budget.sh permission-denied AGAIN (KI-2, 16th consecutive cycle) -> probe_failures 15. Both the RUNFILE-prefixed invocation and the bare one were refused at the permission layer before executing, so the documented PROBE_CMD=false clock-cruise fallback remains unreachable (it is the same script). last_real_probe_ts stays 0: the >=30min re-probe window was open, the real probe WAS attempted, and it never executed. Gear rests on runs/allocator.json, refreshed by the pacer (source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct 69.0, week_elapsed_pct 66.46, dial 0.30. Weekly governor still DISENGAGED (weekly_heat 1.044 < 1.1 -> ceiling 5); opus_heat 1.453 > 1.2 keeps promote blocked. Binding constraint unchanged for fifteen straight cycles: allocator trickle posture plus the guest-mode 1-3 clamp -> gear 1, k_cap 1. bin/swarm-notify.sh is denied on the same allowlist gap, so the control poll ran file-only again (control.json pending[] and inject[] both empty) and the phase-change push owed since cycle 8 still cannot be sent.","weekly":{"ok":true,"weekly_used_pct":69,"opus_used_pct":96,"week_elapsed_pct":66.46,"weekly_heat":1.044,"opus_heat":1.453,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":15,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```
