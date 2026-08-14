@@ -79,8 +79,8 @@
       "acceptance": "A test drives the CLI with a clock positioned so the next full moon falls in a later calendar year than the current date and confirms the printed date includes that year; a same-year case confirms the year suffix stays omitted.",
       "packages": [],
       "attempts": 0,
-      "notes": "PLAN grep (conductor-verified): getFullYear appears exactly once in the repo, at bin/moon.js:61 - the ternary that appends or omits the year. No test references it in either direction; the one date-formatting regression pins day-padding at a fixed 2026-01-01 clock that never crosses a year boundary.",
-      "status": "todo"
+      "notes": "PLAN grep (conductor-verified): getFullYear appears exactly once in the repo, at bin/moon.js:61 - the ternary that appends or omits the year. No test references it in either direction; the one date-formatting regression pins day-padding at a fixed 2026-01-01 clock that never crosses a year boundary.\nCLOSED cycle 14. Conductor gate: both clock instants re-derived independently from src/astro.js (2025-12-30 -> 2026-01-03, cross-year; 2026-06-01 -> 2026-06-29, same-year), then four mutants of the bin/moon.js year ternary (always-append, never-append, flipped-comparison, prints-now-year) were each killed. M1 was caught only by the same-year test and M2/M4 only by the cross-year test, so the two branches are pinned independently rather than by one test doing both jobs.",
+      "status": "done"
     },
     {
       "id": "T-107",
