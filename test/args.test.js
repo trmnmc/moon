@@ -14,6 +14,7 @@ test('no arguments: every flag off, hemisphere null', () => {
     json: false,
     hemisphere: null,
     block: false,
+    compact: false,
     help: false,
   });
 });
@@ -23,6 +24,7 @@ test('undefined argv is treated as no arguments', () => {
     json: false,
     hemisphere: null,
     block: false,
+    compact: false,
     help: false,
   });
 });
@@ -32,6 +34,7 @@ test('--json', () => {
     json: true,
     hemisphere: null,
     block: false,
+    compact: false,
     help: false,
   });
 });
@@ -41,6 +44,7 @@ test('--block', () => {
     json: false,
     hemisphere: null,
     block: true,
+    compact: false,
     help: false,
   });
 });
@@ -50,6 +54,7 @@ test('--south', () => {
     json: false,
     hemisphere: 'south',
     block: false,
+    compact: false,
     help: false,
   });
 });
@@ -59,6 +64,7 @@ test('--north', () => {
     json: false,
     hemisphere: 'north',
     block: false,
+    compact: false,
     help: false,
   });
 });
@@ -68,6 +74,7 @@ test('--help', () => {
     json: false,
     hemisphere: null,
     block: false,
+    compact: false,
     help: true,
   });
 });
@@ -77,9 +84,10 @@ test('-h is an alias for --help', () => {
   assert.strictEqual(parseArgs(['-h']).help, true);
 });
 
-test('the returned object has exactly the four contract keys', () => {
+test('the returned object has exactly the five contract keys', () => {
   assert.deepStrictEqual(Object.keys(parseArgs(['--json', '--south'])).sort(), [
     'block',
+    'compact',
     'help',
     'hemisphere',
     'json',
@@ -95,7 +103,8 @@ test('flag values are always real booleans, never undefined', () => {
 });
 
 test('flags combine in any order', () => {
-  const expected = { json: true, hemisphere: 'south', block: true, help: true };
+  const expected = { json: true, hemisphere: 'south', block: true,
+    compact: false, help: true };
   assert.deepStrictEqual(parseArgs(['--json', '--south', '--block', '--help']), expected);
   assert.deepStrictEqual(parseArgs(['--help', '--block', '--south', '--json']), expected);
   assert.deepStrictEqual(parseArgs(['--block', '--json', '-h', '--south']), expected);
@@ -106,6 +115,7 @@ test('--json --block together (both requested, caller decides precedence)', () =
     json: true,
     hemisphere: null,
     block: true,
+    compact: false,
     help: false,
   });
 });
@@ -127,6 +137,7 @@ test('repeating the same flag is harmless', () => {
     json: true,
     hemisphere: null,
     block: false,
+    compact: false,
     help: false,
   });
   assert.strictEqual(parseArgs(['--south', '--south']).hemisphere, 'south');
@@ -228,6 +239,7 @@ test('-- terminator with nothing after it parses cleanly', () => {
     json: true,
     hemisphere: null,
     block: false,
+    compact: false,
     help: false,
   });
 });
