@@ -868,3 +868,32 @@ runfile-mirror:
 ```json
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786725269,"next_wakeup_at":1786727969,"pid":107894,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786725631,"last_real_probe_ts":0,"probe_failures":4,"probe_note":"cycle 4: last_real_probe_ts=0 so the 30-min re-probe was DUE and was attempted; bin/swarm-budget.sh was permission-denied again (KI-2, 5th consecutive cycle) -> probe_failures 4. npx never ran, so last_real_probe_ts stays 0. PROBE_CMD=false is equally unrunnable, so the clock-cruise fallback remains unavailable. Gear 1 rests on runs/allocator.json (source=probe, refreshed 16:33 by the pacer): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct=67.0 at week_elapsed_pct=64.02, dial 0.30. Guest mode clamps to gears 1-3 and the weekly governor's ceiling is 1, so gear 1 is over-determined here - it is the same answer with or without a burn probe. Evidence, not a guess.","weekly":{"ok":true,"weekly_used_pct":67,"opus_used_pct":96,"week_elapsed_pct":64.02,"weekly_heat":1.05,"opus_heat":1.5,"ceiling":1,"promote_blocked":true}},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":4,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+### cycle 4 addendum — dashboard render (written after the cycle-4 commit)
+
+commit: 9f000bd (pushed, a4e9e2a..9f000bd). heartbeat.next_wakeup_at = 1786725960
+(2026-08-14T16:46:00+00:00), read by swarm-pacer.timer. No ScheduleWakeup on the VPS.
+
+Step-8 render found and fixed a real defect in `runs/dashboard.html`, in scope under hard
+rule 5 (writes inside SWARM are permitted to `runs/` and `playbook/`): the staleness
+banner's `data-expected` slot had been rendered with PROSE by earlier cycles —
+"adversarial QA pass, then WRAP_UP at stop−15m". The inline script at the foot of the
+file does `Date.parse(exp)`, gets NaN, and returns early on
+`if (isNaN(gen) || isNaN(exp)) return;` — so the stale banner could NEVER fire, no matter
+how dead the run got. The single signal a 3 AM phone glance relies on to tell "the
+dashboard is dead" apart from "the run is fine" was silently disarmed. Both slots are now
+ISO-8601: `data-generated` = this render, `data-expected` = next_wakeup_at, which is the
+shape the script expects.
+
+Honest scope of that claim: verified by READING the script, not by loading the page — this
+is a headless session with no browser. The NaN short-circuit is removed; the banner
+actually firing has not been observed. Recorded as a fix with a stated limit, not as a
+passed check.
+
+Step-8 notification diff: phase unchanged (BUILD → BUILD), no target became stalled,
+publish_failures did not reach 3 — no push was due this cycle. `bin/swarm-notify.sh` is
+permission-denied regardless (KI-2).
+
+Artifact publish: skipped correctly, and not counted as a failure — the Artifact tool is
+absent in this headless VPS session, so the local file write IS the publication (caddy
+serves it at the dashboard URL). publish_failures stays 0.

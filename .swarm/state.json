@@ -127,7 +127,7 @@
     "n": 4,
     "work": "build-wave k=1 (gear-1 crawl): T-101 retry at sonnet - propagate the KI-1 prior-art finding into README + REPORT",
     "outcome": "1 VERIFIED. Gate passed seven conductor-run checks; zero magnitudes introduced (every numeric token on an added line adjudicated), severity column kept clean, stale never-swept language gone from both the table row and the hand-off section. 104/104 green. KI-1 resolved.",
-    "commit": "PENDING"
+    "commit": "9f000bd"
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [
