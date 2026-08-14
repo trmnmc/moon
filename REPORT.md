@@ -160,8 +160,9 @@ in `test/render.test.js`, not fixed: an unannounced change to the disc's glyph s
 now fail the suite, but the terminal-width defect itself is untouched. KI-2 and KI-4 are
 unchanged and still open — see "Known issues" above.
 
-The run's review-fix pass has not been run this cycle; nothing above should be read as
-claiming that coverage.
+The run's review-fix pass has not been run in any cycle; review-fix is the most
+premium-heavy work type in the pipeline, and the allocator premium allowance has
+remained zero throughout. Nothing above should be read as claiming that coverage.
 
 **What only a human can finish:**
 
