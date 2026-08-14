@@ -26,7 +26,7 @@ git clone https://github.com/YOUR_USER/moon && node moon/bin/moon.js
 
 The naive way to compute moon phase is a synodic-month modulo: divide elapsed days by
 the mean synodic month and take the remainder. That drifts, because the real lunar cycle
-isn't a constant length — this repo's own mean-formula-only check lands nearly four hours
+isn't a constant length — this repo's own mean-formula-only epoch lands nearly four hours
 off a published new-moon instant (see [Accuracy](#accuracy) below). The naive way to draw
 it is a fixed set of sprites, which is hemisphere-blind: **backwards south of the
 equator**, where a waxing crescent is lit on the right in Edinburgh and on the left in
