@@ -351,6 +351,29 @@
       "packages": [],
       "attempts": 0,
       "notes": "PICKED AT CYCLE 21 out of SPEC.md's Nice-to-haves, which are gated on 'do not start these until every must-have is verified green' -- that gate is now open: all four must-haves (KI-1 closed, KI-6 fixed, KI-7 bounded+sampled, KI-5 pinned) are conductor-verified, and the backlog held only the p9 cosmetic T-116. Chosen over the OTHER nice-to-have (KI-5 actually fixed via glyph-set redesign) purely on gear: that one is L-effort and gear 1 forbids L-effort, exactly the reason SPEC gave for cutting it from must-haves in the first place. Ratchet: 'would the target user notice?' -- the target user is the next person to change this code, and a suite that runs itself on push is the difference between a claim and a check; 'would they still care after 10 minutes?' -- yes, it keeps running after everyone leaves. This is the only item in the backlog that passes both halves. NOT flagged craft:ui (a workflow yml is not a UI surface), so the craft.ui pack was deliberately not spliced into the builder brief.",
+      "status": "done",
+      "completed_cycle": 21,
+      "verify_note": "Conductor gate cycle 21, three layers. (1) STATIC, 21/21: .swarm/runs/cycle-021-verify-T-117.py, authored after the builder returned and never shown to it, checks the yaml parses, both triggers present, the run command RESOLVES through package.json scripts to the real test_cmd, the node matrix honours engines>=20 AND actually exercises the 20 floor, actions pinned, single-file diff, zero deps, and the lockless-repo traps (`npm ci`, setup-node cache) absent. (2) FAILABLE, 8/8: .swarm/runs/cycle-021-mutants-T-117.py kills 7 plausible-but-wrong workflows and keeps 1 cosmetic control green, so the gate is discriminating rather than trigger-happy; the file is restored byte-identical afterwards (git diff empty, asserted). (3) LIVE, the discriminator: pushed as sha c28409b, GitHub Actions run 31846401111 executed on GitHub's own runners and both matrix legs logged '# tests 114 / # pass 114 / # fail 0' -- test (20) in 14s, test (22) in 8s, conclusion success. A vacuous or invented-script workflow cannot emit this repo's exact test count from a machine the conductor does not control. 114/114 also green locally on main post-merge (node v24.19.0).",
+      "residual": "The live run emitted a deprecation annotation the static gate could not have found; filed as T-118 rather than folded in silently. It is NOT a T-117 gate failure -- the item's acceptance asked for 'at least a major version tag' and @v4 is one."
+    },
+    {
+      "id": "T-118",
+      "title": "CI pins actions/checkout@v4 and actions/setup-node@v4, whose Node 20 runtime GitHub has deprecated",
+      "kind": "fix",
+      "priority": 4,
+      "value": "M",
+      "effort": "S",
+      "model": "haiku",
+      "deps": [
+        "T-117"
+      ],
+      "files_hint": [
+        ".github/workflows/ci.yml"
+      ],
+      "acceptance": "Both action pins are raised to a major version whose runtime GitHub does not warn about, and a subsequent live run on the pushed sha completes with conclusion success AND emits no Node-runtime deprecation annotation. Verified against the real run, not against the yaml. Nothing else in the workflow changes: the triggers, the node-version matrix, the single `npm test` step and the zero-dependency posture all stay exactly as T-117 left them.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "FOUND BY THE CYCLE-21 LIVE CI RUN, and findable no other way: the yaml is valid, the pins satisfy every static rule the gate applies, and both jobs went green. GitHub's own annotation on run 31846401111 is the entire evidence -- 'Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4' -- raised on both matrix legs. Currently cosmetic (the forced upgrade to Node 24 is why the jobs still pass) but it is a dated warning about a forced fallback, so it is a real expiry, not style. Latest majors confirmed live against the GitHub API this cycle, not remembered: actions/checkout v7.0.1, actions/setup-node v7.0.0 -- a v4->v7 jump across three majors, which is exactly why this is filed for a deliberate pass with a live re-run rather than patched inline at the end of a verification. NOTE the confusable pair of 20s: the DEPRECATED 20 is the actions' own JS runtime, unrelated to this repo's node-version: [20, 22] test matrix, which is pinned by package.json engines>=20 and must NOT be touched while fixing this.",
       "status": "todo"
     }
   ]

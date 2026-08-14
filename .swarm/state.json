@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "VALUE_LOOP",
-  "cycle": 20,
+  "cycle": 21,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -207,15 +207,25 @@
       "cycle": 19,
       "what": "T-113 closes the fourth and last open instance of the \u2018module doc-comment gloss wider than the code\u2019 family (T-110, T-112, T-105, T-113); the candidate playbook lesson promoted at cycle 16 now has a complete case set for WRAP_UP distillation",
       "why": "Cycle 16 promoted the pattern to a candidate lesson on its fourth instance and named the generalizable test as the MUTANT shape (mutate B, leave A alone; a claim that survives is decoration). T-113 adds a second, cheaper discriminator to that lesson: where the claim is about a BRANCH rather than a cross-file coupling, instrumenting the branch and counting which side real inputs land on settles it directly \u2014 here it converted \u2018the comment is narrower than the code\u2019 from an inspection into 8.8% of 33,192 draws. Both belong in the same lesson: a prose claim about code is checkable by perturbing or instrumenting the code, never by re-reading the prose."
+    },
+    {
+      "cycle": 21,
+      "what": "opened SPEC.md's Nice-to-haves gate and spent the cycle there (T-117, CI workflow) rather than on the one item the backlog actually held (T-116, British spellings)",
+      "why": "The Nice-to-haves section is gated on 'do not start these until every must-have is verified green', and that gate is open: all four must-haves are conductor-verified with evidence. The backlog's only todo was a p9 cosmetic whose own notes concede the VALUE_LOOP ratchet rejects it. Between the two nice-to-haves, KI-5's glyph-set redesign is L-effort and gear 1 forbids L-effort -- which is the same reason SPEC cut it from must-haves in the first place, so the constraint is consistent rather than newly invented. CI passes both halves of the ratchet for this run's declared audience ('the next person to change this code'): they notice on their first push, and it keeps running after everyone leaves. It also converts this run's whole thesis -- replace prose-only claims with machine-checked ones -- from something 21 cycles asserted into something the repo now enforces on its own."
+    },
+    {
+      "cycle": 21,
+      "what": "verified T-117 by PUSHING it and reading GitHub's own execution log, not by reading the yaml",
+      "why": "A workflow file is the one artifact where static review is systematically weakest: every wrong version of it is also well-formed yaml. The specific trap here was live -- this repo has no package-lock.json, so the near-universal `npm ci` idiom would have produced a workflow that parses, reviews clean, and fails on every run forever. Static checks caught that one because it was anticipated; the live run caught one that was NOT anticipated (the actions/*@v4 Node-20 runtime deprecation, T-118), which is the argument for the live run existing at all. The discriminator is the log line '# pass 114' from GitHub's runner: a vacuous, no-op, or invented-script workflow cannot emit this repo's exact test count from a machine the conductor does not control."
     }
   ],
   "known_issues": [
     {
       "id": "KI-2",
-      "desc": "settings.json allowlist edit denied AGAIN at the improvement-run kickoff 2026-08-14 (recurring, same as the original run). permissions.additionalDirectories is still [] and bin/swarm-budget.sh + bin/swarm-playbook.sh are not allowlisted, so the budget probe and playbook parser are both unrunnable from a headless conductor and were worked around (allocator.json for gear evidence; direct file read for the playbook). Headless relaunches must keep passing --add-dir explicitly. SWARM-side tooling gap, not a target defect - hard rule 5 forbids fixing it from inside a run. STILL DENIED at cycle 20 (21st consecutive cycle): bin/swarm-budget.sh was re-invoked this cycle -- the first real re-attempt since the failure streak began, since last_real_probe_ts is 0 and the >=1800s re-probe window is therefore long open -- and the permission layer refused it again. That is now a MEASURED refusal at cycle 20, not an inherited assumption.",
+      "desc": "settings.json allowlist edit denied AGAIN at the improvement-run kickoff 2026-08-14 (recurring, same as the original run). permissions.additionalDirectories is still [] and bin/swarm-budget.sh + bin/swarm-playbook.sh are not allowlisted, so the budget probe and playbook parser are both unrunnable from a headless conductor and were worked around (allocator.json for gear evidence; direct file read for the playbook). Headless relaunches must keep passing --add-dir explicitly. SWARM-side tooling gap, not a target defect - hard rule 5 forbids fixing it from inside a run. STILL DENIED at cycle 20 (21st consecutive cycle): bin/swarm-budget.sh was re-invoked this cycle -- the first real re-attempt since the failure streak began, since last_real_probe_ts is 0 and the >=1800s re-probe window is therefore long open -- and the permission layer refused it again. That is now a MEASURED refusal at cycle 20, not an inherited assumption. RE-MEASURED at cycle 21 (22nd consecutive cycle), and the scope is now known to be WIDER than the budget probe: bin/swarm-notify.sh poll was refused in the same cycle, so the control channel could only be read from runs/control.json on disk. Reading the file is a sufficient substitute for the pending[]/inject[] arrays (both were empty), but it is NOT a substitute for the send path - cycle 20's phase-change push and this cycle's control-ack had no way to leave the machine. Every bin/*.sh entry point is behind the same gate; node bin/swarm-craft.mjs, by contrast, RAN fine this cycle, which localises the gap to the shell-script allowlist entries rather than to bin/ as a directory. That is the concrete thing a human can fix before the next run.",
       "severity": "medium",
       "cycle_found": 0,
-      "recurred_cycle": 20
+      "recurred_cycle": 21
     },
     {
       "id": "KI-4",
@@ -250,14 +260,14 @@
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 5,
-    "wave_streak": 2,
+    "wave_streak": 0,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "cycle": 20,
-    "work": "build-wave k=1 (T-111) at haiku",
-    "outcome": "1 verified, 114/114 green, backlog cleared of pre-existing items; discriminator: fence-parity 18 (even) proves the edited line is prose, and the same gate sweep disproved the item's US-English premise -> T-116 filed",
-    "ts": 1786744722
+    "cycle": 21,
+    "work": "build-wave k=1 (T-117) at haiku",
+    "outcome": "1 verified, 114/114 green locally AND on GitHub's runners; the repo now has CI. Discriminator: the pushed workflow actually executed (run 31846401111, sha c28409b) and both matrix legs printed '# tests 114 / # pass 114 / # fail 0' in the GitHub log - a no-op or invented-script workflow could not produce that. Gate proven failable and discriminating: 8/8 mutants resolved correctly, 7 killed plus 1 green control. Live run surfaced a real follow-on the static gate could not -> T-118 filed",
+    "ts": 1786746900
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [
