@@ -78,8 +78,15 @@ moon --north   # works
 want in a shell prompt:
 
 ```sh
-# ~/.zshrc
-echo "$(npx --no-install moon --compact)"
+# ~/.zshrc — moon is not on npm; install from git, then call the local binary
+npx github:YOUR_USER/moon --compact
+```
+
+Fetching from git on every prompt render would be slow, so for real prompt use
+clone it once and call it directly:
+
+```sh
+echo "$(node ~/src/moon/bin/moon.js --compact)"
 ```
 
 ## `--block`
@@ -121,7 +128,7 @@ echo "$(npx --no-install moon --compact)"
 | `illumination` | illuminated fraction of the disc, `0`–`1` |
 | `age` | days elapsed since the last new moon |
 | `cycleFraction` | position through the synodic month, `0` = new, `0.5` = full |
-| `phaseAngle` | elongation in degrees, `0` = new, `180` = full |
+| `phaseAngle` | elongation in degrees, `0` = new, `180` = full — see caution below |
 | `hemisphere` | the hemisphere actually used for rendering |
 | `nextFullMoon` | ISO-8601 instant of the next full moon |
 | `julianDay` | Julian Day of the observation instant |
@@ -130,6 +137,11 @@ echo "$(npx --no-install moon --compact)"
 Numeric fields are rounded to the precision the algorithm has actually earned. Phase
 instants are good to roughly an hour, so illumination is good to about a percent —
 emitting seventeen significant digits would be precision theatre.
+
+**Caution on `phaseAngle`.** It is the Moon–Sun *elongation* (0 at new, 180 at full),
+not the Meeus phase angle *i* (which is 180 at new). Applying the textbook
+`k = (1 + cos i) / 2` to this field returns `1 − illumination` — the exact inverse.
+Use the `illumination` field, which is already computed correctly.
 
 Errors go to stderr and exit `2`; normal output goes to stdout. Safe to pipe.
 
@@ -165,8 +177,25 @@ Independently checked properties:
 node --test test/*.test.js
 ```
 
-95 tests. Timezone is pinned explicitly in every date-sensitive test — the CI host is
-UTC, and a test that passes only because of that is a bug.
+Timezone is pinned explicitly in every date-sensitive test — the CI host is UTC, and a
+test that passes only because of that is a bug.
+
+## Known limitation: terminal glyph width
+
+The disc uses Unicode Block Elements, and those glyphs do not share an East Asian Width
+class: `░` and `▐` are Neutral while `▒ ▓ █ ▌ ▏ ▕` are Ambiguous. In a terminal
+configured to render ambiguous-width characters as double-width (common in CJK locales,
+iTerm2's "treat ambiguous-width as double", `xterm -cjk_width`), the disc renders 5–9
+columns wide depending on phase instead of a constant 5. Three consequences there: the
+single-line readout jitters between nights, the two-line form stops aligning, and the
+`--block` frame does not close.
+
+In a default Western-locale terminal — every configuration this was developed and
+tested against — all forms are exactly 5 columns and align correctly.
+
+This is not a typo but an upstream Unicode fact: no subset of Block Elements provides a
+four-step shade ramp plus a symmetric half-block pair within one width class. Fixing it
+properly means changing the glyph set, which is deferred rather than rushed.
 
 ## Licence
 

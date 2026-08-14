@@ -63,12 +63,30 @@
       "desc": "terminal font/width variance for the Unicode glyphs is an untested surface (taste judge, product-not-demo axis). No automated check can cover it; requires a human look.",
       "severity": "low",
       "cycle_found": 0
+    },
+    {
+      "id": "KI-5",
+      "desc": "Disc glyphs span two East Asian Width classes (U+2591 and U+2590 are Neutral; U+2592/3/2588/258C/258F/2595 are Ambiguous). In terminals that render ambiguous-width as double (CJK locales, iTerm2 ambiguous-as-double, xterm -cjk_width) the disc is 5-9 columns instead of 5: the single line jitters between nights, the two-line form stops aligning, and the --block frame does not close. Verified by measurement. Not a typo but an upstream Unicode fact - no Block Elements subset gives a 4-step ramp plus a symmetric half-block pair in one width class. Correct in default Western-locale terminals. Documented in README; fix needs a glyph-set redesign, deliberately deferred rather than rushed at the buzzer.",
+      "severity": "medium",
+      "cycle_found": 1
+    },
+    {
+      "id": "KI-6",
+      "desc": "nextFullMoon() returns an Invalid Date (rather than throwing) past the top of the JS Date range, and --json would then throw RangeError on toISOString(). Unreachable from a real clock (needs year 275760). Inconsistent with the module throwing TypeError on bad input.",
+      "severity": "low",
+      "cycle_found": 1
+    },
+    {
+      "id": "KI-7",
+      "desc": "At absurd epochs (+/-270,000 years) phaseName and illumination can contradict each other, because phaseName derives from the ch.49 instant tables and illumination from the ch.48 elongation series, and the two polynomials diverge. Zero contradictions across 350,592 states sampled over 2020-2040. Noted so it is not rediscovered as a live bug.",
+      "severity": "low",
+      "cycle_found": 1
     }
   ],
   "qa": {
-    "last_full_qa_cycle": 0,
+    "last_full_qa_cycle": 1,
     "last_look_cycle": 1,
-    "last_taste_cycle": 0
+    "last_taste_cycle": 1
   },
   "counters": {
     "consecutive_no_value": 0,
@@ -79,8 +97,8 @@
   },
   "last_cycle": {
     "n": 1,
-    "work": "kickoff + contract freeze + build-wave [T-001,T-002,T-003] + conductor integration [T-004,T-005,T-006]",
-    "outcome": "6 items conductor-verified, 95/95 tests green, 4 commits, 0 reverts",
+    "work": "kickoff + build-wave [T-001,T-002,T-003] + integration + adversarial QA pass + 7 QA fixes",
+    "outcome": "6 items verified, 1 real correctness defect (age clamp) found and fixed, 6 doc/format defects fixed, 102/102 green, 8 commits, 0 reverts",
     "commit": ""
   }
 }

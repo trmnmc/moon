@@ -19,21 +19,25 @@ usage
 options
   --json      structured output for scripting (stable, documented below)
   --block     multi-line framed readout instead of the single line
-  --compact   suppress the next-full-moon line, leaving exactly one line
+  --compact   suppress the next-full-moon line (on its own, exactly one line)
   --south     force southern-hemisphere rendering
   --north     force northern-hemisphere rendering
   -h, --help  this text
 
-By default the hemisphere is inferred from your system timezone. The lit limb of the
-moon faces the opposite way south of the equator, so this matters; if the guess is
-wrong for your location, pass --south or --north.
+The hemisphere is inferred from your system timezone. The lit limb faces the
+opposite way south of the equator, so this matters; if the guess is wrong for
+where you are, pass --south or --north.
 
 --json fields
   phase         phase name, one of the eight canonical names
   illumination  illuminated fraction of the disc, 0..1
   age           days elapsed since the last new moon
   cycleFraction 0..1 through the synodic month (0 = new, 0.5 = full)
-  phaseAngle    degrees, 0..360
+  phaseAngle    elongation in degrees, 0..360: 0 = new, 180 = full
+                CAUTION: this is the Moon-Sun elongation, NOT the Meeus phase
+                angle i (which is 180 at new). Applying k = (1+cos i)/2 to this
+                field returns 1 - illumination, i.e. the exact inverse. Use the
+                illumination field; it is already computed for you.
   hemisphere    "north" or "south" — the one actually used for rendering
   nextFullMoon  ISO-8601 instant of the next full moon
   julianDay     Julian Day of the observation instant
@@ -55,7 +59,10 @@ function formatFullMoonDate (when, now) {
   const day = String(when.getDate()).padStart(2, ' ')
   const month = MONTHS[when.getMonth()]
   const year = when.getFullYear() === now.getFullYear() ? '' : ` ${when.getFullYear()}`
-  return `${day} ${month}${year}`.trim()
+  // NOT trimmed: the leading pad from padStart is load-bearing. It right-aligns
+  // single-digit days under two-digit ones, the same way the illumination column
+  // is right-aligned. Trimming it here silently undid the padStart above.
+  return `${day} ${month}${year}`
 }
 
 // The disc occupies 5 cells, then a space, then a 4-column percentage, then two
@@ -113,7 +120,9 @@ function main (argv) {
   const lines = []
   if (opts.block) {
     lines.push(renderBlock(moon, hemisphere))
-    if (!opts.compact) lines.push(nextFullLine(now, 2))
+    // 3, not 2: the block's own label column starts at column 4 (frame char +
+    // two spaces), so an indent of 2 put this line one column to its left.
+    if (!opts.compact) lines.push(nextFullLine(now, 3))
   } else {
     lines.push(renderLine(moon, hemisphere))
     if (!opts.compact) lines.push(nextFullLine(now, NAME_COLUMN))
