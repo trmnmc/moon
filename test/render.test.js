@@ -583,11 +583,11 @@ const DOCUMENTED_EAW = new Map([
 /**
  * The disc is also observed (below) to draw two round-limb glyphs —
  * U+25D6/U+25D7, Geometric Shapes, not Block Elements — for a fully-lit
- * outer cell. The README's width caveat never mentions them: it is scoped to
- * the Block Element shade ramp and does not claim completeness over every
- * glyph the disc can emit. That is a real documentation gap, not a bug in
- * this test. They are pinned separately below, apart from the documented
- * partition, so this test tells the truth about what is and is not covered.
+ * outer cell. The README names them and explicitly declines to establish
+ * their East Asian Width class, so they remain outside the documented
+ * Neutral/Ambiguous partition above. They are pinned separately below,
+ * apart from the documented partition, so this test tells the truth about
+ * what is and is not classified.
  */
 const UNDOCUMENTED_DISC_GLYPHS = new Set([0x25d6, 0x25d7]); // ◖ ◗
 

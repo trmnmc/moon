@@ -1,0 +1,77 @@
+cycle 12 — verification gate — T-112
+target: /opt/targets/moon
+conductor-authored at verification time; the builder's brief contained none of these checks.
+
+CHECK 1 — write scope (the item's scope was ONE file)
+  $ git status --porcelain
+     M test/render.test.js                          <- one file, nothing else
+  $ git rev-parse --short HEAD
+    fc4faf1                                         <- unmoved; builder did not commit
+  $ git diff -U0 -- test/render.test.js | grep '^@@'
+    @@ -586,5 +586,5 @@ const DOCUMENTED_EAW = new Map([   <- exactly one hunk
+
+CHECK 2 — comment-only change; no executable line touched
+  $ git diff -- test/render.test.js
+    @@ -583,11 +583,11 @@ const DOCUMENTED_EAW = new Map([
+      /**
+       * The disc is also observed (below) to draw two round-limb glyphs —
+       * U+25D6/U+25D7, Geometric Shapes, not Block Elements — for a fully-lit
+    - * outer cell. The README's width caveat never mentions them: it is scoped to
+    - * the Block Element shade ramp and does not claim completeness over every
+    - * glyph the disc can emit. That is a real documentation gap, not a bug in
+    - * this test. They are pinned separately below, apart from the documented
+    - * partition, so this test tells the truth about what is and is not covered.
+    + * outer cell. The README names them and explicitly declines to establish
+    + * their East Asian Width class, so they remain outside the documented
+    + * Neutral/Ambiguous partition above. They are pinned separately below,
+    + * apart from the documented partition, so this test tells the truth about
+    + * what is and is not classified.
+       */
+      const UNDOCUMENTED_DISC_GLYPHS = new Set([0x25d6, 0x25d7]); // ◖ ◗
+  -> every +/- line begins " * ": prose inside one comment block, nothing else.
+  -> UNDOCUMENTED_DISC_GLYPHS is a CONTEXT line: contents unchanged (0x25d6, 0x25d7).
+  -> "for a fully-lit outer cell" is a CONTEXT line: preserved verbatim as briefed
+     (it is T-113's defect, deliberately fenced out of this item).
+
+CHECK 3 — the stale claim is actually gone
+  $ grep -n 'never mentions' test/render.test.js
+    (no output)                                     <- the false sentence no longer exists
+
+CHECK 4 — the NEW claim checked against the README itself, not against the builder's quote
+  README.md:214-217, read directly by the conductor:
+    "The disc also draws round-limb glyphs, `◗` and `◖`, for a fully lit outer cell. These
+     are Geometric Shapes, not Block Elements, and are outside the Neutral/Ambiguous
+     partition above. This repo has not established their East Asian Width class, so
+     whether they widen the disc in an ambiguous-width terminal is unknown."
+  -> "The README names them"                      TRUE (named as `◗` and `◖`, line 214).
+  -> "...their East Asian Width class [unset]"    TRUE (line 216, verbatim).
+  -> "so they remain outside the documented
+      Neutral/Ambiguous partition above"          TRUE (line 215 says exactly this, and
+                                                  DOCUMENTED_EAW at render.test.js:572-581
+                                                  contains no 0x25d6/0x25d7 entry).
+  -> the builder's cited line numbers (214-217) match the file. Quote not fabricated.
+  RESIDUAL, not a failure: "explicitly declines to establish" attributes a deliberate
+  refusal; README:216 states the weaker fact "has not established". See the journal.
+
+CHECK 5 — full test_cmd, run by the conductor
+  $ node --test test/*.test.js
+    ✔ the whole cycle renders without throwing and never widens the disc (7.885482ms)
+    ✔ KI-5 pin: disc glyph set matches the documented East Asian Width partition (21.887579ms)
+    ℹ tests 106
+    ℹ pass 106
+    ℹ fail 0
+    ℹ cancelled 0   ℹ skipped 0   ℹ todo 0
+
+CHECK 6 — DISCRIMINATOR: is the comment's subject a real phenomenon at all?
+  A comment can describe glyphs the renderer never emits, and the suite would still be
+  green. Independent sweep at 384 steps (the test's own sweep is 96), both hemispheres,
+  both renderLine and renderBlock, reading the renderer directly:
+  $ node -e "...renderLine/renderBlock sweep, collect codepoints..."
+    round-limb glyphs actually emitted: U+25D6,U+25D7
+    total distinct codepoints observed: 43
+  -> both glyphs are genuinely drawn. The comment describes something that exists, and it
+     is held apart from a DOCUMENTED_EAW map that genuinely omits it.
+
+GATE RULING: PASS. The false claim is removed, its replacement is true against the README
+line-for-line, the assertion and the pinned glyph set are untouched, the fenced-out phrase
+survived verbatim, and the suite is 106/106 green. T-112 -> done.

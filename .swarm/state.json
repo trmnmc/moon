@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "REVIEW",
-  "cycle": 11,
+  "cycle": 12,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -213,18 +213,18 @@
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
-    "k_current": 1,
-    "wave_streak": 1,
+    "k_current": 2,
+    "wave_streak": 0,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "cycle": 11,
-    "work": "build-wave k=1 [T-108] at sonnet (attempt 2, escalated)",
-    "outcome": "1 verified, 106/106 green, 2 residuals filed + T-110 widened",
+    "cycle": 12,
+    "work": "build-wave k=1 [T-112] at sonnet",
+    "outcome": "1 verified, 106/106 green, 1 residual folded into T-113",
     "verified_items": [
-      "T-108"
+      "T-112"
     ],
-    "evidence": ".swarm/runs/cycle-011-verify-T-108.txt"
+    "evidence": ".swarm/runs/cycle-012-verify-T-112.txt"
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [
