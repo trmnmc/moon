@@ -291,7 +291,8 @@
       "packages": [],
       "attempts": 0,
       "notes": "FOUND BY THE CYCLE-11 GATE (check 9), and like T-112 this run CREATED it rather than uncovering it - the paragraph is the one T-108 attempt 2 rewrote. Passed rather than failed because the defect T-108 was retried against (attributing the figure to the never-executed lunarphase-js) is genuinely fixed; this is one noun overstating a mechanism, with subject and magnitude both correct.\nThis is the FIFTH instance of the run's signature failure mode: a doc claim slightly wider than what the repo can support. It is a wrap-up distillation candidate, not another one-off - see the cycle-10 journal's note on the fourth instance.\nFiled rather than conductor-patched (cycle 7/8/9/10 precedent: a conductor editing the artifact leaves nothing independent checking the conductor's own wording).\nWAVE NOTE: overlaps T-110, T-111 and T-113 in README.md. No two may share a wave.",
-      "status": "todo"
+      "status": "done",
+      "done_cycle": 13
     },
     {
       "id": "T-115",
