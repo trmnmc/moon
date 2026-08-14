@@ -43,6 +43,36 @@ const SYNODIC_MONTH = 29.530588861;
  */
 const INSTANT_TOLERANCE_DAYS = 0.5;
 
+/**
+ * KI-7: the declared domain over which `phaseName` and `illumination` are
+ * known to stay mutually consistent -- calendar years 1000 through 3000
+ * (i.e. [Date.UTC(1000,0,1), Date.UTC(3000,0,1))).
+ *
+ * WHY: `phaseName` and `illumination` come from two DIFFERENT Meeus series
+ * that are each polynomial in T (centuries/millennia from J2000):
+ *   - phaseName derives from the ch. 49 true-phase instant series
+ *     (truePhaseJD), driven by k and T = k / 1236.85.
+ *   - illumination derives from the ch. 48 elongation series
+ *     (elongationDeg), via k = (1 + cos i) / 2, driven by T = centuries
+ *     from J2000 in eqs. (47.2)-(47.4).
+ * Both series are truncations fitted and validated near J2000; nothing
+ * about them guarantees the two stay in step once T grows large. Far
+ * outside this domain (Meeus gives no domain of validity, so "far" was
+ * found empirically -- e.g. epochs around +/-270,000 years) the two series
+ * can disagree enough that phaseName names a band illumination does not
+ * support, e.g. "waning gibbous" reported at 3.85% illumination.
+ *
+ * This bound is SAMPLED-clean, not proven: test/astro.test.js strides
+ * deterministically across it and finds no contradiction between phaseName
+ * and illumination anywhere in the sample. It is not a derived error bound
+ * on either series. Behavior outside this domain is UNSPECIFIED -- not
+ * guaranteed wrong, simply not checked.
+ */
+const PHASE_ILLUMINATION_CONSISTENCY_DOMAIN = {
+  startMs: Date.UTC(1000, 0, 1),
+  endMs: Date.UTC(3000, 0, 1),
+};
+
 const DEG = Math.PI / 180;
 const DAY_MS = 86400000;
 const JD_UNIX_EPOCH = 2440587.5; // JD of 1970-01-01T00:00:00Z
@@ -330,4 +360,4 @@ function nextFullMoon(date) {
   return result;
 }
 
-module.exports = { computeMoon, nextFullMoon, PHASE_NAMES };
+module.exports = { computeMoon, nextFullMoon, PHASE_NAMES, PHASE_ILLUMINATION_CONSISTENCY_DOMAIN };

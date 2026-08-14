@@ -1,0 +1,142 @@
+CYCLE 6 — VERIFICATION GATE — T-103a
+Item: Declare the KI-7 supported date domain in src/astro.js and pin it with a SAMPLED consistency test
+Gate authored by the conductor AT VERIFICATION TIME. The builder never saw these checks.
+Working tree, k=1 (no branch; sole-committer conductor, revert = git checkout on failure).
+
+================================================================================
+CHECK 1 — the astronomy is untouched (SPEC non-goal: no rewriting of the core)
+================================================================================
+Method: extract src/astro.js from HEAD, remove ONLY the added JSDoc+const block from
+the working copy, normalize the export line back to HEAD's form, compare byte-for-byte.
+
+  added block located: true
+  ASTRONOMY BODY IDENTICAL to HEAD: true
+
+Independent cross-check on numeric literals alone (catches a coefficient edit hidden by
+a whitespace-equal diff):
+
+  numeric literals identical: true
+
+git diff --stat -- src test README.md package.json
+   src/astro.js       | 32 +++++++++++++++++++++++++++++++-
+   test/astro.test.js | 53 ++++++++++++++++++++++++++++++++++++++++++++++++++++-
+   2 files changed, 83 insertions(+), 2 deletions(-)
+
+README.md and package.json are absent from the diffstat -> both untouched, as required
+(README is T-103b's scope; manifests are excluded from builder write scope).
+
+================================================================================
+CHECK 2 — full test_cmd, run by the conductor
+================================================================================
+$ node --test /opt/targets/moon/test/*.test.js
+
+  i tests 106
+  i suites 0
+  i pass 106
+  i fail 0
+  i cancelled 0
+  i skipped 0
+  i todo 0
+  i duration_ms 1350.011141
+
+105 -> 106. Suite runtime 1.0s -> 1.35s; the sampled test is the whole delta.
+
+================================================================================
+CHECK 3 — NON-VACUITY: does the test actually assert anything?
+================================================================================
+The test exempts first/last quarter (they straddle 0.5 by construction). If quarters
+dominated the sample, the test would be near-vacuous while still reading as a pass.
+Conductor reproduced the test's exact sampling and counted the branches taken:
+
+  domain: 1000-01-01T00:00:00.000Z -> 3000-01-01T00:00:00.000Z
+  distribution: {"waning gibbous":868,"waning crescent":863,"waxing crescent":866,
+                 "waxing gibbous":865,"full":133,"last quarter":135,"new":138,
+                 "first quarter":132}
+  ASSERTED samples: 3733 / 4000   EXEMPT (quarters): 267
+
+Every band is exercised in quantity: new 138, full 133, crescents 1729, gibbous 1733.
+93.3% of samples reach a real assertion. Not vacuous.
+
+================================================================================
+CHECK 4 — MUTATION: can the test fail, and does it truly read the constant?
+================================================================================
+The builder proved failability by tightening a band threshold. That mutation does NOT
+establish that the test's coverage tracks the exported constant. The conductor used a
+DIFFERENT mutation which tests both properties at once: widen the domain constant to
+include the known-divergent region and require the test to go red.
+
+$ sed-equivalent: endMs: Date.UTC(3000, 0, 1)  ->  endMs: Date.UTC(80000, 0, 1)
+  MUTATED endMs -> year 80000
+
+$ node --test /opt/targets/moon/test/astro.test.js
+  x KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)
+  i tests 24
+  i pass 23
+  i fail 1
+  AssertionError [ERR_ASSERTION]: crescent-band violated at +045200-07-01T20:11:45.600Z
+    phaseName=waxing crescent illumination=0.5023729698322738
+
+This proves three things at once:
+  (a) the test reads startMs/endMs FROM the exported constant (the mutation changed what
+      it sampled; a re-typed literal would have been unaffected),
+  (b) it detects genuine phaseName/illumination contradictions,
+  (c) the failure message is diagnosable from output alone — ISO instant, phase name,
+      and illumination value are all present.
+
+$ restore from backup
+  restored identical: true
+
+================================================================================
+CHECK 5 — is the declared domain actually clean, or just stride-lucky?
+================================================================================
+The builder's test walks an even 4000-point lattice. A defect sitting between lattice
+points would be invisible to it. The conductor re-sampled the same domain on a DIFFERENT
+lattice: prime sample counts and a deterministic LCG jitter within each stride, so the
+two point sets share no structure.
+
+  N=9973   offset-lattice + LCG jitter -> violations=0
+  N=50021  offset-lattice + LCG jitter -> violations=0
+
+Discriminator sanity (same band logic, run OUTSIDE the declared domain — confirms the
+check is capable of firing rather than always returning clean):
+
+  PROPOSED 1000-3000 : n=20000 violations=0
+  wider -2000-6000   : n=20000 violations=0
+  absurd +/-80k      : n=20000 violations=305
+    first: {"iso":"-079808-01-04T01:35:45.887Z","name":"waxing crescent","ill":0.6894906660557782}
+
+================================================================================
+CHECK 6 — final suite after restoring the mutation
+================================================================================
+$ node --test /opt/targets/moon/test/*.test.js
+  i tests 106
+  i pass 106
+  i fail 0
+  i duration_ms 1314.880415
+
+================================================================================
+VERDICT: PASS
+================================================================================
+
+HONEST LIMITS ON THIS EVIDENCE:
+
+- The domain is SAMPLED-clean, NOT proven. Checks 4 and 5 establish that no contradiction
+  exists at ~64,000 independently-chosen points across years 1000-3000. That is not an
+  error bound derived from either Meeus series, and this run cannot produce one. The
+  module's doc comment says exactly this and must not be strengthened later.
+- Behavior OUTSIDE the domain is unspecified, not guaranteed wrong. The +/-80k figures
+  above show divergence exists far out; they do not locate its onset. The onset was
+  estimated at ~72,500 years from 1970 at cycle 1 and has NOT been re-established here.
+- The bound is DECLARATIVE ONLY: computeMoon and nextFullMoon still compute outside it
+  with no runtime warning. Deliberate — a runtime guard is a behavior change to a shipped
+  CLI and the run's non-goals forbid new behavior. Parked in the ideas ledger, not filed
+  as a backlog item.
+- collision-scan gate: NOT APPLICABLE and reported as not-run, never as passed.
+  bin/collision-scan.mjs targets browser projects built from classic non-module scripts;
+  moon is a Node CLI with no browser surface.
+- qa-verify look pass: correctly skipped. The post-merge look pass triggers only on
+  user-visible merged files (html/css/client-js/template/static). The merged files are
+  src/astro.js and test/astro.test.js. state.json.qa.last_look_cycle stays 1.
+- KI-7 is now BOUNDED, not fixed. The two series still diverge; this cycle declared and
+  machine-checked where they do not. The must-have also needs the README half (T-103b)
+  before it can be checked off.

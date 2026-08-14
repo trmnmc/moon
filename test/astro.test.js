@@ -9,7 +9,9 @@ process.env.TZ = 'Pacific/Kiritimati';
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { computeMoon, nextFullMoon, PHASE_NAMES } = require('../src/astro.js');
+const {
+  computeMoon, nextFullMoon, PHASE_NAMES, PHASE_ILLUMINATION_CONSISTENCY_DOMAIN,
+} = require('../src/astro.js');
 
 const SYNODIC = 29.530588861;
 const DAY_MS = 86400000;
@@ -374,4 +376,53 @@ test('age never exceeds the true maximum lunation length across 60 years', () =>
   }
   assert.ok(max > 29.6, `clamp appears to be back: max age only ${max}`);
   assert.ok(max < 29.9, `age exceeded any real lunation: ${max}`);
+});
+
+// ---------------------------------------------------------------------------
+// KI-7: phaseName (ch. 49 true-phase instants) and illumination (ch. 48
+// elongation series) are two DIFFERENT Meeus series, each a T-polynomial
+// truncation fitted near J2000; nothing guarantees they stay mutually
+// consistent once T grows large (see PHASE_ILLUMINATION_CONSISTENCY_DOMAIN's
+// doc comment in src/astro.js). This SAMPLES -- never exhaustively sweeps --
+// a few thousand deterministic, evenly-strided points across the declared
+// domain and checks the band discriminator: phaseName must never name a
+// band that illumination does not support. Bounds are read from the
+// exported constant, not re-typed, so this test's coverage tracks it.
+// ---------------------------------------------------------------------------
+
+test('KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)', () => {
+  const { startMs, endMs } = PHASE_ILLUMINATION_CONSISTENCY_DOMAIN;
+  // 4000 samples over ~2000 years is a stride of ~6 hours short of 6 months
+  // (~183 days) -- dense enough to hit every phase name many times over,
+  // sparse enough (4000 computeMoon calls, pure arithmetic) to stay well
+  // under a second, alongside the rest of this ~1-second suite.
+  const SAMPLE_COUNT = 4000;
+  const stride = (endMs - startMs) / SAMPLE_COUNT;
+  for (let i = 0; i < SAMPLE_COUNT; i++) {
+    const ms = startMs + i * stride;
+    const m = moonAt(ms);
+    const label = () => `${new Date(ms).toISOString()} phaseName=${m.phaseName} illumination=${m.illumination}`;
+    switch (m.phaseName) {
+      case 'new':
+        assert.ok(m.illumination < 0.10, `new-band violated at ${label()}`);
+        break;
+      case 'waxing crescent':
+      case 'waning crescent':
+        assert.ok(m.illumination < 0.5, `crescent-band violated at ${label()}`);
+        break;
+      case 'waxing gibbous':
+      case 'waning gibbous':
+        assert.ok(m.illumination > 0.5, `gibbous-band violated at ${label()}`);
+        break;
+      case 'full':
+        assert.ok(m.illumination > 0.90, `full-band violated at ${label()}`);
+        break;
+      case 'first quarter':
+      case 'last quarter':
+        // Straddles the 0.5 boundary by construction -- exempt.
+        break;
+      default:
+        assert.fail(`unrecognized phaseName at ${label()}`);
+    }
+  }
 });
