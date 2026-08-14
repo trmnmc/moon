@@ -45,8 +45,8 @@ const INSTANT_TOLERANCE_DAYS = 0.5;
 
 /**
  * KI-7: the declared domain over which `phaseName` and `illumination` are
- * known to stay mutually consistent -- calendar years 1000 through 3000
- * (i.e. [Date.UTC(1000,0,1), Date.UTC(3000,0,1))).
+ * known to stay mutually consistent -- the half-open range of calendar
+ * years 1000-3000 (i.e. [Date.UTC(1000,0,1), Date.UTC(3000,0,1))).
  *
  * WHY: `phaseName` and `illumination` come from two DIFFERENT Meeus series
  * that are each polynomial in T (centuries/millennia from J2000):

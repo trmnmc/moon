@@ -173,9 +173,9 @@ Independently checked properties:
   a theoretical half-synodic of 14.765.
 
 `phaseName` and `illumination` come from two different Meeus series, so nothing
-guarantees they stay in step forever. Over years **1000–3000**, `test/astro.test.js`
-samples that domain and finds no contradiction between them; outside it, behaviour is
-unspecified and the two fields may disagree.
+guarantees they stay in step forever. Over the half-open range of years **1000–3000**,
+`test/astro.test.js` samples that domain and finds no contradiction between them;
+outside it, behaviour is unspecified and the two fields may disagree.
 
 ## Non-goals
 
