@@ -3490,3 +3490,218 @@ runfile-mirror:
 ```json
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786742427,"next_wakeup_at":1786742517,"pid":146491,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786742108,"last_real_probe_ts":0,"probe_failures":17,"probe_note":"cycle 17: bin/swarm-budget.sh permission-denied AGAIN (KI-2, 18th consecutive cycle) -> probe_failures 17. The invocation was refused at the permission layer before executing; the PROBE_CMD=false clock-cruise fallback is the same script and so is equally unreachable. last_real_probe_ts stays 0. Gear rests on runs/allocator.json (source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct 70.0, week_elapsed_pct 66.8, dial 0.30. Weekly governor DISENGAGED (weekly_heat 1.048 < 1.1 -> ceiling 5); opus_heat 1.437 > 1.2 keeps promote blocked. Binding constraint for seventeen straight cycles: allocator trickle posture + guest-mode 1-3 clamp -> gear 1, k_cap 1.","weekly":{"ok":true,"weekly_used_pct":70.0,"opus_used_pct":96,"week_elapsed_pct":66.8,"weekly_heat":1.048,"opus_heat":1.437,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":17,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+---
+
+## cycle 18 — 2026-08-14T21:27:33+00:00 → 21:33 UTC · moon · REVIEW · build-wave k=1 (T-107) · VERIFIED
+
+### Step 0-1 — clock, heartbeat, burn
+
+`date +%s` first: 1786742803. `stop_at` 1786807947 (2026-08-15T15:32:27Z) is 65,144s ≈ 18.1h
+out at cycle open; nowhere near the 900s wrap-up threshold. `limp` false.
+Heartbeat stamped ts=1786742853, next=+2700 (build-wave worst case), pid=149004.
+`cycles_since_recycle` 17 → 18; RECYCLE fires at 25, seven cycles out.
+
+PID capture: the `ps -o ppid=` walk is still permission-denied (4th consecutive cycle), so
+the PID comes from `pgrep -af claude`, which named exactly one conductor process —
+`149004 claude -p /swarm cycle … --add-dir /opt/targets/moon`. Reported as a fallback, not
+as the walk.
+
+**Budget probe: NOT RUN — KI-2, 19th consecutive cycle.** Two invocation shapes were tried
+this cycle and both were refused at the permission layer BEFORE the script executed: the
+compound form (`RUNFILE=… bin/swarm-budget.sh; echo exit=$?`) and then the bare single
+form with an absolute path. The refusal is the permission gate, not the script, which is
+why `PROBE_CMD=false` clock-cruise is equally unreachable — it is the same file. So
+`last_real_probe_ts` stays 0 and `probe_failures` goes 17 → 18.
+
+Gear therefore rests on `runs/allocator.json` (source=probe, refreshed 21:26 by the pacer):
+posture **trickle**, `allow_premium_pct` 0, `allow_overall_pct` 0, `opus_used_pct` 96,
+`weekly_used_pct` 70.0, `week_elapsed_pct` 66.93, dial 0.30. Weekly governor DISENGAGED
+(weekly_heat 1.048 < 1.1 → ceiling 5); `opus_heat` 1.437 > 1.2 keeps `promote` blocked.
+Binding constraint for the eighteenth straight cycle: trickle posture + guest-mode 1-3
+clamp → **gear 1, k_cap 1, demote true, promote false**. No burn evidence this cycle —
+tokens/hour and projected depletion are unmeasurable while the probe is denied, and are
+reported as unknown rather than estimated.
+
+### Step 2 — orient
+
+`git status --porcelain` in the target: clean. No crashed-cycle salvage needed. Five stale
+item branches (`T-105`, `item/T-106`, `item/T-110`, `item/T-114`, `item/T-115`) sit behind
+main from earlier cycles; all merged, none unmerged work, left alone.
+
+Control channel: `bin/swarm-notify.sh poll` **NOT RUN — KI-2, denied**, so the poll ran
+file-only per the failure rule. `runs/control.json` read directly: `pending: []`,
+`applied: []`, `inject: []`. Nothing to apply, nothing to triage, no ack to send.
+
+### Step 3 — re-anchor
+
+Improvement run on the shipped v0.1.0 moon CLI: harden tests, close known-issues, polish
+docs for truth. No new features, no dependencies, core astronomy untouched. Every added
+test must close a NAMED untested surface — test count is not an outcome, and CHURN is the
+named chief risk. Cycle 18 % 5 ≠ 0, so no full SPEC re-read or backlog hygiene pass this
+cycle (last one at cycle 15).
+
+### Step 4 — pick work
+
+Backlog at open: 13 done, 3 todo — T-107 (test, priority 9, S), T-111 (polish, priority 6,
+S), T-113 (fix, priority 5, S). `consecutive_no_value` is 0, so no churn-breaker switch is
+forced. Gear 1 permits haiku-priced work plus S-effort sonnet builds only; all three
+candidates are S, so the gear constrains nothing here and priority decides.
+
+**T-107** takes it on value: it closes a gap between REPORT.md's VERIFIED claim "nothing on
+stderr on success" and a suite that never captured stderr on a passing run — an
+overclaim-shaped hole, which this run's spec exists to close. Routing: `kind: test` is a
+code-writing item, so the table lands sonnet; gear-1 demotion does not apply (build/fix
+items never drop below sonnet). Effective wave size = min(k_current 4, gear cap 1) = **1**.
+
+Craft pack ran clean (`degraded: []`); T-107 touches no UI surface, so no `craft.ui`
+splice — correctly a no-op, not a skip.
+
+### Step 5 — execute
+
+One builder, direct Agent call at sonnet. The Workflow tool is review-gated in `-p`
+headless sessions, so build-wave.js was dispatched as its documented failure-table
+fallback; at k=1 the no-worktree caveat is moot, since a single builder cannot collide
+with a peer. The builder still self-provisioned a worktree and asserted the derivation
+before writing, per the build-wave contract. Playbook builder line spliced ("the conductor
+is the SOLE committer"); it complied — nothing was committed to main by the agent.
+
+The brief named the untested surface and the L-010 lesson (read `.status`/`.stderr` from
+`spawnSync`, never through a shell pipe), told the builder to confirm the conductor's own
+reading of the execFileSync gap against source rather than take it on faith, and left the
+test SHAPE to its judgment. It returned one table-driven test over all five success modes,
+arguing the modes share one behavioral claim so splitting them would be churn — the run's
+own digest applied correctly, and recorded as a decision in `state.json`.
+
+Raw return: `.swarm/runs/cycle-018-build-wave.json`. Merged `--no-ff` as `merge T-107`.
+
+### Step 6 — verification gate
+
+Checks authored at verification time; the builder saw none of them.
+
+The trap this item sets is specific: a test that merely restated an existing pass would be
+indistinguishable from a real one by diff, by test count, and by a green suite. So the gate
+did not ask "is the suite green" — it asked whether the named surface was genuinely
+untested before. **Method: mutation, with the PRE-MERGE suite as the control arm**, the old
+`test/cli.test.js` read straight out of git (`git show main^1:…`) rather than reconstructed.
+Each mutant dirties one success mode's stderr, injected AFTER argument parsing succeeds so
+the `--bogus` exit-2 path — which legitimately writes stderr and is already asserted
+line-exact — never reaches it.
+
+```
+mutant                  PRE-MERGE MERGED    (7 mutants + baseline)
+BASELINE unmutated      PASS      PASS
+M0  every success mode  PASS      FAIL
+M1  --help only         PASS      FAIL
+M2  --json only         PASS      FAIL
+M3  --block only        PASS      FAIL
+M4  --compact only      PASS      FAIL
+M5  default (no flags)  PASS      FAIL
+M6  --json exits 3, silent  FAIL  FAIL
+
+mutants killed ONLY by the new test: 6/7
+mutants already caught pre-merge   : M6
+```
+
+The PRE-MERGE column is the load-bearing one: six mutants that make a shipped success mode
+write to stderr sail straight through the old suite. That is the gap, measured rather than
+asserted. M1-M5 being per-mode is what separates a real five-mode loop from a test that
+spawns the default and calls it coverage — a single-mode test would kill M0 and M5 and let
+M1-M4 through.
+
+Attribution, so "MERGED FAIL" is not collateral damage — under M0 with the TAP reporter:
+
+```
+not ok - every successful invocation mode writes nothing to stderr
+  expected: ''    operator: 'strictEqual'
+# tests 12   # pass 11   # fail 1
+```
+
+Exactly one test fails and it is the new one; the other 11 cli tests pass while the binary
+writes to stderr on every success.
+
+Scope, mechanical rather than claimed — `git diff --name-only main^1 main` → `test/cli.test.js`,
+one file, 19 insertions / 1 deletion (the deletion is the require line gaining `spawnSync`).
+Purely additive below the last existing test; no assertion modified, skipped or weakened.
+
+Full `test_cmd` on MERGED main, conductor-run:
+
+```
+ℹ tests 114
+ℹ pass 114
+ℹ fail 0
+ℹ duration_ms 1655.607296
+```
+
+CLI smoke on merged main, plus the conductor checking the underlying product claim directly
+rather than through the suite:
+
+```
+░░░░▐   6%  waxing crescent
+            next full moon  28 Aug
+spawnSync(bin/moon.js) -> status 0   stderr len 0
+```
+
+The real binary genuinely exits 0 with a byte-empty stderr, so the new test pins a true
+fact rather than a hoped-for one. Full evidence: `.swarm/runs/cycle-018-verify-T-107.txt`.
+
+**GATE PASSED. T-107 → done.** Backlog: 14 done, 2 todo.
+
+**The honest residual, declared rather than absorbed.** M6 — a mode that exits non-zero
+while staying silent — was ALREADY caught before this item, because `execFileSync` throws
+on a non-zero exit. So the new test's `assert.equal(result.status, 0)` is defensive
+redundancy, not new coverage. Only the stderr half of the assertion is new surface. The
+assertion is kept (it keeps the test honest if a helper is ever rewritten) but it is
+written down here and in the evidence file so the ledger never counts it as ground gained.
+
+**Wave autotune:** clean wave — zero reverts, zero failed verifies. `wave_streak` 1 → 2 →
+threshold reached, so `k_current` 4 → 5 and `wave_streak` resets to 0. Moot in effect: the
+gear cap of 1 binds the effective wave size regardless.
+
+**Builder worktree note.** The builder's `mktemp -d` resolved under `/opt/swarm/runs/`
+rather than `/tmp`. That is inside the hard-rule-5 writable fence (`runs/`), so it is not a
+violation, but it is unexpected and worth a look in the morning. Pruned after the merge;
+`git worktree list` now shows only the target itself.
+
+### Not-run signals, reported as not-run
+
+- **review-fix: NOT RUN, nineteenth cycle** — deliberate premium deferral under trickle
+  posture (`allow_premium_pct` 0, `opus_used_pct` 96); reviewers route opus. Decision
+  recorded at cycle 11, disclosed run-wide in REPORT.md since T-115. The morning report
+  must carry this as not-run, never as passed.
+- **budget probe: NOT RUN** (KI-2, denied, 19th consecutive). No burn evidence this cycle.
+- **`bin/swarm-notify.sh`: NOT RUN** (KI-2, denied). Control poll ran file-only.
+- **`ps -o ppid=` PID walk: NOT RUN** (permission guard, 4th consecutive). PID from `pgrep`.
+- **collision-scan: NOT APPLICABLE, reported as not-run** — a browser gate; moon is a
+  stdout CLI and no merged file is served to a browser.
+- **qa-verify look pass: correctly skipped** — the single merged file is a test file, not a
+  user-visible surface. `qa.last_look_cycle` stays 1.
+- **QA / TASTE passes: last run at cycle 1**, seventeen cycles ago. Neither re-run since;
+  not claimed as current.
+- **KI-5 is UNFIXED.** Pinned by a test since cycle 6; the width defect is untouched.
+- **KI-7 is UNFIXED.** The two Meeus series still diverge at absurd epochs and the domain
+  remains declarative — nothing enforces it at runtime.
+- **KI-4** still needs a human look. No machine check covers it.
+- **KI-2** has now blocked the budget probe and the notify channel for nineteen straight
+  cycles. Hard rule 5 forbids fixing it mid-run; it remains the single highest-value thing
+  a human could clear before the next run.
+
+### Step 7 — persist + commit
+
+`state.json` and `backlog.json` written atomically (`.tmp` + `mv`). This block appended.
+Runfile written + mirrored to `current.json.bak`. Target repo committed and pushed.
+
+### Step 8 — dashboard + notifications
+
+Local render of `runs/dashboard.html` refreshed (mandatory; on the VPS the file write IS
+the publication). Notification diff vs the previous render: no phase change (REVIEW →
+REVIEW), no target stalled, `publish_failures` still 0 — so no notify emits were due, which
+is fortunate, since the notify helper is denied anyway. Artifact publish skipped correctly
+and NOT counted as a failure: the Artifact tool is absent in this headless VPS session.
+
+next wakeup: +90s (verified-value cycle, base delay)
+
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786743255,"next_wakeup_at":1786745553,"pid":149004,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786743255,"last_real_probe_ts":0,"probe_failures":18,"probe_note":"cycle 18: bin/swarm-budget.sh permission-denied AGAIN (KI-2, 19th consecutive cycle) -> probe_failures 18. TWO invocation shapes were refused at the permission layer before the script executed: the compound form and the bare single form with an absolute path. The refusal is the permission gate, not the script, so the PROBE_CMD=false clock-cruise fallback is equally unreachable (same file). last_real_probe_ts stays 0; tokens/hour and projected depletion are unmeasurable and are reported unknown, never estimated. Gear rests on runs/allocator.json (source=probe, refreshed 21:26 by the pacer): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct 70.0, week_elapsed_pct 66.93, dial 0.30. Weekly governor DISENGAGED (weekly_heat 1.048 < 1.1 -> ceiling 5); opus_heat 1.437 > 1.2 keeps promote blocked. Binding constraint for eighteen straight cycles: allocator trickle posture + guest-mode 1-3 clamp -> gear 1, k_cap 1.","weekly":{"ok":true,"weekly_used_pct":70.0,"opus_used_pct":96,"week_elapsed_pct":66.93,"weekly_heat":1.048,"opus_heat":1.437,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":18,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

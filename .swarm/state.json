@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "REVIEW",
-  "cycle": 17,
+  "cycle": 18,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -182,6 +182,11 @@
       "cycle": 17,
       "what": "T-110's fix accepted in the 'half-open range of years 1000-3000' framing rather than 'years 1000-2999', and the residual README readability question deliberately NOT filed as a fifth prose item",
       "why": "Two framings were true. 'Half-open' restates the bracket notation the repo already prints one line below in src/astro.js and introduces no new quantity; '2999' is a derived number that appears nowhere in the source, and this run's standing docs frame rule (cycles 2 and 4) says a quantity may appear only in the frame the repo already computes it in. The builder chose the framing that needs no new number and applied it identically at all three sites, which is the stronger reading of the rule. The residual I weighed and rejected: in README and REPORT the phrase stands without adjacent bracket notation, so a reader who does not know the term learns the extent but not which endpoint is open. That is a register question, not a truth question - the sentence is true as written, README's Accuracy section is already technical enough to discuss Meeus series and band discriminators, and the spec_digest names CHURN as this run's chief risk. Filing a fifth one-off prose row to re-word a true sentence is precisely the failure the digest warns against, so the gate passes and nothing is filed."
+    },
+    {
+      "cycle": 18,
+      "what": "T-107's five success modes go in ONE table-driven test rather than five tests, and the exit-status assertion stays even though it is redundant",
+      "why": "The builder chose the single-loop shape and argued the five modes share one behavioral claim; the conductor's mutation matrix confirms the loop genuinely reaches all five (M1-M5 each die only against the merged suite), so the compressed shape costs no coverage and the spec_digest names CHURN as this run's chief risk. The status assertion is kept with its redundancy DECLARED in the evidence file rather than quietly counted as new surface: M6 shows execFileSync already threw on non-zero exits pre-merge, so only the stderr half of the assertion is new coverage."
     }
   ],
   "known_issues": [
@@ -224,8 +229,8 @@
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
-    "k_current": 4,
-    "wave_streak": 1,
+    "k_current": 5,
+    "wave_streak": 0,
     "window_tokens_attributed": 0
   },
   "last_cycle": {

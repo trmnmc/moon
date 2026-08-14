@@ -97,8 +97,8 @@
       "acceptance": "A test confirms every successful invocation mode (default, --compact, --block, --json, --help) produces empty stderr, closing the gap between REPORT.md's 'nothing on stderr on success' VERIFIED claim and a suite that never captures stderr on a passing run.",
       "packages": [],
       "attempts": 0,
-      "notes": "PLAN grep (conductor-verified): 'stderr' appears in test/ only inside the single --bogus exit-2 test (cli.test.js:107-112). L-010: capture the exit status directly, never through a pipe - use spawnSync and read .status/.stderr, do not shell-pipe.",
-      "status": "todo"
+      "notes": "PLAN grep (conductor-verified): 'stderr' appears in test/ only inside the single --bogus exit-2 test (cli.test.js:107-112). L-010: capture the exit status directly, never through a pipe - use spawnSync and read .status/.stderr, do not shell-pipe.\nDONE cycle 18. Gate proved the acceptance's real claim by mutation, not by test count: 6 of 7 stderr mutants pass the PRE-MERGE suite and die against the merged one, and M1-M5 are per-mode, so all five named modes are individually covered. Honest residual recorded in cycle-018-verify-T-107.txt: M6 shows the exit-status half of the assertion was already covered pre-merge (execFileSync throws on non-zero), so only the stderr half is new surface.",
+      "status": "done"
     },
     {
       "id": "T-110",

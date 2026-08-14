@@ -1,0 +1,21 @@
+{
+  "cycle": 18,
+  "type": "build-wave",
+  "dispatch": "direct Agent call (Workflow tool is review-gated in headless -p sessions; documented failure-table fallback). k=1, so the no-worktree caveat is moot — a single builder cannot collide with a peer.",
+  "timestamp": 1786742853,
+  "wave": [
+    {
+      "itemId": "T-107",
+      "status": "done",
+      "branch": "wave-1786742853-T-107",
+      "worktree": "/opt/swarm/runs/wt-T-107",
+      "files_changed": ["test/cli.test.js"],
+      "model": "sonnet",
+      "summary": "Added one table-driven test ('every successful invocation mode writes nothing to stderr') covering all five success modes (default, --compact, --block, --json, --help) in a single test with a loop, per the item's own judgment note that one test closing a named surface beats several restating existing passes — the five modes share one behavioral claim (silent stderr + exit 0 on success), so splitting them into five tests would just be churn. Used spawnSync directly (never execFileSync's throw path, never a shell pipe) per playbook L-010, reading .status and .stderr directly. Each mode asserts BOTH exit status 0 and stderr === '' so a mode that silently exits non-zero with empty stderr cannot read as a pass. Confirmed pre-existing gap first: grepped the file and verified run() calls execFileSync with no stdio override, so stderr was inherited by the parent test process on every prior passing-path test, making REPORT.md's 'nothing on stderr on success' claim genuinely untested before this change. Did not touch package.json, bin/, src/, or REPORT.md.",
+      "self_test_output": "tests 114 / pass 114 / fail 0 / duration_ms 1487.966687",
+      "blocked_reason": null
+    }
+  ],
+  "dead_items": [],
+  "conductor_note": "Every field above is a CLAIM. The gate's independent verdict — including the mutation evidence that decided it — is in cycle-018-verify-T-107.txt and in the cycle-18 journal block. The builder self-provisioned its worktree under /opt/swarm/runs/ rather than /tmp; that is inside the hard-rule-5 writable fence (runs/) so it is not a violation, but it is unexpected for a `mktemp -d` and is noted for the morning report. Worktree pruned after merge; `git worktree list` shows only the target itself."
+}

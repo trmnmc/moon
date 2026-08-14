@@ -1,0 +1,130 @@
+T-107 VERIFICATION EVIDENCE — cycle 18
+Conductor-authored at verification time. The builder saw none of these checks.
+
+The claim under test is NOT "a test was added" and NOT "the suite is green". It is the
+one the item's acceptance actually makes: that the added test CLOSES A NAMED UNTESTED
+SURFACE — stderr on successful runs. A test that merely restated an existing pass would
+be indistinguishable from this one by diff, by test count, and by a green suite.
+
+Method: mutation, with the PRE-MERGE suite as the control arm. Scripts:
+/opt/swarm/runs/cycle18-verify.mjs and cycle18-verify2.mjs. The pre-merge cli.test.js is
+read straight out of git (`git show main^1:test/cli.test.js`), never reconstructed from
+memory. Each mutant makes one success mode dirty its stderr; the mutation is injected
+AFTER argument parsing succeeds, so the --bogus exit-2 path — which legitimately writes
+stderr and is already asserted line-exact — never reaches it. A mutant that also broke
+that test would prove nothing.
+
+--------------------------------------------------------------------------------
+1. MUTATION MATRIX
+--------------------------------------------------------------------------------
+
+mutant                  PRE-MERGE MERGED    merged failures
+------------------------------------------------------------------------------
+BASELINE unmutated      PASS      PASS
+M0  every success mode  PASS      FAIL
+M1  --help only         PASS      FAIL
+M2  --json only         PASS      FAIL
+M3  --block only        PASS      FAIL
+M4  --compact only      PASS      FAIL
+M5  default (no flags)  PASS      FAIL
+M6  --json exits 3, silentFAIL      FAIL
+
+mutants killed ONLY by the new test: 6/7
+mutants already caught pre-merge   : M6  --json exits 3, silent
+
+Reading of the matrix:
+
+- The PRE-MERGE column is the load-bearing one. Six mutants that make a shipped success
+  mode write to stderr sail straight through the old suite. That is the gap, measured
+  rather than asserted, and it confirms the item's premise: `run()` calls execFileSync
+  with no stdio override, so stderr was inherited by the test process and never captured
+  on any passing path.
+- M1-M5 are per-mode. They are what distinguishes a real five-mode loop from a test that
+  spawns the default mode and calls it coverage: a single-mode test would kill M0 and M5
+  and let M1-M4 through. All five modes named in the acceptance are individually covered.
+- M6 is the honest negative. A mode exiting non-zero while staying silent was ALREADY
+  caught before this item, because execFileSync throws on a non-zero exit. So the new
+  test's `assert.equal(result.status, 0, ...)` is defensive redundancy, not new coverage.
+  It is not a defect — it keeps the assertion honest if a helper is ever rewritten — but
+  it must not be reported as surface this item closed. Recorded here so the ledger is
+  accurate.
+
+--------------------------------------------------------------------------------
+2. ATTRIBUTION — is "MERGED FAIL" the new test, or collateral damage?
+--------------------------------------------------------------------------------
+
+Under M0, with the TAP reporter naming every failure:
+
+--- failing test names under M0 ---
+  every successful invocation mode writes nothing to stderr
+--- assertion detail ---
+  error: |-
+  expected: ''
+  actual: |-
+  operator: 'strictEqual'
+--- totals ---
+# tests 12
+# pass 11
+# fail 1
+
+Exactly one test fails and it is the new one. The other 11 cli tests still pass with the
+binary writing to stderr on every success — the gap, quantified in one line.
+
+--------------------------------------------------------------------------------
+3. DIFF SCOPE (mechanical, not the builder's claim)
+--------------------------------------------------------------------------------
+
+$ git diff --name-only main^1 main
+test/cli.test.js
+
+One file. bin/, src/, README.md, REPORT.md and every manifest are untouched, as the
+item's scope required. 19 insertions, 1 deletion (the deletion is the require line
+gaining `spawnSync` alongside `execFileSync`). No existing assertion was modified,
+skipped, or weakened — the diff is purely additive below the last existing test.
+
+--------------------------------------------------------------------------------
+4. FULL test_cmd, CONDUCTOR-RUN ON MERGED MAIN
+--------------------------------------------------------------------------------
+
+$ node --test test/*.test.js
+ℹ tests 114
+ℹ suites 0
+ℹ pass 114
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1655.607296
+
+113 -> 114. The one added test is the one added item.
+
+--------------------------------------------------------------------------------
+5. CLI SMOKE ON MERGED MAIN — the product still works
+--------------------------------------------------------------------------------
+
+$ node bin/moon.js
+░░░░▐   6%  waxing crescent
+            next full moon  28 Aug
+
+$ node bin/moon.js --json
+{"phase":"waxing crescent","illumination":0.0606,"age":2.163,"cycleFraction":0.07914,
+ "phaseAngle":28.491,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z",
+ "julianDay":2461267.39714,"timestamp":"2026-08-14T21:31:52.829Z"}
+
+$ node -e "spawnSync(bin/moon.js) -> status, stderr length"
+status 0 stderr len 0
+
+The last line is the conductor checking the underlying product claim directly, not
+through the suite: the real binary genuinely exits 0 with a byte-empty stderr. The test
+now pins a true fact rather than a hoped-for one.
+
+--------------------------------------------------------------------------------
+VERDICT: GATE PASSED. T-107 -> done.
+--------------------------------------------------------------------------------
+
+What this does NOT establish, stated so it is never read as more than it is:
+- It does not verify the CONTENT of stdout in any mode beyond the smoke above; other
+  tests own that.
+- It does not close KI-5 or KI-7. Those are untouched.
+- M6 shows the exit-status half of the new assertion was already covered. Only the
+  stderr half is new surface.
