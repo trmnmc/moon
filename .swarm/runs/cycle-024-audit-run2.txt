@@ -1,0 +1,138 @@
+==============================================================================
+PART 1 -- hand-typed EAW partition vs. authoritative UCD data
+==============================================================================
+unicodedata.unidata_version = 15.0.0
+Python version               = 3.12.3
+
+Disc glyph constants parsed out of src/render.js (source of truth,
+not re-typed):
+  SHADE      = ['░', '▒', '▓', '█']  (N=4)
+  LIMB_DARK  = '░'
+  HAIRLINE   = {'right': '▕', 'left': '▏'}
+  HALF       = {'right': '▐', 'left': '▌'}
+  ROUND_LIMB = {'right': '◗', 'left': '◖'}
+  MIRROR     = [('◖', '◗'), ('◗', '◖'), ('▏', '▕'), ('▕', '▏'), ('▌', '▐'), ('▐', '▌')]
+  BOX (frame, NOT disc) = {'h': '─', 'v': '│', 'tl': '┌', 'tr': '┐', 'bl': '└', 'br': '┘'}
+
+==> Drawn DISC glyph alphabet (union of the above, excluding BOX): ['U+2588', 'U+258C', 'U+258F', 'U+2590', 'U+2591', 'U+2592', 'U+2593', 'U+2595', 'U+25D6', 'U+25D7']
+
+Documented partition/glyph sets parsed out of test/render.test.js:
+  DOCUMENTED_EAW keys        = ['U+2588', 'U+258C', 'U+258F', 'U+2590', 'U+2591', 'U+2592', 'U+2593', 'U+2595']
+  UNDOCUMENTED_DISC_GLYPHS   = ['U+25D6', 'U+25D7']
+
+-- Cross-check: drawn (src/render.js) vs. documented (test/render.test.js) --
+  MATCH: the drawn disc glyph alphabet is exactly the documented set.
+
+-- Cross-check: documented EAW class ('Neutral'/'Ambiguous') vs. real UCD class --
+  U+2588  '█' Ambiguous  FULL BLOCK                       documented=Ambiguous  ucd=Ambiguous  OK
+  U+258C  '▌' Ambiguous  LEFT HALF BLOCK                  documented=Ambiguous  ucd=Ambiguous  OK
+  U+258F  '▏' Ambiguous  LEFT ONE EIGHTH BLOCK            documented=Ambiguous  ucd=Ambiguous  OK
+  U+2590  '▐' Neutral    RIGHT HALF BLOCK                 documented=Neutral    ucd=Neutral    OK
+  U+2591  '░' Neutral    LIGHT SHADE                      documented=Neutral    ucd=Neutral    OK
+  U+2592  '▒' Ambiguous  MEDIUM SHADE                     documented=Ambiguous  ucd=Ambiguous  OK
+  U+2593  '▓' Ambiguous  DARK SHADE                       documented=Ambiguous  ucd=Ambiguous  OK
+  U+2595  '▕' Ambiguous  RIGHT ONE EIGHTH BLOCK           documented=Ambiguous  ucd=Ambiguous  OK
+
+  0 disagreements: the documented Neutral/Ambiguous partition matches UCD exactly.
+
+-- Glyphs the repo explicitly says are NOT yet classified (round limb) --
+  U+25D6  '◖' Neutral    LEFT HALF BLACK CIRCLE  <-- now established by this instrument
+  U+25D7  '◗' Neutral    RIGHT HALF BLACK CIRCLE  <-- now established by this instrument
+
+==============================================================================
+PART 2 -- enumerating the impossibility claim
+==============================================================================
+
+Predicate under test -- stated in plain words, with every number pulled
+from the parsed source in Part 1, not assumed:
+  Ramp: 4 glyphs, strictly increasing fill-density, topping out
+        at density 1.0 (read off SHADE[-1] = U+2588 'FULL BLOCK').
+  A same-class horizontally mirror-symmetric ('LEFT'<->'RIGHT'-named)
+        pair at density 0.5 -- this is what KI-5's prose calls
+        'a symmetric half-block pair'. This alone is the NARROW predicate,
+        matching KI-5's literal wording.
+  The FULL predicate additionally requires a same-class pair at density
+        0.125 (matching HAIRLINE, U+258F 'LEFT ONE EIGHTH BLOCK') and one more distinct same-class
+        handed pair (matching ROUND_LIMB's role -- a shape pair with no
+        fraction-of-cell density, so only name-symmetry is checked).
+  NARROW is deliberately narrower than what src/render.js needs (it only
+        checks the half-density pair KI-5's prose names); FULL is what the
+        renderer actually needs end to end (all three handed pairs it uses).
+
+------------------------------------------------------------------------------
+Search A (KI-5's literal wording): pool = Block Elements (U+2580-U+259F) ONLY.
+------------------------------------------------------------------------------
+EAW classes present: ['Ambiguous', 'Neutral']
+Total LEFT/RIGHT mirror-name pairs found in this pool: 4
+
+  Class Ambiguous:
+    distinct densities available: [0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0]
+    RAMP (need 4 steps, top=1.0): OK -- [('U+2581', 'LOWER ONE EIGHTH BLOCK', 0.125), ('U+2580', 'UPPER HALF BLOCK', 0.5), ('U+2587', 'LOWER SEVEN EIGHTHS BLOCK', 0.875), ('U+2588', 'FULL BLOCK', 1.0)]
+    same-class pair at density=0.5 (the 'half-block' pair): NONE
+    same-class pair at density=0.125 (the 'hairline' pair): [('U+258F', 'U+2595')]
+    a third, distinct same-class handed pair (round-limb-equivalent): NONE
+    NARROW predicate (ramp + half-density pair only) satisfied here: False
+    FULL predicate (ramp + half + hairline + a third handed pair) satisfied here: False
+
+  Class Neutral:
+    distinct densities available: [0.25, 0.5, 0.75]
+    RAMP (need 4 steps, top=1.0): FAIL -- only 3 distinct fill-density value(s) found in this class
+    same-class pair at density=0.5 (the 'half-block' pair): NONE
+    same-class pair at density=0.125 (the 'hairline' pair): NONE
+    a third, distinct same-class handed pair (round-limb-equivalent): [('U+2596', 'U+2597')]
+    NARROW predicate (ramp + half-density pair only) satisfied here: False
+    FULL predicate (ramp + half + hairline + a third handed pair) satisfied here: False
+
+==> Search A -- NARROW predicate: no satisfying set
+==> Search A -- FULL predicate:   no satisfying set
+
+------------------------------------------------------------------------------
+Search B (wider, justified pool): Block Elements + Geometric Shapes + Symbols
+for Legacy Computing. Geometric Shapes is included because the renderer
+already draws ROUND_LIMB from it (U+25D6/U+25D7). Symbols for Legacy
+Computing is included because it is the only other Unicode block with
+systematic sub-cell fill glyphs (eighth/quarter blocks, sextants) that
+could plausibly extend a ramp or supply a same-class mirror pair; it
+postdates Block Elements and was not available when KI-5 was written.
+------------------------------------------------------------------------------
+EAW classes present: ['Ambiguous', 'Neutral', 'Wide']
+Total LEFT/RIGHT mirror-name pairs found in this pool: 44
+
+  Class Ambiguous:
+    distinct densities available: [0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0]
+    RAMP (need 4 steps, top=1.0): OK -- [('U+2581', 'LOWER ONE EIGHTH BLOCK', 0.125), ('U+2580', 'UPPER HALF BLOCK', 0.5), ('U+2587', 'LOWER SEVEN EIGHTHS BLOCK', 0.875), ('U+2588', 'FULL BLOCK', 1.0)]
+    same-class pair at density=0.5 (the 'half-block' pair): NONE
+    same-class pair at density=0.125 (the 'hairline' pair): [('U+258F', 'U+2595')]
+    a third, distinct same-class handed pair (round-limb-equivalent): [('U+25B6', 'U+25C0')]
+    NARROW predicate (ramp + half-density pair only) satisfied here: False
+    FULL predicate (ramp + half + hairline + a third handed pair) satisfied here: False
+
+  Class Neutral:
+    distinct densities available: [0.167, 0.25, 0.333, 0.375, 0.5, 0.625, 0.667, 0.75, 0.833, 0.875]
+    RAMP (need 4 steps, top=1.0): FAIL -- highest density found is 0.875, short of the required 1.0 ('UPPER SEVEN EIGHTHS BLOCK' U+1FB86 is the nearest miss)
+    same-class pair at density=0.5 (the 'half-block' pair): NONE
+    same-class pair at density=0.125 (the 'hairline' pair): NONE
+    a third, distinct same-class handed pair (round-limb-equivalent): [('U+2596', 'U+2597')]
+    NARROW predicate (ramp + half-density pair only) satisfied here: False
+    FULL predicate (ramp + half + hairline + a third handed pair) satisfied here: False
+
+  Class Wide:
+    distinct densities available: []
+    RAMP (need 4 steps, top=1.0): FAIL -- only 0 distinct fill-density value(s) found in this class
+    same-class pair at density=0.5 (the 'half-block' pair): NONE
+    same-class pair at density=0.125 (the 'hairline' pair): NONE
+    a third, distinct same-class handed pair (round-limb-equivalent): NONE
+    NARROW predicate (ramp + half-density pair only) satisfied here: False
+    FULL predicate (ramp + half + hairline + a third handed pair) satisfied here: False
+
+==> Search B -- NARROW predicate: no satisfying set
+==> Search B -- FULL predicate:   no satisfying set
+
+==============================================================================
+SUMMARY
+==============================================================================
+Part 1 disagreements between documented partition and UCD: 0
+Part 2 Search A (Block Elements only)      NARROW predicate satisfying set exists: False
+Part 2 Search A (Block Elements only)      FULL predicate satisfying set exists:   False
+Part 2 Search B (wider, justified pool)    NARROW predicate satisfying set exists: False
+Part 2 Search B (wider, justified pool)    FULL predicate satisfying set exists:   False

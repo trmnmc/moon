@@ -1,0 +1,54 @@
+==============================================================================
+D1  failability: does the audit READ the repo, or re-type literals?
+==============================================================================
+  PASS  D1a  mutating the documented CLASS of U+2591 in the DOCUMENTED_EAW map changes the audit verdict
+        mutation applied to a throwaway copy: True
+        pristine copy  -> "0 disagreements" present: True
+        mutated copy   -> "0 disagreements" present: False
+        a re-typed literal would have reported 0 either way
+  PASS  D1c  swapping a documented CODEPOINT (U+2595 -> U+2599) breaks the drawn-vs-documented MATCH from the test side
+        mutation applied: True
+        pristine -> MATCH reported: True
+        mutated  -> MATCH reported: False
+  PASS  D1b  adding U+2589 to SHADE in src/render.js breaks the drawn-vs-documented MATCH
+        mutation applied: True
+        pristine -> MATCH reported: True
+        mutated  -> MATCH reported: False
+        N parsed from source, not assumed: mutated run sees N=5
+
+==============================================================================
+D2  own enumeration: every LEFT/RIGHT mirror-named pair, with both classes
+==============================================================================
+  total LEFT/RIGHT mirror-named pairs in the three ranges: 44
+  of those, pairs whose names contain "HALF BLOCK":
+    U+258C LEFT HALF BLOCK          Ambiguous  <->  U+2590 RIGHT HALF BLOCK         Neutral    CLASS-SPLIT
+  PASS  D2   no same-class LEFT/RIGHT HALF BLOCK pair exists; the U+258C/U+2590 pair is class-split
+        same-class HALF BLOCK pairs found: 0
+        U+258C class = Ambiguous, U+2590 class = Neutral
+
+==============================================================================
+D3  own enumeration: can any Neutral glyph in these ranges be a full-fill top?
+==============================================================================
+  Neutral   glyphs named "...FULL BLOCK...": NONE
+  Ambiguous glyphs named "...FULL BLOCK...": [('U+2588', 'FULL BLOCK')]
+  Neutral   nearest miss "SEVEN EIGHTHS": [('U+1FB86', 'UPPER SEVEN EIGHTHS BLOCK'), ('U+1FB8B', 'RIGHT SEVEN EIGHTHS BLOCK')]
+  PASS  D3   the only full-fill glyph in these ranges is Ambiguous, so a Neutral-only ramp cannot top out at 1.0
+        Neutral full-fill candidates: 0
+        Ambiguous full-fill candidates: 1
+
+==============================================================================
+D4  NON-VACUITY: does the SHIPPED set satisfy the predicate when the
+    single-class constraint is dropped? (if not, the negative is empty)
+==============================================================================
+  shipped SHADE ramp: U+2591(N) U+2592(A) U+2593(A) U+2588(A)
+  shipped HALF pair : U+258C(A) / U+2590(N)
+  PASS  D4   the shipped set DOES satisfy ramp(4, top=FULL BLOCK) + a LEFT/RIGHT half pair -- but only by spanning two EAW classes
+        4-step ramp topping at FULL BLOCK: True
+        LEFT/RIGHT half-block pair present: True
+        ramp spans >1 EAW class: True  (['Ambiguous', 'Neutral'])
+        therefore the predicate is SATISFIABLE and the single-class negative
+        is a real constraint result, not a vacuously impossible requirement
+
+==============================================================================
+GATE: all discriminators PASS
+==============================================================================

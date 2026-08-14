@@ -431,3 +431,154 @@ runfile-mirror:
 ```json
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786749976,"next_wakeup_at":1786750066,"pid":164510,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786749976,"last_real_probe_ts":0,"probe_failures":23,"probe_note":"cycle 23: bin/swarm-budget.sh refused again -> probe_failures 23, last_real_probe_ts stays 0 (a refused invocation is not a probe), so tokens/hour and projected depletion remain UNKNOWN and are never estimated. BUT the 24-cycle mystery is SOLVED this cycle by reading the allow list directly: settings.json lists `Bash(bin/swarm-notify.sh:*)` and the macOS absolute path for notify.sh, and NOTHING at all for swarm-budget.sh. That single fact explains the whole flap history -- notify.sh poll SUCCEEDS from cwd=/opt/swarm via the relative form (confirmed exit 0 this cycle) and is REFUSED via /opt/swarm/bin/... , while budget.sh is refused in every form. Not flakiness; a missing allowlist entry. Gear continues to rest on runs/allocator.json (source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct 71.0, week_elapsed_pct 67.71->67.96, dial 0.30. weekly_heat 1.045 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.413 > 1.2 keeps promote blocked. Binding constraint for twenty-three straight cycles: allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is AFTER stop_at 2026-08-15T15:32Z, so gear 1 is now structural for the rest of the run.","weekly":{"ok":true,"weekly_used_pct":71.0,"opus_used_pct":96,"week_elapsed_pct":67.96,"weekly_heat":1.045,"opus_heat":1.413,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":23,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 24 | 2026-08-14T23:58:00+00:00 | moon | VALUE_LOOP
+
+work: build-wave k=1 at sonnet -- T-121, machine-check the two assertions inside KI-5
+why: see the pick below. The backlog's only todo was an item the ratchet has rejected four
+  times; the only candidate that PASSES the ratchet is gear-1 ineligible. Neither is a
+  reason to build the rejected item.
+workflow: none (headless -p session; Workflow is review-gated, so the wave ran as ONE direct
+  Agent call per the SKILL.md fallback) | models: builder sonnet (gear-1 floor for build/fix;
+  no rung available above it under demote:true), verification CONDUCTOR-INLINE
+craft pack: run clean, degraded=[]. Not spliced: T-121 touches no .html/.css/.jsx/.tsx/.vue/
+  .svelte and names no UI surface, so the ui pack was not applicable; docs/review packs belong
+  to other work types.
+
+THE PICK, AND WHY IT WASN'T THE ONE ITEM IN THE QUEUE:
+  Backlog at open: 20 done, 1 todo -- T-116 (README says "colour", heading says "## Licence").
+  The VALUE_LOOP ratchet has rejected T-116 at cycles 20, 21, 22 and 23, each ruling recorded
+  in the item's own notes; cycle 22's ruling named the trap explicitly ("an empty queue is not
+  an argument for building something the ratchet rejects"). Nothing changed this cycle, so the
+  ruling does not change either. Building it now would have been the queue, not the ratchet,
+  choosing the work.
+  Meanwhile the one candidate that DOES pass the ratchet -- the KI-5 glyph-set redesign -- is
+  L-effort, and gear 1 is structural for the rest of this run (allocator week_resets_at
+  1786942799 falls after stop_at). So it cannot be built as-is before morning, at any point.
+  Resolution: attack KI-5 with work gear 1 permits. Gear 1 allows test triage and analysis;
+  KI-5 contained two load-bearing claims that had never been machine-checked, and measuring
+  them is S-effort. Zero shipped bytes change, so the 114-test suite carried no risk at all.
+
+  The two claims, both inherited and both unverified until this cycle:
+    (1) the Neutral/Ambiguous partition in test/render.test.js and README was HAND-TYPED --
+        Node has no EAW table, which is exactly why the shipped test asserts against a
+        documented partition rather than a measured one, so nothing in the repo checked it;
+    (2) "no Block Elements subset gives a 4-step ramp plus a symmetric half-block pair in one
+        width class" was REASONED, never enumerated. Nobody had searched.
+  Feasibility was settled inline before dispatch, not assumed: python3's unicodedata carries
+  authoritative UCD 15.0.0 offline, so the audit needs no network and ships nothing -- the
+  target's zero-dependency non-goal is untouched.
+
+VERIFICATION EVIDENCE:
+
+  [scope] the builder was told it may create files ONLY under .swarm/runs/.
+    $ git -C /opt/targets/moon status --porcelain
+    ?? .swarm/runs/cycle-024-audit-run1.txt   ?? .swarm/runs/cycle-024-audit-run2.txt
+    ?? .swarm/runs/cycle-024-eaw-audit.md     ?? .swarm/runs/cycle-024-eaw-audit.py
+    ?? .swarm/runs/cycle-024-gate-out.txt     ?? .swarm/runs/cycle-024-gate.py
+    ?? .swarm/runs/cycle-024-verify-suite.txt
+    Nothing under src/, test/, bin/, README.md, REPORT.md or package.json. All additions.
+
+  [test_cmd] run WITHOUT a pipe so the exit status is the real one (L-010):
+    $ node --test test/args.test.js test/astro.test.js test/cli.test.js test/hemisphere.test.js \
+        test/manifest.test.js test/regressions.test.js test/render.test.js > <file> 2>&1 \
+        && echo SUITE-EXIT-0-DIRECT-NO-PIPE
+    SUITE-EXIT-0-DIRECT-NO-PIPE
+    tests 114 | pass 114 | fail 0     (full output: .swarm/runs/cycle-024-verify-suite.txt)
+
+  [determinism] two runs of the audit, byte-compared:
+    $ diff .swarm/runs/cycle-024-audit-run1.txt .swarm/runs/cycle-024-audit-run2.txt
+    DETERMINISTIC-IDENTICAL
+
+  [gate] .swarm/runs/cycle-024-gate.py, authored by the conductor AT VERIFICATION TIME and
+  importing no part of the audit -- it re-derives every load-bearing value from unicodedata
+  itself. Five discriminators, full output in .swarm/runs/cycle-024-gate-out.txt:
+    PASS D1a  mutating the CLASS of U+2591 in the DOCUMENTED_EAW map of a throwaway repo copy
+              flips the audit from "0 disagreements" to non-zero -- it PARSES, not re-types
+    PASS D1c  swapping a documented CODEPOINT (U+2595 -> U+2599) breaks the drawn-vs-documented
+              MATCH from the test side
+    PASS D1b  adding U+2589 to SHADE in src/render.js breaks the same MATCH from the renderer
+              side, and the mutated run reports N=5 -- the ramp length is read, not assumed
+    PASS D2   own enumeration of all 44 LEFT/RIGHT mirror-named pairs across the three ranges:
+              exactly ONE is a HALF BLOCK pair, U+258C(Ambiguous) <-> U+2590(Neutral), and it
+              is class-split. Same-class HALF BLOCK pairs found: 0
+    PASS D3   Neutral glyphs named "...FULL BLOCK...": NONE. Ambiguous: exactly U+2588. So a
+              Neutral-only ramp cannot top out at 1.0 (nearest miss U+1FB86, 0.875)
+    PASS D4   NON-VACUITY -- the SHIPPED set does satisfy ramp(4, top=FULL BLOCK) + a LEFT/RIGHT
+              half pair once the single-class constraint is dropped, spanning ['Ambiguous',
+              'Neutral']. Without this the negative would have been an impossible requirement
+              dressed as a finding
+    GATE: all discriminators PASS
+  D4 is the one that makes the rest mean anything. A search that returns "no satisfying set"
+  is worthless until you show the predicate is satisfiable at all; it was checked before the
+  result was accepted, not after.
+
+  [spot-check] three .md claims re-measured by the conductor from scratch, independently:
+    U+25D0 Ambiguous CIRCLE WITH LEFT HALF BLACK    U+25D1 Ambiguous CIRCLE WITH RIGHT HALF BLACK
+    U+25E7 Neutral   SQUARE WITH LEFT HALF BLACK    U+25E8 Neutral   SQUARE WITH RIGHT HALF BLACK
+    U+25D6 Neutral   LEFT HALF BLACK CIRCLE         U+25D7 Neutral   RIGHT HALF BLACK CIRCLE
+    All three nearest-miss/round-limb claims in the write-up check out.
+
+RESULT -- KI-5 is now evidence-backed rather than assertion-backed, and still OPEN:
+  Partition: 0 disagreements against UCD 15.0.0, both directions.
+  Impossibility: HOLDS under 2 predicates (KI-5's literal wording, and a wider one covering
+  all three handed pairs the renderer actually draws) x 2 search pools (Block Elements alone;
+  then + Geometric Shapes + Symbols for Legacy Computing). Widening did not rescue it.
+  Mechanism now named exactly: the U+258C/U+2590 split is not one candidate among several, it
+  is the ONLY LEFT/RIGHT HALF BLOCK pair in any of the three ranges. Neutral fails a second,
+  independent way -- it has no full-fill glyph at all, since one would duplicate U+2588.
+  Severity stays medium, status stays open. NOTHING WAS FIXED. What changed is the quality of
+  the reason for deferring, and that is worth saying plainly rather than dressing up.
+  Limits, stated not buried: UCD class is not a promise about any given terminal; three
+  justified ranges is not all of Unicode; Unicode 16's Octant symbols postdate UCD 15.0.0 and
+  were NOT checked. The write-up carries these in its own "does not establish" section.
+
+MY OWN GATE WAS WRONG FIRST, AND I AM RECORDING IT RATHER THAN THE CLEAN SECOND RUN:
+  D1a FAILED on its first execution. The audit looked like it had re-typed literals. It had
+  not -- my mutation was at fault: my regex missed the real map entry shape ([0x2591, 'Neutral'])
+  and fell through to a loose "any line mentioning 2591 and Neutral" fallback, which struck the
+  PROSE COMMENT at render.test.js:559 instead of the map at :573. I had mutated a comment and
+  concluded the instrument was blind. Fixed by anchoring to the map entry and asserting the
+  pattern matches EXACTLY ONCE, so a future shape change fails loudly instead of falling
+  through to something looser. Per the cycles 8/9/19/23 precedent the correction was paid for
+  with a strictly stronger gate, not just a repair: D1c was ADDED, exercising the
+  drawn-vs-documented cross-check from the test side, which nothing had covered before.
+  Second cycle running in which a conductor-authored instrument, not the builder's work, was
+  the thing that was broken. That is a pattern worth carrying to the retro.
+
+DISPATCH SLIP: the builder was dispatched under the label "T-119" -- an id cycle 23 had already
+  used. I picked it by assuming the tail of the id space rather than reading it. Caught at the
+  persist step by listing existing ids; deliverables retitled to T-121 and BOTH instruments
+  re-run to exit 0 before the commit, so no duplicate id reached the repo. Worth the sting:
+  duplicate ids are the exact SWARM-side defect this run flagged in playbook/learnings.md.
+
+FOLLOW-UP FILED (T-122, todo, priority 4, S/haiku): the audit established what the repo says
+  cannot be established. README:214-217 and test/render.test.js:584-589 both state the
+  round-limb glyphs' EAW class "has not been established"; as of this cycle both U+25D6 and
+  U+25D7 are measured Neutral, twice, independently. That prose is now false, which outranks
+  T-116 on the ratchet -- a repo contradicting itself about a fact beats a spelling preference.
+  Scoped narrow on purpose: correcting the prose is S-effort; deciding whether the round limb
+  should JOIN the documented partition is a design judgment and was deliberately NOT bundled in.
+
+budget: gear 1, k_cap 1, mode guest, dial 0.30, basis allocator-posture (source=probe,
+  refreshed: week_elapsed_pct 67.96 -> 68.21, weekly_used_pct 71.0, opus_used_pct 96).
+  bin/swarm-budget.sh refused again -> probe_failures 24; ratio, tokens/hour and projected
+  depletion stay UNKNOWN and were not estimated. Cause is settled (KI-2, root-caused cycle 23),
+  so it was not re-investigated. One free corroborating datum: bin/swarm-notify.sh poll again
+  returned exit 0 via the relative form from cwd=/opt/swarm -- the permission layer is behaving
+  exactly as the allow list describes.
+control: poll exit 0 | pending [] | inject [] -> nothing to apply, nothing to triage.
+wave autotune: clean wave (0 reverts, 0 failed verifies) -> wave_streak 1 -> 2 -> k_current
+  bumped, already at the hard max 5, streak reset to 0. Note honestly that k_current is
+  decorative right now: gear 1 clamps the effective wave to min(5, 1) = 1 regardless.
+recycle: cycles_since_recycle 23 -> 24. At 25 the NEXT cycle is a RECYCLE cycle (no new work,
+  handoff note, fresh context) -- and it is also a cycle % 5 == 0 full SPEC re-read + backlog
+  hygiene pass. Both land together at cycle 25; the recycle rule wins and hygiene folds into it.
+
+next: cycle 25 is RECYCLE (forced, both rules land there). Cycle 26 should take T-122 -- it is
+  S-effort, gear-1 eligible at haiku, and closes a false claim the repo makes about itself.
+
+runfile-mirror:
+```json
+{"version": 1, "run_label": "improvement-2026-08-14", "run_kind": "improvement", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-15T15:32:27+00:00", "usage_reset_at": "2026-08-14T20:32:35+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "pacing": {"mode": "guest", "dial": 0.3}, "heartbeat": {"ts": 1786750694, "next_wakeup_at": 1786753394, "pid": 169187, "limp": false, "degraded_tiers": []}, "budget": {"source": "allocator", "gear": 1, "gear_target": 1, "ratio": null, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786751700, "last_real_probe_ts": 0, "probe_failures": 24, "probe_note": "cycle 24: bin/swarm-budget.sh refused again -> probe_failures 24, last_real_probe_ts stays 0 (a refused invocation is not a probe), so tokens/hour and projected depletion remain UNKNOWN and are never estimated. Cause is settled, not re-investigated: cycle 23 read the allow list and found NO entry of any kind for swarm-budget.sh (KI-2). This cycle adds one corroborating datum at zero cost -- `bin/swarm-notify.sh poll` again returned exit 0 from cwd=/opt/swarm via the relative form, so the permission layer is behaving exactly as the allow list describes and the flap hypothesis stays dead. Gear continues to rest on runs/allocator.json (source=probe), refreshed this cycle: posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct 71.0, week_elapsed_pct 67.96->68.21, dial 0.30. weekly_heat 1.045 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.413 > 1.2 keeps promote blocked. Binding constraint for twenty-four straight cycles: allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is AFTER stop_at 2026-08-15T15:32Z, so gear 1 is structural for the rest of the run.", "weekly": {"ok": true, "weekly_used_pct": 71.0, "opus_used_pct": 96, "week_elapsed_pct": 68.21, "weekly_heat": 1.045, "opus_heat": 1.413, "ceiling": 5, "promote_blocked": true}, "gear_basis": "allocator-posture"}, "playbook": {"mode": "auto", "applied": ["L-003", "L-008", "L-016", "L-023-moon", "L-024-moon", "L-026-repo-atlas"], "vetoed": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "veto_reason": "conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.", "id_collision_warning": "playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.", "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "wrap_up_complete": false, "cycles_since_recycle": 24, "artifact": {"file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
+```
