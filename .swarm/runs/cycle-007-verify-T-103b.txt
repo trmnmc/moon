@@ -1,0 +1,28 @@
+CHECK 1 scope fence
+  files changed: ['README.md']
+  PASS
+
+CHECK 2 domain figures vs module constant
+  module startMs year = 1000   endMs year = 3000
+  numerals in added README text: ['1000', '3000', '2000']
+  both module years present: True
+
+CHECK 3 no new magnitudes
+  numerals absent from HEAD README and src/astro.js: []
+  PASS
+
+CHECK 4 frame rule -- does the README hedge match the module hedge?
+  module doc-comment hedge terms present : ['sampl', 'not proven', 'no contradiction', 'stride']
+  added README text hedge terms present  : []
+  strength words in added README text    : ['confirmed']
+
+  ADDED TEXT VERBATIM:
+    | Over years **1000–3000**, `phaseName` and `illumination` are mutually consistent —
+    | confirmed by test/astro.test.js. Both are computed from Meeus polynomial series fitted
+    | near J2000; they have no mathematical guarantee to stay in step for large T. Outside
+    | this domain, behavior is unspecified: `phaseName` and `illumination` may contradict
+    | each other.
+
+CHECK 5 what the KI-7 test actually does
+  sampling constants found in the KI-7 test: [('SAMPLE_COUNT', '4000')]
+  literal "exhaust" appears in test: True

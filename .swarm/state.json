@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "BUILD",
-  "cycle": 6,
+  "cycle": 7,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -21,7 +21,7 @@
     {
       "cycle": 0,
       "what": "port a documented Meeus/Duffett-Smith algorithm into zero-dep Node rather than fork prior art",
-      "why": "prior-art scout returned stance `extend` — the phoon lineage (Poskanzer -> moontool -> wwn-phoon-rs) is grep-verified to do real phase math offline, so re-deriving the core would be wasted work. But the cleanest candidate is Rust, which conflicts with the user's explicit node/npx/zero-install choice — and npx distribution is itself one of the three things NO prior art does. Resolution: honor `extend` in substance by porting a published algorithm and using tidecal (MIT, Meeus ch.47 in JS) as reference and wwn-phoon-rs as a cross-check oracle, while keeping the Node surface."
+      "why": "prior-art scout returned stance `extend` \u2014 the phoon lineage (Poskanzer -> moontool -> wwn-phoon-rs) is grep-verified to do real phase math offline, so re-deriving the core would be wasted work. But the cleanest candidate is Rust, which conflicts with the user's explicit node/npx/zero-install choice \u2014 and npx distribution is itself one of the three things NO prior art does. Resolution: honor `extend` in substance by porting a published algorithm and using tidecal (MIT, Meeus ch.47 in JS) as reference and wwn-phoon-rs as a cross-check oracle, while keeping the Node surface."
     },
     {
       "cycle": 0,
@@ -102,6 +102,21 @@
       "cycle": 6,
       "what": "CORRECTION to the record: runfile budget.weekly.ceiling has been carrying 1 since cycle 0, which is not a value bin/swarm-budget.sh can emit. Gear 1 rests on the ALLOCATOR posture, not on the weekly governor. Gear is unchanged at 1; only the stated reason is corrected.",
       "why": "Read the script directly this cycle (reading is permitted; hard rule 5 fences writes, not reads). Its ceiling ladder is WCEIL in {5,3,2}: weekly_heat above 1.3 gives ceiling 2 plus a promote block; above 1.1 gives ceiling 3; otherwise 5. opus_heat above 1.2 sets promote_blocked ONLY, never a ceiling. Current weekly_heat = 67.0/64.38 = 1.04, below 1.1, so the script would emit ceiling 5 with promote_blocked true from opus_heat 1.49. Prior cycles conflated the allocator posture with the weekly governor and wrote a ceiling the tool has no way to produce. The gear itself is still correct at 1 (allocator posture trickle, allow_overall_pct 0, allow_premium_pct 0, dial 0.30, unchanged for six cycles), but the STATED reason was wrong, and a wrong reason in the record is what makes a later cycle reason wrongly. It matters materially: a governor ceiling would be fixed for the run, whereas an allocator posture is refreshed by the pacer and can lift. That is the difference between the claim that T-103 is permanently ineligible and the claim that it is ineligible until the posture changes. Only the second is true, and I had drafted the first before checking."
+    },
+    {
+      "cycle": 7,
+      "what": "T-103b FAILED the gate on one clause ('confirmed by test/astro.test.js') and was reverted rather than conductor-patched, even though the repair is a single word and this is the run's last open must-have",
+      "why": "Three rules pointed the same way and the cheap path violated all three. cycle.md step 6.4 is unconditional - fail means todo + attempts+1, and it does not carve out small fixes. Step 6.5 forbids opening a gate by weakening it; a conductor editing the artifact so its own gate passes is that failure mode even when the edit is honest, because nothing independent then checks the conductor's wording. And cycle 2 established on this very run that escalation is the response to observed evidence about an item - a rule that only binds when it is inexpensive is not a rule. The cost is real and named: one more k=1 cycle spent on a one-clause repair, with the run's last must-have still open. It is affordable - 22.0 h remain to stop_at - and the alternative buys a closed must-have at the price of the only mechanism keeping doc claims honest."
+    },
+    {
+      "cycle": 7,
+      "what": "the gate's decisive check was a HEDGE-PARITY comparison against the module and test, not a reading of the prose",
+      "why": "'Confirmed' vs 'sampled' is exactly the kind of judgement that dissolves into taste if argued as wording, and I would have been arguing it against an agent self-report that explicitly claimed 'frame rule respected'. Mechanising it settled it: extract the hedge vocabulary actually present in src/astro.js's doc comment ('sampl', 'not proven', 'no contradiction', 'stride') and in test/astro.test.js (comment line 386 'This SAMPLES -- never exhaustively sweeps --', test name ending '(sampled)'), then check whether ANY of it survived into the added README text. None did, and 'confirmed' appeared instead. That makes the finding reproducible by anyone, and it produced the falsifiability discriminator that justifies the fail: if the implementation were wrong at an unsampled instant inside the domain, the module comment stays true and the README sentence becomes false. Generalisable beyond this item - a docs claim may be checked against the hedge vocabulary of the code it documents."
+    },
+    {
+      "cycle": 7,
+      "what": "wave autotune read this as the REVERTED branch, not as 'any other outcome': k_current 4 -> 3, wave_streak 0",
+      "why": "At k=1 the run dispatches into the working tree rather than a branch (recorded cycle 6), so a failed gate reverts with `git checkout` - cycle 6 recorded that this gives the same guarantee as dropping a branch, and the equivalence has to hold in both directions or it is just a convenience. One failed verify out of one item dispatched is a 100% failure rate for the wave. Also corrects an overhang cycle 6 flagged against itself: k_current had climbed to 4 on two clean k=1 waves, ahead of anything this run has actually exercised, while the gear cap of 1 is what binds. No practical effect this cycle - min(3, gear cap 1) is still 1."
     }
   ],
   "known_issues": [
@@ -139,17 +154,16 @@
     "last_taste_cycle": 1
   },
   "counters": {
-    "consecutive_no_value": 0,
+    "consecutive_no_value": 1,
     "consecutive_failures": 0,
-    "k_current": 4,
+    "k_current": 3,
     "wave_streak": 0,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "n": 6,
-    "work": "backlog surgery (split T-103 into T-103a/T-103b) + build-wave k=1 (gear-1 crawl): T-103a at sonnet - declare the KI-7 supported date domain and pin it with a sampled band-discriminator test",
-    "outcome": "1 VERIFIED. Astronomy byte-identical to HEAD; 106/106 green; conductor mutation (widen the constant to year 80000) proves the test reads the constant and catches real contradictions; independent 60k-point off-lattice re-sample finds 0 violations. KI-7 bounded on the module side; README half is T-103b.",
-    "commit": "1460c59"
+    "n": 7,
+    "work": "build-wave k=1 (gear-1 crawl): T-103b at haiku - state the declared KI-7 supported date domain in README, sourced to the shipping sampled test",
+    "outcome": "0 VERIFIED - GATE FAILED, reverted. Scope fence held (README.md only), domain figures 1000/3000 matched src/astro.js:72-73, zero invented magnitudes, consequence named concretely, 106/106 green throughout. Failed on the acceptance clause requiring the bound be attributed to the SAMPLED test: the added text said 'are mutually consistent -- confirmed by test/astro.test.js' with no sampling hedge, while src/astro.js says 'SAMPLED-clean, not proven' and test/astro.test.js:386 says 'This SAMPLES -- never exhaustively sweeps --'. Measured: 4000 sampled points over a 730,485-day domain = 0.548% of distinct days. T-103b -> todo, attempts 1, escalated haiku -> sonnet with the correction written into the retry brief. Residual found in the module itself filed as T-110."
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [

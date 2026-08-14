@@ -1266,3 +1266,204 @@ session, so `publish_failures` stays 0.
 ```json
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786727493,"next_wakeup_at":1786730193,"pid":114138,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786728054,"last_real_probe_ts":0,"probe_failures":6,"probe_note":"cycle 6: the 30-min re-probe was DUE (last_real_probe_ts=0) and was attempted; bin/swarm-budget.sh permission-denied AGAIN (KI-2, 7th consecutive cycle) -> probe_failures 6. npx never ran, so last_real_probe_ts stays 0; PROBE_CMD=false is equally unrunnable, so the clock-cruise fallback remains unavailable. Gear rests on runs/allocator.json, refreshed by the pacer since cycle 5 (week_elapsed_pct 64.2 -> 64.38, source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct=67.0, dial 0.30. CORRECTION THIS CYCLE: the weekly block below previously carried ceiling=1, which bin/swarm-budget.sh cannot emit - its ladder is WCEIL in {5,3,2} (weekly_heat>1.3 -> 2 + promote block; >1.1 -> 3; else 5) and opus_heat>1.2 sets promote_blocked ONLY, never a ceiling. weekly_heat is 1.04, so the script's real output would be ceiling 5 with promote_blocked true. The weekly block is corrected to the script's semantics and gear_basis now records what the gear ACTUALLY rests on: the allocator posture, not the weekly governor. Gear is unchanged at 1; only the stated reason is corrected. Material consequence: a governor ceiling would be fixed for the run, an allocator posture is refreshed every few minutes and can lift - so items blocked by gear 1 are blocked until the posture changes, NOT permanently.","weekly":{"ok":true,"weekly_used_pct":67,"opus_used_pct":96,"week_elapsed_pct":64.38,"weekly_heat":1.04,"opus_heat":1.49,"ceiling":5,"promote_blocked":true,"correction_note":"cycle 6: ceiling was 1 in cycles 0-5, a value the budget script has no path to produce (conflated the allocator posture with the weekly governor). Recomputed from the script's actual ladder. weekly_heat 1.04 is below the 1.1 threshold, so the weekly governor is effectively DISENGAGED; the binding constraint on this run is the allocator trickle posture plus guest mode's 1-3 clamp."},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":6,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 7 | 2026-08-14T17:30:30+00:00 | moon | BUILD
+
+### Step 0-1 — clock, heartbeat, budget
+
+`date +%s` -> 1786728560 (2026-08-14T17:29:20Z). stop_at 1786807947 is **22.03 h** out;
+usage_reset_at 1786739555 is 3.03 h out. `limp` false, `degraded_tiers` empty. Not within
+900 s of stop -> normal cycle. Heartbeat written before any other work: pid **116980**
+(walked `$$` -> ... -> `claude -p /swarm cycle`, matched at hop 2 of the ps walk),
+`next_wakeup_at` now+2700. `cycles_since_recycle` 6 -> **7** (recycle due at 25).
+
+Heartbeat budget note, recorded rather than left implicit: this cycle's work type is
+docs, whose polish-docs budget is 900 s, and cycle.md permits re-touching
+`next_wakeup_at` down to the picked type's budget after step 4. I deliberately left it
+at the 2700 s worst case. Cycles 1-6 ran 13-20 min wall-clock end to end, so a 900 s
+staleness window would flag healthy cycles as dead and invite a watchdog relaunch on a
+live conductor. Erring long costs at most a later relaunch; erring short costs a killed
+cycle mid-verification.
+
+**Budget probe: attempted, denied again (KI-2, 8th consecutive cycle).**
+`RUNFILE=... bin/swarm-budget.sh` -> permission-denied by the harness, as at cycles 0-6.
+The 30-min re-probe was DUE (`last_real_probe_ts` still 0) and was genuinely attempted, so
+`probe_failures` 6 -> **7**. npx never ran; `PROBE_CMD=false` is equally unrunnable, so the
+clock-cruise fallback remains unavailable. Gear rests on `runs/allocator.json`, refreshed by
+the pacer at 17:28:38Z (`source=probe`): posture **trickle**, allow_premium_pct 0,
+allow_overall_pct 0, opus_used_pct 96, weekly_used_pct 67.0, week_elapsed_pct 64.38 ->
+64.57, dial 0.30. Weekly governor still **disengaged** on the script's real ladder
+(weekly_heat = 67.0 / 64.57 = 1.038, below the 1.1 rung -> ceiling 5); opus_heat 1.49 > 1.2
+keeps `promote` blocked. Binding constraint unchanged: allocator trickle posture plus guest
+mode's 1-3 clamp -> **gear 1**, k_cap 1, demote true, promote false. The cycle-6 correction
+to `weekly.ceiling` (1 -> 5) is carried forward, not re-derived.
+
+### Step 2 — orient
+
+Tree clean at entry (`git status --porcelain` empty), HEAD 1cc8c75. No crashed-cycle salvage
+needed. Control channel: `runs/control.json` has `pending: []`, `applied: []`, `inject: []`.
+`bin/swarm-notify.sh poll` is permission-denied (KI-2), so this is the file-sourced view only
+— journaled as a failed poll per cycle.md, non-fatal. No commands, no injections.
+
+### Step 3 — re-anchor
+
+Cycle 7, `cycle % 5 != 0`: no forced full SPEC re-read due. Definition of done unchanged —
+KI-1, KI-6, KI-7 each resolved or precisely bounded with a machine-checked assertion; KI-5
+pinned; every added test traceable to a named untested surface; docs accurate about
+verified-vs-deferred; pre-existing tests still green; zero new runtime dependencies.
+
+### Step 4 — pick work
+
+Eligible under gear 1 (S-effort only): T-103b, T-105, T-106, T-107 (tests), T-108, T-109
+(docs). **T-103b wins** on `(value x spec alignment) / effort` — it is the remaining half of
+the run's last open must-have, and its dependency T-103a verified last cycle. Wave size =
+min(k_current 4, gear cap 1, hard max 5) = **1**.
+
+Routing: `kind: docs`, `effort: S`, `attempts: 0` -> **haiku** per the workflows.md table.
+Gear 1's demotion is already at the floor for docs. I considered routing up to sonnet on the
+strength of the cycle-2 haiku docs failure, and did not: escalation in this run is
+evidence-driven per item (cycle 2's own recorded decision), and T-103b had no evidence
+against it. Pre-emptively promoting on a sibling item's history would have made that decision
+mean whatever was convenient. The brief was fenced instead — every figure supplied, every
+forbidden move named.
+
+Craft pack: `bin/swarm-craft.mjs` ran clean, `degraded: []`. `craft.docs` (1737 chars) WAS
+spliced into the builder prompt this time — unlike the `craft.ui` veto at cycle 6, the docs
+pack is archetype-aware and its CLI-README guidance ("pull every fact from the actual repo",
+"be honest about limitations", "cut filler") is on-target for this item. Playbook
+`prompt_lines.builder` ("the conductor is the SOLE committer") spliced.
+
+Dispatched as a DIRECT Agent call, not Workflow: `-p` sessions are review-gated for the
+Workflow tool. Working tree rather than a branch — at k=1 a failed gate reverts with
+`git checkout`, the same guarantee a dropped branch gives.
+
+### Step 6 — VERIFICATION EVIDENCE (T-103b) — **GATE FAILED**
+
+Full log: `.swarm/runs/cycle-007-verify-T-103b.txt`. Gate authored at verification time; the
+builder never saw these checks. The agent self-reported all six acceptance criteria met,
+including "frame rule respected". That self-report is a claim; four of the six checks agreed
+with it and one did not.
+
+**The added text, verbatim:**
+
+    Over years **1000-3000**, `phaseName` and `illumination` are mutually consistent --
+    confirmed by test/astro.test.js. Both are computed from Meeus polynomial series fitted
+    near J2000; they have no mathematical guarantee to stay in step for large T. Outside
+    this domain, behavior is unspecified: `phaseName` and `illumination` may contradict
+    each other.
+
+**1. Scope fence — PASS.**
+
+    files changed: ['README.md']
+
+**2. Domain figures vs the module constant — PASS.**
+
+    module startMs year = 1000   endMs year = 3000
+    numerals in added README text: ['1000', '3000', '2000']
+    both module years present: True
+
+**3. No new magnitudes — PASS.** Every numeral in the added text checked against HEAD's
+README and `src/astro.js` (2000 = the J2000 epoch, already in both):
+
+    numerals absent from HEAD README and src/astro.js: []
+
+**4. FRAME RULE — FAIL.** This is the check the item exists for, and I mechanised it rather
+than arguing wording: extract the hedge vocabulary the repo itself uses about this bound,
+then test whether any of it survived into the README.
+
+    module doc-comment hedge terms present : ['sampl', 'not proven', 'no contradiction', 'stride']
+    added README text hedge terms present  : []
+    strength words in added README text    : ['confirmed']
+
+**5. What the test actually establishes** (measured, to size the gap):
+
+    sampling constants found in the KI-7 test: [('SAMPLE_COUNT', '4000')]
+    test/astro.test.js:386  // doc comment in src/astro.js). This SAMPLES -- never exhaustively sweeps --
+    test/astro.test.js:393  test('KI-7: ... holds across the declared domain (sampled)')
+    $ node -e "...PHASE_ILLUMINATION_CONSISTENCY_DOMAIN..."
+    domain days = 730485
+    one sampled point per 182.6 days
+    fraction of distinct UTC days sampled = 0.548%
+
+**6. Full `test_cmd`, run by the conductor** (before revert):
+
+    $ node --test /opt/targets/moon/test/*.test.js
+    i tests 106   i pass 106   i fail 0   i duration_ms 1218.202939
+
+**VERDICT: FAIL.** `src/astro.js` says the bound is "SAMPLED-clean, not proven ... not a
+derived error bound". `test/astro.test.js:386` says "This SAMPLES -- never exhaustively
+sweeps --". The test's own name ends in "(sampled)". The added README sentence was the only
+place in the repo asserting the consistency unhedged, and it used **confirmed**.
+
+**The discriminator that makes this a defect and not a style note:** if the implementation
+were wrong at some unsampled instant inside years 1000-3000, the module doc comment would
+still be TRUE ("found no contradiction anywhere in the sample") and the README sentence would
+be FALSE. A docs item whose job is to document a bound had made a strictly stronger claim than
+the module it documents — the same class of failure as cycle 2's fabricated magnitude, in the
+qualitative register instead of the quantitative one.
+
+Reverted: `git checkout -- README.md`, tree clean, 106/106 still green after revert.
+T-103b -> `todo`, `attempts` 0 -> **1**, escalated **haiku -> sonnet** per the routing ladder.
+The retry brief is written WITH the correction in it (the cycle-4 pattern that worked for
+T-101 attempt 2): what attempt 1 got right is enumerated so attempt 2 keeps it, and the repair
+is scoped to the one clause.
+
+### Not conductor-patched, deliberately
+
+The repair is one word and this is the run's last open must-have, so the cheap move was to
+edit it myself and pass my own gate. I did not, and the reason is recorded in
+`state.json.decisions`: step 6.5 forbids opening a gate by weakening it, and a conductor
+editing the artifact so its own check passes is that failure mode even when the edit is
+honest — nothing independent then checks the conductor's wording. Cost, named rather than
+hidden: one more k=1 cycle on a one-clause repair. Affordable at 22.0 h remaining.
+
+### Residual found in the module, filed not fixed — T-110
+
+`PHASE_ILLUMINATION_CONSISTENCY_DOMAIN`'s doc comment glosses the half-open interval
+`[Date.UTC(1000,0,1), Date.UTC(3000,0,1))` as "calendar years 1000 through 3000". `endMs` is
+exclusive, so calendar year 3000 is **not** in the domain. Attempt 1 inherited that phrasing
+verbatim from the module and was **NOT** failed for it — matching the module constant is
+precisely this item's acceptance, and failing a docs item for faithfully copying the thing it
+was told to copy would be moving the gate. Filed as **T-110** (S, `src/astro.js` comment only,
+constant values must not change) so the module is corrected first and README inherits the
+right frame. Low value: the interval notation sits immediately beside the gloss, so a careful
+reader is not actually misled.
+
+### Honest limits on this cycle
+
+- **Nothing was verified this cycle.** `consecutive_no_value` 0 -> **1**. At 2 the churn
+  breaker forces a work-type switch (building -> review/QA/polish); if the T-103b retry also
+  fails, the next pick after it must not be another build.
+- **KI-7 remains BOUNDED-but-half-documented.** T-103a shipped and verified the module +
+  test at cycle 6; the README half is still open. The must-have is not checked off and I have
+  not checked it off.
+- **KI-4** (terminal font/width variance) still needs a human look. Untouched.
+- **collision-scan: NOT APPLICABLE, reported as not-run, never as passed.** Browser-project
+  gate; moon is a Node CLI with no browser surface.
+- **qa-verify look pass: correctly skipped** — it triggers on user-visible merged files, and
+  nothing merged this cycle. `qa.last_look_cycle` stays 1.
+
+### Wave autotune
+
+Wave was **NOT clean** — one dispatched item, one failed verify, reverted. Read as the
+reverted-branch arm rather than "any other outcome": at k=1 the run dispatches into the
+working tree, and cycle 6 recorded that a `git checkout` revert gives the same guarantee as
+dropping a branch — an equivalence that has to hold in both directions. `k_current` 4 -> **3**,
+`wave_streak` reset to 0. This also unwinds an overhang cycle 6 flagged against itself
+(k_current had climbed to 4 on two clean k=1 waves, ahead of anything actually exercised). No
+practical effect: min(3, gear cap 1) = 1 either way.
+
+### Step 8 — dashboard + notifications
+
+Local render of `runs/dashboard.html` refreshed (mandatory; on the VPS the file write IS the
+publication). Notification diff vs the previous render: phase unchanged (BUILD -> BUILD), no
+target became stalled, `publish_failures` did not reach 3 -> no push due.
+`bin/swarm-notify.sh` is permission-denied regardless (KI-2). Artifact publish skipped
+correctly and NOT counted as a failure — the Artifact tool is absent in this headless VPS
+session, so `publish_failures` stays 0.
+
+### runfile-mirror
+
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786728630,"next_wakeup_at":1786731330,"pid":116980,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786728630,"last_real_probe_ts":0,"probe_failures":7,"probe_note":"cycle 7: bin/swarm-budget.sh permission-denied AGAIN (KI-2, 8th consecutive cycle) -> probe_failures 7. last_real_probe_ts stays 0; PROBE_CMD=false equally unrunnable, so clock-cruise fallback remains unavailable. Gear rests on runs/allocator.json, refreshed by the pacer at 17:28:38Z (source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct=67.0, week_elapsed_pct 64.38 -> 64.57, dial 0.30. Weekly governor still DISENGAGED (weekly_heat 67.0/64.57 = 1.038 < 1.1 -> ceiling 5); opus_heat 1.49 > 1.2 keeps promote blocked. Binding constraint is unchanged: allocator trickle posture plus guest mode 1-3 clamp -> gear 1, k_cap 1.","weekly":{"ok":true,"weekly_used_pct":67.0,"opus_used_pct":96,"week_elapsed_pct":64.57,"weekly_heat":1.038,"opus_heat":1.49,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":7,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

@@ -57,7 +57,7 @@
       "notes": "SPLIT FROM T-103 at cycle 6 (see state.json decisions). This slice owns the MODULE + TEST; the README sentence is T-103b, which deps on this one so the quantity enters the docs only after the repo computes it (standing docs frame rule, cycles 2/4).\n\nCONDUCTOR-MEASURED at cycle 1 - use this, it is sharper than the KI-7 text. The right invariant is a DISCRIMINATOR (L-024): the phase name's illumination BAND must contain the reported illumination - crescent < 0.5, gibbous > 0.5, new < 0.10, full > 0.90 (quarters straddle, exempt). Observed contradictions outside the domain:\n  new Date(4.0e15)  -> 'waning gibbous'  ill=0.0385   (gibbous but 3.85% lit)\n  new Date(-8.0e15) -> 'waning crescent' ill=0.8053   (crescent but 80.5% lit)\nMeasured clean region: 0 violations in 32,004 sampled states from year -2000 to 6000; first violation ~72,500 years from 1970. Recommend declaring year 1000-3000 as the supported domain - comfortably inside the measured-clean region with margin. SAMPLED, not exhaustive (taste judge, scope-fits-night).\n\nSCOPE FENCE: this item does NOT change any astronomy. No edits to truePhaseJD, elongationDeg, lunationK, the correction tables, or any polynomial. Adding a constant plus a doc comment plus a test is the whole job. The core is verified against Meeus 49.a/49.b and the SPEC non-goal forbids rewriting it.\n\nThe DISCRIMINATOR is the point (L-024): assert the phase name band CONTAINS the reported illumination, not that illumination equals a remembered value. Bands: new < 0.10, waxing/waning crescent < 0.5, waxing/waning gibbous > 0.5, full > 0.90; first/last quarter STRADDLE and are exempt.",
       "status": "done",
       "verified_cycle": 6,
-      "evidence": ".swarm/runs/cycle-006-verify-T-103a.txt — astronomy byte-identical to HEAD; 106/106 green; 3733/4000 samples assert (all four bands exercised); conductor mutation (widen endMs to year 80000) turns it RED with a diagnosable message, proving it reads the exported constant AND detects real contradictions; independent re-sample at N=9973 and N=50021 on a jittered off-lattice finds 0 violations."
+      "evidence": ".swarm/runs/cycle-006-verify-T-103a.txt \u2014 astronomy byte-identical to HEAD; 106/106 green; 3733/4000 samples assert (all four bands exercised); conductor mutation (widen endMs to year 80000) turns it RED with a diagnosable message, proving it reads the exported constant AND detects real contradictions; independent re-sample at N=9973 and N=50021 on a jittered off-lattice finds 0 violations."
     },
     {
       "id": "T-103b",
@@ -66,7 +66,7 @@
       "priority": 4,
       "value": "H",
       "effort": "S",
-      "model": "haiku",
+      "model": "sonnet",
       "deps": [
         "T-103a"
       ],
@@ -75,8 +75,8 @@
       ],
       "acceptance": "README.md states the same supported date domain that src/astro.js declares, names the consequence of leaving it (phaseName and illumination may contradict each other), and attributes the bound to the in-repo sampled test rather than to an unsourced claim. The domain figures must match the module constant exactly.",
       "packages": [],
-      "attempts": 0,
-      "notes": "SPLIT FROM T-103 at cycle 6. Runs AFTER T-103a so the domain is machine-checked before the README asserts it. STANDING DOCS FRAME RULE (cycles 2 and 4): a quantity may appear only in the frame in which the repo already computes it. Here the frame is exactly what T-103a s test samples - a sampled-clean domain - and the README must not widen it into a proof of correctness outside the sample or into a general accuracy claim.",
+      "attempts": 1,
+      "notes": "SPLIT FROM T-103 at cycle 6. Runs AFTER T-103a so the domain is machine-checked before the README asserts it. STANDING DOCS FRAME RULE (cycles 2 and 4): a quantity may appear only in the frame in which the repo already computes it. Here the frame is exactly what T-103a s test samples - a sampled-clean domain - and the README must not widen it into a proof of correctness outside the sample or into a general accuracy claim.\n\nATTEMPT 1 FAILED THE GATE at cycle 7 (haiku). Reverted with `git checkout -- README.md`; tree returned clean, 106/106 still green. Read this before retrying - the retry brief is written WITH the correction in it so attempt 2 does not re-argue a settled point.\n\nWHAT ATTEMPT 1 GOT RIGHT (keep all of it): scope fence held (README.md only); the domain figures 1000/3000 were copied correctly from src/astro.js:72-73; NO invented magnitudes (every numeral in the added text already existed in HEAD README or src/astro.js); the consequence was named concretely ('phaseName and illumination may contradict each other') rather than hand-waved; 'Outside this domain, behavior is unspecified' is exactly right; the voice matched the surrounding section.\n\nWHY IT FAILED - ONE CLAUSE. It wrote: 'Over years **1000-3000**, `phaseName` and `illumination` are mutually consistent -- confirmed by test/astro.test.js.' The word CONFIRMED, with no sampling hedge anywhere in the added text, states as established a property the repo only sampled. Every other layer of the repo hedges: src/astro.js says 'SAMPLED-clean, not proven ... not a derived error bound'; test/astro.test.js:386 says 'This SAMPLES -- never exhaustively sweeps --'; the test's own name ends in '(sampled)'. The added README sentence was the ONLY place in the repo asserting the consistency unhedged. Measured at the gate: the test checks 4000 points across a 730,485-day domain = one point per ~183 days, 0.548% of the domain's distinct days. 'Confirmed' asserts a property of a continuum from that sample.\n\nTHIS IS NOT A STYLE NOTE. Discriminator the gate applied: if the implementation were wrong at some unsampled instant inside 1000-3000, the module doc comment would still be TRUE ('found no contradiction anywhere in the sample') and the README sentence would be FALSE. A docs item whose job is to document a bound must not make a strictly stronger claim than the module it documents.\n\nWHAT ATTEMPT 2 MUST DO: keep the sentence essentially as-is and carry the hedge into it. The bound is what an in-repo test SAMPLED and found no contradiction in - not what it confirmed, proved, guaranteed, validated or verified. Do not pad the paragraph to compensate; this is a one-clause repair, and the gate will re-check scope, figures and magnitudes exactly as before.\n\nRESIDUAL, NOT A DEFECT IN THIS ITEM (do not 'fix' it, do not widen scope to it): the module's own doc comment glosses the half-open interval [Date.UTC(1000,0,1), Date.UTC(3000,0,1)) as 'calendar years 1000 through 3000', so year 3000 itself is outside the domain but reads as inside. Attempt 1 inherited that phrasing verbatim from the module and was NOT failed for it - matching the module constant is this item's acceptance. Logged separately as T-110.",
       "status": "todo"
     },
     {
@@ -164,7 +164,8 @@
         "T-102",
         "T-103a",
         "T-103b",
-        "T-104"
+        "T-104",
+        "T-109"
       ],
       "files_hint": [
         "REPORT.md"
@@ -191,6 +192,24 @@
       "packages": [],
       "attempts": 0,
       "notes": "FOUND BY THE T-104 BUILD, cycle 5, and independently CONDUCTOR-CONFIRMED by the gate: the disc's observed glyph alphabet is 10 codepoints - the 8 Block Elements the README lists, PLUS U+25D6 and U+25D7 (ROUND_LIMB in src/render.js, drawn for a fully-lit outer cell). The README's width caveat names only the 8. The builder correctly refused to widen the documented table to make its test pass and pinned the two separately in UNDOCUMENTED_DISC_GLYPHS instead, so the test tells the truth about what is and is not covered; this item closes the doc side.\nOPEN QUESTION for whoever takes it: this run has NOT established the EAW class of U+25D6/U+25D7 (both are in fact Ambiguous per Unicode, but that is not machine-checked here and must not be asserted from memory - no EAW table may ship, the zero-dep non-goal forbids it). Scoping the section's claim to the Block Element ramp is the honest S-effort option; classifying the two glyphs requires a source. Do not state a class this repo cannot check.",
+      "status": "todo"
+    },
+    {
+      "id": "T-110",
+      "title": "The KI-7 domain doc comment glosses a half-open interval as an inclusive year range",
+      "kind": "fix",
+      "priority": 10,
+      "value": "L",
+      "effort": "S",
+      "model": "sonnet",
+      "deps": [],
+      "files_hint": [
+        "src/astro.js"
+      ],
+      "acceptance": "src/astro.js's PHASE_ILLUMINATION_CONSISTENCY_DOMAIN doc comment describes the domain in a way consistent with the half-open interval the constant actually defines: endMs is Date.UTC(3000,0,1) EXCLUSIVE, so calendar year 3000 is not in the domain. Comment only - the constant's values must not change, and no test may be weakened or retargeted.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "FOUND BY THE T-103b GATE at cycle 7, in the module rather than in the item under test. The comment reads 'calendar years 1000 through 3000 (i.e. [Date.UTC(1000,0,1), Date.UTC(3000,0,1)))'. The bracket notation is correct and self-documenting; the prose gloss before it is off by one calendar year at the top end. Low value - the interval notation sits immediately beside the gloss, so a careful reader is not actually misled - but it propagates: T-103b is required to match the module, so the module's imprecision would be copied into README by construction. Fix the module and the README inherits the correct frame.\nDELIBERATELY NOT bundled into T-103b: that item's acceptance is 'the domain figures must match the module constant exactly', and letting a docs builder silently re-scope the module's own claim is the opposite of the discipline this run is enforcing.",
       "status": "todo"
     }
   ]
