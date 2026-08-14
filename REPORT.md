@@ -85,17 +85,25 @@ return.
 
 ---
 
-## Known issues (7)
+## Known issues (4)
 
-| id | severity | issue |
+The `severity` column is severity only. A separate `status` column carries how each issue
+now stands, so the two never collide.
+
+| id | severity | status | issue |
+|---|---|---|---|
+| KI-2 | medium | open, blocking | `settings.json` allowlist edit was denied, so `additionalDirectories` does not list the target. Headless relaunches must pass `--add-dir`. SWARM tooling gap, not a product defect. |
+| KI-4 | low | open, unverified | Terminal font variance beyond width (ligatures, exotic fonts) remains unverified — no automated check can cover it; needs a human look. |
+| KI-5 | medium | pinned by test, not fixed | **Glyph width.** The disc mixes East Asian Width classes (`░` `▐` are Neutral; `▒ ▓ █ ▌ ▏ ▕` are Ambiguous). In terminals rendering ambiguous-width as double (CJK locales, iTerm2 setting, `xterm -cjk_width`) the disc is 5–9 columns instead of 5: the line jitters between nights, the two-line form stops aligning, and the `--block` frame does not close. Correct in default Western-locale terminals. `test/render.test.js`'s `KI-5 pin: disc glyph set matches the documented East Asian Width partition` derives the disc's actual glyph set from `renderLine`/`renderBlock` output and checks it against the documented partition, so an unannounced glyph change now fails the suite instead of drifting silently. The glyph-set redesign that would actually fix the width problem is still deferred — this is a pin, not a fix. |
+| KI-7 | low | bounded (sampled), not fixed | At epochs far outside normal use (empirically found around ±270,000 years) `phaseName` and `illumination` can contradict, since the ch.49 and ch.48 Meeus series diverge. `src/astro.js`'s exported `PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` constant (astro.js:71-74) declares the domain over which the two are known to stay consistent — calendar years 1000–3000 — and `test/astro.test.js`'s `KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)` (astro.test.js:393) strides 4000 deterministic points across that domain with zero band violations. This is a sampled bound, not a proof, and nothing enforces it at runtime. |
+
+## Resolved issues
+
+| id | severity | how it closed |
 |---|---|---|
-| KI-5 | medium | **Glyph width.** The disc mixes East Asian Width classes (`░` `▐` are Neutral; `▒ ▓ █ ▌ ▏ ▕` are Ambiguous). In terminals rendering ambiguous-width as double (CJK locales, iTerm2 setting, `xterm -cjk_width`) the disc is 5–9 columns instead of 5: the line jitters between nights, the two-line form stops aligning, and the `--block` frame does not close. **Verified real by measurement.** Correct in default Western-locale terminals. Not fixed — it needs a glyph-set redesign, and there was not enough clock to do that safely. Deferred deliberately rather than half-fixed at the buzzer. |
-| KI-1 | low | **Prior-art sweep completed, grep-verified against source (not READMEs).** Nearest npm package is `lunarphase-js` v2.0.3 (ISC): its core is the naive mean-synodic modulo with zero periodic correction terms, its "hemisphere support" swaps emoji glyphs rather than mirroring art, and it has no `bin` field, so it is a library, not a CLI. `astronomia` v4.2.0 (MIT) is a genuine Meeus port but is a dependency, which this project's zero-dependency non-goal forbids. This project's accuracy claim and hemisphere-mirrored ASCII rendering remain differentiated. |
-| KI-3 | medium | **No git remote.** `gh auth` could not be verified; all 8 commits are local only. Nothing is pushed. |
-| KI-2 | medium | `settings.json` allowlist edit was denied, so `additionalDirectories` does not list the target. Headless relaunches must pass `--add-dir`. |
-| KI-4 | low | Terminal font variance beyond width (ligatures, exotic fonts) remains unverified — no automated check can cover it. |
-| KI-6 | low | `nextFullMoon()` returns an Invalid Date past the top of the JS Date range instead of throwing (needs year 275760; unreachable from a real clock). |
-| KI-7 | low | At ±270,000 years `phaseName` and `illumination` can contradict, as the ch.49 and ch.48 series diverge. Zero contradictions across 350,592 states over 2020–2040. |
+| KI-1 | low | **Prior-art sweep completed, grep-verified against source (not READMEs).** Nearest npm package is `lunarphase-js` v2.0.3 (ISC): its core is the naive mean-synodic modulo with zero periodic correction terms, its "hemisphere support" swaps emoji glyphs rather than mirroring art, and it has no `bin` field, so it is a library, not a CLI. `astronomia` v4.2.0 (MIT) is a genuine Meeus port but is a dependency, which this project's zero-dependency non-goal forbids. The finding is propagated into README's "Why this one" section. |
+| KI-3 | medium | **The repo has a remote and the branch is pushed.** `git remote -v` lists `origin` → `https://github.com/trmnmc/moon.git`; `git branch -vv` shows `main` tracking `origin/main`, up to date; `HEAD` and `origin/main` resolve to the same commit. `gh auth status` reports an authenticated session for account `trmnmc`. |
+| KI-6 | low | **`nextFullMoon()` now throws instead of returning an Invalid Date.** `src/astro.js:357-359` checks the constructed result with `Number.isNaN(result.getTime())` and throws a `TypeError` ("nextFullMoon result is outside the representable Date range") for inputs past the top of the JS `Date` range, matching the module's existing bad-input guard shape. |
 
 ---
 
@@ -125,7 +133,7 @@ node bin/moon.js              # single line + next full moon
 node bin/moon.js --compact    # exactly one line, for a shell prompt
 node bin/moon.js --block      # framed readout
 node bin/moon.js --json       # structured output
-node --test test/*.test.js    # 102 tests
+node --test test/*.test.js    # 106 tests
 ```
 
 No install step, no dependencies, no network access at any point.
@@ -141,19 +149,33 @@ pass. Hemisphere logic is verified against every timezone the host knows about. 
 discipline, exit codes, flag parsing, and the absence of emoji are all covered by tests.
 If this tool tells you the moon is 41% waxing crescent, that number is trustworthy.
 
+Since this run's header above, three known issues closed and two more moved from
+prose-only to machine-checked. KI-1 (npm prior-art gap), KI-3 (no git remote) and KI-6
+(uncaught out-of-range throw) are resolved — see "Resolved issues" above for what closed
+each one. KI-7 (phase/illumination divergence at absurd epochs) is bounded and
+sampled-tested, not fixed: `PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` in `src/astro.js`
+declares the supported range and `test/astro.test.js` samples 4000 points across it;
+behavior outside that range stays unspecified. KI-5 (glyph width) is now pinned by a test
+in `test/render.test.js`, not fixed: an unannounced change to the disc's glyph set would
+now fail the suite, but the terminal-width defect itself is untouched. KI-2 and KI-4 are
+unchanged and still open — see "Known issues" above.
+
+The run's review-fix pass has not been run this cycle; nothing above should be read as
+claiming that coverage.
+
 **What only a human can finish:**
 
 1. **Look at it in your own terminal.** KI-5 is the honest weak point: the art is correct
-   in a default Western-locale terminal and provably wrong in an ambiguous-width one. No
-   test can tell you which one you have. Run it and see.
+   in a default Western-locale terminal and provably wrong in an ambiguous-width one. A
+   test now pins the glyph set so a silent regression can't happen, but no test can tell
+   you which terminal class you have. Run it and see.
 2. **Decide whether the glyph set is actually beautiful.** It is austere, aligned, and
    emoji-free — it satisfies the brief as written. Whether it feels like *a tiny precision
    instrument* is a judgement no assertion makes. That was your phrase, and you are the
    only one who can say whether it landed.
 3. **npm gap, closed (KI-1).** The sweep found no competing hemisphere-aware Unicode CLI;
    the nearest package, `lunarphase-js`, is a naive-modulo library with no `bin` entry. See
-   the KI-1 row above for the finding.
-4. **Push it somewhere.** Eight commits sit on a local branch with no remote.
+   the "Resolved issues" section above for the finding.
 
 **The one thing I would not have you take on trust:** every "verified" claim in this
 document has a command behind it, and those commands are pasted in `.swarm/journal.md`.

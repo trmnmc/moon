@@ -23,14 +23,14 @@
       "acceptance": "REPORT.md's Known Issues table and hand-off section state the resolved/bounded status of KI-1, KI-6 and KI-7 and the newly machine-checked status of KI-5, with no remaining claim that any of them is still open, unswept, or documented in prose only.",
       "packages": [],
       "attempts": 1,
-      "notes": "Not a test item. Runs LAST by deps - once T-101..T-104 land, REPORT's current statements become false, which is the exact doc-truth failure mode SPEC must-have 6 and L-026 warn about. Also record KI-3 as resolved (remote + gh auth verified at kickoff).\n\nHANDOFF FROM T-101 (cycle 4), three things this item now owns:\n(1) RESOLVED-STATUS CONVENTION. KI-1 and KI-6 are both in state.json resolved_issues, but REPORT.md's Known Issues table still LISTS them as rows (KI-1's row now carries the completed finding at severity low; KI-6's row still reads as open). T-101 was explicitly forbidden from inventing a convention in the severity column - that column must stay severities only. THIS item decides the convention (a separate status column, a struck row, a Resolved section - conductor's call) and applies it to KI-1, KI-3, KI-6, and KI-7 once bounded. Do NOT put status strings in the severity column.\n(2) The table header still says 'Known issues (7)'. If rows move out, the count moves with them.\n(3) RESIDUAL flagged by the T-101 gate, not fixed there because it was outside that item's acceptance: README.md line ~27 opens 'Most terminal moon phase tools compute the phase with a naive synodic-month modulo, which drifts by hours to days.' The sweep substantiates that for ONE package (the nearest), not for 'most', and 'hours to days' is an unsourced pre-existing magnitude. The standing no-unsourced-numbers rule says a quantity may appear only in the frame the repo already computes it in. Either source it, scope it to the one package the sweep actually examined, or drop the magnitude.\n\nDEP UPDATE cycle 8: T-103b is now done. T-108's remaining open dep is T-109.\n\nDEP UPDATE cycle 9: T-109 is now done. ALL DEPS CLOSED - T-108 is unblocked and is the highest-value item left on the backlog.\nCYCLE-10 GATE: FAILED at haiku, attempt 1, whole diff reverted (evidence:\n.swarm/runs/cycle-010-verify-T-108.txt). Four of six checks passed; two failed, both\ninside the run's doc-truth premise.\n\nWHAT PASSED and must be REPRODUCED, not rediscovered \u2014 attempt 1 got these right:\n - The status-column table renders correctly and the severity column stayed severities.\n - KI-6's row: the builder read src/astro.js and correctly wrote TypeError (astro.js:358).\n - KI-7's row: domain sourced to the PHASE_ILLUMINATION_CONSISTENCY_DOMAIN constant.\n - `# 102 tests` -> `# 106 tests` in the How-to-run block.\n - Line 3 and line 5 (the original run's historical header) correctly left untouched.\n\nFAILURE 1 \u2014 false quantity. Attempt 1 wrote \"all 8 commits have been pushed\" (KI-3 row)\nand \"Eight commits have been pushed\" (hand-off item 4). `git rev-list --count HEAD` = 24.\nThe figure was carried out of line 5, where \"8 commits\" truly records the ORIGINAL run,\nand restated in the present tense as a total covering the repo now. \"all 8\" asserts a\ncomplete inventory, so a reader concludes 16 commits do not exist. The retry must not\nstate a commit total at all unless it counts one at write time; the honest sentence needs\nno number. Hand-off item 4's bold lead-in \"**Push it somewhere.**\" is an instruction to a\nhuman to do something already done and must go with it.\n\nFAILURE 2 \u2014 misattributed magnitude in README (the residual half of this item). Attempt 1\nwrote \"`lunarphase-js` computes the phase with a naive synodic-month modulo - one that\nlands nearly four hours off on the 2000-01-06 new moon\". The four-hour figure is computed\nin README's own ## Accuracy section for \"a mean-formula-only implementation\" using THIS\nrepo's mean-phase formula. lunarphase-js was never run and per the SPEC's Domain rules\nuses a different epoch and synodic constant, so the figure is not that package's error.\nThis is verbatim the T-101 attempt-1 defect the cycle-4 decision recorded. Removing the\n\"most tools\" generalization and then pinning the same borrowed magnitude onto one named\npackage makes it read MORE authoritative, not less.\n\nFAILURE 2b \u2014 self-contradiction. After the rewrite, \"It draws the moon from a fixed set of\nsprites, which is backwards for the southern hemisphere\" binds \"It\" to lunarphase-js,\nwhile the next paragraph says that package has \"hemisphere support that swaps emoji\nglyphs\". Two sentences apart the file says the package both lacks and has hemisphere\nhandling. Rebinding the subject from a general class to a named package was the required\nfix; carrying the general class's predicate along with it was not.\n",
-      "status": "todo"
+      "notes": "Not a test item. Runs LAST by deps - once T-101..T-104 land, REPORT's current statements become false, which is the exact doc-truth failure mode SPEC must-have 6 and L-026 warn about. Also record KI-3 as resolved (remote + gh auth verified at kickoff).\n\nHANDOFF FROM T-101 (cycle 4), three things this item now owns:\n(1) RESOLVED-STATUS CONVENTION. KI-1 and KI-6 are both in state.json resolved_issues, but REPORT.md's Known Issues table still LISTS them as rows (KI-1's row now carries the completed finding at severity low; KI-6's row still reads as open). T-101 was explicitly forbidden from inventing a convention in the severity column - that column must stay severities only. THIS item decides the convention (a separate status column, a struck row, a Resolved section - conductor's call) and applies it to KI-1, KI-3, KI-6, and KI-7 once bounded. Do NOT put status strings in the severity column.\n(2) The table header still says 'Known issues (7)'. If rows move out, the count moves with them.\n(3) RESIDUAL flagged by the T-101 gate, not fixed there because it was outside that item's acceptance: README.md line ~27 opens 'Most terminal moon phase tools compute the phase with a naive synodic-month modulo, which drifts by hours to days.' The sweep substantiates that for ONE package (the nearest), not for 'most', and 'hours to days' is an unsourced pre-existing magnitude. The standing no-unsourced-numbers rule says a quantity may appear only in the frame the repo already computes it in. Either source it, scope it to the one package the sweep actually examined, or drop the magnitude.\n\nDEP UPDATE cycle 8: T-103b is now done. T-108's remaining open dep is T-109.\n\nDEP UPDATE cycle 9: T-109 is now done. ALL DEPS CLOSED - T-108 is unblocked and is the highest-value item left on the backlog.\nCYCLE-10 GATE: FAILED at haiku, attempt 1, whole diff reverted (evidence:\n.swarm/runs/cycle-010-verify-T-108.txt). Four of six checks passed; two failed, both\ninside the run's doc-truth premise.\n\nWHAT PASSED and must be REPRODUCED, not rediscovered — attempt 1 got these right:\n - The status-column table renders correctly and the severity column stayed severities.\n - KI-6's row: the builder read src/astro.js and correctly wrote TypeError (astro.js:358).\n - KI-7's row: domain sourced to the PHASE_ILLUMINATION_CONSISTENCY_DOMAIN constant.\n - `# 102 tests` -> `# 106 tests` in the How-to-run block.\n - Line 3 and line 5 (the original run's historical header) correctly left untouched.\n\nFAILURE 1 — false quantity. Attempt 1 wrote \"all 8 commits have been pushed\" (KI-3 row)\nand \"Eight commits have been pushed\" (hand-off item 4). `git rev-list --count HEAD` = 24.\nThe figure was carried out of line 5, where \"8 commits\" truly records the ORIGINAL run,\nand restated in the present tense as a total covering the repo now. \"all 8\" asserts a\ncomplete inventory, so a reader concludes 16 commits do not exist. The retry must not\nstate a commit total at all unless it counts one at write time; the honest sentence needs\nno number. Hand-off item 4's bold lead-in \"**Push it somewhere.**\" is an instruction to a\nhuman to do something already done and must go with it.\n\nFAILURE 2 — misattributed magnitude in README (the residual half of this item). Attempt 1\nwrote \"`lunarphase-js` computes the phase with a naive synodic-month modulo - one that\nlands nearly four hours off on the 2000-01-06 new moon\". The four-hour figure is computed\nin README's own ## Accuracy section for \"a mean-formula-only implementation\" using THIS\nrepo's mean-phase formula. lunarphase-js was never run and per the SPEC's Domain rules\nuses a different epoch and synodic constant, so the figure is not that package's error.\nThis is verbatim the T-101 attempt-1 defect the cycle-4 decision recorded. Removing the\n\"most tools\" generalization and then pinning the same borrowed magnitude onto one named\npackage makes it read MORE authoritative, not less.\n\nFAILURE 2b — self-contradiction. After the rewrite, \"It draws the moon from a fixed set of\nsprites, which is backwards for the southern hemisphere\" binds \"It\" to lunarphase-js,\nwhile the next paragraph says that package has \"hemisphere support that swaps emoji\nglyphs\". Two sentences apart the file says the package both lacks and has hemisphere\nhandling. Rebinding the subject from a general class to a named package was the required\nfix; carrying the general class's predicate along with it was not.\n\nCYCLE-11 GATE: PASSED at sonnet, attempt 2. Nine conductor-authored checks, nine pass (evidence: .swarm/runs/cycle-011-verify-T-108.txt). Both cycle-10 failures are fixed: no commit total is stated anywhere (the obsolete 'Push it somewhere' hand-off item is deleted outright rather than renumbered), and the four-hour figure is attributed to the mean-formula approach in THIS repo's own frame with a cross-ref to ## Accuracy, not to the never-executed lunarphase-js. The self-contradiction is gone: 'takes exactly this route on the math' scopes the naive-route claim so the file no longer says one package both lacks and has hemisphere handling. Convention chosen: a separate status column plus a new ## Resolved issues table; the severity column stayed severities only. Two residuals filed rather than conductor-patched (T-114, T-115) and T-110 widened - see those items.",
+      "status": "done"
     },
     {
       "id": "T-112",
       "title": "Landing T-109 made test/render.test.js's round-limb comment false",
       "kind": "fix",
-      "priority": 2,
+      "priority": 1,
       "value": "M",
       "effort": "S",
       "model": "sonnet",
@@ -48,7 +48,7 @@
       "id": "T-105",
       "title": "Test package-manifest integrity: bin path, main field, zero deps, files list",
       "kind": "test",
-      "priority": 3,
+      "priority": 7,
       "value": "M",
       "effort": "S",
       "model": "sonnet",
@@ -66,7 +66,7 @@
       "id": "T-106",
       "title": "Test the next-full-moon date label's year-boundary branch",
       "kind": "test",
-      "priority": 4,
+      "priority": 8,
       "value": "M",
       "effort": "S",
       "model": "sonnet",
@@ -84,7 +84,7 @@
       "id": "T-107",
       "title": "Test that successful CLI invocations write nothing to stderr",
       "kind": "test",
-      "priority": 5,
+      "priority": 9,
       "value": "M",
       "effort": "S",
       "model": "sonnet",
@@ -102,25 +102,27 @@
       "id": "T-110",
       "title": "The KI-7 domain doc comment glosses a half-open interval as an inclusive year range",
       "kind": "fix",
-      "priority": 6,
+      "priority": 4,
       "value": "L",
       "effort": "S",
       "model": "sonnet",
       "deps": [],
       "files_hint": [
-        "src/astro.js"
+        "src/astro.js",
+        "README.md",
+        "REPORT.md"
       ],
-      "acceptance": "src/astro.js's PHASE_ILLUMINATION_CONSISTENCY_DOMAIN doc comment describes the domain in a way consistent with the half-open interval the constant actually defines: endMs is Date.UTC(3000,0,1) EXCLUSIVE, so calendar year 3000 is not in the domain. Comment only - the constant's values must not change, and no test may be weakened or retargeted.",
+      "acceptance": "All THREE places that describe the KI-7 supported domain agree with the half-open interval the constant actually defines - endMs is Date.UTC(3000,0,1) EXCLUSIVE, and test/astro.test.js's loop runs i=0..3999 so its largest sample is strictly below it, meaning calendar year 3000 is NOT covered: (1) src/astro.js's PHASE_ILLUMINATION_CONSISTENCY_DOMAIN doc comment, which currently glosses it as 'calendar years 1000 through 3000' one line above stating the interval correctly; (2) README.md's ## Accuracy paragraph, 'Over years **1000-3000**'; (3) REPORT.md's KI-7 row, 'calendar years 1000-3000'. The constant, the test, and the sample count must not change - only the prose that describes the interval.",
       "packages": [],
       "attempts": 0,
-      "notes": "FOUND BY THE T-103b GATE at cycle 7, in the module rather than in the item under test. The comment reads 'calendar years 1000 through 3000 (i.e. [Date.UTC(1000,0,1), Date.UTC(3000,0,1)))'. The bracket notation is correct and self-documenting; the prose gloss before it is off by one calendar year at the top end. Low value - the interval notation sits immediately beside the gloss, so a careful reader is not actually misled - but it propagates: T-103b is required to match the module, so the module's imprecision would be copied into README by construction. Fix the module and the README inherits the correct frame.\nDELIBERATELY NOT bundled into T-103b: that item's acceptance is 'the domain figures must match the module constant exactly', and letting a docs builder silently re-scope the module's own claim is the opposite of the discipline this run is enforcing.",
+      "notes": "FOUND BY THE T-103b GATE at cycle 7, in the module rather than in the item under test. The comment reads 'calendar years 1000 through 3000 (i.e. [Date.UTC(1000,0,1), Date.UTC(3000,0,1)))'. The bracket notation is correct and self-documenting; the prose gloss before it is off by one calendar year at the top end. Low value - the interval notation sits immediately beside the gloss, so a careful reader is not actually misled - but it propagates: T-103b is required to match the module, so the module's imprecision would be copied into README by construction. Fix the module and the README inherits the correct frame.\nDELIBERATELY NOT bundled into T-103b: that item's acceptance is 'the domain figures must match the module constant exactly', and letting a docs builder silently re-scope the module's own claim is the opposite of the discipline this run is enforcing.\nSCOPE WIDENED cycle 11. T-108 sourced REPORT.md's new KI-7 row to the constant as briefed, and thereby propagated the constant's own inclusive-sounding gloss into a third file. The cycle-11 gate ruled this a defect of the gloss, not of T-108: the builder restated the repo's own declared domain faithfully, and the pre-existing README line says the same thing and passed the cycle-8 gate. Fixing one site and leaving two would leave the repo contradicting itself, so all three move together.\nWAVE NOTE: now overlaps T-111, T-113 and T-114 in README.md. No two of those four may share a wave.",
       "status": "todo"
     },
     {
       "id": "T-111",
       "title": "README's new KI-7 paragraph uses British 'behaviour'; the repo's prose is US English",
       "kind": "polish",
-      "priority": 7,
+      "priority": 6,
       "value": "L",
       "effort": "S",
       "model": "haiku",
@@ -138,7 +140,7 @@
       "id": "T-113",
       "title": "'Fully lit outer cell' understates when the disc draws a round limb",
       "kind": "fix",
-      "priority": 8,
+      "priority": 5,
       "value": "L",
       "effort": "S",
       "model": "sonnet",
@@ -213,7 +215,7 @@
       "notes": "SPLIT FROM T-103 at cycle 6 (see state.json decisions). This slice owns the MODULE + TEST; the README sentence is T-103b, which deps on this one so the quantity enters the docs only after the repo computes it (standing docs frame rule, cycles 2/4).\n\nCONDUCTOR-MEASURED at cycle 1 - use this, it is sharper than the KI-7 text. The right invariant is a DISCRIMINATOR (L-024): the phase name's illumination BAND must contain the reported illumination - crescent < 0.5, gibbous > 0.5, new < 0.10, full > 0.90 (quarters straddle, exempt). Observed contradictions outside the domain:\n  new Date(4.0e15)  -> 'waning gibbous'  ill=0.0385   (gibbous but 3.85% lit)\n  new Date(-8.0e15) -> 'waning crescent' ill=0.8053   (crescent but 80.5% lit)\nMeasured clean region: 0 violations in 32,004 sampled states from year -2000 to 6000; first violation ~72,500 years from 1970. Recommend declaring year 1000-3000 as the supported domain - comfortably inside the measured-clean region with margin. SAMPLED, not exhaustive (taste judge, scope-fits-night).\n\nSCOPE FENCE: this item does NOT change any astronomy. No edits to truePhaseJD, elongationDeg, lunationK, the correction tables, or any polynomial. Adding a constant plus a doc comment plus a test is the whole job. The core is verified against Meeus 49.a/49.b and the SPEC non-goal forbids rewriting it.\n\nThe DISCRIMINATOR is the point (L-024): assert the phase name band CONTAINS the reported illumination, not that illumination equals a remembered value. Bands: new < 0.10, waxing/waning crescent < 0.5, waxing/waning gibbous > 0.5, full > 0.90; first/last quarter STRADDLE and are exempt.",
       "status": "done",
       "verified_cycle": 6,
-      "evidence": ".swarm/runs/cycle-006-verify-T-103a.txt \u2014 astronomy byte-identical to HEAD; 106/106 green; 3733/4000 samples assert (all four bands exercised); conductor mutation (widen endMs to year 80000) turns it RED with a diagnosable message, proving it reads the exported constant AND detects real contradictions; independent re-sample at N=9973 and N=50021 on a jittered off-lattice finds 0 violations."
+      "evidence": ".swarm/runs/cycle-006-verify-T-103a.txt — astronomy byte-identical to HEAD; 106/106 green; 3733/4000 samples assert (all four bands exercised); conductor mutation (widen endMs to year 80000) turns it RED with a diagnosable message, proving it reads the exported constant AND detects real contradictions; independent re-sample at N=9973 and N=50021 on a jittered off-lattice finds 0 violations."
     },
     {
       "id": "T-103b",
@@ -270,6 +272,42 @@
       "attempts": 1,
       "notes": "FOUND BY THE T-104 BUILD, cycle 5, and independently CONDUCTOR-CONFIRMED by the gate: the disc's observed glyph alphabet is 10 codepoints - the 8 Block Elements the README lists, PLUS U+25D6 and U+25D7 (ROUND_LIMB in src/render.js, drawn for a fully-lit outer cell). The README's width caveat names only the 8. The builder correctly refused to widen the documented table to make its test pass and pinned the two separately in UNDOCUMENTED_DISC_GLYPHS instead, so the test tells the truth about what is and is not covered; this item closes the doc side.\nOPEN QUESTION for whoever takes it: this run has NOT established the EAW class of U+25D6/U+25D7 (both are in fact Ambiguous per Unicode, but that is not machine-checked here and must not be asserted from memory - no EAW table may ship, the zero-dep non-goal forbids it). Scoping the section's claim to the Block Element ramp is the honest S-effort option; classifying the two glyphs requires a source. Do not state a class this repo cannot check.\n\nCLOSED cycle 9, on attempt 2, both attempts inside the same cycle number.\nATTEMPT 1 (session A, died to an API connection error before persisting anything): rewrote the section's opening scope noun to 'The disc's shade ramp and limb glyphs use Unicode Block Elements' and then added a paragraph saying the round limbs are NOT Block Elements. Self-contradictory - ROUND_LIMB is a limb family in src/render.js:69 - so the gate reproduced the contradiction and reverted. Evidence: .swarm/runs/cycle-009-verify-T-109.txt.\nATTEMPT 2 (session B, this record): resolved the OPEN QUESTION above the honest way. It did NOT classify U+25D6/U+25D7 - no EAW class is asserted anywhere in the section - and instead named the covered set precisely ('the shade ramp and its half-block and hairline limb glyphs', mapping 1:1 onto SHADE/HALF/HAIRLINE and structurally excluding ROUND_LIMB), then stated that this repo has not established the round limbs' class and that whether they widen the disc is unknown. 12/12 gate checks, suite 106/106.",
       "status": "done"
+    },
+    {
+      "id": "T-114",
+      "title": "README calls the four-hour figure a 'check'; no executed assertion computes it",
+      "kind": "fix",
+      "priority": 2,
+      "value": "M",
+      "effort": "S",
+      "model": "sonnet",
+      "deps": [],
+      "files_hint": [
+        "README.md"
+      ],
+      "acceptance": "The '## Why this one' paragraph no longer calls the four-hour figure a 'check'. The figure's SUBJECT (the mean-formula-only approach in this repo's own frame), its MAGNITUDE (nearly four hours), and the cross-reference to ## Accuracy must all stay exactly as they are - they are what the cycle-11 gate passed. Only the noun implying an executed assertion changes, to something true of the mechanism that actually exists: MEAN_PHASE_EPOCH in src/astro.js is the k=0 MEAN new moon (JDE 2451550.09766 = 2000-01-06 14:20 TT), the published true instant is 18:14 UTC, README's ## Accuracy section asserts the resulting gap, and test/astro.test.js:97-102 notes in a COMMENT that a mean-formula-only implementation would miss the anchor by ~4h - but no test computes the mean-formula value or asserts the gap.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "FOUND BY THE CYCLE-11 GATE (check 9), and like T-112 this run CREATED it rather than uncovering it - the paragraph is the one T-108 attempt 2 rewrote. Passed rather than failed because the defect T-108 was retried against (attributing the figure to the never-executed lunarphase-js) is genuinely fixed; this is one noun overstating a mechanism, with subject and magnitude both correct.\nThis is the FIFTH instance of the run's signature failure mode: a doc claim slightly wider than what the repo can support. It is a wrap-up distillation candidate, not another one-off - see the cycle-10 journal's note on the fourth instance.\nFiled rather than conductor-patched (cycle 7/8/9/10 precedent: a conductor editing the artifact leaves nothing independent checking the conductor's own wording).\nWAVE NOTE: overlaps T-110, T-111 and T-113 in README.md. No two may share a wave.",
+      "status": "todo"
+    },
+    {
+      "id": "T-115",
+      "title": "REPORT's review-fix disclosure says 'this cycle' where the truth is run-wide",
+      "kind": "docs",
+      "priority": 3,
+      "value": "M",
+      "effort": "S",
+      "model": "haiku",
+      "deps": [],
+      "files_hint": [
+        "REPORT.md"
+      ],
+      "acceptance": "REPORT.md's hand-off states the run-wide truth about the review-fix pass: this run has ONE review-fix pass in its pipeline and it has not been run in ANY cycle, so no part of the document should be read as carrying review coverage. The current sentence ('The run's review-fix pass has not been run this cycle') is true but narrower than the truth and invites the inference that it ran in some other cycle. The disclosure must not be softened or removed - only widened to what is actually the case, and it must say WHY it was deferred (the most premium-heavy work type in the pipeline against an allocator premium allowance that has been 0 throughout).",
+      "packages": [],
+      "attempts": 0,
+      "notes": "FOUND BY THE CYCLE-11 GATE (check 9's second residual). Unusual direction for this run: every other doc defect here has been a claim slightly WIDER than the evidence, and this is a disclosure slightly NARROWER than the gap it discloses. Both are the same underlying error - prose that does not track what is actually true - and an under-disclosure in the honesty section is the more corrosive of the two, because that section is exactly where a reader stops checking.\nT-108 still improved on the status quo here: before this cycle REPORT.md said nothing at all about review-fix coverage. That is why this is a follow-on item and not a gate failure.\nDepends on nothing, but if the review-fix pass DOES run before wrap-up this item is obsolete and should be dropped rather than built.",
+      "status": "todo"
     }
   ]
 }

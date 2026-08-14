@@ -24,15 +24,19 @@ git clone https://github.com/YOUR_USER/moon && node moon/bin/moon.js
 
 ## Why this one
 
-Most terminal moon phase tools compute the phase with a naive synodic-month modulo,
-which drifts by hours to days, and draw the moon from a fixed set of sprites, which is
-**backwards for the southern hemisphere** — a waxing crescent is lit on the right in
-Edinburgh and on the left in Sydney.
+The naive way to compute moon phase is a synodic-month modulo: divide elapsed days by
+the mean synodic month and take the remainder. That drifts, because the real lunar cycle
+isn't a constant length — this repo's own mean-formula-only check lands nearly four hours
+off a published new-moon instant (see [Accuracy](#accuracy) below). The naive way to draw
+it is a fixed set of sprites, which is hemisphere-blind: **backwards south of the
+equator**, where a waxing crescent is lit on the right in Edinburgh and on the left in
+Sydney.
 
-That's not a straw man: the nearest package on npm, `lunarphase-js`, is exactly this —
-a mean-synodic modulo with zero periodic correction terms, hemisphere support that swaps
-*emoji glyphs* rather than mirroring the art, and no `bin` entry, so it isn't even a CLI.
-(`astronomia` is a genuine Meeus port, but it's a dependency — this project has none.)
+That's not a straw man: the nearest package on npm, `lunarphase-js`, takes exactly this
+route on the math — a mean-synodic modulo with zero periodic correction terms — and swaps
+*emoji glyphs* for hemisphere rather than mirroring the art, with no `bin` entry, so it
+isn't even a CLI. (`astronomia` is a genuine Meeus port, but it's a dependency — this
+project has none.)
 
 This one uses the Meeus algorithm with its full periodic correction terms (see Accuracy
 below), and mirrors the disc when you're south of the equator.

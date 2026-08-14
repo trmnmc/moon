@@ -1,0 +1,207 @@
+T-108 attempt 2 — verification transcript
+cycle 11 | 2026-08-14T19:41Z→20:0xZ | conductor-authored checks, run by the conductor
+HEAD at gate time: b2b9161 (unmoved — builder committed nothing)
+
+All nine checks below were authored AT VERIFICATION TIME, after the builder returned.
+The builder's brief contained none of them.
+
+================================================================================
+CHECK 1 — write scope: only the two permitted files, nothing staged, HEAD unmoved
+================================================================================
+$ git status --porcelain
+ M README.md
+ M REPORT.md
+$ git rev-parse --short HEAD
+b2b9161
+$ git diff -U0 -- README.md | grep -E "^@@"
+@@ -27,9 +27,13 @@ git clone https://github.com/YOUR_USER/moon && node moon/bin/moon.js
+
+PASS. One hunk in README.md, at line 27 — the `## Why this one` section, which is the
+only README section this item owns. No source, test, or manifest file touched.
+
+================================================================================
+CHECK 2 — the original run's historical header (REPORT.md lines 3 and 5) preserved
+================================================================================
+$ git diff -U0 -- REPORT.md | grep -E "^[-+].*(\*\*Run:\*\*|\*\*Outcome:\*\*)"
+(no output)
+
+PASS. Neither line appears on either side of the diff, so both are byte-identical.
+Line 5's "8 commits ... 102/102 tests green" correctly remains as the dated record of
+the ORIGINAL run.
+
+================================================================================
+CHECK 3 — the pre-existing suite is still green
+================================================================================
+$ node --test test/*.test.js
+i tests 106
+i pass 106
+i fail 0
+
+PASS.
+
+================================================================================
+CHECK 4 — the cycle-10 failure is not repeated: no commit total anywhere in the diff
+================================================================================
+$ git diff -- REPORT.md | grep -E "^\+" | grep -iE "commit|push"
++| KI-3 | medium | **The repo has a remote and the branch is pushed.** `git remote -v`
+  lists `origin` -> `https://github.com/trmnmc/moon.git`; `git branch -vv` shows `main`
+  tracking `origin/main`, up to date; `HEAD` and `origin/main` resolve to the same
+  commit. `gh auth status` reports an authenticated session for account `trmnmc`. |
+
+PASS. Exactly one new line mentions commits or pushing and it states NO quantity.
+The obsolete hand-off item 4 ("**Push it somewhere.** Eight commits sit on a local
+branch with no remote.") is deleted outright rather than renumbered with a new figure.
+
+Ground truth for the row's claims, established independently by the conductor:
+$ git rev-list --count HEAD              -> 25   (the figure the row correctly omits)
+$ git rev-list --count origin/main..HEAD -> 0    (nothing unpushed)
+$ git remote -v
+origin	https://github.com/trmnmc/moon.git (fetch)
+origin	https://github.com/trmnmc/moon.git (push)
+$ gh auth status
+  * Logged in to github.com account trmnmc (/home/swarm/.config/gh/hosts.yml)
+  - Active account: true
+Every clause of the KI-3 row is true.
+
+================================================================================
+CHECK 5 — KI-6's row read from source, not asserted
+================================================================================
+$ sed -n '356,359p' src/astro.js
+  const result = new Date(fullMs);
+  if (Number.isNaN(result.getTime())) {
+    throw new TypeError('nextFullMoon result is outside the representable Date range');
+  }
+
+PASS. The row's cited location (astro.js:357-359), the guard
+(`Number.isNaN(result.getTime())`), the throw type (`TypeError`) and the message string
+all match source exactly.
+
+================================================================================
+CHECK 6 — KI-7's row sourced to the named constant, and its test claims are real
+================================================================================
+$ grep -n "PHASE_ILLUMINATION_CONSISTENCY_DOMAIN" src/astro.js
+71:const PHASE_ILLUMINATION_CONSISTENCY_DOMAIN = {
+363:module.exports = { computeMoon, nextFullMoon, PHASE_NAMES, PHASE_ILLUMINATION_CONSISTENCY_DOMAIN };
+$ sed -n '71,74p' src/astro.js
+const PHASE_ILLUMINATION_CONSISTENCY_DOMAIN = {
+  startMs: Date.UTC(1000, 0, 1),
+  endMs: Date.UTC(3000, 0, 1),
+};
+$ sed -n '393,400p' test/astro.test.js
+test('KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)', () => {
+  const { startMs, endMs } = PHASE_ILLUMINATION_CONSISTENCY_DOMAIN;
+  ...
+  const SAMPLE_COUNT = 4000;
+
+PASS on every element the row asserts: constant exists at 71-74, is exported (line 363),
+the test name and line (astro.test.js:393) are exact, SAMPLE_COUNT is 4000, and "zero
+band violations" is corroborated by check 3's green suite.
+
+RESIDUAL, NOT A FAILURE OF THIS ITEM — the row glosses the domain as "calendar years
+1000-3000". The constant is HALF-OPEN: [Date.UTC(1000,0,1), Date.UTC(3000,0,1)), and the
+test's loop runs i=0..3999 so its largest sample is strictly below endMs. Year 3000 is
+not covered. But the source's OWN doc comment says the same thing --
+$ sed -n '46,49p' src/astro.js
+/**
+ * KI-7: the declared domain over which `phaseName` and `illumination` are
+ * known to stay mutually consistent -- calendar years 1000 through 3000
+ * (i.e. [Date.UTC(1000,0,1), Date.UTC(3000,0,1))).
+-- and so does the pre-existing README line 176 ("Over years **1000-3000**"), which this
+diff does not touch and which passed the cycle-8 gate. The builder was told to source the
+row to the constant and it did, faithfully, including the constant's own prose gloss. The
+defect is the gloss, which is already filed as T-110 against src/astro.js. T-110's scope
+is widened to all three sites rather than failing T-108 for propagating the repo's own
+declaration.
+
+================================================================================
+CHECK 7 — KI-5 is described as PINNED, not FIXED, and the test does what the row says
+================================================================================
+Row status column reads: "pinned by test, not fixed", and the row's closing sentence is
+"The glyph-set redesign that would actually fix the width problem is still deferred --
+this is a pin, not a fix."
+$ sed -n '616,631p' test/render.test.js
+test('KI-5 pin: disc glyph set matches the documented East Asian Width partition', () => {
+  ...
+  const observed = new Map(); // codepoint -> glyph, as actually drawn
+  for (const moon of sweep) {
+    for (const hemisphere of ['north', 'south']) {
+      for (const ch of disc(renderLine(moon, hemisphere))) observed.set(ch.codePointAt(0), ch);
+      for (const ch of blockDiscChars(renderBlock(moon, hemisphere))) observed.set(ch.codePointAt(0), ch);
+
+PASS. The row's description ("derives the disc's actual glyph set from renderLine/
+renderBlock output and checks it against the documented partition") matches the test:
+it observes glyphs actually drawn by both renderers in both hemispheres rather than
+re-typing a list. The weaker verb ("pinned") is the true one and the row says so twice.
+
+================================================================================
+CHECK 8 — REPORT's issue tables agree with state.json, and the header count matches
+================================================================================
+$ python3 -c "... json.load(open('.swarm/state.json')) ..."
+resolved: ['KI-1', 'KI-3', 'KI-6']
+known:    ['KI-2', 'KI-4', 'KI-5', 'KI-7']
+
+REPORT.md now has:
+  "## Known issues (4)"   rows: KI-2, KI-4, KI-5, KI-7   -> count matches rows, and the
+                                                             row set matches state.json
+  "## Resolved issues"    rows: KI-1, KI-3, KI-6         -> matches state.json exactly
+
+PASS. The severity column contains only severities (medium/low/medium/low); status lives
+in its own column, which was the convention this item was asked to choose. KI-2 is
+correctly left "open, blocking" and KI-4 "open, unverified".
+
+================================================================================
+CHECK 9 — the cycle-10 README failure is not repeated: the four-hour figure's subject
+================================================================================
+New README text:
+  "That drifts, because the real lunar cycle isn't a constant length -- this repo's own
+   mean-formula-only check lands nearly four hours off a published new-moon instant (see
+   [Accuracy](#accuracy) below)."
+Pre-existing README ## Accuracy (untouched, gate-accepted at an earlier cycle):
+  "A mean-formula-only implementation lands at 14:20 UTC, nearly four hours off."
+$ grep -n "MEAN_PHASE_EPOCH" src/astro.js
+80:const MEAN_PHASE_EPOCH = 2451550.09766; // JDE of the k=0 mean new moon (49.1)
+$ sed -n '97,102p' test/astro.test.js
+// moon (2000-01-06 14:20 TT); with the ch. 49 periodic corrections the TRUE
+// new moon falls at 2000-01-06 18:14 UTC. ... A mean-formula-only implementation
+// would miss it by ~4 h and fail this test -- that is the point of it.
+
+PASS on the defect that failed cycle 10. The figure's subject is now the mean-formula
+approach in THIS repo's own frame, cross-referenced to the section that computes it — not
+`lunarphase-js`, which was never executed. And the self-contradiction is gone: the new
+paragraph attributes hemisphere-blindness to the naive DRAWING approach, while the
+following paragraph says `lunarphase-js` takes the naive route "on the math" and does
+handle hemisphere (by swapping emoji glyphs). The qualifier "on the math" does exactly the
+work that was missing at attempt 1, so the file no longer says one package both lacks and
+has hemisphere handling.
+
+RESIDUAL, NOT A FAILURE OF THIS ITEM — the noun "check" overstates the mechanism. No
+executed assertion computes the four-hour miss: it is a constant (MEAN_PHASE_EPOCH, the
+k=0 MEAN new moon, = 2000-01-06 14:20 TT), a test COMMENT at astro.test.js:97-102, and
+the README Accuracy assertion. Subject, magnitude, and frame are all correct; only the
+word implying an assertion is wrong. Filed as T-114.
+
+Also filed (T-115): the new hand-off sentence "The run's review-fix pass has not been run
+this cycle" is true but narrower than the truth — that pass has not run in ANY of this
+run's eleven cycles, and "this cycle" invites the inference that it ran in another one.
+The sentence still improves on the status quo, where REPORT.md said nothing at all about
+review-fix coverage.
+
+================================================================================
+RULING — PASS
+================================================================================
+Nine checks, nine pass. Every factual claim in the diff was checked against the repo and
+is true: the remote and push state, the TypeError and its line, the exported domain
+constant and its test, the 4000-sample count, the 106-test count, the issue-set agreement
+with state.json, and the four-hour figure's subject.
+
+The acceptance is met in full — KI-1/KI-3/KI-6 read as resolved with what closed each,
+KI-7 as bounded-and-sampled, KI-5 as pinned-not-fixed, no listed issue still reads as
+open-but-unswept or prose-only, and the header count tracks the rows.
+
+The two residuals are imprecision, not falsehood, and neither is one of the two defects
+this retry was briefed against. Failing the gate would push T-108 to attempts 2 and thus
+to blocked, leaving REPORT.md at its original text — which asserts flatly that the repo
+has no remote, that nothing is pushed, that KI-6 is an open defect, and that the suite is
+102 tests. Preserving four falsehoods to avoid two imprecisions is the wrong trade for a
+doc-truth run. The residuals are filed as T-114 and T-115, and T-110 is widened, so
+nothing is dropped.
