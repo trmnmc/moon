@@ -274,6 +274,31 @@ test('nextFullMoon rejects non-Dates and invalid Dates', () => {
   assert.throws(() => nextFullMoon(new Date(NaN)), TypeError);
 });
 
+// KI-6 regression: a valid input Date whose resulting full-moon instant falls
+// outside the representable JS Date range (|ms| > 8640000000000000, i.e. past
+// +275760) used to come back as a silent Invalid Date, which later blew up as
+// an uncaught RangeError the first time something called .toISOString() on it
+// (e.g. --json). The fix validates the computed output the same way the
+// module already validates input, so the failure is a TypeError raised here,
+// not a RangeError raised somewhere downstream.
+test('nextFullMoon throws TypeError (not a silent Invalid Date) when the result exceeds the Date range', () => {
+  const atTheTop = new Date(8640000000000000); // exactly the top of the JS Date range
+  assert.throws(() => nextFullMoon(atTheTop), TypeError);
+  // Specifically: no RangeError should ever escape from this call (which is
+  // what happened pre-fix, one level down, inside a later .toISOString()).
+  assert.throws(() => nextFullMoon(atTheTop), (err) => !(err instanceof RangeError));
+});
+
+test('nextFullMoon still succeeds for a valid Date just under the top of the range', () => {
+  // 40 days before the absolute top of the range: its next full moon lands
+  // comfortably inside +275760, so this must NOT throw.
+  const nearTop = new Date(8640000000000000 - 40 * DAY_MS);
+  const fm = nextFullMoon(nearTop);
+  assert.ok(fm instanceof Date);
+  assert.ok(!Number.isNaN(fm.getTime()));
+  assert.doesNotThrow(() => fm.toISOString());
+});
+
 test('nextFullMoon is strictly after its input and closes round-trip', () => {
   const probes = [
     Date.UTC(2000, 0, 6, 18, 14),   // at a new moon

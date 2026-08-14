@@ -1,0 +1,32 @@
+{
+  "cycle": 3,
+  "work_type": "build-wave",
+  "dispatch": "direct Agent call (Workflow tool is review-gated in headless -p sessions; documented failure-table fallback). k=1, no worktree needed at k=1.",
+  "wave_size_derivation": "min(counters.k_current=2, gear cap=1, hard max 5) = 1",
+  "items": [
+    {
+      "id": "T-102",
+      "title": "Fix KI-6: nextFullMoon throws instead of returning an out-of-range Invalid Date",
+      "model": "sonnet",
+      "model_note": "backlog model sonnet; gear-1 demote=true does NOT apply (build/fix items never drop below sonnet)",
+      "craft": null,
+      "craft_note": "not flagged ui - files_hint is src/astro.js + test/astro.test.js, no .html/.css/.jsx/.tsx/.vue/.svelte and no UI surface in the title. craft pack fetched (degraded: []) but no pack spliced.",
+      "agent_id": "aba823ee17afb0d15",
+      "returned": "done"
+    }
+  ],
+  "agent_return": {
+    "files_changed": ["/opt/targets/moon/src/astro.js", "/opt/targets/moon/test/astro.test.js"],
+    "guard": "In nextFullMoon, after computing fullMs and constructing const result = new Date(fullMs), a check `if (Number.isNaN(result.getTime())) throw new TypeError('nextFullMoon result is outside the representable Date range');` runs before return. Sits next to the existing input guard, same Number.isNaN(...getTime()) idiom, same TypeError class. Meeus math (truePhaseJD, lunationK, toMs) untouched.",
+    "tests_added": [
+      "nextFullMoon throws TypeError (not a silent Invalid Date) when the result exceeds the Date range -- pins that new Date(8640000000000000) throws TypeError and specifically NOT RangeError",
+      "nextFullMoon still succeeds for a valid Date just under the top of the range -- pins that the guard does not over-trigger; top-of-range minus 40 days still returns a valid Date whose toISOString() works"
+    ],
+    "agent_claimed_counts": "104 pass, 0 fail (was 102, +2)",
+    "agent_uncertainties": [
+      "did not add a lower-boundary (-8.64e15) test; the guard covers both directions since new Date(ms) is invalid for |ms| > 8.64e15 regardless of sign, but only the top-of-range case was empirically checked",
+      "the new error message wording has no prior precedent in the repo to match against; the agent inverted the existing 'nextFullMoon expects a valid Date' phrasing as a judgement call"
+    ]
+  },
+  "conductor_note": "Every field under agent_return is a CLAIM as returned by the builder, recorded verbatim. The verification gate is in the journal; agent claims were not used as evidence for anything."
+}

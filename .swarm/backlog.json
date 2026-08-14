@@ -35,8 +35,8 @@
       "acceptance": "Calling nextFullMoon() with a valid Date whose resulting full-moon instant falls outside the representable JS Date range throws a TypeError, matching the module's existing throw-on-bad-input behaviour, instead of silently returning an Invalid Date that later surfaces as an uncaught RangeError from --json's toISOString().",
       "packages": [],
       "attempts": 0,
-      "notes": "CONDUCTOR-REPRODUCED at cycle 1, first-hand:\n  nextFullMoon(new Date(8.64e15)) -> Invalid Date   (silent)\n  .toISOString()                  -> RangeError: Invalid time value\n  nextFullMoon('not a date')      -> TypeError: nextFullMoon expects a valid Date\nPLAN grep (conductor-verified): test/astro.test.js has no hits for RangeError|8640000000000000|275760; its two nextFullMoon throw-tests cover bad INPUT only, never the out-of-range OUTPUT path. Do NOT touch the Meeus math - this is a guard clause on the return value.",
-      "status": "todo"
+      "notes": "CONDUCTOR-REPRODUCED at cycle 1, first-hand:\n  nextFullMoon(new Date(8.64e15)) -> Invalid Date   (silent)\n  .toISOString()                  -> RangeError: Invalid time value\n  nextFullMoon('not a date')      -> TypeError: nextFullMoon expects a valid Date\nPLAN grep (conductor-verified): test/astro.test.js has no hits for RangeError|8640000000000000|275760; its two nextFullMoon throw-tests cover bad INPUT only, never the out-of-range OUTPUT path. Do NOT touch the Meeus math - this is a guard clause on the return value.\n\nGATE PASS at cycle 3 (six conductor-run checks; evidence in .swarm/runs/cycle-003-verify-T-102.txt). Guard is 4 lines on the return value; Meeus math byte-identical. 102 -> 104 tests green. Non-vacuity confirmed: against `git show HEAD:src/astro.js` the defect-pinning test FAILS, so it closes a real surface. KI-6 resolved.",
+      "status": "done"
     },
     {
       "id": "T-103",

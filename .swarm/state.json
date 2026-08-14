@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "BUILD",
-  "cycle": 2,
+  "cycle": 3,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -67,6 +67,11 @@
       "cycle": 2,
       "what": "docs items on this run get a no-unsourced-numbers gate check as a standing rule, not just for T-101",
       "why": "the improvement run's whole premise is doc truth, and the cycle-2 failure was a plausible-sounding quantity invented to make a sentence read better. A qualitative structural claim ('zero periodic corrections vs a full Meeus series') is verifiable from the repo; a magnitude is not unless it is computed in-repo and shown. Every remaining docs item (T-101 retry, T-108) is gated on this."
+    },
+    {
+      "cycle": 3,
+      "what": "T-102 (KI-6 fix) built this cycle instead of the priority-1 T-101 docs retry",
+      "why": "both are H-value S-effort must-haves, so backlog priority does not settle it and cycle.md step 4 makes value scoring the authority. The tiebreak was gate objectivity after a no-value cycle: T-102's acceptance is checkable by running the module (it throws or it does not), whereas T-101's is source-tracing prose - the same class of check that just failed. At k=1 under gear-1 crawl a cycle buys exactly one item, so it should buy the one most likely to convert to verified value. T-101 stays priority 1 and is next; its attempts counter is untouched by this deferral."
     }
   ],
   "known_issues": [
@@ -97,12 +102,6 @@
       "cycle_found": 1
     },
     {
-      "id": "KI-6",
-      "desc": "nextFullMoon() returns an Invalid Date (rather than throwing) past the top of the JS Date range, and --json would then throw RangeError on toISOString(). Unreachable from a real clock (needs year 275760). Inconsistent with the module throwing TypeError on bad input.",
-      "severity": "low",
-      "cycle_found": 1
-    },
-    {
       "id": "KI-7",
       "desc": "At absurd epochs (+/-270,000 years) phaseName and illumination can contradict each other, because phaseName derives from the ch.49 instant tables and illumination from the ch.48 elongation series, and the two polynomials diverge. Zero contradictions across 350,592 states sampled over 2020-2040. Noted so it is not rediscovered as a live bug.",
       "severity": "low",
@@ -115,16 +114,16 @@
     "last_taste_cycle": 1
   },
   "counters": {
-    "consecutive_no_value": 1,
-    "consecutive_failures": 1,
+    "consecutive_no_value": 0,
+    "consecutive_failures": 0,
     "k_current": 2,
-    "wave_streak": 0,
+    "wave_streak": 1,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "n": 2,
-    "work": "build-wave k=1 (gear-1 crawl): T-101 prior-art docs propagation, haiku",
-    "outcome": "GATE FAIL, reverted - builder fabricated a '4-hour phase errors' magnitude with no source anywhere in the repo. T-101 -> todo, attempts 1, escalated haiku->sonnet. Suite stayed 102/102 green.",
+    "n": 3,
+    "work": "build-wave k=1 (gear-1 crawl): T-102 KI-6 out-of-range guard, sonnet",
+    "outcome": "1 VERIFIED. Gate passed six conductor-run checks incl. a non-vacuity replay against pre-fix HEAD. 102 -> 104 green. KI-6 resolved.",
     "commit": ""
   },
   "run_label": "improvement-2026-08-14",
@@ -134,6 +133,12 @@
       "desc": "no git remote / gh auth unverified",
       "resolved_cycle": 0,
       "evidence": "git -C /opt/targets/moon remote -v -> origin https://github.com/trmnmc/moon.git (fetch+push); gh auth status -> Logged in to github.com account trmnmc, scopes gist/read:org/repo/workflow; tag v0.1.0 present"
+    },
+    {
+      "id": "KI-6",
+      "desc": "nextFullMoon() returned an Invalid Date past the top of the JS Date range instead of throwing, so --json would surface it as an uncaught RangeError from toISOString().",
+      "resolved_cycle": 3,
+      "evidence": "src/astro.js:326-329 guards the constructed result with Number.isNaN(...getTime()) and throws TypeError, matching the module's existing bad-input guard. Conductor-run: nextFullMoon(new Date(8.64e15)) -> TypeError (same constructor as the bad-input throw), no RangeError escapes the toISOString path, and the guard does not over-trigger (year 1000-3000 probes + live clock all return valid strictly-later Dates). Boundary located by 60-step bisection at input +275760-09-07T01:05:02.396Z. Non-vacuity: the pinning test FAILS against `git show HEAD:src/astro.js`. Full evidence: .swarm/runs/cycle-003-verify-T-102.txt"
     }
   ]
 }

@@ -503,3 +503,163 @@ runfile-mirror:
 ```json
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786723229,"next_wakeup_at":1786724129,"pid":104001,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786723229,"last_real_probe_ts":0,"probe_failures":2,"probe_note":"bin/swarm-budget.sh permission-denied for the third consecutive cycle (KI-2, recurring). Gear evidence from runs/allocator.json (source=probe, refreshed 30s pre-cycle): posture=trickle, allow_premium_pct=0, opus_used_pct=96, weekly_used_pct=66 at week_elapsed_pct=63.65.","weekly":{"ok":true,"weekly_used_pct":66.0,"opus_used_pct":96,"week_elapsed_pct":63.65,"weekly_heat":1.04,"opus_heat":1.51,"ceiling":1,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":2,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 3 | 2026-08-14T16:27:23+00:00 | moon | BUILD
+
+work: build-wave, k=1, item T-102 (fix KI-6 - nextFullMoon returns a silent Invalid Date
+past the top of the JS Date range instead of throwing). Why this item: gear 1 buys one
+item per cycle, and after a no-value cycle the pick should be the one most likely to
+convert. T-102 is a must-have, never attempted, with a conductor-reproduced repro and an
+acceptance criterion checkable by running the module. Priority-1 T-101 is a docs retry
+whose gate is source-tracing prose - the same class of check that just failed - so it
+waits one cycle. Recorded as a decision in state.json.
+
+dispatch: DIRECT Agent call, not Workflow (VPS headless -p session; the Workflow tool is
+review-gated there - documented failure-table fallback). k=1 so no file-scope conflict and
+no worktree. Return saved to .swarm/runs/cycle-003-build-wave.json. models: T-102 sonnet
+(gear-1 demote=true does NOT apply - build/fix items never drop below sonnet). Playbook
+builder prompt line spliced ("the conductor is the SOLE committer"); honored - the agent
+left the work uncommitted. Craft pack fetched clean (degraded: []) but no pack spliced:
+T-102 touches src/astro.js + test/astro.test.js, no UI surface.
+
+budget: gear 1 crawl, guest mode, dial 0.30, k_cap 1, demote on, promote blocked.
+bin/swarm-budget.sh was permission-denied AGAIN (KI-2, 4th consecutive cycle) ->
+probe_failures 2 -> 3, so per cycle.md step 1 the real probe is now suspended until
+1800 s have passed. PROBE_CMD=false is equally unrunnable, so the clock-cruise fallback
+is not available either. Gear 1 is NOT a guess: runs/allocator.json (source=probe,
+refreshed ~4 min before this cycle opened) reads posture=trickle, allow_premium_pct=0,
+opus_used_pct=96, weekly_used_pct=66.0 at week_elapsed_pct=63.89. Weekly governor
+engaged, ceiling 1. bin/swarm-notify.sh poll was also permission-denied - non-fatal per
+cycle.md step 2; control.json was read directly from disk instead: pending [] and
+inject [] both empty, so no commands and no injections this cycle. Tree was clean at
+orient - no salvage needed.
+
+VERIFICATION EVIDENCE - T-102 (six checks, all conductor-run; full transcript at
+.swarm/runs/cycle-003-verify-T-102.txt). The builder never saw any of these; they were
+authored after it returned.
+
+Scope + the item's first constraint, that the Meeus math is untouched:
+
+```
+$ git -C /opt/targets/moon diff --stat
+ src/astro.js       |  6 +++++-
+ test/astro.test.js | 25 +++++++++++++++++++++++++
+
+$ git -C /opt/targets/moon diff -- src/astro.js
+-  return new Date(fullMs);
++  const result = new Date(fullMs);
++  if (Number.isNaN(result.getTime())) {
++    throw new TypeError('nextFullMoon result is outside the representable Date range');
++  }
++  return result;
+```
+
+That is the ENTIRE src/ diff. truePhaseJD, lunationK and toMs are byte-identical - this is
+the guard-clause-on-a-return-value shape the item asked for, not a maths edit.
+
+Full test_cmd, run by the conductor:
+
+```
+$ node --test test/*.test.js
+ℹ tests 104 | ℹ pass 104 | ℹ fail 0 | ℹ skipped 0 | ℹ todo 0
+```
+
+102 -> 104, and the test diff is +25/-0, so no existing test was weakened to make room.
+
+The acceptance criterion itself, proved against the module's public surface by
+runs/gate-moon-cycle3.js:
+
+```
+$ node /opt/swarm/runs/gate-moon-cycle3.js
+PASS  out-of-range output throws TypeError, not Invalid Date  -- TypeError: nextFullMoon result is outside the representable Date range
+PASS  same error class as the existing bad-input guard  -- both TypeError
+PASS  no RangeError escapes the toISOString path  -- TypeError
+PASS  does not over-trigger on ordinary dates  -- 2026-08-28 2026-08-28 1969-07-29 3000-01-12 1000-01-28
+PASS  boundary located by bisection, guard fires only past it  -- last in-range input +275760-09-07T01:05:02.396Z -> full moon +275760-09-07T01:05:02.397Z; +1ms throws
+GATE: ALL CHECKS PASS
+```
+
+Check 2 is the criterion's literal wording ("matching the module's existing
+throw-on-bad-input behaviour") tested by comparing error constructors at runtime, not by
+reading the source. Check 4 is the DISCRIMINATOR (L-024): a guard that threw on
+everything would satisfy checks 1-3, so five dates spanning year 1000-3000 plus the live
+clock must still return usable, strictly-later Dates. Check 5 refuses to take the
+builder's asserted "top-of-range minus 40 days is safe" on trust and bisects for the real
+boundary instead.
+
+NON-VACUITY - the check that decides whether these tests are worth their line count.
+SPEC must-have: every added test closes a NAMED untested surface. A scratch tree was built
+with ONLY src/astro.js replaced by `git show HEAD:src/astro.js`, keeping the builder's new
+tests verbatim:
+
+```
+$ node /opt/swarm/runs/vacuity-moon-cycle3.js
+pre-fix nextFullMoon(new Date(8.64e15)) -> Invalid Date
+pre-fix .toISOString() -> RangeError: Invalid time value
+--- builder tests run against the PRE-FIX module ---
+ℹ tests 23 | ℹ pass 22 | ℹ fail 1
+exit status: 1
+✖ nextFullMoon throws TypeError (not a silent Invalid Date) when the result exceeds the Date range
+```
+
+The cycle-1 reproduction is re-confirmed first-hand here rather than remembered, and
+exactly one of the two new tests fails without the guard. That is the right number, not a
+shortfall: test 1 pins the defect, test 2 pins the guard's non-over-trigger and would fail
+against a too-aggressive guard instead. Both name a real surface.
+
+And the product itself, since the module is not the deliverable:
+
+```
+$ node bin/moon.js --json
+{"phase":"waxing crescent","illumination":0.0496,...,"nextFullMoon":"2026-08-28T04:18:25.225Z",...}
+$ node bin/moon.js --compact
+░░░░▐   5%  waxing crescent
+```
+
+--json's nextFullMoon field is the exact path KI-6's RangeError would have surfaced on.
+
+GATE PASS on all six. T-102 -> done. KI-6 moved from known_issues to resolved_issues with
+the evidence inline.
+
+NOT VERIFIED, reported as not-run rather than passed: the lower boundary (inputs near
+-8.64e15) was never exercised. Reading the guard it is symmetric, since new Date(ms) is
+Invalid for |ms| > 8.64e15 in either direction - but reading is not running. Not filed as
+a known issue: it is a coverage gap on an unreachable path, not a regression (pre-fix code
+had no lower-boundary handling either), and KI-7/T-103 already own the supported-domain
+question.
+
+collision-scan + qa-verify look pass: NOT APPLICABLE and deliberately skipped. Both are
+gated on user-visible browser assets (html/css/client-js/template/static). This target is
+a zero-dependency stdout CLI with no browser surface, and no merged file is served to a
+browser. Recorded rather than silently omitted.
+
+wave autotune: CLEAN wave - zero reverted merges, zero failed verifies -> wave_streak
+0 -> 1. k_current stays 2 (it rises only when the streak reaches 2). Gear cap 1 binds the
+effective size regardless. counters.consecutive_no_value 1 -> 0 and consecutive_failures
+1 -> 0, both reset by a verified-value cycle; the churn breaker's forced work-type switch
+at 2 is no longer pending.
+
+next: T-101 retry at sonnet (priority 1, attempts 1) under the standing
+no-unsourced-numbers gate check recorded at cycle 2, then T-103/T-104. T-103 is M-effort
+and is not admissible while gear 1 holds (S-effort sonnet builds only), so if the trickle
+posture persists the S-effort test items T-104..T-107 come before it.
+
+SWARM-side defects for the morning report (hard rule 5 forbids fixing them mid-run,
+carried forward unresolved): (1) KI-2 - the settings allowlist still denies
+bin/swarm-budget.sh and bin/swarm-notify.sh, now for the 4th consecutive cycle; the run
+has never once had a real budget probe and has driven entirely on allocator.json evidence.
+(2) playbook/learnings.md carries duplicate ids L-023, L-025, L-026. (3) the cycle-1
+journal header at line 295 is a literal unexpanded `%Y-%m-%dT%H:%M:%S+00:00`.
+
+WAKEUP MECHANISM: ScheduleWakeup not called - VPS headless cycle, swarm-pacer.timer is the
+firing mechanism and reads heartbeat.next_wakeup_at, rewritten below to now+90 (verified
+-value cycle, so the 90 s base delay applies, not the 900-1800 s no-value band). Clamp
+holds: wakeup+900 is far inside stop_at 2026-08-15T15:32:27+00:00.
+
+outcome: 1 VERIFIED. KI-6 closed with machine-checked evidence, suite 102 -> 104 green,
+no debris, no regression.
+
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786724511,"next_wakeup_at":1786727211,"pid":105860,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786724511,"last_real_probe_ts":0,"probe_failures":3,"probe_note":"bin/swarm-budget.sh permission-denied again at cycle 3 (KI-2, 4th consecutive cycle) -> probe_failures 3. Per cycle.md step 1 the real probe is now suspended until now-last_real_probe_ts>=1800; PROBE_CMD=false is equally unrunnable, so the clock-cruise fallback is unavailable too. Gear 1 rests on runs/allocator.json (source=probe): posture=trickle, allow_premium_pct=0, opus_used_pct=96, weekly_used_pct=66.0 at week_elapsed_pct=63.89. Evidence, not a guess.","weekly":{"ok":true,"weekly_used_pct":66.0,"opus_used_pct":96,"week_elapsed_pct":63.89,"weekly_heat":1.03,"opus_heat":1.5,"ceiling":1,"promote_blocked":true}},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":3,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

@@ -1,0 +1,139 @@
+T-102 VERIFICATION — cycle 3, conductor-run. Every command below was executed by the
+conductor, not by the builder. Checks were authored AFTER the builder returned; the
+builder never saw them.
+
+================================================================================
+CHECK 1 — scope: only the two permitted files touched
+================================================================================
+$ git -C /opt/targets/moon status --porcelain
+ M src/astro.js
+ M test/astro.test.js
+
+$ git -C /opt/targets/moon diff --stat
+ src/astro.js       |  6 +++++-
+ test/astro.test.js | 25 +++++++++++++++++++++++++
+ 2 files changed, 30 insertions(+), 1 deletion(-)
+
+PASS. Nothing staged or committed by the agent. package.json, bin/, README.md, REPORT.md
+and .swarm/ all untouched.
+
+================================================================================
+CHECK 2 — the Meeus math is untouched (the item's first constraint)
+================================================================================
+$ git -C /opt/targets/moon diff -- src/astro.js
+@@ -323,7 +323,11 @@ function nextFullMoon(date) {
+   const toMs = (j) => Math.round((j - JD_UNIX_EPOCH) * DAY_MS);
+   let fullMs = toMs(truePhaseJD(k + 0.5));
+   if (fullMs <= date.getTime()) fullMs = toMs(truePhaseJD(k + 1.5));
+-  return new Date(fullMs);
++  const result = new Date(fullMs);
++  if (Number.isNaN(result.getTime())) {
++    throw new TypeError('nextFullMoon result is outside the representable Date range');
++  }
++  return result;
+ }
+
+PASS. The entire src/ diff is the four added lines above. No coefficient, no series term,
+no astronomical computation changed — truePhaseJD, lunationK and toMs are byte-identical.
+This is exactly the guard-clause-on-a-return-value shape the item called for.
+
+================================================================================
+CHECK 3 — full test_cmd, run by the conductor
+================================================================================
+$ cd /opt/targets/moon && node --test test/*.test.js
+ℹ tests 104
+ℹ suites 0
+ℹ pass 104
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1223.121996
+
+PASS. 102 -> 104. No pre-existing test was modified or deleted (the test diff is +25/-0).
+
+================================================================================
+CHECK 4 — the acceptance criterion, proved against the module's public surface
+by a conductor-authored script the builder never saw
+(/opt/swarm/runs/gate-moon-cycle3.js)
+================================================================================
+$ node /opt/swarm/runs/gate-moon-cycle3.js
+PASS  out-of-range output throws TypeError, not Invalid Date  -- TypeError: nextFullMoon result is outside the representable Date range
+PASS  same error class as the existing bad-input guard  -- both TypeError
+PASS  no RangeError escapes the toISOString path  -- TypeError
+PASS  does not over-trigger on ordinary dates  -- 2026-08-28 2026-08-28 1969-07-29 3000-01-12 1000-01-28
+PASS  boundary located by bisection, guard fires only past it  -- last in-range input +275760-09-07T01:05:02.396Z -> full moon +275760-09-07T01:05:02.397Z; +1ms throws
+GATE: ALL CHECKS PASS
+
+Check 4.2 is the literal wording of the acceptance criterion ("matching the module's
+existing throw-on-bad-input behaviour") and is checked by comparing the constructor of the
+error thrown on bad INPUT against the one thrown on out-of-range OUTPUT — not by reading
+the source.
+
+Check 4.4 is the DISCRIMINATOR (playbook L-024): a guard that simply threw on everything
+would satisfy checks 4.1-4.3. Five ordinary dates spanning year 1000 to 3000, plus the
+live clock, still return usable, strictly-later Dates whose toISOString() succeeds.
+
+Check 4.5 locates the real boundary by 60-step bisection rather than trusting the
+builder's asserted "top-of-range minus 40 days is safe". The last input for which a next
+full moon is representable is +275760-09-07T01:05:02.396Z; one millisecond later the
+k+0.5 instant falls at or before the input, the k+1.5 branch overflows, and the guard
+fires. That is the correct place for it to fire.
+
+================================================================================
+CHECK 5 — NON-VACUITY. Do the added tests actually close the named surface?
+(/opt/swarm/runs/vacuity-moon-cycle3.js)
+================================================================================
+A scratch copy of src/, test/, bin/ and package.json was built at /tmp/moon-vacuity3, and
+ONLY src/astro.js was replaced with `git show HEAD:src/astro.js` — the pre-fix version.
+The builder's new tests were kept exactly as written. A test that passes here closes
+nothing.
+
+$ node /opt/swarm/runs/vacuity-moon-cycle3.js
+scratch repo built at /tmp/moon-vacuity3
+src/astro.js = HEAD (guard absent): true
+test/astro.test.js = builder version (new tests present): true
+
+pre-fix nextFullMoon(new Date(8.64e15)) -> Invalid Date
+pre-fix .toISOString() -> RangeError: Invalid time value
+
+--- builder tests run against the PRE-FIX module ---
+ℹ tests 23
+ℹ pass 22
+ℹ fail 1
+
+exit status: 1 (non-zero = the new tests DO catch the defect)
+
+$ node /opt/swarm/runs/vacuity-name-cycle3.js
+✖ nextFullMoon throws TypeError (not a silent Invalid Date) when the result exceeds the Date range (5.803317ms)
+✖ failing tests:
+✖ nextFullMoon throws TypeError (not a silent Invalid Date) when the result exceeds the Date range (5.803317ms)
+
+PASS, and note the shape: the pre-fix defect reproduced first-hand here (Invalid Date,
+then RangeError from toISOString) — the cycle-1 reproduction re-confirmed, not
+remembered. Exactly ONE of the two new tests fails without the guard. That is the right
+number, not a shortfall: test 1 pins the defect, test 2 pins the guard's non-over-trigger
+and would fail against a too-aggressive guard instead. Both name a real surface, which is
+what SPEC must-have "every added test closes a NAMED untested surface" asks for.
+
+================================================================================
+CHECK 6 — the CLI still behaves (the product, not the module)
+================================================================================
+$ node bin/moon.js --json
+{"phase":"waxing crescent","illumination":0.0496,"age":1.95,"cycleFraction":0.07151,"phaseAngle":25.743,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461267.1841,"timestamp":"2026-08-14T16:25:06.353Z"}
+
+$ node bin/moon.js --compact
+░░░░▐   5%  waxing crescent
+
+PASS. --json's nextFullMoon field — the exact path KI-6's RangeError would have surfaced
+on — still serializes.
+
+================================================================================
+VERDICT: PASS on all six checks. T-102 -> done. KI-6 -> resolved.
+================================================================================
+NOT VERIFIED, stated as not-run rather than passed:
+- The lower boundary (inputs near -8.64e15) was not exercised. Reading the guard, it is
+  symmetric — new Date(ms) is Invalid for |ms| > 8.64e15 either way — but reading is not
+  running, so this is reported unverified. It is not a regression: the pre-fix code had
+  no lower-boundary handling either. Not filed as a known issue; it is a gap in coverage
+  of an unreachable path, and KI-7 already bounds the supported domain question.

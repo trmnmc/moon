@@ -323,7 +323,11 @@ function nextFullMoon(date) {
   const toMs = (j) => Math.round((j - JD_UNIX_EPOCH) * DAY_MS);
   let fullMs = toMs(truePhaseJD(k + 0.5));
   if (fullMs <= date.getTime()) fullMs = toMs(truePhaseJD(k + 1.5));
-  return new Date(fullMs);
+  const result = new Date(fullMs);
+  if (Number.isNaN(result.getTime())) {
+    throw new TypeError('nextFullMoon result is outside the representable Date range');
+  }
+  return result;
 }
 
 module.exports = { computeMoon, nextFullMoon, PHASE_NAMES };
