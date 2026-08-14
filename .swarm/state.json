@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "REVIEW",
-  "cycle": 9,
+  "cycle": 10,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -157,6 +157,16 @@
       "cycle": 9,
       "what": "T-112 filed at priority 4 - ahead of every remaining test item - because this cycle created it",
       "why": "landing T-109 falsified test/render.test.js:586-588, which asserts in prose that the README 'never mentions' the round limbs. The test's assertion still passes, so nothing is red and nothing would ever surface it; that is exactly why it needs to outrank work that has merely been missing since v0.1.0. A falsehood a run introduces is worse than a gap a run inherits, because the run is the reason a reader would trust it."
+    },
+    {
+      "cycle": 10,
+      "what": "T-108 dispatched at haiku (the routing table's route for docs/S) rather than overridden upward, after the conductor pre-decided both judgment calls the item carried",
+      "why": "The item's notes handed it two open questions - which resolved-status convention to adopt, and how to dispose of README's unsourced 'hours to days' magnitude - and the routing rules say a judgment call about correctness or honesty should not be cheap-tiered. Rather than spend a premium tier under trickle posture (allow_premium_pct 0, opus_used_pct 96), the conductor DECIDED both in the brief (status column with three permitted values, severity column untouched; scope the npm claim to the one package swept and attribute any magnitude to its single lunation) so the builder's remaining work was mechanical application. attempts was 0, so the ladder gave no evidence to escalate on. The call did not hold: attempt 1 failed on execution of the pre-decided disposition, not on the decisions themselves. Recorded so the retro can weigh whether pre-deciding shrinks an item enough to keep it at haiku, or whether docs items on THIS repo should open at sonnet given two haiku doc failures in ten cycles (T-101 cycle 2, T-108 cycle 10)."
+    },
+    {
+      "cycle": 10,
+      "what": "the whole T-108 diff reverted rather than the two false sentences conductor-patched and the rest kept",
+      "why": "Keeping the good two-thirds meant the conductor hand-writing the replacements for the exact two claims the gate had just judged - and cycle 7 established that a conductor editing the artifact leaves nothing independent checking the conductor's own wording. The salvage cost is real (a correct status-column table thrown away) and is paid down by describing every passing element in the retry brief, so attempt 2 reproduces them instead of rediscovering them. Same shape as cycle 7 -> 8 on T-103b, which landed on the retry."
     }
   ],
   "known_issues": [
@@ -196,17 +206,17 @@
     "last_taste_cycle": 1
   },
   "counters": {
-    "consecutive_no_value": 0,
-    "consecutive_failures": 0,
-    "k_current": 2,
+    "consecutive_no_value": 1,
+    "consecutive_failures": 1,
+    "k_current": 1,
     "wave_streak": 0,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "cycle": 9,
-    "work": "build-wave k=1 [T-109] at sonnet",
-    "outcome": "1 verified, 106/106 green, 2 residuals filed (T-112, T-113)",
-    "commit": "c52a224"
+    "cycle": 10,
+    "work": "build-wave k=1 [T-108] at haiku",
+    "outcome": "GATE FAILED on two false doc claims, diff reverted; 0 verified, 106/106 green",
+    "commit": ""
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [

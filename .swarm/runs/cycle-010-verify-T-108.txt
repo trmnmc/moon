@@ -1,0 +1,138 @@
+T-108 verification gate — cycle 10, 2026-08-14T19:13Z
+Checks authored by the conductor AT VERIFICATION TIME. The builder never saw them.
+Verdict: FAIL (2 of 6 checks failed). Diff reverted, item re-queued at sonnet.
+
+================================================================================
+CHECK 1 — write scope: only REPORT.md and README.md touched         PASS
+================================================================================
+$ git status --porcelain
+ M README.md
+ M REPORT.md
+
+$ git diff --stat
+ README.md | 17 ++++++++---------
+ REPORT.md | 28 +++++++++++++++-------------
+ 2 files changed, 23 insertions(+), 22 deletions(-)
+
+No source, test, or manifest file touched. No git write command run by the builder
+(working tree dirty, HEAD unmoved at e745129).
+
+================================================================================
+CHECK 2 — historical header lines 3 and 5 left untouched            PASS
+================================================================================
+Neither line appears in `git diff REPORT.md`. Line 5 still reads
+"8 commits, 0 reverts, 102/102 tests green" — correct, it records the original
+11:29-12:59 run, not current state.
+
+================================================================================
+CHECK 3 — full suite still green                                    PASS
+================================================================================
+$ node --test test/*.test.js
+✔ the whole cycle renders without throwing and never widens the disc (9.792479ms)
+✔ KI-5 pin: disc glyph set matches the documented East Asian Width partition (20.664863ms)
+ℹ tests 106
+ℹ pass 106
+ℹ fail 0
+
+================================================================================
+CHECK 4 — KI-6 row's throw-type claim is true of the source         PASS
+================================================================================
+Claim written into REPORT.md: "nextFullMoon() now throws a TypeError if the result
+is outside the representable Date range".
+
+$ grep -n -A3 "^function nextFullMoon" src/astro.js   (relevant tail)
+356:  const result = new Date(fullMs);
+357:  if (Number.isNaN(result.getTime())) {
+358:    throw new TypeError('nextFullMoon result is outside the representable Date range');
+359:  }
+
+TypeError confirmed at src/astro.js:358. The builder read the source rather than
+asserting from the item text. This check passes.
+
+================================================================================
+CHECK 5 — no unsourced or false quantity introduced                 *** FAIL ***
+================================================================================
+Standing gate rule on this run (conductor decision, cycle 2): a quantity may appear
+only in the frame the repo already computes it in.
+
+$ grep -n "8 commits\|Eight commits" REPORT.md
+5:**Outcome:** shipped, all must-haves verified. 8 commits, 0 reverts, 102/102 tests green.
+96:| KI-3 | medium | resolved | **Git remote and push verified.** `git remote -v` shows origin at `https://github.com/trmnmc/moon.git`; all 8 commits have been pushed. |
+158:4. **Push it somewhere.** Eight commits have been pushed to the remote at `https://github.com/trmnmc/moon.git`.
+
+$ git rev-list --count HEAD
+24
+
+Lines 96 and 158 are NEW text and both are false. The repo has 24 commits, not 8.
+The builder carried the "8 commits" figure out of line 5 — where it is a true record
+of the ORIGINAL run — and restated it in the present tense as a total covering the
+current repo. Line 96 is worse than an undercount: "all 8 commits have been pushed"
+asserts a complete inventory, so a reader who trusts it concludes 16 commits do not
+exist.
+
+Line 158 additionally contradicts itself inside one line: the bold lead-in still
+instructs the reader to "Push it somewhere" while the sentence after it says the
+pushing is done. That lead-in is an action item for a human and should not have
+survived the correction.
+
+================================================================================
+CHECK 6 — README rewrite claims only what the repo supports         *** FAIL ***
+================================================================================
+$ sed -n '26,34p' README.md
+The nearest package on npm, `lunarphase-js`, computes the phase with a naive synodic-month modulo —
+one that lands nearly four hours off on the 2000-01-06 new moon (see Accuracy below). It draws
+the moon from a fixed set of sprites, which is **backwards for the southern hemisphere** — a waxing
+crescent is lit on the right in Edinburgh and on the left in Sydney.
+
+In detail, `lunarphase-js` is a mean-synodic modulo with zero periodic correction terms, hemisphere
+support that swaps *emoji glyphs* rather than mirroring the art, and no `bin` entry, so it isn't even
+a CLI. (`astronomia` is a genuine Meeus port, but it's a dependency — this project has none.)
+
+6a. MISATTRIBUTED MAGNITUDE. The "nearly four hours" figure is computed in README's
+    own ## Accuracy section, and it is computed for "a mean-formula-only
+    implementation" — this repo's mean-phase formula, evaluated in-repo:
+
+    $ sed -n '158,161p' README.md   (pre-existing text, unchanged by this diff)
+    Verified against the published new moon of 2000-01-06 18:14 UTC: this implementation
+    computes **18:15 UTC**. A mean-formula-only implementation lands at 14:20 UTC, nearly
+    four hours off.
+
+    lunarphase-js was never executed. Per the SPEC's Domain rules its core is
+    frac((JD - 2451550.1) / 29.53058770576) — a different epoch and a different
+    synodic constant from the ones this repo evaluates — so this repo's figure is
+    not that package's error. This is the SAME defect the cycle-4 decision recorded
+    when T-101 attempt 1 lifted the ~4-hour figure into a per-package error claim
+    about lunarphase-js: an in-repo datapoint generalized onto software nobody ran.
+    The item brief required the magnitude be "clearly attributed to that single
+    lunation rather than stated as a general range" and forbade asserting what could
+    not be verified by reading a file. The rewrite removed the "most tools"
+    generalization and reintroduced the same error one clause later, narrowed onto
+    a single named package, which reads as MORE authoritative, not less.
+
+6b. SELF-CONTRADICTION INTRODUCED. In the original, "draw the moon from a fixed set
+    of sprites, which is backwards for the southern hemisphere" was a claim about
+    terminal moon tools in general. After the rewrite "It" binds to lunarphase-js,
+    so the README now asserts that package's art is backwards for the southern
+    hemisphere — and the very next paragraph says the package has "hemisphere
+    support that swaps emoji glyphs rather than mirroring the art". Two sentences
+    apart, the file says the package both lacks and has hemisphere handling.
+    Rebinding the subject from a general class to one named package was the required
+    fix; carrying the general class's predicate along with it was not.
+
+================================================================================
+GATE RULING
+================================================================================
+FAIL. Both failures land inside the run's central premise (doc truth) and one of
+them is a verbatim repeat of a failure this run already recorded and wrote a
+standing rule against. Nothing is conductor-patched: the cycle-7 precedent holds
+that a conductor editing the artifact leaves nothing independent checking the
+conductor's own wording.
+
+$ git checkout -- README.md REPORT.md
+$ git status --porcelain
+(clean)
+
+T-108 -> todo, attempts 1, escalated haiku -> sonnet per the routing ladder.
+Passing work from this attempt (the status-column table, the KI-6/KI-7 row rewrites,
+the 106-test count) is described in the retry brief so attempt 2 reproduces it
+cheaply rather than rediscovering it.
