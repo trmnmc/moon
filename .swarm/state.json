@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "VALUE_LOOP",
-  "cycle": 21,
+  "cycle": 22,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -217,6 +217,16 @@
       "cycle": 21,
       "what": "verified T-117 by PUSHING it and reading GitHub's own execution log, not by reading the yaml",
       "why": "A workflow file is the one artifact where static review is systematically weakest: every wrong version of it is also well-formed yaml. The specific trap here was live -- this repo has no package-lock.json, so the near-universal `npm ci` idiom would have produced a workflow that parses, reviews clean, and fails on every run forever. Static checks caught that one because it was anticipated; the live run caught one that was NOT anticipated (the actions/*@v4 Node-20 runtime deprecation, T-118), which is the argument for the live run existing at all. The discriminator is the log line '# pass 114' from GitHub's runner: a vacuous, no-op, or invented-script workflow cannot emit this repo's exact test count from a machine the conductor does not control."
+    },
+    {
+      "cycle": 22,
+      "what": "verified T-118 with a LIVE CONTROL rather than a single after-reading: queried the deprecation annotations on the v4 sha (12a6a70) and the v7 sha (c7b4cf2) through the same API call",
+      "why": "'zero annotations on the new run' is not evidence on its own - an empty annotations array is also what a broken query, a wrong check-run id, or a never-annotating repo returns. The v4 control returned the deprecation warning on BOTH legs through the identical call, so the empty result on v7 is a real difference in the artifact and not a silent failure of the measurement."
+    },
+    {
+      "cycle": 22,
+      "what": "did NOT declare the target DONE this cycle despite the backlog emptying to one ratchet-rejected item; queued a deliberate definition-of-done scan as cycle 23's work instead",
+      "why": "DONE is a status with consequences (rotation skips it, the run wraps) and it is owed the same evidence as a build item: a clause-by-clause pass over SPEC.md's definition-of-done with the journal cycle that closed each one. Declaring it as a side effect of finishing an unrelated CI fix would be asserting it, not verifying it - and ~38h remain before stop_at, so there is no clock pressure forcing the shortcut."
     }
   ],
   "known_issues": [
@@ -260,14 +270,14 @@
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 5,
-    "wave_streak": 0,
+    "wave_streak": 1,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "cycle": 21,
-    "work": "build-wave k=1 (T-117) at haiku",
-    "outcome": "1 verified, 114/114 green locally AND on GitHub's runners; the repo now has CI. Discriminator: the pushed workflow actually executed (run 31846401111, sha c28409b) and both matrix legs printed '# tests 114 / # pass 114 / # fail 0' in the GitHub log - a no-op or invented-script workflow could not produce that. Gate proven failable and discriminating: 8/8 mutants resolved correctly, 7 killed plus 1 green control. Live run surfaced a real follow-on the static gate could not -> T-118 filed",
-    "ts": 1786746900
+    "cycle": 22,
+    "work": "build-wave k=1 (T-118) at sonnet",
+    "outcome": "1 verified, 114/114 green locally and on both GitHub matrix legs. CI action pins raised v4 -> v7 (checkout v7.0.1, setup-node v7.0.0, both majors confirmed live against the API and both `v7` tag refs resolved to real shas before dispatch). Discriminator: the Node-20 deprecation annotation is present on BOTH legs of the v4 control sha 12a6a70 and absent on BOTH legs of the v7 sha c7b4cf2 through the identical API call, with run 31847987358 concluding success and GitHub's own log printing 'Run actions/checkout@v7'. Backlog now holds one item, T-116, which the ratchet rejects",
+    "ts": 1786748600
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [

@@ -1,0 +1,114 @@
+VERIFICATION EVIDENCE — cycle 22, item T-118
+Authored by the conductor at verification time. The builder never saw any of these commands.
+
+Acceptance restated in the conductor's own words: the two action pins resolve to a major
+whose runtime GitHub does not warn about, AND a live run on the pushed sha concludes
+success with no Node-runtime deprecation annotation, AND nothing else in the workflow moved.
+
+--------------------------------------------------------------------------------
+CHECK 1 — the pins point at refs that actually exist (a v7 that resolves to nothing
+would satisfy every static reading of the yaml and die only on the runner)
+
+  $ gh api repos/actions/checkout/releases/latest --jq .tag_name
+  v7.0.1
+  $ gh api repos/actions/setup-node/releases/latest --jq .tag_name
+  v7.0.0
+  $ gh api repos/actions/checkout/git/ref/tags/v7 --jq .object.sha
+  3d3c42e5aac5ba805825da76410c181273ba90b1
+  $ gh api repos/actions/setup-node/git/ref/tags/v7 --jq .object.sha
+  820762786026740c76f36085b0efc47a31fe5020
+
+Both major tags resolve to real commit shas. Queried live this cycle, not remembered.
+
+--------------------------------------------------------------------------------
+CHECK 2 — blast radius is exactly two lines (the item's "nothing else changes" clause)
+
+  $ git -C /opt/targets/moon diff --stat
+   .github/workflows/ci.yml | 4 ++--
+   1 file changed, 2 insertions(+), 2 deletions(-)
+
+  $ git -C /opt/targets/moon diff
+  @@ -9,8 +9,8 @@ jobs:
+         matrix:
+           node-version: [20, 22]
+       steps:
+  -      - uses: actions/checkout@v4
+  -      - uses: actions/setup-node@v4
+  +      - uses: actions/checkout@v7
+  +      - uses: actions/setup-node@v7
+           with:
+             node-version: ${{ matrix.node-version }}
+         - run: npm test
+
+The confusable `node-version: [20, 22]` is visible as an unchanged context line in the
+same hunk — the repo's test matrix survived intact.
+
+--------------------------------------------------------------------------------
+CHECK 3 — test_cmd, run by the conductor, not reported by the agent
+
+  $ node --test /opt/targets/moon/test/*.test.js
+  ✔ KI-5 pin: disc glyph set matches the documented East Asian Width partition (17.754864ms)
+  ℹ tests 114
+  ℹ pass 114
+  ℹ fail 0
+  ℹ duration_ms 1454.508702
+
+--------------------------------------------------------------------------------
+CHECK 4 — THE GATE. Live run on the pushed sha, with the v4 sha as a control.
+
+This is the check that matters, and it is built as a controlled comparison because
+"the new run has zero annotations" is NOT evidence on its own: an empty annotations
+array is equally what a wrong check-run id, a mistyped repo, or a never-annotating
+repo returns. The v4 sha is run through the identical call to prove the measurement
+can see the thing it is looking for.
+
+CONTROL — sha 12a6a70 (cycle 21, pins still @v4), run 31846680857, conclusion success:
+
+  $ gh api repos/trmnmc/moon/commits/12a6a70.../check-runs --jq '.check_runs[] | "\(.id) \(.name) \(.conclusion)"'
+  94914467260 test (22) success
+  94914467206 test (20) success
+  $ gh api repos/trmnmc/moon/check-runs/94914467260/annotations --jq '.[] | "\(.annotation_level): \(.message)"'
+  warning: Node.js 20 is deprecated. The following actions target Node.js 20 but are being
+  forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more
+  information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+  $ gh api repos/trmnmc/moon/check-runs/94914467206/annotations --jq '.[] | "\(.annotation_level): \(.message)"'
+  warning: Node.js 20 is deprecated. [...identical, leg 20...]
+
+  -> the query FIRES on both legs when the defect is present.
+
+TREATMENT — sha c7b4cf2 (this cycle, pins @v7), run 31847987358:
+
+  $ gh run view 31847987358 --repo trmnmc/moon --json headSha,status,conclusion
+  sha=c7b4cf2e8c4a748ae206cb32c40912cb61dc4356 status=completed conclusion=success
+
+  $ gh run watch 31847987358 --exit-status   (tail, leg 20 and leg 22 identical)
+    ✓ Set up job
+    ✓ Run actions/checkout@v7
+    ✓ Run actions/setup-node@v7
+    ✓ Run npm test
+    ✓ Post Run actions/setup-node@v7
+    ✓ Post Run actions/checkout@v7
+    ✓ Complete job
+
+  $ gh api repos/trmnmc/moon/commits/c7b4cf2.../check-runs --jq '.check_runs[] | "\(.id) \(.name) \(.conclusion)"'
+  94918191146 test (20) success
+  94918191105 test (22) success
+  $ gh api repos/trmnmc/moon/check-runs/94918191146/annotations --jq 'length'
+  0
+  $ gh api repos/trmnmc/moon/check-runs/94918191105/annotations --jq 'length'
+  0
+
+  -> same call, same shape of sha, zero annotations on both legs.
+
+Two independent observables agree, and neither could be produced by a no-op change:
+(a) the annotation present on both control legs is absent on both treatment legs, and
+(b) GitHub's own step log names `actions/checkout@v7` — the runner resolved the new pin,
+which no amount of local yaml could fake. Both matrix legs (20 and 22) still exist and
+still pass, so the fix did not achieve silence by deleting the thing being measured.
+
+VERDICT: PASS. T-118 -> done.
+
+RESIDUAL, stated rather than hidden: `@v7` is a moving major tag, so this is verified as
+of run 31847987358 and not pinned against a future v7 minor. Pinning to a commit sha would
+trade that for a repo nobody updates; the item asked for a non-warning major, and that is
+what was delivered.

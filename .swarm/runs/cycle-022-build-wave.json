@@ -1,0 +1,39 @@
+{
+  "cycle": 22,
+  "ts": 1786748600,
+  "work_type": "build-wave",
+  "dispatch": "direct Agent call (Workflow is review-gated in headless -p sessions; documented failure-table fallback)",
+  "k_effective": 1,
+  "k_basis": "min(k_current 5, gear cap 1) = 1",
+  "items": [
+    {
+      "id": "T-118",
+      "kind": "fix",
+      "effort": "S",
+      "model_at_plan_time": "haiku",
+      "model_at_pick_time": "sonnet",
+      "model_basis": "workflows.md line 30 (all build/fix items S/M -> sonnet); gear-1 demote never drops build/fix below sonnet",
+      "agent_id": "a6d1327d46862e340",
+      "branch": null,
+      "branch_note": "no branch: k=1 means no concurrent writer to isolate, so the builder edited the working tree in place and the conductor inspected the diff before committing. The revert path is `git checkout -- <file>`, identical in effect to dropping a branch.",
+      "claim": "two `uses:` lines raised v4 -> v7; nothing else touched; 114/114 local tests pass",
+      "self_reported_test_tail": "tests 114 / pass 114 / fail 0 / duration_ms 1418.440503",
+      "self_reported_temptation": "node-version: [20, 22] — correctly identified as this repo's test matrix (engines >=20), not the actions' deprecated JS runtime, and left untouched",
+      "conductor_verdict": "PASS",
+      "verify_file": ".swarm/runs/cycle-022-verify-T-118.txt"
+    }
+  ],
+  "merges": {
+    "attempted": 1,
+    "reverted": 0
+  },
+  "verifies": {
+    "passed": 1,
+    "failed": 0
+  },
+  "post_merge_checks": {
+    "collision_scan": "not applicable — no user-visible browser asset in the merged set (a yaml CI workflow); this is a stdout CLI with no html/css/client-js surface at all",
+    "qa_look_pass": "not applicable — same reason"
+  },
+  "craft_pack": "not spliced: the craft pack's build-wave slice is craft.ui, and this item is a two-line yaml pin bump with no UI surface (files_hint contains no .html/.css/.jsx/.tsx/.vue/.svelte and the title names no UI surface). swarm-craft.mjs was not invoked this cycle; no degraded entries to report."
+}

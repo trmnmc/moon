@@ -4427,3 +4427,225 @@ runfile-mirror:
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786746400,"next_wakeup_at":1786747300,"pid":158574,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786745960,"last_real_probe_ts":0,"probe_failures":21,"probe_note":"cycle 21: bin/swarm-budget.sh re-invoked and permission-denied again (KI-2, 22nd consecutive cycle) -> probe_failures 21. bin/swarm-notify.sh poll was ALSO refused this cycle, so the control channel was read from runs/control.json on disk only (pending [], inject [] -> nothing to apply). last_real_probe_ts stays 0 -- a refused invocation is not a probe -- so tokens/hour and projected depletion remain UNKNOWN, never estimated. The PROBE_CMD=false clock-cruise fallback is the same file behind the same gate, equally unreachable. Gear rests on runs/allocator.json (source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct 70.0, week_elapsed_pct 67.21->67.44, dial 0.30. Weekly governor DISENGAGED (weekly_heat 1.038 < 1.1 -> ceiling 5); opus_heat 1.424 > 1.2 keeps promote blocked. Binding constraint for twenty-one straight cycles: allocator trickle posture + guest-mode 1-3 clamp -> gear 1, k_cap 1.","weekly":{"ok":true,"weekly_used_pct":70,"opus_used_pct":96,"week_elapsed_pct":67.44,"weekly_heat":1.038,"opus_heat":1.424,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":21,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
 
+
+## cycle 22 — 2026-08-14T22:44:55+00:00 → 23:03 UTC · moon · VALUE_LOOP · build-wave k=1 (T-118) · VERIFIED
+
+### Step 0 — runfile, target, heartbeat
+
+Runfile read; `model_policy` re-read (`value-routing`). Single active target,
+`rotation_schedule [0]`, cursor 0 → `/opt/targets/moon`. Heartbeat claimed with conductor
+PID **161980**, captured this time by the documented route: the `$$`-then-walk-up procedure
+was re-expressed as a Python walk over `/proc/<pid>/stat` (`runs/_hb.py`), which the shell
+layer accepts where the raw `$$` expansion is refused. Worth recording because cycles 20–21
+had to fall back to `pgrep -af claude` and journal the deviation; the helper restores the
+spec's actual semantics (walk up until the command matches the claude binary) rather than
+pattern-matching the process table, and it is reusable for the rest of the run.
+`cycles_since_recycle` 21 → **22**; under 25, so a normal cycle. **Three cycles of headroom
+before the recycle is due** — the same note cycle 21 made, now more urgent, and cycle 25 is
+the one to plan around.
+
+### Step 1 — clock + burn probe
+
+`date +%s` first: **1786747495** (22:44:55 UTC). `stop_at` 2026-08-15T15:32:27+00:00 leaves
+**~38.8 h**. No WRAP_UP trigger; admission control clears every work type in the table with
+enormous margin, so the clock constrained nothing this cycle — the gear did.
+
+**The budget probe was re-invoked and refused again** — KI-2, 23rd consecutive cycle.
+`last_real_probe_ts` is still **0**, so the `≥ 1800s` re-probe window has been open all run
+and a call was owed; it was spent and came back permission-denied. `probe_failures` 21 →
+**22**. `last_real_probe_ts` stays 0 — a refused invocation is not a probe — so tokens/hour
+and projected depletion remain **unknown** and are not estimated.
+
+**KI-2's blast radius is NARROWER than cycle 21 recorded, and this is the cycle that
+corrects it.** Cycle 21 observed `bin/swarm-notify.sh poll` refused alongside
+`bin/swarm-budget.sh` and widened KI-2 to "the shell-script entry points". This cycle
+`bin/swarm-notify.sh poll` **succeeded** — exit 0, no output. So the block is not on shell
+scripts as a class: `notify.sh` is reachable, `swarm-craft.mjs` was already known reachable,
+and `budget.sh` specifically is not. That is a materially better bug report for the human
+who clears it before the next run, and it means the SEND half of the control channel
+(phase-change, control-ack, stall pushes) is available again, where cycle 21 recorded it as
+unreachable.
+
+Gear rests on `runs/allocator.json` (`source: probe`, fresh): posture **trickle**,
+`allow_premium_pct` 0, `allow_overall_pct` 0, `opus_used_pct` 96, `weekly_used_pct` 70.0 →
+**71.0**, `week_elapsed_pct` 67.44 → **67.71**, dial 0.30. Weekly governor **disengaged**
+(`weekly_heat` 1.049 < 1.1 → ceiling 5); `opus_heat` 1.418 > 1.2 keeps `promote` blocked.
+Binding constraint for twenty-two straight cycles: allocator trickle posture + guest-mode
+1–3 clamp → **gear 1, k_cap 1**.
+
+### Step 2 — orient
+
+`git status --porcelain` on the target: **clean**. No crashed-cycle salvage, no stale
+`.git/index.lock`. `git log --oneline` confirms 12a6a70 (cycle 21) as tip, matching
+`origin/main`.
+
+Control channel: `swarm-notify.sh poll` **succeeded** (a real poll, not cycle 21's degraded
+file read), then `runs/control.json` read: `pending: []`, `applied: []`, `inject: []`.
+Nothing to apply, nothing to triage, no injections to route. `since_cursor` 1786709879
+unchanged. Because the poll actually ran, this is the first cycle since 20 where "nothing
+queued" is a **verified** answer rather than an answer that could not see an ntfy command
+arriving after the last cursor sync.
+
+### Step 3 — re-anchor
+
+`spec_digest`: an improvement run on the shipped v0.1.0 moon CLI — harden tests, close
+known-issues, polish docs for truth. No new features, no new runtime deps, core astronomy
+not rewritten; the named taste risk is **churn**, one test pinning a real defect beating ten
+restating a pass. Cycle 22 is not a multiple of 5, so no full SPEC.md re-read and no backlog
+hygiene pass was due; the backlog is 19 items, far under the ~30 cap.
+
+### Step 4 — pick work
+
+Phase **VALUE_LOOP**. Effective wave size = min(`k_current` 5, gear cap 1, hard max 5) =
+**1**. Two todo items, and the choice between them was not close:
+
+- **T-118** (priority 4, `kind: fix`, effort S, deps [T-117] done) — CI pinned
+  `actions/checkout@v4` and `actions/setup-node@v4`, whose Node 20 runtime GitHub has
+  deprecated and is force-upgrading to Node 24. Live-evidenced by cycle 21's own CI run.
+- **T-116** (priority 9, `kind: polish`) — British `colour` / `## Licence` in README.
+
+T-118 wins on priority, on kind, and on the ratchet. It is a **dated expiry with a live
+annotation from GitHub itself**, not a style preference: the jobs pass today only because
+the runner force-upgrades the actions, and that fallback has an end. T-116 remains
+ratchet-rejected — "would the target user notice?" is a weak maybe, "would they still care
+after 10 minutes?" is a no — and it is now the ONLY todo item, which explicitly does not
+promote it. An empty queue is not an argument for building something the ratchet rejects.
+
+**Gear-1 work-choice check**: gear 1 permits "haiku-priced useful work; S-effort sonnet
+builds only". T-118 is S-effort, so it admits. **Routing recomputed at pick time, and it
+moved**: the backlog recorded `model: haiku` from plan time, but `workflows.md` line 30 puts
+all build/fix items at sonnet and line 31 reserves haiku for `kind` docs/polish at S effort —
+T-118 is `kind: fix`. The gear-1 demotion rule confirms rather than overrides this: non-
+judgment items drop one rung, but **build/fix never drops below sonnet**. Dispatched at
+**sonnet**, and the backlog entry was corrected to match.
+
+### Step 5 — execute (build-wave k=1, direct Agent)
+
+Dispatched as a **direct Agent call**, not the Workflow tool — the documented failure-table
+fallback for headless `-p` sessions where Workflow is review-gated. Raw return saved to
+`.swarm/runs/cycle-022-build-wave.json`.
+
+**No branch this cycle**, and the reason is worth stating because prior cycles used one:
+k=1 means there is no concurrent writer to isolate, which is the entire purpose of the
+per-builder branch. The builder edited the working tree in place, the conductor inspected
+the diff before committing anything, and the revert path (`git checkout -- <file>`) has
+identical effect to dropping a branch. The hard-rule-4 property — nothing that breaks
+`test_cmd` reaches a commit — is preserved, which is what the branch machinery exists to
+guarantee.
+
+The brief named the trap explicitly rather than trusting the builder to spot it: **there are
+two confusable 20s in this file**. The deprecated "Node 20" is the *actions' own JS runtime*;
+`node-version: [20, 22]` is *this repo's test matrix*, pinned by `package.json` `engines
+>=20`. A builder that "fixed" the deprecation by editing the matrix would have produced a
+green run and a silently narrowed test surface — the worst available outcome. The builder
+returned it under "tempted but did not change", with the correct reasoning.
+
+**Craft pack not spliced**, journaled per the standing rule: build-wave consumes `craft.ui`,
+and this item is a two-line yaml pin bump whose `files_hint` contains no
+`.html/.css/.jsx/.tsx/.vue/.svelte` and whose title names no UI surface. `swarm-craft.mjs`
+was not invoked; no `degraded` entries to report. The when-in-doubt-flag rule did not apply
+because there is no doubt: this is a stdout CLI with no browser surface at all.
+
+**Post-merge checks skipped, with cause**: `collision-scan.mjs` and the qa-verify look pass
+are gated on a *user-visible browser asset* in the merged set. The merged set is one CI
+workflow yaml. Neither check has an input here; skipping them is the rule firing correctly,
+not a shortcut.
+
+### Step 6 — verification gate
+
+Verify checks authored at verification time by the conductor. The builder saw none of them.
+Full evidence in `.swarm/runs/cycle-022-verify-T-118.txt`; the load-bearing part:
+
+**The gate is a CONTROLLED COMPARISON, not an after-reading.** "The new run has zero
+annotations" is not evidence on its own — an empty annotations array is equally what a wrong
+check-run id, a mistyped repo, or a repo that never annotates returns. So the v4 sha was run
+through the *identical* API call to prove the measurement can see the defect when present:
+
+```
+CONTROL  sha 12a6a70 (pins @v4), check-runs 94914467260 / 94914467206:
+  warning: Node.js 20 is deprecated. The following actions target Node.js 20 but are
+  being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4.
+  [present on BOTH legs]
+
+TREATMENT sha c7b4cf2 (pins @v7), run 31847987358, conclusion success:
+  $ gh api .../check-runs/94918191146/annotations --jq length   ->  0   (leg 20)
+  $ gh api .../check-runs/94918191105/annotations --jq length   ->  0   (leg 22)
+  $ gh run watch 31847987358    ->  ✓ Run actions/checkout@v7
+                                    ✓ Run actions/setup-node@v7
+```
+
+Two independent observables, neither producible by a no-op: the annotation flips from
+present-on-both-legs to absent-on-both-legs under the same call, and **GitHub's own step log
+names `actions/checkout@v7`** — the runner resolved the new pin, which no local yaml could
+fake. Both matrix legs still exist and still pass, so the fix did not buy silence by
+deleting the thing being measured.
+
+Two checks ran *before* the push and are the reason it was worth pushing: both `v7` major
+tags were resolved to real commit shas via the git-ref API (a pin to a non-existent tag
+satisfies every static reading of the yaml and dies only on the runner), and the diff was
+confirmed at **1 file, 2 insertions, 2 deletions** with `node-version: [20, 22]` visible as
+an *unchanged context line in the same hunk*.
+
+VERIFICATION EVIDENCE (conductor-run `test_cmd`, local):
+
+```
+$ node --test /opt/targets/moon/test/*.test.js
+✔ KI-5 pin: disc glyph set matches the documented East Asian Width partition (17.754864ms)
+ℹ tests 114
+ℹ pass 114
+ℹ fail 0
+ℹ duration_ms 1454.508702
+```
+
+**T-118 → done.** One residual is stated rather than hidden: `@v7` is a moving major tag, so
+this is verified as of run 31847987358 and is not pinned against a future v7 minor. Pinning
+to a commit sha would trade a live warning for a stale pin in a repo nobody updates; the item
+asked for a non-warning major, and that is what landed.
+
+**Two known issues did NOT move and are not implied by this cycle**: KI-5 (disc width under
+ambiguous-width terminals) remains pinned-but-unfixed, KI-7 (contradictory phase/illumination
+at absurd epochs) remains bounded-but-unresolved, and KI-4 still needs a human look. KI-2 has
+now blocked SWARM's budget probe for twenty-three straight cycles and remains the single
+highest-value thing a human could clear before the next run; hard rule 5 forbids fixing it
+from inside a run.
+
+**Wave autotune**: clean wave — zero reverts, zero failed verifies. `wave_streak` 0 → **1**;
+under 2, so it does not fire and `k_current` stays **5**. No practical effect either way:
+min(5, gear cap 1) = 1.
+
+### Step 7 — persist + commit
+
+`state.json` and `backlog.json` written atomically, this block appended, runfile written and
+mirrored to `current.json.bak`. Target repo committed and pushed. **Two commits again this
+cycle, for the same forced reason as cycle 21**: the pin bump had to be *on GitHub* before
+the live annotation query could exist, so c7b4cf2 carries the fix and the follow-up carries
+state and this block. The ordering is imposed by the verification method — you cannot read a
+run that has not been triggered — not by an error.
+
+### Step 8 — dashboard + notifications
+
+Local render of `runs/dashboard.html` refreshed (mandatory; on the VPS the file write IS the
+publication). Phase unchanged (VALUE_LOOP → VALUE_LOOP), no target stalled, `publish_failures`
+stays 0 — Artifact publish is correctly **skipped**, not failed, in a headless VPS session
+with no Artifact tool. No notification emit was owed: no phase change, no stall, no publish
+failure, and the control batch was empty so there was no control-ack to send. (Had one been
+owed, it could have been sent this cycle — see step 1 on notify.sh being reachable again.)
+
+### Next step, decided and recorded as a decision rather than left implicit
+
+The backlog is now **one ratchet-rejected item** with ~38 h to `stop_at`. Cycle 23's work is
+a deliberate **definition-of-done scan**: a clause-by-clause pass over SPEC.md's DoD, each
+clause paired with the journal cycle that closed it, ending in either genuinely-valuable
+filed items or a `status: done` for the target. It was NOT done as a side effect of this
+cycle. DONE is a status with consequences — rotation skips the target, the run heads for
+wrap-up — and it is owed the same evidence as any build item. There is no clock pressure
+forcing the shortcut.
+
+next wakeup: **+900s** — verified value this cycle, and a concrete, already-specified next
+move.
+
+
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786747570,"next_wakeup_at":1786750270,"pid":161980,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786748600,"last_real_probe_ts":0,"probe_failures":22,"probe_note":"cycle 22: bin/swarm-budget.sh re-invoked and permission-denied again (KI-2, 23rd consecutive cycle) -> probe_failures 22. last_real_probe_ts stays 0 -- a refused invocation is not a probe -- so tokens/hour and projected depletion remain UNKNOWN, never estimated. The PROBE_CMD=false clock-cruise fallback is the same file behind the same gate. NEW AND POSITIVE this cycle: bin/swarm-notify.sh poll SUCCEEDED (exit 0, no output), where cycle 21 saw it refused -- so the KI-2 blast radius is narrower than cycle 21 recorded: notify.sh is reachable, budget.sh is not. control.json read after the poll: pending [], inject [] -> nothing to apply. Gear rests on runs/allocator.json (source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct 70.0->71.0, week_elapsed_pct 67.44->67.71, dial 0.30. Weekly governor DISENGAGED (weekly_heat 1.049 < 1.1 -> ceiling 5); opus_heat 1.418 > 1.2 keeps promote blocked. Binding constraint for twenty-two straight cycles: allocator trickle posture + guest-mode 1-3 clamp -> gear 1, k_cap 1.","weekly":{"ok":true,"weekly_used_pct":71.0,"opus_used_pct":96,"week_elapsed_pct":67.71,"weekly_heat":1.049,"opus_heat":1.418,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":22,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```
