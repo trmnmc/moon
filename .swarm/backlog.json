@@ -173,7 +173,7 @@
       "acceptance": "REPORT.md's Known Issues table and hand-off section state the resolved/bounded status of KI-1, KI-6 and KI-7 and the newly machine-checked status of KI-5, with no remaining claim that any of them is still open, unswept, or documented in prose only.",
       "packages": [],
       "attempts": 0,
-      "notes": "Not a test item. Runs LAST by deps - once T-101..T-104 land, REPORT's current statements become false, which is the exact doc-truth failure mode SPEC must-have 6 and L-026 warn about. Also record KI-3 as resolved (remote + gh auth verified at kickoff).\n\nHANDOFF FROM T-101 (cycle 4), three things this item now owns:\n(1) RESOLVED-STATUS CONVENTION. KI-1 and KI-6 are both in state.json resolved_issues, but REPORT.md's Known Issues table still LISTS them as rows (KI-1's row now carries the completed finding at severity low; KI-6's row still reads as open). T-101 was explicitly forbidden from inventing a convention in the severity column - that column must stay severities only. THIS item decides the convention (a separate status column, a struck row, a Resolved section - conductor's call) and applies it to KI-1, KI-3, KI-6, and KI-7 once bounded. Do NOT put status strings in the severity column.\n(2) The table header still says 'Known issues (7)'. If rows move out, the count moves with them.\n(3) RESIDUAL flagged by the T-101 gate, not fixed there because it was outside that item's acceptance: README.md line ~27 opens 'Most terminal moon phase tools compute the phase with a naive synodic-month modulo, which drifts by hours to days.' The sweep substantiates that for ONE package (the nearest), not for 'most', and 'hours to days' is an unsourced pre-existing magnitude. The standing no-unsourced-numbers rule says a quantity may appear only in the frame the repo already computes it in. Either source it, scope it to the one package the sweep actually examined, or drop the magnitude.\n\nDEP UPDATE cycle 8: T-103b is now done. T-108's remaining open dep is T-109.",
+      "notes": "Not a test item. Runs LAST by deps - once T-101..T-104 land, REPORT's current statements become false, which is the exact doc-truth failure mode SPEC must-have 6 and L-026 warn about. Also record KI-3 as resolved (remote + gh auth verified at kickoff).\n\nHANDOFF FROM T-101 (cycle 4), three things this item now owns:\n(1) RESOLVED-STATUS CONVENTION. KI-1 and KI-6 are both in state.json resolved_issues, but REPORT.md's Known Issues table still LISTS them as rows (KI-1's row now carries the completed finding at severity low; KI-6's row still reads as open). T-101 was explicitly forbidden from inventing a convention in the severity column - that column must stay severities only. THIS item decides the convention (a separate status column, a struck row, a Resolved section - conductor's call) and applies it to KI-1, KI-3, KI-6, and KI-7 once bounded. Do NOT put status strings in the severity column.\n(2) The table header still says 'Known issues (7)'. If rows move out, the count moves with them.\n(3) RESIDUAL flagged by the T-101 gate, not fixed there because it was outside that item's acceptance: README.md line ~27 opens 'Most terminal moon phase tools compute the phase with a naive synodic-month modulo, which drifts by hours to days.' The sweep substantiates that for ONE package (the nearest), not for 'most', and 'hours to days' is an unsourced pre-existing magnitude. The standing no-unsourced-numbers rule says a quantity may appear only in the frame the repo already computes it in. Either source it, scope it to the one package the sweep actually examined, or drop the magnitude.\n\nDEP UPDATE cycle 8: T-103b is now done. T-108's remaining open dep is T-109.\n\nDEP UPDATE cycle 9: T-109 is now done. ALL DEPS CLOSED - T-108 is unblocked and is the highest-value item left on the backlog.",
       "status": "todo"
     },
     {
@@ -183,16 +183,16 @@
       "priority": 5,
       "value": "M",
       "effort": "S",
-      "model": "haiku",
+      "model": "sonnet",
       "deps": [],
       "files_hint": [
         "README.md"
       ],
       "acceptance": "README.md's 'Known limitation: terminal glyph width' section accounts for U+25D6 and U+25D7, the round-limb glyphs the disc actually draws for a fully-lit outer cell - either by adding them to the width partition with their correct East Asian Width class, or by explicitly scoping the section's claim to the Block Element shade ramp. No unsourced magnitude may be introduced (standing docs frame rule, cycle 2/4).",
       "packages": [],
-      "attempts": 0,
-      "notes": "FOUND BY THE T-104 BUILD, cycle 5, and independently CONDUCTOR-CONFIRMED by the gate: the disc's observed glyph alphabet is 10 codepoints - the 8 Block Elements the README lists, PLUS U+25D6 and U+25D7 (ROUND_LIMB in src/render.js, drawn for a fully-lit outer cell). The README's width caveat names only the 8. The builder correctly refused to widen the documented table to make its test pass and pinned the two separately in UNDOCUMENTED_DISC_GLYPHS instead, so the test tells the truth about what is and is not covered; this item closes the doc side.\nOPEN QUESTION for whoever takes it: this run has NOT established the EAW class of U+25D6/U+25D7 (both are in fact Ambiguous per Unicode, but that is not machine-checked here and must not be asserted from memory - no EAW table may ship, the zero-dep non-goal forbids it). Scoping the section's claim to the Block Element ramp is the honest S-effort option; classifying the two glyphs requires a source. Do not state a class this repo cannot check.",
-      "status": "todo"
+      "attempts": 1,
+      "notes": "FOUND BY THE T-104 BUILD, cycle 5, and independently CONDUCTOR-CONFIRMED by the gate: the disc's observed glyph alphabet is 10 codepoints - the 8 Block Elements the README lists, PLUS U+25D6 and U+25D7 (ROUND_LIMB in src/render.js, drawn for a fully-lit outer cell). The README's width caveat names only the 8. The builder correctly refused to widen the documented table to make its test pass and pinned the two separately in UNDOCUMENTED_DISC_GLYPHS instead, so the test tells the truth about what is and is not covered; this item closes the doc side.\nOPEN QUESTION for whoever takes it: this run has NOT established the EAW class of U+25D6/U+25D7 (both are in fact Ambiguous per Unicode, but that is not machine-checked here and must not be asserted from memory - no EAW table may ship, the zero-dep non-goal forbids it). Scoping the section's claim to the Block Element ramp is the honest S-effort option; classifying the two glyphs requires a source. Do not state a class this repo cannot check.\n\nCLOSED cycle 9, on attempt 2, both attempts inside the same cycle number.\nATTEMPT 1 (session A, died to an API connection error before persisting anything): rewrote the section's opening scope noun to 'The disc's shade ramp and limb glyphs use Unicode Block Elements' and then added a paragraph saying the round limbs are NOT Block Elements. Self-contradictory - ROUND_LIMB is a limb family in src/render.js:69 - so the gate reproduced the contradiction and reverted. Evidence: .swarm/runs/cycle-009-verify-T-109.txt.\nATTEMPT 2 (session B, this record): resolved the OPEN QUESTION above the honest way. It did NOT classify U+25D6/U+25D7 - no EAW class is asserted anywhere in the section - and instead named the covered set precisely ('the shade ramp and its half-block and hairline limb glyphs', mapping 1:1 onto SHADE/HALF/HAIRLINE and structurally excluding ROUND_LIMB), then stated that this repo has not established the round limbs' class and that whether they widen the disc is unknown. 12/12 gate checks, suite 106/106.",
+      "status": "done"
     },
     {
       "id": "T-110",
@@ -228,6 +228,46 @@
       "packages": [],
       "attempts": 0,
       "notes": "RESIDUAL FOUND AT THE CYCLE-8 GATE, filed rather than conductor-patched - same handling as T-110 at cycle 7. Measured, not asserted: across HEAD's README.md + src/astro.js + test/astro.test.js the token 'behavior' appears 1x (src/astro.js, KI-7 doc comment) and 'behaviour' 0x; the cycle-8 README addition introduces the first British spelling in the repo. NOT a T-103b acceptance failure - acceptance covers the domain figures, the consequence, and the sampled-test attribution, all of which passed - and failing the run's last must-have over one letter would be gate inflation of exactly the kind cycle 7 warned against when it refused to argue wording as taste. Deliberately NOT fixed by the conductor: cycle 7 established that a conductor editing the artifact leaves nothing independent checking the conductor's own wording, and that rule does not get suspended because the edit is one character.",
+      "status": "todo"
+    },
+    {
+      "id": "T-112",
+      "title": "Landing T-109 made test/render.test.js's round-limb comment false",
+      "kind": "fix",
+      "priority": 4,
+      "value": "M",
+      "effort": "S",
+      "model": "sonnet",
+      "deps": [],
+      "files_hint": [
+        "test/render.test.js"
+      ],
+      "acceptance": "The doc comment governing UNDOCUMENTED_DISC_GLYPHS in test/render.test.js no longer claims the README's width caveat 'never mentions' U+25D6/U+25D7, and describes the actual post-T-109 state: the README names them and explicitly declines to classify their East Asian Width, so they remain outside the documented Neutral/Ambiguous partition the test checks. The assertion itself and UNDOCUMENTED_DISC_GLYPHS' contents must not change - only the prose that describes why they are held apart.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "FOUND BY THE CYCLE-9 GATE, and unusual in that this cycle CREATED it rather than uncovering it. test/render.test.js:586-588 reads 'The README's width caveat never mentions them: it is scoped to the Block Element shade ramp and does not claim completeness over every glyph the disc can emit.' As of cycle 9 the README does mention them. The assertion still passes and the test still tells the truth about what is COVERED; it is the explanatory prose that has gone stale.\nFiled rather than conductor-patched (cycle 7/8 precedent) and rather than folded into T-109, whose write scope was README.md alone - letting a docs builder reach into the test suite is the opposite of the discipline this run enforces.\nPriority 4, ahead of the remaining test items: a live falsehood introduced by this run outranks a test that has been missing since v0.1.0.\nWAVE NOTE: overlaps T-113 in test/render.test.js. The two must never share a wave.",
+      "status": "todo"
+    },
+    {
+      "id": "T-113",
+      "title": "'Fully lit outer cell' understates when the disc draws a round limb",
+      "kind": "fix",
+      "priority": 12,
+      "value": "L",
+      "effort": "S",
+      "model": "sonnet",
+      "deps": [
+        "T-112"
+      ],
+      "files_hint": [
+        "src/render.js",
+        "test/render.test.js",
+        "README.md"
+      ],
+      "acceptance": "The three places that describe when ROUND_LIMB is drawn agree with the branch in src/render.js lineArt(), which selects it when the outer cell's lit fraction is >= 0.88 - not only when the cell is fully lit. No threshold figure may be introduced unless it is the constant the source actually uses. Prose only: the 0.88 branch, the glyph set, and every assertion must be left exactly as they are.",
+      "packages": [],
+      "attempts": 0,
+      "notes": "FOUND BY THE CYCLE-9 GATE's truth check, which drove renderLine over 1602 states and then read the governing branch out of source rather than from memory: `else if (cover < 0.88) out += HALF[sunward]; else out += ROUND_LIMB[...]`. So a cell that is 88% lit already draws a round limb.\nThe claim is TRUE but INCOMPLETE - a fully lit cell does draw one - which is why it did not fail T-109. It also originated in T-109's OWN acceptance text, which the conductor wrote at cycle 5 by lifting src/render.js:63-64's 'Only the fully lit case is positional'; failing a builder for reproducing the item's own words would be gate inflation.\nSAME DEFECT FAMILY AS T-110: a module doc-comment gloss slightly wider than the code, which then propagates by construction into every doc that quotes the module. Third instance this run. If a fourth appears, the pattern is worth a playbook lesson rather than another one-off item.\nSites: src/render.js:63-64 (origin), test/render.test.js:585, README.md's new round-limb paragraph. Depends on T-112 to avoid two items editing the same comment block; low value, so it is fine if it never gets built.",
       "status": "todo"
     }
   ]

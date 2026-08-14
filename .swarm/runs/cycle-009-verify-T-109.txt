@@ -1,0 +1,335 @@
+CYCLE 9 VERIFICATION GATE — T-109 (README's KI-5 glyph list omits the round-limb glyphs)
+Item routed sonnet (conductor pick-time override of the haiku docs row — see state.json decisions).
+Gate authored by the conductor AT VERIFICATION TIME. The builder never saw any of these checks.
+
+RESULT: FAILED on C7. Reverted with `git checkout -- README.md`.
+Passed: C1a C1b C8 C3(corrected) C4 C5 C6 + full suite 106/106.
+
+==============================================================================
+THE DIFF UNDER TEST (rejected, not committed)
+==============================================================================
+diff --git a/README.md b/README.md
+index 50c9ac3..9205036 100644
+--- a/README.md
++++ b/README.md
+@@ -193,11 +193,16 @@ test that passes only because of that is a bug.
+ ## Known limitation: terminal glyph width
+ 
+-The disc uses Unicode Block Elements, and those glyphs do not share an East Asian Width
+-class: `░` and `▐` are Neutral while `▒ ▓ █ ▌ ▏ ▕` are Ambiguous. In a terminal
+-configured to render ambiguous-width characters as double-width (common in CJK locales,
+-iTerm2's "treat ambiguous-width as double", `xterm -cjk_width`), the disc renders 5–9
+-columns wide depending on phase instead of a constant 5. Three consequences there: the
+-single-line readout jitters between nights, the two-line form stops aligning, and the
+-`--block` frame does not close.
++The disc's shade ramp and limb glyphs use Unicode Block Elements, and those glyphs do
++not share an East Asian Width class: `░` and `▐` are Neutral while `▒ ▓ █ ▌ ▏ ▕` are
++Ambiguous. In a terminal configured to render ambiguous-width characters as double-width
++(common in CJK locales, iTerm2's "treat ambiguous-width as double", `xterm -cjk_width`),
++this Block Element ramp renders 5–9 columns wide depending on phase instead of a
++constant 5. Three consequences there: the single-line readout jitters between nights,
++the two-line form stops aligning, and the `--block` frame does not close.
++
++The disc also draws two round-limb glyphs for a fully-lit outer cell, U+25D6 `◖` and
++U+25D7 `◗` — Geometric Shapes, not Block Elements — which the partition above does not
++cover. This repo has not established their East Asian Width class, so whether they
++widen the disc further in an ambiguous-width terminal is unknown here.
+ 
+ In a default Western-locale terminal — every configuration this was developed and
+
+==============================================================================
+GATE RUN 1 — /opt/swarm/runs/cycle9-gate.mjs
+==============================================================================
+PASS C1a: working tree = README.md only ( M README.md)
+PASS C1b: all 1 hunk(s) inside the glyph-width section [193-212]: @@ -195,7 +195,12 @@ test that passes only because of that is a bug.
+PASS C8: ## Accuracy byte-identical to HEAD (1127 bytes) — T-111/T-110 territory untouched
+FLAG C3: round limbs NOT emitted; observed: 20 25 30 2591
+C4 numerals on added lines: ["2","5","9","25","6","7"]
+PASS C4: "2" pre-exists (HEAD README: true, src/render.js: true)
+PASS C4: "5" pre-exists (HEAD README: true, src/render.js: true)
+PASS C4: "9" pre-exists (HEAD README: true, src/render.js: true)
+PASS C4: "25" pre-exists (HEAD README: true, src/render.js: true)
+PASS C4: "6" pre-exists (HEAD README: true, src/render.js: true)
+PASS C4: "7" pre-exists (HEAD README: true, src/render.js: true)
+PASS C5: no EAW class asserted for U+25D6/U+25D7 across 1 round-limb sentence(s)
+PASS C6: README carries hedge(s) ["not established","unknown"]; test pin carries ["undocumented","not covered","observed"] — README does not outclaim the test
+C7 scope claim: "terminal glyph width  The disc's shade ramp and limb glyphs use Unicode Block Elements, and those glyphs do not share an East Asian Width class:"
+C7 scope nouns: ["disc","shade ramp","limb glyphs"]
+C7 repo limb families: ["LIMB_DARK = '░'; // ░","HAIRLINE = { right: '▕', left: '▏' }; // ▕ ▏","HALF = { right: '▐', left: '▌' }; // ▐ ▌","ROUND_LIMB = { right: '◗', left: '◖' }; // ◗ ◖"]
+FLAG C7: CONTRADICTION: the scope sentence asserts "limb glyphs use Unicode Block Elements", but ROUND_LIMB (◖ ◗) is a limb family in src/render.js:69 and the same section states it is "Geometric Shapes, not Block Elements".
+C7b repo "limb" vocabulary:
+64: * case is positional: there the glyph is the round limb itself.
+109: * boundary (the right limb, northern hemisphere); waning is the mirror image.
+207:    const limb = waxing ? lastDrawn(row) : firstDrawn(row);
+208:    if (limb >= 0 && row[limb] === SHADE[0] && cells[limb].cover > 0.02) {
+209:      row[limb] = HAIRLINE[sunward];
+
+
+==== GATE RESULT ====
+FAILED — flags: C3, C7
+
+==============================================================================
+C3 RE-PROBE (gate run 1's C3 flag was MY instrument, not a defect)
+==============================================================================
+Gate run 1 called renderLine(fraction, boolean). The real signature is
+renderLine(moonState, hemisphere) — src/render.js:265 — so the probe fed a number where an
+object belongs and got a degenerate string back. Instrument defect. Corrected probe below
+uses the module's real object shape (mirroring test/render.test.js's `state()` helper).
+
+disc+block alphabet observed over 401 states x 2 hemispheres:
+  U+000A U+0020 U+0025 U+0030 U+0031 U+0032 U+0033 U+0034 U+0035 U+0036 U+0037 U+0038 U+0039 U+0061 U+0062 U+0063 U+0064 U+0065 U+0066 U+0067 U+0068 U+0069 U+006C U+006D U+006E U+006F U+0070 U+0071 U+0072 U+0073 U+0074 U+0075 U+0077 U+0078 U+2500 U+2502 U+250C U+2510 U+2514 U+2518 U+2588 U+258C U+258F U+2590 U+2591 U+2592 U+2593 U+2595 U+25D6 U+25D7
+U+25D6 present: true
+U+25D7 present: true
+states drawing a round limb: 590
+sample (first 3, last 1):
+  {"f":0.1325,"ill":0.1635,"hemi":"north","disc":"░░░░◗"}
+  {"f":0.1325,"ill":0.1635,"hemi":"south","disc":"◖░░░░"}
+  {"f":0.135,"ill":0.1693,"hemi":"north","disc":"░░░▒◗"}
+  {"f":0.8675,"ill":0.1635,"hemi":"south","disc":"░░░░◗"}
+illumination range of round-limb states: 0.1635 .. 1
+
+C3 VERDICT: PASS. U+25D6/U+25D7 are genuinely emitted (590 of 802 rendered states
+draw a round limb), so the added README paragraph's factual claim is TRUE. The round limb
+appears from illumination 0.1635 up to 1.0, which is consistent with the README's wording
+"for a fully-lit outer CELL" (not a fully-lit disc) and with src/render.js:63-64's own
+"Only the fully lit case is positional: there the glyph is the round limb itself."
+
+==============================================================================
+C7 HARDENED — attacking my own finding before failing the item
+==============================================================================
+First draft of this instrument cut the scope sentence at its first colon, which sits
+BEFORE the glyph list, so it reported 0 partitioned glyphs — an artifact that overstated the
+finding. Corrected to run to the sentence-ending period. Output below is the corrected run.
+
+--- SCOPE SENTENCE UNDER TEST ---
+The disc's shade ramp and limb glyphs use Unicode Block Elements, and those glyphs do not share an East Asian Width class: `░` and `▐` are Neutral while `▒ ▓ █ ▌ ▏ ▕` are Ambiguous.
+
+(1) families named by the scope sentence: ["shade ramp","limb glyphs"]
+    shade ramp = ░ U+2591, ▒ U+2592, ▓ U+2593, █ U+2588
+    limb glyphs = ░ U+2591, ▕ U+2595, ▏ U+258F, ▐ U+2590, ▌ U+258C, ◗ U+25D7, ◖ U+25D6
+
+(3) members of the NAMED scope that are NOT Block Elements: ◗ U+25D7, ◖ U+25D6
+(4) glyphs the sentence partitions into Neutral/Ambiguous: ░ U+2591, ▐ U+2590, ▒ U+2592, ▓ U+2593, █ U+2588, ▌ U+258C, ▏ U+258F, ▕ U+2595
+    named-scope members MISSING from that partition: ◗ U+25D7, ◖ U+25D6
+
+(5) instrument attack — is "limb" the repo's own word for ◖ ◗?
+    identifier ROUND_LIMB present in src/render.js: true
+    src/render.js doc comment governing the family:
+      Glyphs for the outermost cell of the one-line disc, where the moon's edge is.
+       *
+       * A partly lit outer cell must draw its light against the side the sunlight is
+       * on — the right of the cell while waxing, the left while waning — otherwise
+       * the terminator lands on the wrong side of a character. Only the fully lit
+       * case is positional: there the glyph is the round limb itself.
+       */
+    README itself calls them: "two round-limb glyphs"
+
+(6) instrument attack 2 — what does the colon enumerate?
+    clause preceding the colon: "those glyphs do not share an East Asian Width class"
+    => the list is presented as the EAW partition OF the named scope,
+       not as a definition of which glyphs are in scope.
+
+--- VERDICT ---
+FINDING IS REAL. The scope sentence names a family (shade ramp + limb glyphs) containing 10 glyphs, 2 of which (U+25D7, U+25D6) are NOT Block Elements, and presents an EAW partition
+covering only 8 of them. The 8-glyph list is still offered as the
+partition of the named scope — the same omission T-109 exists to remove, relocated
+from "the disc" to "the disc's shade ramp and limb glyphs".
+
+==============================================================================
+FULL SUITE — test_cmd, run by the conductor, on the reverted tree
+==============================================================================
+✔ KI-5 pin: disc glyph set matches the documented East Asian Width partition (18.564324ms)
+ℹ tests 106
+ℹ suites 0
+ℹ pass 106
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1267.674291
+
+==============================================================================
+POST-REVERT TREE STATE
+==============================================================================
+(empty above = README.md restored to HEAD)
+
+
+==============================================================================
+ATTEMPT 2 — same cycle, new session (the attempt-1 session died mid-cycle to an
+API connection error; nothing above was ever persisted or committed).
+Item re-routed: ladder escalation sonnet->opus, gear-1 demotion opus->sonnet;
+the two rules cancel and the item stays at sonnet, one rung above its haiku table
+row. Rationale in state.json decisions, cycle 9.
+==============================================================================
+
+THE DIFF UNDER TEST
+------------------------------------------------------------------------------
+diff --git a/README.md b/README.md
+index 50c9ac3..b5f7239 100644
+--- a/README.md
++++ b/README.md
+@@ -192,13 +192,13 @@ test that passes only because of that is a bug.
+ 
+ ## Known limitation: terminal glyph width
+ 
+-The disc uses Unicode Block Elements, and those glyphs do not share an East Asian Width
+-class: `░` and `▐` are Neutral while `▒ ▓ █ ▌ ▏ ▕` are Ambiguous. In a terminal
+-configured to render ambiguous-width characters as double-width (common in CJK locales,
+-iTerm2's "treat ambiguous-width as double", `xterm -cjk_width`), the disc renders 5–9
+-columns wide depending on phase instead of a constant 5. Three consequences there: the
+-single-line readout jitters between nights, the two-line form stops aligning, and the
+-`--block` frame does not close.
++The disc's shade ramp and its half-block and hairline limb glyphs are Unicode Block
++Elements, and those glyphs do not share an East Asian Width class: `░` and `▐` are Neutral
++while `▒ ▓ █ ▌ ▏ ▕` are Ambiguous. In a terminal configured to render ambiguous-width
++characters as double-width (common in CJK locales, iTerm2's "treat ambiguous-width as
++double", `xterm -cjk_width`), the disc renders 5–9 columns wide depending on phase instead
++of a constant 5. Three consequences there: the single-line readout jitters between nights,
++the two-line form stops aligning, and the `--block` frame does not close.
+ 
+ In a default Western-locale terminal — every configuration this was developed and
+ tested against — all forms are exactly 5 columns and align correctly.
+@@ -207,6 +207,11 @@ This is not a typo but an upstream Unicode fact: no subset of Block Elements pro
+ four-step shade ramp plus a symmetric half-block pair within one width class. Fixing it
+ properly means changing the glyph set, which is deferred rather than rushed.
+ 
++The disc also draws round-limb glyphs, `◗` and `◖`, for a fully lit outer cell. These are
++Geometric Shapes, not Block Elements, and are outside the Neutral/Ambiguous partition above.
++This repo has not established their East Asian Width class, so whether they widen the disc
++in an ambiguous-width terminal is unknown.
++
+ ## Licence
+ 
+ MIT
+
+
+==============================================================================
+GATE RUN 1 — /opt/swarm/runs/cycle9-gate2.mjs  (authored at verification time;
+the builder saw none of it)
+==============================================================================
+PASS  C1a scope :: working tree = README.md only ([" M README.md"])
+PASS  C1b numstat :: 12 7 README.md
+PASS  C2 accuracy :: ## Accuracy byte-identical to HEAD (1148 bytes) — T-110/T-111 territory untouched
+PASS  C3a non-vacuous :: glyph-width section differs from HEAD
+PASS  C3b acceptance core :: section now contains U+25D6 and U+25D7
+INFO  sentences mentioning "Block Element": 3
+INFO    [AFFIRMATIVE membership] ok :: ## Known limitation: terminal glyph width  The disc's shade ramp and its half-block and hairline limb glyphs are Unicode
+INFO    [NEGATED/EXCLUSIONARY] ok :: This is not a typo but an upstream Unicode fact: no subset of Block Elements provides a four-step shade ramp plus a symm
+INFO    [NEGATED/EXCLUSIONARY] ok :: These are Geometric Shapes, not Block Elements, and are outside the Neutral/Ambiguous partition above.
+PASS  C4b attempt-1 regression :: no unqualified "limb glyphs" under an affirmative Block-Element claim
+PASS  C4 self-consistency :: no affirmative Block-Element claim covers U+25D6/U+25D7
+PASS  C4c vocabulary :: "shade ramp" -> SHADE exists in src/render.js
+PASS  C4c vocabulary :: "half-block" -> HALF exists in src/render.js
+PASS  C4c vocabulary :: "hairline" -> HAIRLINE exists in src/render.js
+INFO  round-limb sentences: 1
+PASS  C5 EAW assertion :: no East Asian Width class asserted for U+25D6/U+25D7
+FLAG  C5b hedge stated :: round limbs mentioned with no statement that their class is unestablished
+INFO  numerals on added lines: ["2","5","9"]
+PASS  C6 no invented magnitudes :: orphan numerals: none (all 3 pre-exist)
+PASS  C7 US English :: no British spellings introduced on added lines
+INFO  (pre-existing "## Licence" in HEAD is untouched and out of scope)
+
+==== GATE RESULT ====
+FAILED — flags: C5b hedge stated
+
+
+==============================================================================
+C5b RE-PROBE — /opt/swarm/runs/cycle9-gate2b.mjs
+Gate run 1 flagged C5b. Probed before accepting it, and it was MY instrument:
+the hedge search was scoped to sentences that literally re-name the round limbs,
+so it could not see the anaphoric chain ('These are...', 'their East Asian Width
+class'). Re-scoped to the paragraph AND hardened with a binding test so the
+widening cannot be a self-serving relaxation: the hedge must carry a
+back-reference, sit after the introducing mention, have no competing subject
+between, and be about the EAW class specifically. The no-EAW-assertion scan got
+STRICTER by the same change — it now covers sentences run 1 never read.
+==============================================================================
+paragraphs in section: 5; mentioning the round limbs: 1
+
+--- ROUND-LIMB PARAGRAPH UNDER TEST ---
+The disc also draws round-limb glyphs, `◗` and `◖`, for a fully lit outer cell. These are
+Geometric Shapes, not Block Elements, and are outside the Neutral/Ambiguous partition above.
+This repo has not established their East Asian Width class, so whether they widen the disc
+in an ambiguous-width terminal is unknown.
+---------------------------------------
+
+  S1: The disc also draws round-limb glyphs, `◗` and `◖`, for a fully lit outer cell.
+  S2: These are Geometric Shapes, not Block Elements, and are outside the Neutral/Ambiguous partition above.
+  S3: This repo has not established their East Asian Width class, so whether they widen the disc in an ambiguous-width terminal is unknown.
+
+(A) EAW class asserted anywhere in the chain? NO
+(B) hedge sentence: "This repo has not established their East Asian Width class, so whether they widen the disc in an ambiguous-width terminal is unknown."
+(C) intro sentence index=1, hedge index=3, same paragraph=true
+(C) hedge carries a back-reference: true
+(C) intervening sentences: 1; of those, non-anaphoric (competing subjects): 0
+(C) BINDING VERDICT: BOUND — the hedge unambiguously governs the round limbs
+(D) hedge is about the EAW class / widening specifically: true
+
+==== C5 RE-PROBE VERDICT ====
+C5 + C5b PASS. No EAW class asserted anywhere in the chain, and the unestablished-class
+statement is anaphorically bound to the round limbs with no competing subject between.
+
+
+==============================================================================
+C8 TRUTH CHECK — /opt/swarm/runs/cycle9-truth.cjs
+A docs gate that only checks self-consistency will happily pass a self-consistent
+lie. This drives the real module and measures whether the README's new factual
+claim is true, and whether its stated CONDITION matches the code's branch.
+==============================================================================
+rendered states: 1602
+one-line disc alphabet: U+0020 U+0025 U+0030 U+0031 U+0032 U+0033 U+0034 U+0035 U+0036 U+0037 U+0038 U+0039 U+0078 U+2588 U+258C U+258F U+2590 U+2591 U+2592 U+2593 U+2595 U+25D6 U+25D7
+U+25D6 emitted: true
+U+25D7 emitted: true
+states drawing a round limb: 1182
+illumination range of round-limb states: 0.1606 .. 1.0000
+  sample: {"f":0.1313,"ill":0.1606,"hemi":"north","line":"░░░░◗  16%  x"}
+  sample: {"f":0.1313,"ill":0.1606,"hemi":"south","line":"◖░░░░  16%  x"}
+  sample: {"f":0.1325,"ill":0.1635,"hemi":"north","line":"░░░░◗  16%  x"}
+
+source branch governing ROUND_LIMB:
+    else if (cover < 0.88) out += HALF[sunward];
+    else out += ROUND_LIMB[c === 0 ? 'left' : 'right'];
+
+CONDITION VERDICT:
+  ROUND_LIMB is drawn when the outer cell's lit fraction >= 0.88, i.e. at or above 88% lit.
+  A FULLY lit outer cell (cover 1.0) therefore DOES draw a round limb -> the README sentence is TRUE.
+  It is however INCOMPLETE: cells between 0.88 and 1.0 also draw one. Understatement, not falsehood.
+
+
+==============================================================================
+FULL SUITE — test_cmd, run by the conductor, on the tree under test
+==============================================================================
+✔ illumination is printed as a whole percent — no spurious decimals (0.226829ms)
+✔ an unknown hemisphere value renders as northern (0.254681ms)
+✔ the whole cycle renders without throwing and never widens the disc (7.831347ms)
+✔ KI-5 pin: disc glyph set matches the documented East Asian Width partition (17.541374ms)
+ℹ tests 106
+ℹ suites 0
+ℹ pass 106
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1273.974033
+
+
+==============================================================================
+VERDICT: T-109 PASSES. 12/12 checks green after the instrument repair.
+
+TWO RESIDUALS FOUND AT THIS GATE, FILED NOT PATCHED (cycle 7/8 precedent):
+  T-112 — landing this item makes test/render.test.js:586-588 FALSE. That comment
+          says the README's caveat 'never mentions them'. It does now. The
+          assertion still passes; the prose no longer tells the truth. This is a
+          falsehood this cycle CREATED, so it is filed at high priority.
+  T-113 — 'for a fully lit outer cell' understates the trigger: src/render.js
+          draws ROUND_LIMB at cover >= 0.88. True but incomplete, in three places
+          (src/render.js doc comment, test/render.test.js, and now README).
+          Same defect family as T-110: a module prose gloss wider than the code,
+          inherited downstream by every doc that quotes it.
+Neither fails T-109: its acceptance is that the section account for U+25D6/U+25D7
+by scoping the Block Element claim, and it does. T-113's wording came from the
+item's own acceptance text, so failing the item for reproducing the item's words
+would be gate inflation. Neither was conductor-patched — cycle 7 established that
+a conductor editing the artifact leaves nothing independent checking the
+conductor's own wording.
+==============================================================================

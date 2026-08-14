@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "REVIEW",
-  "cycle": 8,
+  "cycle": 9,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -132,6 +132,31 @@
       "cycle": 8,
       "what": "KI-7 stays in known_issues at severity low with documented_cycle 8; it was NOT moved to resolved_issues even though its must-have is now satisfied",
       "why": "The SPEC must-have reads 'KI-7 bounded by a declared+SAMPLED supported domain', and that is now true in both halves - module constant plus sampled test at cycle 6, README statement at cycle 8. But the underlying defect is untouched: the ch.49 and ch.48 series still diverge at absurd epochs, nothing enforces the domain at runtime (deliberately - a runtime guard is a behavior change the non-goals forbid), and the bound is sampled-clean rather than proven. Moving it to resolved_issues would let the morning report read as though a bug had been fixed when what actually happened is that an unbounded unknown became a bounded, documented, machine-checked one. Those are different things and the record should not blur them."
+    },
+    {
+      "cycle": 9,
+      "what": "T-109 stays at sonnet on attempt 2 rather than escalating to opus, because the ladder escalation and the gear-1 demotion exactly cancel here",
+      "why": "the ladder sends a failed sonnet item to opus; gear-1 crawl demotes opus back to sonnet. Unlike the cycle-2 collision, cancelling here does NOT return the item to the tier that just failed - sonnet is already one rung above T-109's haiku table row (docs/S), and the item has never been attempted at haiku. The substance also points the same way: attempt 1 did not fail on capability. It produced a careful, well-argued edit and failed because it rewrote a scope clause it was never asked to touch, creating a contradiction with its own new paragraph. A bigger model does not prevent an unnecessary rewrite; a brief that says 'do not widen the opening scope noun, and here is exactly how attempt 1 broke' does. Attempt 2 got that brief and passed 12/12. Recorded so the retro can check whether cheap-retry-with-a-sharper-brief is a real pattern or a lucky call."
+    },
+    {
+      "cycle": 9,
+      "what": "the run's ONE review-fix pass is deferred again under gear-1 trickle; a single verified backlog item was bought instead",
+      "why": "phase is REVIEW and the review-fix pass is the one step-4 gate this improvement run has not run. It is also the most premium-heavy work type in the pipeline - opus reviewers plus fable adversarial verifiers, three stages - dispatched as direct Agent calls because Workflow is review-gated headless. The allocator has held allow_premium_pct at 0 with opus_used_pct at 96 for nine consecutive cycles. Deferring is defensible on more than cost: every remaining backlog item (T-105, T-108, T-110, T-111, T-112, T-113) was FOUND BY A CONDUCTOR GATE, which is review-fix's own output shape, so the marginal finding rate of a formal pass is lower here than the gates are already delivering for free. This is a deferral with a reason, not an omission - the morning report must say the review-fix pass was NOT RUN."
+    },
+    {
+      "cycle": 9,
+      "what": "the C5b gate flag was traced to my own instrument and the instrument was repaired, not the standard lowered",
+      "why": "C5b required the section to state that the round limbs' EAW class is unestablished. It scoped that search to sentences literally re-naming the round limbs, so it was blind to the anaphoric chain that actually carries the hedge ('These are...', 'their East Asian Width class'). Paragraph scope is simply the correct scope for an anaphoric claim; sentence scope was wrong. Guarding against self-serving repair the way cycle 8 did: the same widening made the no-EAW-assertion check STRICTER (it now reads sentences run 1 never saw), and I added a binding test - the hedge must carry a back-reference, follow the introducing mention, have no competing subject between, and be about the EAW class specifically - so the allowance for anaphora is itself checked rather than asserted."
+    },
+    {
+      "cycle": 9,
+      "what": "wave autotune counts cycle 9 as a REVERTED wave: k_current 3 -> 2, wave_streak 1 -> 0",
+      "why": "one cycle is one autotune event, and cycle 9 as a whole contained a discarded builder diff (attempt 1, reverted with git checkout after the gate reproduced its contradiction). The rule keys on a reverted merge, and a direct-Agent tree edit thrown away is the same event as a reverted branch merge - the no-worktree headless dispatch changes the mechanism, not the outcome. Counting only the successful second dispatch would launder a two-attempt cycle into a clean one. No practical effect either way: min(k_current, gear cap 1) = 1."
+    },
+    {
+      "cycle": 9,
+      "what": "T-112 filed at priority 4 - ahead of every remaining test item - because this cycle created it",
+      "why": "landing T-109 falsified test/render.test.js:586-588, which asserts in prose that the README 'never mentions' the round limbs. The test's assertion still passes, so nothing is red and nothing would ever surface it; that is exactly why it needs to outrank work that has merely been missing since v0.1.0. A falsehood a run introduces is worse than a gap a run inherits, because the run is the reason a reader would trust it."
     }
   ],
   "known_issues": [
@@ -150,10 +175,11 @@
     },
     {
       "id": "KI-5",
-      "desc": "Disc glyphs span two East Asian Width classes (U+2591 and U+2590 are Neutral; U+2592/3/2588/258C/258F/2595 are Ambiguous). In terminals that render ambiguous-width as double (CJK locales, iTerm2 ambiguous-as-double, xterm -cjk_width) the disc is 5-9 columns instead of 5: the single line jitters between nights, the two-line form stops aligning, and the --block frame does not close. Verified by measurement. Not a typo but an upstream Unicode fact - no Block Elements subset gives a 4-step ramp plus a symmetric half-block pair in one width class. Correct in default Western-locale terminals. Documented in README; fix needs a glyph-set redesign, deliberately deferred rather than rushed at the buzzer. MACHINE-PINNED at cycle 5 (T-104): test/render.test.js derives the disc's glyph alphabet from actual renderLine/renderBlock output and asserts it against the documented partition, so the defect can no longer drift silently - the fix (glyph-set redesign) remains deliberately deferred. The pin also EXPOSED a scope gap in the README's glyph list: the disc additionally draws U+25D6/U+25D7 (round limb), which the width caveat never mentions. Tracked as T-109.",
+      "desc": "Disc glyphs span two East Asian Width classes (U+2591 and U+2590 are Neutral; U+2592/3/2588/258C/258F/2595 are Ambiguous). In terminals that render ambiguous-width as double (CJK locales, iTerm2 ambiguous-as-double, xterm -cjk_width) the disc is 5-9 columns instead of 5: the single line jitters between nights, the two-line form stops aligning, and the --block frame does not close. Verified by measurement. Not a typo but an upstream Unicode fact - no Block Elements subset gives a 4-step ramp plus a symmetric half-block pair in one width class. Correct in default Western-locale terminals. Documented in README; fix needs a glyph-set redesign, deliberately deferred rather than rushed at the buzzer. MACHINE-PINNED at cycle 5 (T-104): test/render.test.js derives the disc's glyph alphabet from actual renderLine/renderBlock output and asserts it against the documented partition, so the defect can no longer drift silently - the fix (glyph-set redesign) remains deliberately deferred. The pin also EXPOSED a scope gap in the README's glyph list: the disc additionally draws U+25D6/U+25D7 (round limb), which the width caveat never mentions. Tracked as T-109. DOC SIDE CLOSED cycle 9 (T-109): the README's width caveat now scopes its Block Element claim precisely and accounts for the two round-limb glyphs it had omitted, without asserting an EAW class the repo cannot check. The underlying width defect is UNFIXED and still deferred - only the documentation gap closed.",
       "severity": "medium",
       "cycle_found": 1,
-      "pinned_cycle": 5
+      "pinned_cycle": 5,
+      "doc_gap_closed_cycle": 9
     },
     {
       "id": "KI-7",
@@ -172,8 +198,8 @@
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
-    "k_current": 3,
-    "wave_streak": 1,
+    "k_current": 2,
+    "wave_streak": 0,
     "window_tokens_attributed": 0
   },
   "last_cycle": {

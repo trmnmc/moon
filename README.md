@@ -192,13 +192,13 @@ test that passes only because of that is a bug.
 
 ## Known limitation: terminal glyph width
 
-The disc uses Unicode Block Elements, and those glyphs do not share an East Asian Width
-class: `░` and `▐` are Neutral while `▒ ▓ █ ▌ ▏ ▕` are Ambiguous. In a terminal
-configured to render ambiguous-width characters as double-width (common in CJK locales,
-iTerm2's "treat ambiguous-width as double", `xterm -cjk_width`), the disc renders 5–9
-columns wide depending on phase instead of a constant 5. Three consequences there: the
-single-line readout jitters between nights, the two-line form stops aligning, and the
-`--block` frame does not close.
+The disc's shade ramp and its half-block and hairline limb glyphs are Unicode Block
+Elements, and those glyphs do not share an East Asian Width class: `░` and `▐` are Neutral
+while `▒ ▓ █ ▌ ▏ ▕` are Ambiguous. In a terminal configured to render ambiguous-width
+characters as double-width (common in CJK locales, iTerm2's "treat ambiguous-width as
+double", `xterm -cjk_width`), the disc renders 5–9 columns wide depending on phase instead
+of a constant 5. Three consequences there: the single-line readout jitters between nights,
+the two-line form stops aligning, and the `--block` frame does not close.
 
 In a default Western-locale terminal — every configuration this was developed and
 tested against — all forms are exactly 5 columns and align correctly.
@@ -206,6 +206,11 @@ tested against — all forms are exactly 5 columns and align correctly.
 This is not a typo but an upstream Unicode fact: no subset of Block Elements provides a
 four-step shade ramp plus a symmetric half-block pair within one width class. Fixing it
 properly means changing the glyph set, which is deferred rather than rushed.
+
+The disc also draws round-limb glyphs, `◗` and `◖`, for a fully lit outer cell. These are
+Geometric Shapes, not Block Elements, and are outside the Neutral/Ambiguous partition above.
+This repo has not established their East Asian Width class, so whether they widen the disc
+in an ambiguous-width terminal is unknown.
 
 ## Licence
 
