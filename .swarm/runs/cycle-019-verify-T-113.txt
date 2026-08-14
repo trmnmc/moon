@@ -1,0 +1,111 @@
+CYCLE 19 — VERIFICATION EVIDENCE — T-113
+"'Fully lit outer cell' understates when the disc draws a round limb"
+Conductor-authored checks, written at verification time. The builder never saw them.
+Reproduce: node .swarm/runs/cycle-019-gate-T-113.js
+          node .swarm/runs/cycle-019-probe-T-113.js
+          node .swarm/runs/cycle-019-nonvacuity-T-113.js
+
+================================================================================
+1. THE DISCRIMINATOR — is the item's premise empirically real?
+================================================================================
+The item claims the pre-fix prose ("for a fully lit outer cell") UNDERSTATED the
+branch. Reading `else if (cover < 0.88) HALF; else ROUND_LIMB` proves that only as
+a matter of source; it does not prove the disc ever actually reaches the branch
+below full lit. So the branch was instrumented on a COPY of src/render.js (the repo
+source was never modified) and renderLine driven over a 20,000-step synodic sweep in
+both hemispheres:
+
+  outer-cell samples         : 80000
+  round-limb draws           : 33192
+  min cover at a round limb  : 0.887324
+  max cover at a round limb  : 1.000000
+  draws with cover < 1.0     : 2924  <-- "fully lit" UNDERSTATED
+  draws in band [0.88, 1.0)  : 2924
+  draws with cover <  0.88   : 0
+  outer cells with cover>=.88: 33192  equals round-limb draws? true
+
+2,924 of 33,192 round-limb draws (8.8%) occur at an outer cell that is NOT fully lit,
+the least-lit at cover 0.887324. The old prose named one member of that set as though
+it were the whole set. The last line is the both-directions check: the count of outer
+cells with cover >= 0.88 is EXACTLY the count of round-limb draws, so "reaches 0.88"
+is not merely sufficient, it is the precise condition.
+
+================================================================================
+2. GATE CHECKS (all PASS)
+================================================================================
+PASS C1a: files changed = README.md, src/render.js, test/render.test.js
+PASS C1b: non-comment lines touched in .js files = 0
+PASS C1c:src/render.js: code (comment lines stripped) byte-identical to HEAD
+PASS C1c:test/render.test.js: code (comment lines stripped) byte-identical to HEAD
+PASS C3a: lineArt HALF/ROUND_LIMB threshold literal found = 0.88
+PASS C2: unsourced numeric tokens on added lines = 0 (only 0.88 + tokens carried over by reflow)
+PASS C3b/C3c at all three sites: each names 0.88 and explicitly denies the fully-lit-only reading
+PASS C4a/C4b across src/render.js, test/render.test.js, README.md, REPORT.md:
+     no "declines to establish", no volitional establish/classify attribution
+PASS C4c: README predicate extracted from README itself = "has not established"
+PASS C4d: test comment attributes to README the same negated predicate README states
+PASS C4e: test comment attributes no deliberate refusal to the README
+PASS C4f: instrument falsified — the same checks still catch the old wording at HEAD
+PASS C5: no British spelling on an added line
+PASS C6: clauses of the pre-existing README paragraph lost to the reflow = []
+
+================================================================================
+3. GATE-INSTRUMENT REPAIR (run 1 -> run 2), disclosed
+================================================================================
+Run 1 of the gate flagged C4a, C4b, C4c. All three were defects in the INSTRUMENT,
+not in the artifact, and the standard was never lowered:
+
+  C4a swept `git ls-files`, so it hit .swarm/backlog.json, .swarm/journal.md and
+      .swarm/runs/cycle-012-verify-T-112.txt. Those are the RECORD of the defect and
+      must keep the phrase to stay legible. Correct scope is the product surface:
+      src/, test/, README.md, REPORT.md. Zero hits there, before and after the repair.
+  C4b/C4c matched literal strings containing single spaces, but the edit reflowed both
+      passages: README now breaks between "East Asian" and "Width class", and the test
+      comment breaks between "has not" and "been established" with a ` * ` leader in
+      between. Line-wrap blindness, not a false claim.
+
+Each widening is paired with a STRICTER assertion run 1 did not make:
+  - C4a became per-file and grew a variant family (declines|refuses|chooses|opts|
+    deliberately|intentionally|explicitly)+(establish|classify), so a synonym cannot
+    slip through where the literal string was caught.
+  - C4d now requires the test comment to assert README's OWN predicate, EXTRACTED from
+    README by regex, rather than a string the conductor chose — so the allowance
+    cannot be something invented to let the item pass.
+  - C4e forbids any volitional verb in the test comment specifically.
+  - C4f falsifies the normalizer itself: the same normalized checks are run against
+    HEAD and are REQUIRED to still catch "declines to establish" there. If prose()
+    were manufacturing matches, C4f fails and the whole C4 block is void.
+
+================================================================================
+4. NON-VACUITY — the gate fails against HEAD
+================================================================================
+src/render.js        C3b(names 0.88)=false  C3c(denies fully-lit)=false
+test/render.test.js  C3b=false  C3c=false
+README.md            C3b=false  C3c=false
+NON-VACUOUS: every C3 check fails against HEAD and passes only against the fix.
+
+================================================================================
+5. FULL SUITE, run by the conductor
+================================================================================
+$ node --test test/*.test.js
+ℹ tests 114
+ℹ suites 0
+ℹ pass 114
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1530.059898
+
+114 at HEAD (cycle 18) and 114 now — no test was added, which is what a prose-only
+item should produce. Test count is not an outcome on this run.
+
+================================================================================
+6. NOT RUN / NOT APPLICABLE — reported honestly
+================================================================================
+- collision-scan: NOT APPLICABLE, reported as not-run. It is a browser gate; moon is a
+  stdout CLI and no merged file is served to a browser.
+- qa-verify look pass: correctly skipped — no merged file is a user-visible browser
+  surface. qa.last_look_cycle stays 1.
+- budget probe: NOT RUN (KI-2, permission-denied, 20th consecutive cycle).
+- bin/swarm-notify.sh: NOT RUN (KI-2, denied). Control channel read from file only.

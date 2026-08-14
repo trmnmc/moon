@@ -211,10 +211,10 @@ This is not a typo but an upstream Unicode fact: no subset of Block Elements pro
 four-step shade ramp plus a symmetric half-block pair within one width class. Fixing it
 properly means changing the glyph set, which is deferred rather than rushed.
 
-The disc also draws round-limb glyphs, `◗` and `◖`, for a fully lit outer cell. These are
-Geometric Shapes, not Block Elements, and are outside the Neutral/Ambiguous partition above.
-This repo has not established their East Asian Width class, so whether they widen the disc
-in an ambiguous-width terminal is unknown.
+The disc also draws round-limb glyphs, `◗` and `◖`, once the outer cell's lit fraction reaches
+0.88, not only when it is fully lit. These are Geometric Shapes, not Block Elements, and are
+outside the Neutral/Ambiguous partition above. This repo has not established their East Asian
+Width class, so whether they widen the disc in an ambiguous-width terminal is unknown.
 
 ## Licence
 

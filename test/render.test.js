@@ -582,9 +582,10 @@ const DOCUMENTED_EAW = new Map([
 
 /**
  * The disc is also observed (below) to draw two round-limb glyphs —
- * U+25D6/U+25D7, Geometric Shapes, not Block Elements — for a fully-lit
- * outer cell. The README names them and explicitly declines to establish
- * their East Asian Width class, so they remain outside the documented
+ * U+25D6/U+25D7, Geometric Shapes, not Block Elements — once the outer
+ * cell's lit fraction reaches 0.88, not only when it is fully lit. The
+ * README names them and states that their East Asian Width class has not
+ * been established, so they remain outside the documented
  * Neutral/Ambiguous partition above. They are pinned separately below,
  * apart from the documented partition, so this test tells the truth about
  * what is and is not classified.

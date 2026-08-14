@@ -60,8 +60,9 @@ const SHADE = ['░', '▒', '▓', '█']; // ░ ▒ ▓ █
  *
  * A partly lit outer cell must draw its light against the side the sunlight is
  * on — the right of the cell while waxing, the left while waning — otherwise
- * the terminator lands on the wrong side of a character. Only the fully lit
- * case is positional: there the glyph is the round limb itself.
+ * the terminator lands on the wrong side of a character. Only the case where
+ * cover reaches 0.88 — not only a fully lit cell — is positional: there the
+ * glyph is the round limb itself.
  */
 const LIMB_DARK = '░'; // ░
 const HAIRLINE = { right: '▕', left: '▏' }; // ▕ ▏
