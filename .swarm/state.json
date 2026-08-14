@@ -2,8 +2,8 @@
   "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
-  "phase": "DONE",
-  "cycle": 1,
+  "phase": "PLAN",
+  "cycle": 0,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -11,17 +11,17 @@
     "port": 0
   },
   "spec_digest": [
-    "zero-dep Node CLI printing the current moon phase: name, illumination %, hemisphere-correct Unicode moon; offline, instant, npx-runnable",
-    "must: Meeus WITH periodic corrections (~1h accuracy), correct illumination, hemisphere-mirrored art + override, --json, single-line output as PRIMARY interface",
-    "non-goals: no network, no emoji, no color/config, no moonrise/moonset (acknowledged ceiling), no npm publish; all 3 nice-to-haves explicitly cut at lock",
-    "taste: a tiny precision instrument, not a toy — austere aligned readout, glow serves terminator legibility, degrades legibly in plain monospace",
-    "port a published algorithm (tidecal MIT / wwn-phoon-rs MIT as reference + cross-check oracle); never invent one, never ship the mean formula alone"
+    "improvement run on shipped v0.1.0 moon CLI: harden tests, close known-issues, polish docs for truth - NO new features, no new runtime deps, core astronomy not rewritten",
+    "must: KI-1 closed with evidence, KI-6 fixed (consistent throw), KI-7 bounded by a declared+SAMPLED supported domain, KI-5 pinned by a measuring test",
+    "every added test closes a NAMED untested surface; test count is not an outcome",
+    "non-goals: no new flags/features, no npm publish, no dependencies, no emoji/color",
+    "taste: the risk is CHURN - one test pinning a real defect beats ten restating a pass"
   ],
   "decisions": [
     {
       "cycle": 0,
       "what": "port a documented Meeus/Duffett-Smith algorithm into zero-dep Node rather than fork prior art",
-      "why": "prior-art scout returned stance `extend` — the phoon lineage (Poskanzer -> moontool -> wwn-phoon-rs) is grep-verified to do real phase math offline, so re-deriving the core would be wasted work. But the cleanest candidate is Rust, which conflicts with the user's explicit node/npx/zero-install choice — and npx distribution is itself one of the three things NO prior art does. Resolution: honor `extend` in substance by porting a published algorithm and using tidecal (MIT, Meeus ch.47 in JS) as reference and wwn-phoon-rs as a cross-check oracle, while keeping the Node surface."
+      "why": "prior-art scout returned stance `extend` \u2014 the phoon lineage (Poskanzer -> moontool -> wwn-phoon-rs) is grep-verified to do real phase math offline, so re-deriving the core would be wasted work. But the cleanest candidate is Rust, which conflicts with the user's explicit node/npx/zero-install choice \u2014 and npx distribution is itself one of the three things NO prior art does. Resolution: honor `extend` in substance by porting a published algorithm and using tidecal (MIT, Meeus ch.47 in JS) as reference and wwn-phoon-rs as a cross-check oracle, while keeping the Node surface."
     },
     {
       "cycle": 0,
@@ -37,26 +37,37 @@
       "cycle": 0,
       "what": "test_cmd set to `node --test test/*.test.js`, not `node --test test/`",
       "why": "prior run (aphorism-cli, same host, Node 24) recorded that the directory form fails with MODULE_NOT_FOUND. Adopting the known-good form at kickoff instead of rediscovering it mid-run."
+    },
+    {
+      "cycle": 0,
+      "what": "improvement run scoped to known-issue closure + named-surface test hardening + doc truth; the original build spec is preserved (tag v0.1.0) and remains binding, this SPEC only scopes what may change",
+      "why": "allocator auto-kickoff under TRICKLE posture (allow_premium_pct 0, opus_used_pct 95) with brief 'harden tests, fix playbook items, polish docs - no new features'. The stress-test's landing attack was that housekeeping's toy version is CHURN - reworded prose plus duplicate tests. The named-surface rule is the structural answer: a test that cannot name the surface it closes does not get written."
+    },
+    {
+      "cycle": 0,
+      "what": "KI-5 (glyph East Asian Width) stays DEFERRED as a fix, but gets pinned by a measuring test this run",
+      "why": "the honest fix is a glyph-set redesign (L-effort, rewrites the product's visual core). Dispatching that under gear-1 crawl with premium at 95 pct consumed is the wrong spend. Pinning the measured widths in a test converts a prose-only caveat into a machine-checked one at S-effort - the defect can no longer drift silently."
+    },
+    {
+      "cycle": 0,
+      "what": "astronomia v4.2.0 (MIT, a genuine Meeus port in JS) found by the scout and deliberately NOT adopted as a cross-check oracle",
+      "why": "zero runtime dependencies is a must-have of the original spec. Even as a devDependency it would weaken the zero-dep story for a convenience the existing hand-computed Meeus 49.a/49.b fixtures already provide."
     }
   ],
   "known_issues": [
     {
       "id": "KI-1",
-      "desc": "npm/pypi/web prior art was never swept — the scout's gh/WebSearch were permission-blocked and a direct npm registry query was denied. An npm CLI may already occupy this niche; the build proceeds with this unknown, flagged to the user at lock.",
-      "severity": "medium",
-      "cycle_found": 0
+      "desc": "SWEEP COMPLETED AT IMPROVEMENT-RUN KICKOFF 2026-08-14 (was: never swept, permission-blocked). Finding, grep-verified not README-read: nearest npm package is lunarphase-js v2.0.3 (ISC) whose core is frac((JD-2451550.1)/29.53058770576) - the naive mean-synodic modulo, ZERO periodic corrections (grep meeus|periodic|correction|evection: no hits); its 'hemisphere support' swaps emoji, not mirrored art; no bin field so it is a library, not a CLI. astronomia v4.2.0 (MIT) is a real Meeus port but is a dependency (zero-dep non-goal forbids). GitHub topic/free-text sweep surfaced no competing hemisphere-aware Unicode CLI. Conclusion: the accuracy claim and hemisphere-mirrored ASCII remain differentiated. REMAINING WORK: propagate this finding into README/REPORT - that is a must-have of the improvement run.",
+      "severity": "low",
+      "cycle_found": 0,
+      "sweep_completed_cycle": 0
     },
     {
       "id": "KI-2",
-      "desc": "settings.json allowlist edit was denied in this non-interactive session, so permissions.additionalDirectories does not list /opt/targets/moon. Headless relaunches must pass --add-dir explicitly.",
+      "desc": "settings.json allowlist edit denied AGAIN at the improvement-run kickoff 2026-08-14 (recurring, same as the original run). permissions.additionalDirectories is still [] and bin/swarm-budget.sh + bin/swarm-playbook.sh are not allowlisted, so the budget probe and playbook parser are both unrunnable from a headless conductor and were worked around (allocator.json for gear evidence; direct file read for the playbook). Headless relaunches must keep passing --add-dir explicitly. SWARM-side tooling gap, not a target defect - hard rule 5 forbids fixing it from inside a run.",
       "severity": "medium",
-      "cycle_found": 0
-    },
-    {
-      "id": "KI-3",
-      "desc": "no git remote yet — gh auth could not be verified in this session. Commits are local until a remote exists; per hard rule 1 a push failure is journaled and never blocks a cycle.",
-      "severity": "medium",
-      "cycle_found": 0
+      "cycle_found": 0,
+      "recurred_cycle": 0
     },
     {
       "id": "KI-4",
@@ -92,13 +103,22 @@
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 3,
-    "wave_streak": 1,
+    "wave_streak": 0,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "n": 1,
-    "work": "kickoff + build-wave [T-001,T-002,T-003] + integration + adversarial QA pass + 7 QA fixes",
-    "outcome": "shipped: 6 items verified, 1 correctness defect found post-green and fixed, 6 doc/format fixes, 102/102 green, 8 commits, 0 reverts",
+    "n": 0,
+    "work": "improvement-run kickoff: stress-test, prior-art sweep (closed KI-1), taste judge, spec lock",
+    "outcome": "spec written, baseline re-verified 102/102 green by the conductor",
     "commit": ""
-  }
+  },
+  "run_label": "improvement-2026-08-14",
+  "resolved_issues": [
+    {
+      "id": "KI-3",
+      "desc": "no git remote / gh auth unverified",
+      "resolved_cycle": 0,
+      "evidence": "git -C /opt/targets/moon remote -v -> origin https://github.com/trmnmc/moon.git (fetch+push); gh auth status -> Logged in to github.com account trmnmc, scopes gist/read:org/repo/workflow; tag v0.1.0 present"
+    }
+  ]
 }

@@ -188,3 +188,105 @@ runfile-mirror: {"targets":[{"path":"/opt/targets/moon","status":"done","weight"
   "budget":{"source":"clock","gear":3,"k_cap":3,"probe_failures":1},
   "watchdog":{"mode":"normal","plist_loaded":false},"cycles_since_recycle":1,
   "wrap_up_complete":true,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html"}}
+
+
+## cycle 0 KICKOFF | 2026-08-14T15:32:35+00:00 | moon | PLAN
+
+work: IMPROVEMENT-RUN kickoff on the shipped v0.1.0 repo (allocator auto-kickoff, guard 1d).
+why: runs/kickoff-hints.json source=allocator, brief non-empty, idea text begins "improve
+existing target " -> improvement run. Guard 1b (non-empty dir) does not apply; the existing
+repo IS the point. Repo REUSED: no dir creation, no git init, no gh repo create.
+
+STRESS-TEST (non-interactive, ran as specified): the attack that landed was lens 3, the
+toy-version trap. Housekeeping's toy version is CHURN - reworded prose plus duplicate tests
+that look like work and change nothing. 102 tests on ~950 lines is already dense, so "more
+tests" is a vanity metric here. Defence held on the other three lenses: there are 6 open
+known-issues, of which 4 are actionable without any new feature. RESHAPE APPLIED: a
+named-surface rule is written into the spec as a must-have - every added test must close a
+NAMED untested surface, and test COUNT is explicitly barred from being an outcome.
+verdict proceed (reshaped), confidence 7.
+
+PRIOR-ART SCOUT (6 searches, closes KI-1 - the sweep the original kickoff could not run):
+  S1 npm search "moon phase"      -> moon-phase-widget, celestial-moon, @lab-code/moonphase, bite-times
+  S2 npm search "moon cli"        -> no moon-phase CLI; surfaced astronomia 4.2.0 MIT (real Meeus port)
+  S3 gh search repos free-text    -> zero results
+  S4 gh search --topic=moon-phase -> astral(py), TinyMoon(swift), moonmoji(emoji), lunar-phase-card
+  S5 WebSearch                    -> lunarphase-js flagged as having "hemisphere options"
+  S6 npm view + npm pack + GREP-VERIFY of lunarphase-js 2.0.3 (README is marketing, not evidence)
+GREP EVIDENCE (the differentiator claim survived):
+  core is  frac((JD - 2451550.1) / 29.53058770576)   <- naive mean-synodic modulo
+  grep -riE "meeus|periodic|correction|evection" package/  -> NO HITS
+  "hemisphere support" = swapping emoji glyphs (NORTHERN/SOUTHERN emoji maps), not mirrored art
+  npm view lunarphase-js bin -> empty; it is a LIBRARY, not a CLI
+  stance: build/keep - the accuracy claim and hemisphere-mirrored ASCII remain differentiated.
+  astronomia 4.2.0 (MIT) is a genuine Meeus port but is a DEPENDENCY -> deliberately not
+  adopted; zero-dep is an original must-have (recorded as a cycle-0 decision).
+
+TASTE JUDGE (fresh fable subagent, spec text only): use-twice 7, product-not-demo 8,
+scope-fits-night 8, one-memorable-thing 6. Verdict: "worth the night as scoped - a rare
+housekeeping spec that names its own churn risk and bans it; load-bearing axis is
+scope-fits-night, provided KI-1's sweep is treated as fallible and the KI-7 domain test is
+SAMPLED rather than exhaustive." Both caveats folded into SPEC.md before lock (KI-7
+must-have now says SAMPLED, not exhaustive; the KI-1 finding is written down as grep
+evidence rather than as a conclusion).
+
+TASTE CRITIQUE (conductor, at lock):
+  (a) interesting after 10 uses - the PRODUCT yes, unchanged; this RUN's output is invisible
+      to an end user by construction. Honest framing: the audience is the next maintainer.
+  (b) the defaulted constraint that most caps this run is "no new features" combined with
+      gear-1 crawl: it takes the one genuinely product-improving fix (KI-5 glyph redesign)
+      off the table. Named explicitly rather than silently defaulted - KI-5 is deferred
+      because of BUDGET, not because the defect is acceptable.
+  (c) mitigation shipped instead: KI-5 gets pinned by a measuring test so it cannot drift.
+
+VERIFICATION EVIDENCE (conductor-run, at kickoff):
+  baseline test_cmd: node --test test/*.test.js
+    -> tests 102 | pass 102 | fail 0 | duration_ms 1280.467171   PASS
+  KI-3 resolution check (authored now):
+    git -C /opt/targets/moon remote -v -> origin https://github.com/trmnmc/moon.git (fetch+push)
+    gh auth status -> Logged in to github.com account trmnmc; scopes gist,read:org,repo,workflow
+    -> KI-3 ("no git remote, gh auth unverified") RESOLVED, moved to state.resolved_issues
+  git status --porcelain -> clean (no crashed-cycle salvage needed)
+
+BUDGET / GEAR (evidence, not a guess): bin/swarm-budget.sh is NOT allowlisted for this
+headless session -> permission denied, probe_failures=1. Gear taken from runs/allocator.json
+(source=probe): posture=trickle, allow_premium_pct=0, opus_used_pct=95, weekly_used_pct=65 at
+week_elapsed_pct=63. -> gear 1 crawl, k_cap 1, demote=true, promote blocked. This is the
+CONSERVATIVE direction and matches the brief's "haiku-priced work types"; the evidence rule's
+"never crawl without evidence" is satisfied by allocator.json, not by a clock fallback.
+
+PLAYBOOK (apply_mode auto): swarm-playbook.sh parse permission-denied -> parsed by direct
+Read (the documented fallback the original run also used). Applied L-003, L-008, L-016,
+L-023-moon (REFUTE brief), L-024-moon (discriminator), L-026-repo-atlas (core-logic->fable).
+Vetoed 7 lessons (L-006/007/011/018/020/021/022) as conductor-scoped, not user-vetoed: every
+one targets a browser/SPA/React/env-key surface a zero-dep stdout CLI does not have.
+Ledger line appended to playbook/applied.log by hand (script denied).
+
+SWARM TOOLING FINDINGS for the morning report (hard rule 5 - reported, never fixed mid-run):
+  1. KI-2 RECURRED: .claude/settings.json write denied again. additionalDirectories is still
+     [] and swarm-budget.sh / swarm-playbook.sh / claude are not allowlisted.
+  2. Step-11 headless zero-prompt assert COULD NOT BE RUN (claude not allowlisted).
+     Reported as NOT-RUN, never as passed. Substitute empirical evidence, named as what it
+     is: THIS session is itself a headless `claude -p` spawned by swarm-pacer.sh and has
+     run to kickoff completion, and the pacer spawned a working headless cycle on
+     2026-08-14 at 11:54. Headless cycles demonstrably run; the assert itself is unverified.
+  3. playbook/learnings.md has DUPLICATE IDS: L-023, L-025, L-026 each appear twice with
+     different content and different [source:] runs (repo-atlas 2026-08-13 vs moon
+     2026-08-14). next_id:29 is consistent with max L-028, so the collision came from the
+     moon WRAP_UP append, not from the counter. Disambiguated with -source suffixes here.
+
+L-027 GUARD APPLIED (the incident this repo caused last run): heartbeat.next_wakeup_at was
+pushed to now+2700 BEFORE any expensive kickoff work, so swarm-pacer.timer cannot spawn a
+second conductor into this live session the way it did at 11:54:33 on 2026-08-14.
+
+state: phase PLAN, cycle 0. DESIGN gate already satisfied (decisions[] non-empty from the
+original build). Backlog reset to empty (canonical schema); the v0.1.0 build backlog used a
+non-canonical schema and was archived to .swarm/backlog-v0.1.0.json.
+outcome: kickoff complete, spec locked, baseline re-verified 102/102 green, KI-1 sweep
+closed with grep evidence, KI-3 resolved.
+next: cycle 1 = inline PLAN, building the named-surface backlog.
+
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786721555,"next_wakeup_at":1786724255,"pid":100338,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786721555,"last_real_probe_ts":0,"probe_failures":1,"probe_note":"bin/swarm-budget.sh is NOT allowlisted for this headless session (KI-2, recurring) - permission denied, counted as one probe failure. Gear is NOT a clock-cruise guess: it is evidence-backed from runs/allocator.json (source=probe) showing posture=trickle, allow_premium_pct=0, opus_used_pct=95, weekly_used_pct=65 at week_elapsed_pct=63. Crawl is the conservative direction and matches the allocator brief's 'haiku-priced work types'.","weekly":{"ok":true,"weekly_used_pct":65.0,"opus_used_pct":95,"week_elapsed_pct":63.42,"weekly_heat":1.03,"opus_heat":1.5,"ceiling":1,"promote_blocked":true}},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":0,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

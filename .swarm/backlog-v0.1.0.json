@@ -1,0 +1,93 @@
+{
+  "items": [
+    {
+      "id": "T-001",
+      "title": "src/astro.js — Meeus phase computation WITH periodic corrections, illumination, phase naming",
+      "covers_must_have": [
+        "accuracy",
+        "illumination+phase-name"
+      ],
+      "status": "verified",
+      "cycle": 1,
+      "owner": "builder-fable",
+      "files": [
+        "src/astro.js",
+        "test/astro.test.js"
+      ]
+    },
+    {
+      "id": "T-002",
+      "title": "src/hemisphere.js + src/args.js — IANA timezone hemisphere table, flag parsing",
+      "covers_must_have": [
+        "hemisphere-detect",
+        "json-flag"
+      ],
+      "status": "verified",
+      "cycle": 1,
+      "owner": "builder-2",
+      "files": [
+        "src/hemisphere.js",
+        "src/args.js",
+        "test/hemisphere.test.js",
+        "test/args.test.js"
+      ]
+    },
+    {
+      "id": "T-003",
+      "title": "src/render.js — hemisphere-mirrored Unicode moon, single-line primary + framed block",
+      "covers_must_have": [
+        "hemisphere-render",
+        "single-line-primary"
+      ],
+      "status": "verified",
+      "cycle": 1,
+      "owner": "builder-3",
+      "files": [
+        "src/render.js",
+        "test/render.test.js"
+      ]
+    },
+    {
+      "id": "T-004",
+      "title": "bin/moon.js + package.json — entry point, flag wiring, --json payload, zero deps",
+      "covers_must_have": [
+        "json-flag",
+        "zero-dep-npx"
+      ],
+      "status": "verified",
+      "cycle": 1,
+      "owner": "conductor",
+      "files": [
+        "bin/moon.js",
+        "package.json"
+      ]
+    },
+    {
+      "id": "T-005",
+      "title": "nextFullMoon(date) export on astro.js + conductor-composed second output line",
+      "covers_must_have": [],
+      "status": "verified",
+      "cycle": 1,
+      "owner": "builder-fable",
+      "files": [
+        "src/astro.js",
+        "test/astro.test.js",
+        "bin/moon.js"
+      ],
+      "note": "USER INJECTION mid-cycle-1, partially reversing the lock-time cut of the next-phase countdown. Additive export only — the frozen contract was NOT edited, because three builders were compiling against it. Sequenced AFTER must-have verification; first thing cut if the clock bites."
+    },
+    {
+      "id": "T-006",
+      "title": "README.md — one-line install, every flag, --json field docs",
+      "covers_must_have": [
+        "definition-of-done"
+      ],
+      "status": "verified",
+      "cycle": 1,
+      "owner": "conductor",
+      "files": [
+        "README.md"
+      ]
+    }
+  ]
+}
