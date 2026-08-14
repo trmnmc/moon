@@ -149,7 +149,7 @@
     "n": 6,
     "work": "backlog surgery (split T-103 into T-103a/T-103b) + build-wave k=1 (gear-1 crawl): T-103a at sonnet - declare the KI-7 supported date domain and pin it with a sampled band-discriminator test",
     "outcome": "1 VERIFIED. Astronomy byte-identical to HEAD; 106/106 green; conductor mutation (widen the constant to year 80000) proves the test reads the constant and catches real contradictions; independent 60k-point off-lattice re-sample finds 0 violations. KI-7 bounded on the module side; README half is T-103b.",
-    "commit": "pending"
+    "commit": "1460c59"
   },
   "run_label": "improvement-2026-08-14",
   "resolved_issues": [
