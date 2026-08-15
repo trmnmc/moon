@@ -2,8 +2,8 @@
  "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
- "phase": "VALUE_LOOP",
- "cycle": 46,
+ "phase": "DONE",
+ "cycle": 47,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -462,6 +462,16 @@
    "cycle": 46,
    "what": "The target was NOT declared DONE even though T-141 - the item cycle 45 named as the last thing standing between this target and DONE - closed this cycle with evidence",
    "why": "The DONE rule has two conjuncts and only one is settled. The definition of done was re-verified green at cycle 44, but the second conjunct requires that no VALUE_LOOP candidate passes the ratchet, and the standing rule from cycles 26/30/31 is that this must be established by a scan that comes back EMPTY, not inferred from a drained backlog. No scan ran this cycle. More decisively, this cycle CREATED a passing candidate: T-142 is a measured unpinned surface in the shipping suite, so the conjunct is now demonstrably false rather than merely unexamined - declaring done would have been a false claim of completeness, not a premature one. The cost asymmetry cycle 26 named is unchanged: DONE sets every target status to done, rotation then finds no active target, and early WRAP_UP fires, discarding ~6.7 h of remaining clock. Deferring costs one gear-1 cycle."
+  },
+  {
+   "cycle": 47,
+   "what": "Target declared DONE with ~6.5 h of clock unspent, rather than building the three remaining backlog items.",
+   "why": "The definition of done was re-verified from evidence this cycle (KI-1 REPORT.md:104, KI-6 astro.js:358 + astro.test.js:294, KI-7 PHASE_ILLUMINATION_CONSISTENCY_DOMAIN astro.js:71/:363 + README:184 + astro.test.js:491, KI-5 render.test.js:617, 145/145 green, no dependencies key) rather than read off backlog labels. Every remaining candidate fails the two-question ratchet: T-116/T-130/T-139 are documentation of true things (ratchet-rejected on record at cycles 20-22), KI-4 and KI-8 are human-blocked by construction, and the KI-5 glyph redesign is an L-effort nice-to-have the SPEC itself excluded for this posture. Building any of them is the exact churn the SPEC taste note names as this run's specific risk. Running out of work that clears the bar is DONE, not stalled - consecutive_no_value is 0 and this cycle produced verified value."
+  },
+  {
+   "cycle": 47,
+   "what": "The verification gate's first version staged an enumerated scratch copy and produced a false VERDICT: FAIL on correct work.",
+   "why": "contracts.test.js resolves paths against the repo root and reads CONTRACTS.md, which the enumerated copy (bin/src/test/package.json/README.md) omitted, so it aborted as a whole file in BOTH the mutant and control copies (137/135/2 and 136/135/1). Sixth instance this run of my own instrument being narrower than the thing it measures. Fixed by copying the repo recursively filtered only on .git and globbing the test list from the copy. Taken at face value the first reading would have failed a correct item and sent it back to todo with attempts+1."
   }
  ],
  "known_issues": [
@@ -509,13 +519,13 @@
   "last_look_cycle": 1,
   "last_taste_cycle": 1,
   "last_review_fix_cycle": 23,
-  "last_build_wave_cycle": 45
+  "last_build_wave_cycle": 47
  },
  "counters": {
   "consecutive_no_value": 0,
   "consecutive_failures": 0,
   "k_current": 5,
-  "wave_streak": 0,
+  "wave_streak": 1,
   "window_tokens_attributed": 0
  },
  "last_cycle": {

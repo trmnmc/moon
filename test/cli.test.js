@@ -290,6 +290,15 @@ test('OPTIONS, the HELP options block, and the README Options table agree on the
     'README Options table disagrees with the flags src/args.js actually registers')
 })
 
+// bin/moon.js checks opts.help before opts.json on purpose, so --help always wins over
+// --json; nothing else in this suite ever passes both flags at once, so nothing holds
+// that branch order in place. run() throws on a non-zero exit, covering the exit-0 half.
+test('--help wins over --json regardless of flag order: help text, not the JSON payload', () => {
+  const helpOnly = run(['--help'])
+  assert.equal(run(['--json', '--help']), helpOnly, '--json --help must match --help byte-for-byte')
+  assert.equal(run(['--help', '--json']), helpOnly, '--help --json must match --help byte-for-byte')
+})
+
 test('an unknown flag exits 2 with a clean one-line message on stderr', () => {
   const { status, stderr, stdout } = runFailing(['--bogus'])
   assert.equal(status, 2)

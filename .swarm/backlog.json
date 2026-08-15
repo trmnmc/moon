@@ -845,7 +845,7 @@
   {
    "id": "T-142",
    "kind": "test",
-   "status": "todo",
+   "status": "done",
    "priority": 5,
    "value": "M",
    "effort": "S",
@@ -860,7 +860,8 @@
    ],
    "packages": [],
    "deps": [],
-   "notes": "Filed at the cycle-46 gate from a conductor measurement, not from an agent suggestion and not from a failing QA check - the end-to-end QA itself found zero divergences. Priority 5: below the closed must-haves but above the three cosmetic ratchet-rejects (T-116, T-130, T-139), because unlike those it closes a surface that is measurably unprotected rather than rewording a true sentence. Routed to sonnet rather than the haiku the docs/S table row would give: cycle 5 established on this run that test-authoring is build-class work, and gear 1 permits S-effort sonnet builds."
+   "notes": "Filed at the cycle-46 gate from a conductor measurement, not from an agent suggestion and not from a failing QA check - the end-to-end QA itself found zero divergences. Priority 5: below the closed must-haves but above the three cosmetic ratchet-rejects (T-116, T-130, T-139), because unlike those it closes a surface that is measurably unprotected rather than rewording a true sentence. Routed to sonnet rather than the haiku the docs/S table row would give: cycle 5 established on this run that test-authoring is build-class work, and gear 1 permits S-effort sonnet builds.\nCYCLE-47 GATE PASS: verified by .swarm/runs/cycle-047-gate.mjs. Two scratch copies both mutated with M6 by the gate itself: A (test present) 145 tests / 144 pass / 1 fail, the failure being this test; B (test removed) 144/144 green, so M6 survives without it. The kill is ATTRIBUTABLE to the nine lines added, and cycle 46's measurement that M6 escaped the 144-test suite is independently reproduced. Suite at HEAD 145/145. Diff 9 lines, test/cli.test.js only, no product file touched.",
+   "verified_cycle": 47
   }
  ]
 }

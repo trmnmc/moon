@@ -4765,3 +4765,206 @@ next: cycle 47 builds T-142 (S, sonnet) — one shipping test pinning --help's p
   the test to FAIL against the M6 mutation applied to a scratch copy, so the new test must
   itself be shown failable before it counts. After that, and only after a VALUE_LOOP
   candidate scan that comes back EMPTY, the DONE question is open again.
+
+## cycle 47 — 2026-08-15T08:57:44Z — VALUE_LOOP → DONE — build-wave (k=1) — T-142 — GATE PASS
+
+clock: now=1786784264 at entry, stop_at=1786807947 (6.58 h remaining). Not within 900s of
+  stop, not limp, usage_reset_at long past. Conductor PID 345269, read from the process
+  table and identified by its `-p /swarm cycle` argument vector — the cycle-45/46 hazard
+  note still applies (a bare `claude` substring test matches the `/home/swarm/.claude/...`
+  snapshot path before the real binary). Pacer-spawned headless -p cycle: Workflow is
+  review-gated, no Artifact tool (step 8: not a publish failure).
+
+budget probe: NOT invoked (47th consecutive cycle). KI-2 re-grepped this cycle, not
+  inherited: `/opt/swarm/.claude/settings.json` carries swarm-notify at lines 6 and 7 and
+  still has NO entry of any form for swarm-budget.sh or swarm-playbook.sh. probe_failures
+  stays 34 — an attempt not made is not a failure. Gear rests on runs/allocator.json
+  (source=probe), freshness CHECKED not assumed: week_elapsed_pct advanced 73.58 -> 73.79
+  since cycle 46, so the file is live. posture=trickle, allow_premium_pct 0,
+  allow_overall_pct 0, weekly_used_pct 79.0, opus_used_pct 96, dial 0.3. weekly_heat
+  79.0/73.79 = 1.0706 < 1.1 -> governor disengaged, ceiling 5; opus_heat 96/73.79 = 1.3010
+  > 1.2 -> promote stays blocked. Trickle + guest 1-3 clamp -> gear 1, k_cap 1.
+
+  On the trend the last three cycles have been arguing with themselves: heat went 1.0641
+  (c44) -> 1.0737 (c46) -> 1.0706 (c47), so the margin to the 1.1 threshold widened again
+  (0.0263 -> 0.0294). Cycle 46 was right to retract cycle 45's "confirmed cooling" and this
+  cycle does NOT reinstate it. weekly_used_pct held at 79.0 while elapsed advanced 0.21;
+  that is one reading, and one reading is not a direction. The only durable statement is
+  the structural one: week_resets_at 1786942799 falls after stop_at, so gear 1 is fixed for
+  whatever remains of this run regardless of which way the heat drifts.
+
+orient: tree clean at entry, no salvage. Control channel polled with the bare relative form
+  `bin/swarm-notify.sh poll` (cwd is already /opt/swarm on a pacer-spawned cycle, per cycle
+  46's narrowing) — control.json pending [] , inject [] , applied []. Nothing to triage, no
+  acks sent.
+
+re-anchor: improvement run on the shipped v0.1.0 moon CLI — harden tests, close known
+  issues, polish docs for truth; no new features, no new deps, core astronomy untouched.
+  Cycle 47 % 5 != 0, so no scheduled full SPEC re-read — but one was performed anyway, and
+  deliberately, because this cycle put the DONE question on the table (see VALUE_LOOP).
+
+pick: T-142 (p5) — the only open item clearing the VALUE_LOOP ratchet; T-116, T-130 and
+  T-139 are confirmed ratchet rejects on record since cycles 20-22. S-effort, sonnet, which
+  is exactly the one build shape gear 1 permits. Admission: build-wave's 2700s budget
+  against 22783s of usable window, admits comfortably.
+
+WORK — build-wave k=1, ONE sonnet builder (T-142)
+
+  Dispatched as a DIRECT Agent call, not the build-wave workflow: Workflow is review-gated
+  in a headless -p session (the documented failure-table fallback). k=1, so the
+  disjoint-file-scope requirement is trivially met.
+
+  Item: `--json --help` must produce byte-identical output to `--help` alone. bin/moon.js
+  checks `opts.help` before `opts.json` deliberately, and cycle 46's mutation measurement
+  found that nothing in the shipping suite held that branch order — M6
+  (`if (opts.help)` -> `if (opts.help && !opts.json)`) was the one mutant of ten that the
+  144-test suite failed to kill.
+
+  The builder was given the item's acceptance but NOT the verification command; the gate
+  below was authored at verification time, after the diff existed.
+
+  Returned diff: 9 lines added to test/cli.test.js, one test, both flag orders inside it,
+  reusing the file's existing `run()` helper (which throws on non-zero exit, covering the
+  exit-0 half of the acceptance without a second assertion). No product file touched.
+
+VERIFICATION EVIDENCE
+
+  (1) diff confined to the declared scope — `git diff --stat`:
+
+        test/cli.test.js | 9 +++++++++
+        1 file changed, 9 insertions(+)
+
+  (2) suite green at HEAD, `node --test test/*.test.js`:
+
+        i tests 145
+        i pass 145
+        i fail 0
+
+      144 -> 145. Exactly one test added, which is the count the item's "ONE test" scoping
+      clause requires — and the count is reported here as a SCOPE check, not as an outcome
+      (SPEC: test count is explicitly not an outcome of this run).
+
+  (3) the kill, and its ATTRIBUTION. Gate script .swarm/runs/cycle-047-gate.mjs (copied
+      from /opt/swarm/runs/c47-gate.mjs), conductor-authored, builder never saw it. Two
+      scratch copies of the repo, BOTH mutated with M6 by the gate script itself rather
+      than by anything the builder left behind:
+
+        --- A: working tree + M6 (new test present) ---
+        tally:  i tests 145 | i pass 144 | i fail 1
+        failed: x --help wins over --json regardless of flag order: help text, not the JSON payload
+        assert: AssertionError [ERR_ASSERTION]: --json --help must match --help byte-for-byte
+
+        --- B: M6 + new test REMOVED (9 lines cut) ---
+        tally:  i tests 144 | i pass 144 | i fail 0
+        failed: (none)
+
+        GATE: A kills M6 = true ; B lets M6 survive (attribution) = true
+        VERDICT: PASS
+
+      B is the discriminator and is the reason this is evidence rather than agreement. A
+      alone would only show that the suite fails under M6; it could not distinguish the new
+      test doing the work from some pre-existing test that happens to be sensitive to the
+      mutation. B removes the new test from an otherwise identical mutant copy and the
+      suite goes green again — so the kill is attributable to the nine lines added this
+      cycle, and cycle 46's separate measurement that M6 survived the 144-test suite is
+      independently reproduced here rather than taken on trust.
+
+      The test also cannot pass degenerately: it compares two REAL binary executions
+      against each other, and the anchor that `--help` alone emits the HELP text is pinned
+      independently at cli.test.js:281, so a mutation that broke both would not slip
+      through by making them equally wrong.
+
+  MY INSTRUMENT WAS WRONG FIRST — sixth instance this run, and the same shape as the other
+  five. The gate's first version staged a scratch copy from an enumerated list
+  (bin/ + src/ + test/ + package.json + README.md). contracts.test.js resolves paths
+  against the repo root and reads CONTRACTS.md, so it aborted as a whole file in BOTH
+  copies: A read `tests 137 | pass 135 | fail 2` and B `tests 136 | pass 135 | fail 1`, and
+  the gate printed VERDICT: FAIL. The failure was mine, not the builder's — an enumerated
+  copy is a guess at the repo, and a scratch copy has to BE the repo. Replaced with a
+  recursive copy filtered only on `.git`, and the test-file list is now globbed from the
+  copy rather than hardcoded, so the instrument cannot silently run a subset again. Both
+  numbers above are from the corrected instrument. Recording this because the first
+  reading, taken at face value, would have failed a correct item.
+
+  A smaller correction in the same pass: the first grep for KI-7's declared domain searched
+  for "supported domain"/"SUPPORTED_" and returned empty, which reads as a missing
+  must-have. It is not missing — the constant is named
+  PHASE_ILLUMINATION_CONSISTENCY_DOMAIN (src/astro.js:71, exported at :363, documented at
+  :47-68), referenced at README.md:184, with the sampled band-discriminator test at
+  test/astro.test.js:491. The grep was wrong, not the repo. Noted so the DONE call below
+  does not rest on a search that happened to use the right words.
+
+gate: T-142 PASS -> done. attempts stays 0.
+
+wave autotune: clean wave (0 reverts, 0 failed verifies) -> wave_streak 0 -> 1. k_current
+  unchanged at 5; the streak needs 2 to raise it, and gear 1 caps effective k at 1 anyway.
+
+post-merge checks: SKIPPED, with reason. The only merged file is test/cli.test.js, which is
+  not user-visible under the step-5 heuristic (no html/css/client-js/template/static
+  asset), so neither collision-scan nor a qa-verify look pass applies. No branch was cut —
+  a k=1 direct Agent call works the tree — so there is no merge to revert and green main
+  was re-established by the full-suite run in (2) above.
+
+VALUE_LOOP candidate scan — EMPTY, and the DONE call
+
+  Cycle 45 named T-141 as the last thing standing between this target and DONE; cycle 46
+  closed T-141 but deliberately did NOT declare DONE, because it filed T-142 at its own
+  gate. T-142 is now closed, so the question is live and this cycle answers it.
+
+  Definition of done, RE-VERIFIED from evidence this cycle rather than from 46 cycles of
+  backlog labels — this is the highest-stakes claim of the run and it should not rest on
+  its own bookkeeping:
+
+    KI-1 closed with evidence  — REPORT.md:104 carries the grep-verified prior-art finding
+                                 (lunarphase-js v2.0.3 naive mean-synodic modulo, no bin
+                                 field; astronomia a real Meeus port but a dependency);
+                                 propagated to README.md:38-41.
+    KI-6 fixed                 — src/astro.js:358 throws TypeError for a result outside the
+                                 representable Date range, consistent with :281 and :346;
+                                 regression at test/astro.test.js:294.
+    KI-7 bounded               — PHASE_ILLUMINATION_CONSISTENCY_DOMAIN declared and
+                                 exported (src/astro.js:71, :363), stated at README.md:184,
+                                 SAMPLED consistency test at test/astro.test.js:491.
+    KI-5 pinned by test        — test/render.test.js:617 measures the documented East Asian
+                                 Width partition; passes in the run at (2).
+    102 pre-existing green     — 145/145 at (2).
+    zero new runtime deps      — package.json has no `dependencies` key of any kind; the
+                                 only match for the string is the description text.
+    named-surface rule         — T-142 is the exemplar: the surface was MEASURED unprotected
+                                 at the cycle-46 gate before the test was written.
+
+  Remaining candidates, every one scored against the two-question ratchet:
+
+    T-116 (README 'colour', '## Licence' heading) — Q1 weak maybe, Q2 no. Ratchet-rejected
+      on record at cycles 20, 21 and 22. An empty queue was already ruled not to promote it
+      and that ruling stands.
+    T-130 (precision of a comment's ECMA-262 claim in a test file) — fails Q1 outright: the
+      target user never reads it, and the claim is measured true on Node 20/22/24.
+    T-139 (comment recording endpoint indiscriminability) — fails Q1 the same way. Both are
+      documentation of true things, i.e. exactly the churn the SPEC taste note names as
+      this run's specific risk.
+    KI-4 (terminal font/width variance) — human-blocked by construction; no automated check
+      can cover it. Reported, not buildable.
+    KI-8 (MIT declared, no LICENSE file) — human-blocked and correctly so. The MIT body
+      needs a copyright line naming a legal person; neither a build agent nor the conductor
+      may invent one. What would settle it is already recorded on the issue.
+    KI-5 ACTUALLY fixed (glyph-set redesign) — a nice-to-have the SPEC itself excluded for
+      this posture ("the trickle posture and a 95%-consumed premium budget make an L-effort
+      visual redesign the wrong spend tonight — not because the defect is acceptable"), and
+      gear 1 permits S-effort sonnet builds only. Excluded by the spec and by the gear, not
+      by taste.
+
+  Nothing passes. Under the churn-breaker rule that is DONE, not stalled:
+  counters.consecutive_no_value is 0 and this cycle produced verified value, so there is no
+  stall anywhere near this target — it has run out of work that clears the bar, which is a
+  different and better thing. Target status -> done, phase -> DONE. Per cycle.md's
+  multi-target failover clause (all targets done -> early WRAP_UP now) this cycle routes
+  into WRAP_UP with ~6.5 h of clock unspent.
+
+  Spending that clock is the alternative and it is the wrong one. The allocator is at
+  trickle with allow_premium_pct 0, the weekly is 79% consumed against 73.79% elapsed, and
+  opus sits at 96%. The only work left is three items the ratchet has rejected up to three
+  times each and two issues that need a human. Building them would be precisely the diff
+  the SPEC taste note forbids: "mostly reworded prose and duplicate tests, which looks like
+  work and changes nothing." Stopping with budget unspent is the honest outcome, and it is
+  reported as a deliberate call rather than as an early exit.
