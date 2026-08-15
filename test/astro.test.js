@@ -524,3 +524,101 @@ test('KI-7: phaseName/illumination band discriminator holds across the declared 
     }
   }
 });
+
+// ---------------------------------------------------------------------------
+// T-129: ch.49 correction-table characterization pins.
+//
+// WHAT THIS PROVES: truePhaseJD() in src/astro.js (not exported -- reached
+// only through computeMoon's isInstantPhase/phaseName plateau, per
+// module.exports) carries ~65 hand-transcribed Meeus ch.49 coefficients: the
+// 25-term new/full periodic table, the 25-term quarter table, the 6-term W
+// asymmetry term, and the 14-entry A1-A14 additional corrections. A
+// conductor measurement (this item's filing, T-129) found that 5 of 7
+// plausible single-coefficient transcription errors (dropped digit,
+// transposed digits, sign flip) passed all 119 pre-existing tests while
+// shifting real instants by up to 72.5s (full moons) / 46.7s (quarter
+// instants) -- nothing re-ran the tables against a fixed value, so nothing
+// could catch one silently changing.
+//
+// This test pins the new/first-quarter/full/last-quarter instants of one
+// lunation to the exact millisecond the CURRENT tree computes, found through
+// the public API via computeMoon's isInstantPhase plateau (bracket-then-
+// bisect below; a naive bisection over the whole window does not work here,
+// because the plateau-membership test is not the single monotonic crossing a
+// plain bisection expects -- it can be entered and left multiple times
+// across a multi-lunation span). The 0.5-day edge-to-instant offset below is
+// the documented INSTANT_TOLERANCE_DAYS (src/astro.js), independently
+// asserted by the 'instant-phase tolerance is +/- 12 hours around the
+// instant' test above; consecutive quarter instants are ~7.38 days apart
+// (asserted by 'successive new moons are 29.53 +/- 0.5 days apart' above),
+// so a 6-hour coarse scan can never straddle two same-name plateaus.
+//
+// Sensitivity was checked by hand while writing this test (not part of the
+// suite): single-digit/sign mutations to the leading AND the smallest-
+// magnitude coefficient in each of the four families, plus A-series argument
+// constants/rates and the shared M' argument, each moved at least one of the
+// four pinned instants by several milliseconds up to tens of seconds --
+// comfortably clear of floating-point noise, since this is pure, fixed-order
+// IEEE-754 double arithmetic with no source of nondeterminism to be robust
+// against. The lunation used is in the year 2150 rather than near J2000:
+// T = k/1236.85 is ~1.5 there instead of ~0.2, which amplifies the
+// T^2-dependent sub-terms buried in some A-table arguments (e.g. A1's
+// "-0.009173 * T2") that are the weakest-signal coefficients to pin near
+// J2000.
+//
+// WHAT THIS DOES NOT PROVE: that the pinned values are astronomically
+// correct -- that is the job of the memory-sourced anchors above
+// (2000-01-06, the two eclipse dates), which this deliberately does not
+// duplicate or weaken. This test would pin a WRONG coefficient exactly as
+// happily as a right one; its only job is to make the tables unable to
+// change silently.
+// ---------------------------------------------------------------------------
+
+// Bracket-then-bisect the LEADING edge of the isInstantPhase plateau for
+// `phaseName` inside [startMs, endMs], to 1 ms precision (the finest grain
+// the public Date-based API exposes), then add back the 0.5-day tolerance to
+// recover the true phase instant.
+function findInstantEdge(phaseName, startMs, endMs) {
+  const STEP = 6 * HOUR_MS;
+  const isOn = (ms) => {
+    const m = moonAt(ms);
+    return m.isInstantPhase && m.phaseName === phaseName;
+  };
+  let prevMs = startMs;
+  let prevOn = isOn(startMs);
+  for (let t = startMs + STEP; t <= endMs; t += STEP) {
+    const on = isOn(t);
+    if (on && !prevOn) {
+      let a = prevMs, b = t;
+      while (b - a > 1) {
+        const m = Math.floor((a + b) / 2);
+        if (isOn(m)) b = m; else a = m;
+      }
+      return b + 0.5 * DAY_MS;
+    }
+    prevMs = t;
+    prevOn = on;
+  }
+  throw new Error(`no ${phaseName} instant-phase edge found in [${startMs}, ${endMs}]`);
+}
+
+test('T-129: ch.49 correction-table characterization pins (new/Q1/full/Q3, one lunation near year 2150)', () => {
+  const WINDOW_START = Date.UTC(2150, 0, 1);
+  const WINDOW_END = Date.UTC(2150, 1, 15);
+
+  // Pinned from the current tree; see the comment block above for what these
+  // do and do not prove. ISO strings are for human readability only -- the
+  // assertion is against the raw millisecond.
+  const pins = {
+    'first quarter': 5680775020361, // 2150-01-06T17:03:40.361Z
+    full: 5681349387208,            // 2150-01-13T08:36:27.208Z
+    'last quarter': 5681977044579,  // 2150-01-20T14:57:24.579Z
+    new: 5682683823037,             // 2150-01-28T19:17:03.037Z
+  };
+
+  for (const [phaseName, expectedMs] of Object.entries(pins)) {
+    const gotMs = findInstantEdge(phaseName, WINDOW_START, WINDOW_END);
+    assert.equal(gotMs, expectedMs,
+      `${phaseName}: computed ${new Date(gotMs).toISOString()} vs pinned ${new Date(expectedMs).toISOString()}`);
+  }
+});
