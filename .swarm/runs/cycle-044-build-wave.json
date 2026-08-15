@@ -1,0 +1,15 @@
+{
+  "cycle": 44,
+  "type": "build-wave",
+  "dispatch": "direct Agent (Workflow review-gated headless)",
+  "k": 1,
+  "item": "T-126",
+  "model": "haiku",
+  "agent_id": "a3d193a7cf04c61dc",
+  "subagent_tokens": 31986,
+  "tool_uses": 7,
+  "duration_ms": 62508,
+  "builder_claim": "7 citations examined; 2 lines CHANGED (src/args.js:106-112 -> 124-130; src/args.js:15 -> 13-23 with --compact line 17 -> 21); 5 CORRECT-ALREADY (CONTRACTS self-refs 33/60/67, src/astro.js:363, test/args.test.js:87); no substantive falsehoods found",
+  "conductor_verdict": "GATE PASS — 16/16 conductor-authored checks, incl. 3 discriminators proving the old citations were genuinely wrong; test_cmd 135/135 EXIT_STATUS=0",
+  "note": "builder claims are claims; every number was independently re-derived by the conductor. The item acceptance itself was false in both halves and was NOT given to the builder."
+}

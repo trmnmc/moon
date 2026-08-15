@@ -1,0 +1,22 @@
+cycle 44 | T-126 | conductor-authored verification gate | 2026-08-15T07:58:10.243Z
+Checks authored at verification time; the builder never saw them.
+
+PASS  args.js:13 opens OPTIONS | "const OPTIONS = {"
+PASS  args.js:23 closes OPTIONS | "};"
+PASS  OPTIONS 13-23 registers SIX flags | json,south,north,block,compact,help
+PASS  args.js:21 is the compact entry | "  compact: { type: 'boolean' },"
+PASS  args.js:124 opens return obj | "  return {"
+PASS  args.js:130 closes return obj | "  };"
+PASS  return 124-130 holds fifth key compact | present
+PASS  return obj has FIVE contract keys | json,hemisphere,block,compact,help
+PASS  args.test.js:87 is the cited test title | "test('the returned object has exactly the five contract keys', () => {"
+PASS  astro.js:363 is the current exports | "module.exports = { computeMoon, nextFullMoon, PHASE_NAMES, PHASE_ILLUMINATION_CONSISTENCY_DOMAIN };"
+PASS  CONTRACTS:33 frozen astro exports | "module.exports = { computeMoon, PHASE_NAMES }"
+PASS  CONTRACTS:60 frozen @returns | ok
+PASS  CONTRACTS:67 frozen Flags line | "Flags: `--json`, `--south`, `--north`, `--block`, `--help`/`-h`."
+--- discriminator: old numbers must NOT resolve ---
+PASS  OLD args.js:15 was NOT the OPTIONS opener | "  south: { type: 'boolean' },"
+PASS  OLD line 17 was NOT compact | "  block: { type: 'boolean' },"
+PASS  OLD 106-112 was NOT the return obj | "options: OPTIONS,"
+
+PASS=16 FAIL=0

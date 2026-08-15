@@ -129,7 +129,7 @@ Line 60 declares:
 @returns {{json:boolean, hemisphere:("north"|"south"|null), block:boolean, help:boolean}}
 ```
 
-`src/args.js:106-112` currently returns an object with an additional fifth key:
+`src/args.js:124-130` currently returns an object with an additional fifth key:
 
 ```js
 compact: parsed.values.compact === true,
@@ -143,7 +143,7 @@ Line 67 declares:
 Flags: `--json`, `--south`, `--north`, `--block`, `--help`/`-h`.
 ```
 
-`src/args.js:15` currently registers six flags in OPTIONS, including `--compact` on line 17.
+`src/args.js:13-23` currently registers six flags in OPTIONS, including `--compact` on line 21.
 
 ### Observable consequence
 
