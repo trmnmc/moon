@@ -200,6 +200,170 @@ test('positional arguments are rejected with a clear message', () => {
   );
 });
 
+// node:util wraps the offending token in ITS OWN single quotes inside its
+// ERR_PARSE_ARGS_* messages, so a naive "first quoted span" regex breaks whenever the
+// token itself is empty, is a lone apostrophe, or contains one. toUsageError must
+// recover the TRUE token in every one of those shapes, not just the common case.
+test('an empty positional argument still names a token in the error, not a dangling sentence', () => {
+  assert.throws(
+    () => parseArgs(['']),
+    (err) => {
+      assert.strictEqual(err.code, 'EUSAGE');
+      assert.strictEqual(
+        err.message,
+        "unexpected argument '' - moon takes no positional arguments; run 'moon --help' to see the available options",
+      );
+      return true;
+    },
+  );
+});
+
+test('a token containing an apostrophe is named in full, not truncated at the apostrophe', () => {
+  assert.throws(
+    () => parseArgs(["it's"]),
+    (err) => {
+      assert.strictEqual(err.code, 'EUSAGE');
+      assert.strictEqual(
+        err.message,
+        "unexpected argument 'it's' - moon takes no positional arguments; run 'moon --help' to see the available options",
+      );
+      return true;
+    },
+  );
+});
+
+test('a token wrapped in its own apostrophes is named with those apostrophes intact', () => {
+  assert.throws(
+    () => parseArgs(["'x'"]),
+    (err) => {
+      assert.strictEqual(err.code, 'EUSAGE');
+      assert.strictEqual(
+        err.message,
+        "unexpected argument ''x'' - moon takes no positional arguments; run 'moon --help' to see the available options",
+      );
+      return true;
+    },
+  );
+});
+
+test('a token with an apostrophe in the middle is named in full', () => {
+  assert.throws(
+    () => parseArgs(["a'b'c"]),
+    (err) => {
+      assert.strictEqual(err.code, 'EUSAGE');
+      assert.strictEqual(
+        err.message,
+        "unexpected argument 'a'b'c' - moon takes no positional arguments; run 'moon --help' to see the available options",
+      );
+      return true;
+    },
+  );
+});
+
+test('a token that is a single lone apostrophe is named, not dropped', () => {
+  assert.throws(
+    () => parseArgs(["'"]),
+    (err) => {
+      assert.strictEqual(err.code, 'EUSAGE');
+      assert.strictEqual(
+        err.message,
+        "unexpected argument ''' - moon takes no positional arguments; run 'moon --help' to see the available options",
+      );
+      return true;
+    },
+  );
+});
+
+// These tokens contain no apostrophes, so the fix for the cases above must not perturb
+// them: pinned to the exact pre-existing message so a future change to the recovery
+// regex (or to node:util's own wording, across a Node upgrade) is caught immediately.
+test('token recovery stays byte-identical for tokens with no apostrophes', () => {
+  const expected = [
+    [['bogus'], "unexpected argument 'bogus' - moon takes no positional arguments; run 'moon --help' to see the available options"],
+    [['   '], "unexpected argument '   ' - moon takes no positional arguments; run 'moon --help' to see the available options"],
+    [['-'], "unexpected argument '-' - moon takes no positional arguments; run 'moon --help' to see the available options"],
+    [['--bogus'], "unknown option '--bogus' - run 'moon --help' to see the available options"],
+    [['-x'], "unknown option '-x' - run 'moon --help' to see the available options"],
+    [['--json=1'], "option '--json' is a flag and takes no value - run 'moon --help' to see the available options"],
+    [['--jsno'], "unknown option '--jsno' - run 'moon --help' to see the available options"],
+    [['--sotuh'], "unknown option '--sotuh' - run 'moon --help' to see the available options"],
+    [['--helpp'], "unknown option '--helpp' - run 'moon --help' to see the available options"],
+    [['---'], "unknown option '---' - run 'moon --help' to see the available options"],
+    [['--='], "unknown option '--=' - run 'moon --help' to see the available options"],
+    [['-jh'], "unknown option '-j' - run 'moon --help' to see the available options"],
+    [['-h=2'], "unknown option '-=' - run 'moon --help' to see the available options"],
+  ];
+  for (const [argv, message] of expected) {
+    assert.throws(
+      () => parseArgs(argv),
+      (err) => {
+        assert.strictEqual(err.code, 'EUSAGE', `${JSON.stringify(argv)} -> code`);
+        assert.strictEqual(err.message, message, `${JSON.stringify(argv)} -> message`);
+        return true;
+      },
+      `${JSON.stringify(argv)} should stay byte-identical`,
+    );
+  }
+});
+
+// Pins the assumption toUsageError's token recovery relies on: each of the three
+// ERR_PARSE_ARGS_* messages we translate contains exactly one quoted span, so a greedy
+// match anchored on the first and last quote in the string is safe. If a future Node
+// version adds a second quoted span to any of these messages (e.g. a "did you mean"
+// suggestion), this test fails loudly instead of the recovery silently mis-parsing.
+test('node:util ERR_PARSE_ARGS_* messages contain exactly one quoted span (pins the assumption toUsageError relies on)', () => {
+  const { parseArgs: nodeParseArgs } = require('node:util');
+  const options = {
+    json: { type: 'boolean' },
+    south: { type: 'boolean' },
+    north: { type: 'boolean' },
+    block: { type: 'boolean' },
+    compact: { type: 'boolean' },
+    help: { type: 'boolean', short: 'h' },
+  };
+  const probes = [
+    { args: [''], code: 'ERR_PARSE_ARGS_UNEXPECTED_POSITIONAL' },
+    { args: ['--bogus'], code: 'ERR_PARSE_ARGS_UNKNOWN_OPTION' },
+    { args: ['--json=1'], code: 'ERR_PARSE_ARGS_INVALID_OPTION_VALUE' },
+  ];
+  for (const { args, code } of probes) {
+    try {
+      nodeParseArgs({ args, options, strict: true, allowPositionals: false, tokens: true });
+      assert.fail(`expected ${JSON.stringify(args)} to throw`);
+    } catch (err) {
+      assert.strictEqual(err.code, code);
+      const quoteCount = (err.message.match(/'/g) || []).length;
+      assert.strictEqual(
+        quoteCount,
+        2,
+        `expected exactly one quoted span (2 quote chars) in: ${JSON.stringify(err.message)}`,
+      );
+    }
+  }
+});
+
+// A token containing a newline: the PRE-EXISTING `[^']+` rule already matched newlines
+// (character classes are not newline-limited the way "." is), so this was never a
+// one-line message to begin with for this input - node:util embeds the raw newline
+// itself. `s` (dotAll) on the new regex exists to keep that exact pre-existing behavior
+// rather than regress it, since plain `.` alone would stop at the newline. This is a
+// parity test, not a new-behavior test: it is expected to pass under both the old rule
+// and the new one, which is exactly what it proves.
+test('a token containing a newline is still recovered in full, matching pre-fix behavior', () => {
+  assert.throws(
+    () => parseArgs(['a\nb']),
+    (err) => {
+      assert.strictEqual(err.code, 'EUSAGE');
+      assert.strictEqual(
+        err.message,
+        "unexpected argument 'a\nb' - moon takes no positional arguments; " +
+          "run 'moon --help' to see the available options",
+      );
+      return true;
+    },
+  );
+});
+
 test('passing a value to a boolean flag is rejected with a clear message', () => {
   assert.throws(
     () => parseArgs(['--json=yes']),

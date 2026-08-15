@@ -46,22 +46,8 @@ function usageError(message) {
  */
 function toUsageError(err) {
   const hint = "run 'moon --help' to see the available options";
-  // node:util quotes the offending token in its message with ITS OWN single quotes, so
-  // the token itself may contain apostrophes (or be empty, or be a lone apostrophe) and
-  // still be wrapped correctly - e.g. `it's` -> "...argument 'it's'...", `'x'` ->
-  // "...argument ''x''...". A non-greedy or negated-class match stops at the FIRST quote
-  // it finds, which is wrong whenever the token has one of its own; instead we rely on
-  // node:util's three ERR_PARSE_ARGS_* messages here each containing EXACTLY ONE quoted
-  // span and no other apostrophes (measured directly - see test/args.test.js), so the
-  // greedy `.*` is guaranteed to span the whole token and stop at the true closing quote
-  // (the last one in the string) rather than the first. `s` (dotAll) so `.` also matches
-  // "\n" - the previous `[^']+` rule already matched newlines (character classes aren't
-  // newline-limited the way `.` is), so dotAll is what keeps a token containing a
-  // newline behaving exactly as it did before this fix, rather than regressing it.
-  // A future node:util wording change that adds a second quoted span (e.g. a "did you
-  // mean" suggestion) would silently break the "exactly one span" assumption; the
-  // pinning test below exists so a Node upgrade that changes the wording fails loudly.
-  const quoted = /'(.*)'/s.exec(err.message);
+  // node:util quotes the offending token in its message; recover it so we can name it.
+  const quoted = /'([^']+)'/.exec(err.message);
   const token = quoted ? ` '${quoted[1]}'` : '';
 
   switch (err.code) {

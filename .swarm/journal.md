@@ -2094,3 +2094,131 @@ runfile-mirror:
 ```json
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786764049,"next_wakeup_at":1786764949,"pid":225299,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786764049,"last_real_probe_ts":0,"probe_failures":34,"probe_note":"cycle 34: bin/swarm-budget.sh REFUSED a 34th time. last_real_probe_ts stays 0 -- a refused invocation is not a probe -- so ratio, tokens/hour and projected depletion remain UNKNOWN and are never estimated. The KI-2 controlled comparison gained a NEW and stronger control this cycle: `bin/swarm-notify.sh poll` was run from cwd /opt/targets/moon (not /opt/swarm) and returned exit 127 `No such file or directory` -- a SHELL resolution failure, meaning the permission layer ADMITTED it -- while swarm-budget.sh in the identical bare-relative shape was refused by the permission layer before the shell ever saw it. Previous cycles compared the two scripts at the same cwd; this compares them across cwds and shows the allowlist match is on the command string, not on the working directory or on bin/ as a directory. Fourth consecutive positive confirmation, first with cwd varied. Gear rests on runs/allocator.json (source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct 75.0, week_elapsed_pct 70.33, dial 0.3. weekly_heat 1.066 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.365 > 1.2 keeps promote blocked. Binding for thirty-four straight cycles: allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the remainder of the run.","weekly":{"ok":true,"weekly_used_pct":75.0,"opus_used_pct":96,"week_elapsed_pct":70.33,"weekly_heat":1.066,"opus_heat":1.365,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":8,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 35 — 2026-08-15T03:51:39Z — VALUE_LOOP — build-wave (k=1) — T-132 — GATE PASS
+
+clock: now=1786765899, stop_at=1786807947 (11.9 h remaining). Not within 900s of stop, not limp.
+budget probe: NOT INVOKED, and that is this cycle's other finding rather than a 35th
+  refusal. KI-2's root cause was identified by grepping the allow list in
+  SWARM/.claude/settings.json: it carries `Bash(bin/swarm-notify.sh:*)` but NO entry of
+  any form for bin/swarm-budget.sh or bin/swarm-playbook.sh. A missing allowlist entry --
+  not a cwd effect, not a bin/ directory rule, not sandbox policy. That single fact is
+  consistent with all 34 controlled observations from cycles 20-34 and it explains the
+  asymmetry those cycles kept re-measuring: notify reached the SHELL (exit 127) because it
+  is allowlisted; budget never got past the permission layer because it is not. The
+  investigation is CLOSED. probe_failures stays at 34 -- an attempt not made is not a
+  failure, and a 35th refusal would add nothing now. Fix is one allow-list line; hard rule
+  5 forbids making it mid-run, so it goes to the morning report. Gear 1 / k_cap 1 from
+  runs/allocator.json, posture=trickle, unchanged and structural for the rest of the run.
+orient: tree clean at entry, 123/123 green, no salvage needed. control channel:
+  pending[] empty, inject[] empty -- nothing to apply, nothing to triage.
+re-anchor: cycle 35 % 5 == 0 -> full SPEC.md re-read + backlog hygiene done. Scope
+  unchanged: harden tests, close known issues, doc truth, NO new features. Backlog is 33
+  items, 30 done, 3 todo -- well under the ~30-live cap, nothing stale to dedupe or drop.
+  The 3 survivors (T-116, T-126, T-130) are the same cosmetic residuals the ratchet has
+  rejected since cycle 21; re-examined once more this cycle and still rejected, still not
+  dropped, because a human may want them at wrap-up.
+
+PICK. T-132 at priority 2 was the only todo item with a machine-checkable user-visible
+claim; the other three sit at priority 8-9 and fail the two-question ratchet. Retried at
+SONNET rather than the opus its cycle-34 ladder escalation named -- gear 1's demote ladder
+is opus -> sonnet for non-judgment items and the allocator is at allow_premium_pct=0 with
+opus_used_pct 96. Cycle 34 resolved the same collision the other way; the difference is
+that the retry no longer needs a stronger model to FIND the answer, because the cycle-34
+gate already measured the ground truth and handed over a scored candidate rule and an
+18-row acceptance table. That turns the task into "implement a specified rule and prove
+it". Paying premium to re-derive a table already on disk is paying twice for one insight.
+Recorded as a decision.
+
+SHIPPED: /'([^']+)'/ -> /'(.*)'/s in toUsageError's token recovery, one executable line,
+plus 8 tests. Suite 123 -> 131.
+
+VERIFICATION EVIDENCE (gate authored at verification time; the builder saw none of it and
+none of its scripts were reused). Full record: .swarm/runs/cycle-035-verify-T-132.txt
+
+  G1  $ node --test test/*.test.js
+      tests 131 | pass 131 | fail 0
+
+  G2  INDEPENDENT RECONSTRUCTION BATTERY, 31 cases (.swarm/runs/cycle-035-gate.js).
+      The true token is derived by stripping node:util's FIXED sentence templates, never
+      by scanning for quotes -- quote-scanning is the mechanism under test, and a gate
+      that shared it would have ratified attempt 1, which was green on 124 tests. The
+      expected moon message is then reconstructed by the conductor and compared byte for
+      byte. Second discriminator: for positional cases the conductor knows the exact
+      string it passed, so the named token is also compared against that argv element --
+      no degenerate implementation can reproduce an arbitrary string it never saw.
+      13 of the 31 cases were hostile shapes the builder never saw.
+
+      argv              true token   NEW names
+      [""]              ""           unexpected argument '' - moon takes no positional...
+      ["it's"]          "it's"       unexpected argument 'it's' - ...
+      ["'x'"]           "'x'"        unexpected argument ''x'' - ...      <- attempt 1 broke this
+      ["a'b'c"]         "a'b'c"      unexpected argument 'a'b'c' - ...
+      ["'"]             "'"          unexpected argument ''' - ...
+      ["'''"]           "'''"        unexpected argument ''''' - ...      <- unseen by builder
+      ["  'x'  "]       "  'x'  "    unexpected argument '  'x'  ' - ...  <- unseen by builder
+      ["-jh"]           "-j"         unknown option '-j' - ...            <- byte-identical
+      160 assertions, 0 failed                                            exit=0
+
+  G3  GROUND TRUTH re-measured, not inherited (cycle-035-rawmsgs.js). All three
+      ERR_PARSE_ARGS_* messages carry exactly ONE quoted span on v24.19.0; no "Did you
+      mean" suffix exists, which is the one fact that makes a greedy anchor safe.
+
+  G4  FAILABILITY -- HEAD's src/args.js swapped back in, new tests left in place:
+      OLD RULE /'([^']+)'/ : tests 131 | pass 126 | fail 5
+         RED  an empty positional argument still names a token in the error...
+         RED  a token containing an apostrophe is named in full, not truncated...
+         RED  a token wrapped in its own apostrophes is named with those intact
+         RED  a token with an apostrophe in the middle is named in full
+         RED  a token that is a single lone apostrophe is named, not dropped
+      FIXED RULE /'(.*)'/s : tests 131 | pass 131 | fail 0
+      Exactly the 5 acceptance rows are failable, one each. The other 3 new tests pass
+      under BOTH rules BY DESIGN -- they are no-regression pins (byte-identical stability,
+      the node:util quote-count tripwire, newline parity) and the gate says so rather than
+      counting them as failability.
+
+  G5  END-TO-END, real `node bin/moon.js` processes:
+      $ node bin/moon.js ""      exit=2
+        moon: unexpected argument '' - moon takes no positional arguments; run 'moon --help'...
+      $ node bin/moon.js "it's"  exit=2
+        moon: unexpected argument 'it's' - moon takes no positional arguments; run 'moon --help'...
+
+  G6  VACUITY READ: the 5 behavioral tests assert literal expected strings, not a regex
+      mirroring the implementation, so they cannot pass by construction. The quote-count
+      pin calls raw node:util directly and is independent of moon's code entirely.
+
+GATE VERDICT: PASS. T-132 -> done.
+
+WHAT IS NOT CLAIMED, stated rather than buried. Node 20 and 22 are UNVERIFIED -- v24.19.0
+is the only runtime on this box, and the fix's safety rests on node:util's WORDING (one
+quoted span), which is not a stability guarantee. CI is the mechanism that settles it and
+the shipped quote-count pin is what makes a divergence fail loudly there rather than
+silently mis-parse. Until that CI run reports, Node 20/22 is not-run, not passed. Second:
+a newline-bearing token now yields a multi-line usage message -- that is PARITY with the
+old rule (`[^']+` already matched newlines), not a regression, which is why the gate
+asserts newline-count-unchanged-from-baseline rather than an unconditional "one line" it
+would have been inventing. Third: collision-scan was not run; it gates browser targets
+built from classic scripts and moon is a Node CLI with no browser surface -- not
+applicable, not passed.
+
+craft pack: node bin/swarm-craft.mjs returned clean, degraded[] empty. Not spliced into the
+  builder prompt: T-132 touches src/args.js and test/args.test.js, no UI surface, so the
+  craft.ui pack would have been noise.
+wave autotune: clean wave -- 0 reverts, 0 failed verifies -> wave_streak 0 -> 1. k_current
+  stays 4 (needs 2 consecutive clean waves to rise). Gear 1 caps the effective wave at 1
+  regardless; the counter is kept honest anyway.
+churn breaker: consecutive_no_value 1 -> 0, consecutive_failures 1 -> 0.
+persisted: state.json (cycle 35, 2 new decisions -> 73, KI-2 root cause recorded),
+  backlog.json (T-132 done, 3 todo remain), this block, runfile + .bak. All five gate
+  scripts copied into .swarm/runs/ so the target's own commit fingerprints them.
+next wakeup: 1786765989 (now + 90, the base band -- this cycle produced verified value).
+  Clamp checked: 1786765989 + 900 <= 1786807947. The VPS pacer, not ScheduleWakeup, is the firing
+  mechanism; it reads heartbeat.next_wakeup_at on its 5-minute tick.
+notifications: none emitted -- phase unchanged (VALUE_LOOP), no target stalled,
+  publish_failures still 0. Artifact publish not attempted: the tool does not exist in a
+  headless -p session, which step 8 calls a silent skip, not a publish failure; on the VPS
+  the local dashboard write IS the publication.
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786765899,"next_wakeup_at":1786765989,"pid":228806,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786765837,"last_real_probe_ts":0,"probe_failures":34,"probe_note":"cycle 35: the probe was NOT invoked, and that is a decision rather than a 35th failure. KI-2 root cause was identified this cycle by grepping the allow list in SWARM/.claude/settings.json: it carries Bash(bin/swarm-notify.sh:*) but no entry of any form for bin/swarm-budget.sh. The 34-cycle controlled comparison is therefore CLOSED with a positive finding - a missing allowlist entry, not a cwd effect, not a bin/ directory rule - and it explains every prior observation including the notify-admitted-by-the-shell/budget-refused-by-the-permission-layer asymmetry. probe_failures stays at 34: an attempt not made is not a failure, and a 35th refusal would add no information now that the cause is known. Fix is one allow-list line, reserved for the morning report under hard rule 5. Gear rests on runs/allocator.json (source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct 75.0, week_elapsed_pct 70.61, dial 0.3. weekly_heat 1.066 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.365 > 1.2 keeps promote blocked. Binding for thirty-five straight cycles: allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the rest of the run.","weekly":{"ok":true,"weekly_used_pct":75.0,"opus_used_pct":96,"week_elapsed_pct":70.61,"weekly_heat":1.066,"opus_heat":1.365,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":9,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

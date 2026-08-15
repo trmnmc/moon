@@ -1,0 +1,184 @@
+CYCLE 35 VERIFICATION GATE — T-132 (attempt 2) — VERDICT: PASS
+================================================================================
+Item: src/args.js truncates or drops the offending token in usage errors whenever
+      the token is empty or contains an apostrophe.
+Attempt 1 (cycle 34) shipped /'([^']*)'/ , went 124/124 GREEN, and was REVERTED:
+      it regressed moon "'x'" from naming `x` to naming nothing.
+Attempt 2 (this cycle) ships /'(.*)'/s (greedy + dotAll), + 8 tests.
+
+Gate authored at verification time by the conductor. The builder saw none of it, and
+the builder's own scripts were not reused. Scripts: .swarm/runs/cycle-035-gate.js,
+cycle-035-rawmsgs.js, cycle-035-failability.py, cycle-035-cli-e2e.py.
+
+--------------------------------------------------------------------------------
+G0 — DIFF SCOPE
+--------------------------------------------------------------------------------
+$ git diff --stat
+ src/args.js       |  18 +++++-
+ test/args.test.js | 164 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 180 insertions(+), 2 deletions(-)
+
+The only executable change in src/args.js is the recovery line; the other 17 lines are
+comment. No new files, no new flags, no dependencies, the three ERR_PARSE_ARGS_*
+sentence templates untouched.
+-  const quoted = /'([^']+)'/.exec(err.message);
++  const quoted = /'(.*)'/s.exec(err.message);
+
+--------------------------------------------------------------------------------
+G1 — FULL SUITE (conductor-run, not reported by the builder)
+--------------------------------------------------------------------------------
+$ node --test test/*.test.js
+ℹ tests 131
+ℹ pass 131
+ℹ fail 0
+ℹ duration_ms 2178.817917          (123 -> 131; 8 new)
+
+--------------------------------------------------------------------------------
+G2 — INDEPENDENT RECONSTRUCTION BATTERY (cycle-035-gate.js) — the load-bearing check
+--------------------------------------------------------------------------------
+WHY THIS SHAPE. The mechanism under test is "find the token by scanning for quotes".
+A gate that recovers the token the same way proves nothing. So the TRUE token here is
+derived by stripping node:util's FIXED sentence templates, measured this cycle:
+
+  ERR_PARSE_ARGS_UNEXPECTED_POSITIONAL  "Unexpected argument '<T>'. This command does
+                                         not take positional arguments"
+  ERR_PARSE_ARGS_UNKNOWN_OPTION         "Unknown option '<T>'"
+  ERR_PARSE_ARGS_INVALID_OPTION_VALUE   "Option '<T>' does not take an argument"
+
+The expected moon message is then RECONSTRUCTED by the conductor from moon's own three
+templates and compared byte-for-byte. A template that stops matching fails the gate
+loudly rather than degrading silently — so this doubles as the node:util wording pin.
+
+SECOND DISCRIMINATOR: for every positional case the conductor knows the exact string it
+passed, so the named token is also compared against the argv element itself. A faked or
+degenerate recovery cannot satisfy that — it would have to reproduce an arbitrary input
+string it never saw.
+
+31 cases: the 5 T-132 must-change rows, the 13 must-stay-byte-identical rows, and 13
+HOSTILE cases the builder never saw (nested/tripled apostrophes, apostrophes with
+surrounding whitespace, two apostrophe-bearing positionals, an apostrophe token behind
+a valid flag, a backslash token, a Unicode en-dash, `--it's`, `--json='x'`,
+`--json=it's`, and two newline-bearing tokens).
+
+$ node .swarm/runs/cycle-035-gate.js
+node v24.19.0
+argv                  true token      OLD names       NEW names
+----------------------------------------------------------------------------------------
+[""]                  ""              "unexpected argu"unexpected argument '' - moon takes no positi
+["it's"]              "it's"          "unexpected argu"unexpected argument 'it's' - moon takes no po
+["'x'"]               "'x'"           "unexpected argu"unexpected argument ''x'' - moon takes no pos
+["a'b'c"]             "a'b'c"         "unexpected argu"unexpected argument 'a'b'c' - moon takes no p
+["'"]                 "'"             "unexpected argu"unexpected argument ''' - moon takes no posit
+["bogus"]             "bogus"         "unexpected argu"unexpected argument 'bogus' - moon takes no p
+["   "]               "   "           "unexpected argu"unexpected argument '   ' - moon takes no pos
+["-"]                 "-"             "unexpected argu"unexpected argument '-' - moon takes no posit
+["--bogus"]           "--bogus"       "unknown option "unknown option '--bogus' - run 'moon --help'
+["-x"]                "-x"            "unknown option "unknown option '-x' - run 'moon --help' to se
+["--json=1"]          "--json"        "option '--json'"option '--json' is a flag and takes no value
+["--jsno"]            "--jsno"        "unknown option "unknown option '--jsno' - run 'moon --help' t
+["--sotuh"]           "--sotuh"       "unknown option "unknown option '--sotuh' - run 'moon --help'
+["--helpp"]           "--helpp"       "unknown option "unknown option '--helpp' - run 'moon --help'
+["---"]               "---"           "unknown option "unknown option '---' - run 'moon --help' to s
+["--="]               "--="           "unknown option "unknown option '--=' - run 'moon --help' to s
+["-jh"]               "-j"            "unknown option "unknown option '-j' - run 'moon --help' to se
+["-h=2"]              "-="            "unknown option "unknown option '-=' - run 'moon --help' to se
+["''"]                "''"            "unexpected argu"unexpected argument '''' - moon takes no posi
+["'''"]               "'''"           "unexpected argu"unexpected argument ''''' - moon takes no pos
+["  'x'  "]           "  'x'  "       "unexpected argu"unexpected argument '  'x'  ' - moon takes no
+["a'b","c'd"]         "a'b"           "unexpected argu"unexpected argument 'a'b' - moon takes no pos
+["--json","it's"]     "it's"          "unexpected argu"unexpected argument 'it's' - moon takes no po
+["don't","--json"]    "don't"         "unexpected argu"unexpected argument 'don't' - moon takes no p
+["\\"]                "\\"            "unexpected argu"unexpected argument '\\' - moon takes no posi
+["–json"]             "–json"         "unexpected argu"unexpected argument '–json' - moon takes no p
+["--it's"]            "--it's"        "unknown option "unknown option '--it's' - run 'moon --help' t
+["--json='x'"]        "--json"        "option '--json'"option '--json' is a flag and takes no value
+["--json=it's"]       "--json"        "option '--json'"option '--json' is a flag and takes no value
+["a\nb"]              "a\nb"          "unexpected argu"unexpected argument 'a\nb' - moon takes no po
+["'\n'"]              "'\n'"          "unexpected argu"unexpected argument ''\n'' - moon takes no po
+----------------------------------------------------------------------------------------
+160 assertions, 0 failed                                      exit=0
+
+Per case the gate asserts: message == conductor's reconstruction from the true token;
+err.code == 'EUSAGE'; err.stack == the single frame-free line; newline count unchanged
+from baseline (and zero for every single-line case); the 13 stability rows byte-identical
+to the HEAD baseline module; the 5 change rows actually different from it.
+
+THIS IS THE CHECK ATTEMPT 1 WOULD HAVE FAILED. Under /'([^']*)'/ , ["'x'"] renders
+`unexpected argument '' - ...` while the reconstruction from the true token `'x'` is
+`unexpected argument ''x'' - ...`.
+
+--------------------------------------------------------------------------------
+G3 — GROUND TRUTH (cycle-035-rawmsgs.js) — re-measured, not inherited
+--------------------------------------------------------------------------------
+node v24.19.0. Every one of the three ERR_PARSE_ARGS_* messages carries exactly ONE
+quoted span and no other apostrophes of node:util's own. Confirmed across 31 argv
+shapes; NO "Did you mean '--json'?" suffix exists on this version, which is the single
+fact that makes a greedy anchor safe. Raw quote counts rise only with apostrophes the
+USER supplied (["'''"] -> 5 quotes), never with a second node:util span.
+
+Cycle 34's table is therefore reproduced independently, not taken on trust.
+
+--------------------------------------------------------------------------------
+G4 — FAILABILITY (cycle-035-failability.py)
+--------------------------------------------------------------------------------
+HEAD's src/args.js swapped back in, the new tests left in place:
+
+OLD RULE /'([^']+)'/: {'tests': '131', 'pass': '126', 'fail': '5'}
+   RED  an empty positional argument still names a token in the error, not a dangling sentence
+   RED  a token containing an apostrophe is named in full, not truncated at the apostrophe
+   RED  a token wrapped in its own apostrophes is named with those apostrophes intact
+   RED  a token with an apostrophe in the middle is named in full
+   RED  a token that is a single lone apostrophe is named, not dropped
+
+FIXED RULE /'(.*)'/s: {'tests': '131', 'pass': '131', 'fail': '0'} | red: []
+restored: ["const quoted = /'(.*)'/s.exec(err.message);"]
+
+Exactly the 5 behavioral assertions are failable, one per acceptance row. The other 3
+new tests (byte-identical stability, the node:util quote-count pin, newline parity) pass
+under BOTH rules by design — they are no-regression pins, and the gate says so rather
+than counting them as failability.
+
+--------------------------------------------------------------------------------
+G5 — END-TO-END AT THE CLI (cycle-035-cli-e2e.py)
+--------------------------------------------------------------------------------
+Real `node bin/moon.js <arg>` processes, not module calls — the user-visible claim:
+
+argv=''         exit=2  stderr: moon: unexpected argument '' - moon takes no positional arguments; run 'moon --help' to see the available options
+argv="it's"     exit=2  stderr: moon: unexpected argument 'it's' - moon takes no positional arguments; run 'moon --help' to see the available options
+argv="'x'"      exit=2  stderr: moon: unexpected argument ''x'' - moon takes no positional arguments; run 'moon --help' to see the available options
+argv="a'b'c"    exit=2  stderr: moon: unexpected argument 'a'b'c' - moon takes no positional arguments; run 'moon --help' to see the available options
+argv="'"        exit=2  stderr: moon: unexpected argument ''' - moon takes no positional arguments; run 'moon --help' to see the available options
+argv='bogus'    exit=2  stderr: moon: unexpected argument 'bogus' - moon takes no positional arguments; run 'moon --help' to see the available options
+argv='--jsno'   exit=2  stderr: moon: unknown option '--jsno' - run 'moon --help' to see the available options
+argv='--json=1' exit=2  stderr: moon: option '--json' is a flag and takes no value - run 'moon --help' to see the available options
+
+stdout empty in every case; exit code 2 in every case.
+
+--------------------------------------------------------------------------------
+G6 — VACUITY READ OF THE SHIPPED TESTS
+--------------------------------------------------------------------------------
+The 5 behavioral tests assert against LITERAL expected strings, not against a regex
+mirroring the implementation — so they cannot pass by construction. The quote-count pin
+test calls raw node:util.parseArgs directly and is independent of moon's code entirely;
+it is the tripwire that turns a future node:util wording change into a loud CI failure
+instead of a silent mis-parse. No test asserts merely that "an error was thrown".
+
+--------------------------------------------------------------------------------
+WHAT IS *NOT* CLAIMED
+--------------------------------------------------------------------------------
+- Node 20 and 22 are NOT verified here. Everything above ran on v24.19.0, the only
+  runtime on this machine. The fix's correctness rests on node:util emitting exactly one
+  quoted span, which is a property of node:util's WORDING and not a stability guarantee.
+  CI (Node 20/22) is the mechanism that settles it, and the shipped quote-count pin is
+  what makes a divergence fail loudly there. Until that CI run reports, Node 20/22 is
+  unverified — not passed.
+- A token containing a newline is now recovered in full, so the message can contain a
+  newline. That is PARITY with the pre-existing rule, not a new behavior: `[^']+` already
+  matched newlines. The gate asserts the newline count is unchanged from baseline for
+  every case rather than asserting "one line" unconditionally, because asserting the
+  latter would have been asserting something main never did. Stated plainly rather than
+  buried: for a newline-bearing token, moon's usage error is not a single line, and was
+  not before this fix either.
+- collision-scan (cycle.md step 6.6) was NOT run: it gates browser targets built from
+  classic non-module scripts. moon is a Node CLI with no browser surface. Reported as
+  not-applicable, not as passed.
