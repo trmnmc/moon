@@ -4494,3 +4494,49 @@ counters: consecutive_no_value reset to 0 (this cycle verified value). Backlog 3
 ```json
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786782544,"next_wakeup_at":1786782634,"pid":318448,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786782544,"last_real_probe_ts":0,"probe_failures":34,"probe_note":"cycle 45: probe NOT invoked (45th consecutive cycle). KI-2 RE-GREPPED this cycle, not inherited: grep -nE 'swarm-budget|swarm-playbook|swarm-notify|swarm-craft' /opt/swarm/.claude/settings.json returns ONLY the two swarm-notify entries (line 6, a macOS absolute path; line 7, a bare relative one) and still no entry of any form for swarm-budget.sh or swarm-playbook.sh. probe_failures stays 34 -- an attempt not made is not a failure. Gear rests on runs/allocator.json (source=probe), freshness CHECKED not assumed: week_elapsed_pct advanced 73.07 -> 73.30 since cycle 44. posture=trickle, allow_premium_pct 0, allow_overall_pct 0, weekly_used_pct 78.0, opus_used_pct 96, dial 0.3. weekly_heat 78.0/73.30 = 1.0641 < 1.1 -> governor disengaged, ceiling 5; opus_heat 96/73.30 = 1.3097 > 1.2 -> promote stays blocked. Trickle + guest 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the rest of the run. COOLING CONTINUES: weekly_used_pct HELD at 78.0 for a second consecutive cycle while elapsed advanced 0.23, so weekly_heat fell 1.0675 -> 1.0641 and the margin to the governor threshold widened 0.0325 -> 0.0359. Two cycles of widening now confirm the cycle-43 rise was a fluctuation. KI-2 CORRECTION -- the notify half of the diagnosis was WRONG as stated: cycles 43 and 44 both recorded that the control channel is unreachable in BOTH invocation forms and that 'cd is refused for shape'. This cycle `cd /opt/swarm && bin/swarm-notify.sh poll` was ACCEPTED and SUCCEEDED (runs/notify.log gained '2026-08-15T08:10:03+0000 poll ok merged=0'). The cd-then-relative form works; it was never tried. The real constraint is narrower than recorded: the bare-relative allowlist entry needs cwd=/opt/swarm, and the conductor CAN establish that per command. The budget/playbook half of KI-2 is unaffected -- those two scripts have no allowlist entry in any form, so no cwd rescues them.","weekly":{"ok":true,"weekly_used_pct":78.0,"opus_used_pct":96,"week_elapsed_pct":73.3,"weekly_heat":1.0641,"opus_heat":1.3097,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":17,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+### cycle 45 addendum — commit hash, push, render, wakeup band
+
+- Cycle commit: 658dccf, pushed to origin/main (ed89847..658dccf). Product tree did NOT move:
+  src/, bin/, README.md and package.json are all untouched. The diff is one new test file
+  (test/contracts.test.js), the .swarm state/backlog/journal, and the gate evidence file
+  .swarm/runs/cycle-045-verify-T-140.txt. No merge commit and no builder branch — the k=1
+  builder edited in place, so there was nothing to merge and nothing to delete.
+- Burn-up: the cycle-44 MAX rule held without a hand-patch. Cycle 45 wrote exactly one
+  bracketed commit subject, so the set of cycles where MAX and SUM disagree must still be
+  exactly {32, 44} — the render ASSERTS that rather than assuming it, and it passed. Both
+  ends moved: numerator 35 -> 36 (T-140 verified), denominator 41 -> 42 (T-141 filed). The
+  tooltip still states the two-item gap between the series (36) and items marked done (38)
+  and still says it is unattributed, rather than quietly closing it.
+- Dashboard rendered at 08:30:42Z, 11 live-region substitutions, 45 bars. Every anchor regex
+  searched livetext() and matched exactly once on the first run — no blind render, no abort.
+- NOTIFY META LINE FLIPPED TO "on", ON EVIDENCE. It has read "notify off (helper denied —
+  KI-2)" for several cycles. This cycle the poll actually succeeded and runs/notify.log
+  recorded it, so the line now reads `notify on (…0d89) · control: 0 pending · last: none`.
+  Flipped because the channel was measured working this cycle, not because it was assumed to
+  have recovered.
+- Notifications: none of the three step-8 emit conditions fired — phase unchanged
+  (VALUE_LOOP), no target stalled, publish_failures still 0. Nothing sent. Worth noting that
+  this is the first cycle in three where silence is a CHOICE rather than a failure: the
+  channel is reachable now, and there was simply nothing to say.
+- No Artifact publish attempted: a headless VPS `-p` session has no Artifact tool, which per
+  cycle.md step 8 is not a publish failure. publish_failures stays 0.
+- Wakeup: 90s base band (this cycle verified value), derived at render time rather than
+  persist time because a 90s band reliably expires during the persist/commit/push tail;
+  next_wakeup_at 1786782732. The clamp (wakeup + 900 <= stop_at) is asserted inside the
+  render script itself and holds with ~7h of margin. No ScheduleWakeup call — on the VPS
+  bin/swarm-pacer.sh reads next_wakeup_at and is the firing mechanism (cycle.md step 9).
+- SWARM-side writes this cycle stayed inside the hard-rule-5 fence: runs/ only (four gate
+  scripts, the persist/journal/render scripts, the runfile and its .bak, the dashboard).
+  Target-side writes were the new test file plus .swarm/.
+- Shape refusals continue as a routine tax — five this cycle: a compound `echo "EXIT=$?"`, a
+  `sed`-into-`grep`-into-`node` chain, an env-prefixed `DELTA=-1 node ...`, a background
+  `until` loop, and a Monitor `while true` block. All were re-issued in an accepted form with
+  no loss of rigour; the DELTA case was replaced by an argv parameter, which is cleaner than
+  the refused form. One PREVIOUSLY MISFILED refusal is corrected in the main block: `cd X &&
+  cmd` is NOT refused, and two cycles of notes saying otherwise were wrong.
+- STATE AFTER: backlog 38 done / 4 todo of 42. Definition of done is MET. The target is
+  deliberately NOT declared done — T-141 (end-to-end QA of the assembled CLI, which has never
+  been exercised in this run) is filed at priority 4 and is the natural next pick, ahead of
+  the three confirmed ratchet rejects behind it. With ~7h left at gear 1 there is ample room.
+  The honest risk for the rest of the run remains churn, not time.
