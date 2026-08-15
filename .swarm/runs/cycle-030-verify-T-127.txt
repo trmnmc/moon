@@ -1,0 +1,64 @@
+=== BASELINE ===
+exit 0
+✔ KI-5 pin: disc glyph set matches the documented East Asian Width partition (29.378246ms)
+ℹ tests 117
+ℹ suites 0
+ℹ pass 117
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2015.889011
+
+=== M1 extra payload key not in any doc ===
+expected: all three doc comparisons fail
+exit 1 | failing: ['--json payload keys, HELP fields, README table, and README example all agree', 'failing tests:', '--json payload keys, HELP fields, README table, and README example all agree']
+    AssertionError [ERR_ASSERTION]: HELP --json fields block disagrees with the actual payload keys
+
+=== M2 HELP fields block loses the 'age' entry ===
+expected: HELP comparison fails
+exit 1 | failing: ['--json payload keys, HELP fields, README table, and README example all agree', 'failing tests:', '--json payload keys, HELP fields, README table, and README example all agree']
+    AssertionError [ERR_ASSERTION]: HELP --json fields block disagrees with the actual payload keys
+
+=== M3 README table loses the cycleFraction row ===
+expected: README table comparison fails
+exit 1 | failing: ['--json payload keys, HELP fields, README table, and README example all agree', 'failing tests:', '--json payload keys, HELP fields, README table, and README example all agree']
+    AssertionError [ERR_ASSERTION]: README field table disagrees with the actual payload keys
+
+=== M4 README example renames julianDay ===
+expected: README example comparison fails
+exit 1 | failing: ['--json payload keys, HELP fields, README table, and README example all agree', 'failing tests:', '--json payload keys, HELP fields, README table, and README example all agree']
+    AssertionError [ERR_ASSERTION]: README fenced json example disagrees with the actual payload keys
+
+=== M5 HELP section header renamed (anti-vacuity) ===
+expected: parser must ERROR, never silently compare empty sets
+exit 1 | failing: ['the three documented --json field lists parse to something non-empty', '--json payload keys, HELP fields, README table, and README example all agree', 'failing tests:', 'the three documented --json field lists parse to something non-empty', '--json payload keys, HELP fields, README table, and README example all agree']
+    AssertionError [ERR_ASSERTION]: HELP text has no --json fields section to parse
+    AssertionError [ERR_ASSERTION]: HELP text has no --json fields section to parse
+
+=== M6 payload+HELP renamed, README left stale (discriminator) ===
+expected: README sources fail, HELP comparison PASSES
+exit 1 | failing: ['--json is parseable, carries the documented fields, and is not a raw float dump', '--json payload keys, HELP fields, README table, and README example all agree', 'failing tests:', '--json is parseable, carries the documented fields, and is not a raw float dump', '--json payload keys, HELP fields, README table, and README example all agree']
+    AssertionError [ERR_ASSERTION]: README field table disagrees with the actual payload keys
+
+=== RESTORE ===
+test/cli.test.js | 76 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 76 insertions(+)
+=== POST-GATE SUITE === exit 0
+ℹ tests 117
+ℹ suites 0
+ℹ pass 117
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2113.723187
+
+=== SUMMARY ===
+green  | exit=0 | BASELINE | failing=[]
+BITES  | exit=1 | M1 extra payload key not in any doc | failing=['--json payload keys, HELP fields, README table, and README example all agree', 'failing tests:', '--json payload keys, HELP fields, README table, and README example all agree']
+BITES  | exit=1 | M2 HELP fields block loses the 'age' entry | failing=['--json payload keys, HELP fields, README table, and README example all agree', 'failing tests:', '--json payload keys, HELP fields, README table, and README example all agree']
+BITES  | exit=1 | M3 README table loses the cycleFraction row | failing=['--json payload keys, HELP fields, README table, and README example all agree', 'failing tests:', '--json payload keys, HELP fields, README table, and README example all agree']
+BITES  | exit=1 | M4 README example renames julianDay | failing=['--json payload keys, HELP fields, README table, and README example all agree', 'failing tests:', '--json payload keys, HELP fields, README table, and README example all agree']
+BITES  | exit=1 | M5 HELP section header renamed (anti-vacuity) | failing=['the three documented --json field lists parse to something non-empty', '--json payload keys, HELP fields, README table, and README example all agree', 'failing tests:', 'the three documented --json field lists parse to something non-empty', '--json payload keys, HELP fields, README table, and README example all agree']
+BITES  | exit=1 | M6 payload+HELP renamed, README left stale (discriminator) | failing=['--json is parseable, carries the documented fields, and is not a raw float dump', '--json payload keys, HELP fields, README table, and README example all agree', 'failing tests:', '--json is parseable, carries the documented fields, and is not a raw float dump', '--json payload keys, HELP fields, README table, and README example all agree']

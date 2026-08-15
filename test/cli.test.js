@@ -11,8 +11,11 @@ const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { execFileSync, spawnSync } = require('node:child_process')
 const path = require('node:path')
+const fs = require('node:fs')
+const { HELP } = require('../bin/moon.js')
 
 const BIN = path.join(__dirname, '..', 'bin', 'moon.js')
+const README = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8')
 
 function run (args = [], tz = 'UTC') {
   return execFileSync(process.execPath, [BIN, ...args], {
@@ -88,6 +91,79 @@ test('--json hemisphere follows the override flag', () => {
 test('hemisphere is inferred from the ambient timezone when not overridden', () => {
   assert.equal(JSON.parse(run(['--json'], 'Australia/Sydney')).hemisphere, 'south')
   assert.equal(JSON.parse(run(['--json'], 'America/New_York')).hemisphere, 'north')
+})
+
+// The --json field set is documented in three independent places: the HELP string's
+// "--json fields" block, the README's field/meaning table, and the README's fenced
+// json example. Nothing else in this suite reads any of those documents — the field
+// list above (line ~68) is a hardcoded restatement that an extra field sails past.
+// These parsers pull the field names out of the documents themselves, so a payload
+// change that isn't mirrored in every document (or vice versa) fails here instead of
+// silently falsifying prose that claims the shape is "stable, documented below".
+
+// The fields block uses exactly two leading spaces before each field name; the
+// phaseAngle CAUTION note is a continuation indented to the description column (16
+// spaces), so it never matches "exactly two spaces then a non-space" and is skipped.
+function fieldsFromHelpText (help) {
+  const lines = help.split('\n')
+  const start = lines.findIndex((l) => l.trim() === '--json fields')
+  assert.ok(start >= 0, 'HELP text has no --json fields section to parse')
+  const names = []
+  for (let i = start + 1; i < lines.length; i++) {
+    const line = lines[i]
+    if (line.trim() === '') break
+    const m = /^ {2}(\S+)/.exec(line)
+    if (m) names.push(m[1])
+  }
+  return names
+}
+
+// The field table lives under the "## `--json`" heading, between that heading and the
+// next "## " heading. Row cells look like "| `name` | meaning |"; the flags table
+// elsewhere in the README uses the same pipe syntax but its first cell is "--json"
+// etc. (leading dashes), which \w+ does not match, so scoping to the section is a
+// belt-and-suspenders check rather than the only thing preventing cross-contamination.
+function fieldsFromReadmeTable (readme) {
+  const start = readme.indexOf('## `--json`')
+  assert.ok(start >= 0, 'README has no --json section to parse')
+  const end = readme.indexOf('\n## ', start + 1)
+  const section = readme.slice(start, end === -1 ? undefined : end)
+  const names = []
+  for (const line of section.split('\n')) {
+    const m = /^\| `([A-Za-z]\w*)` \|/.exec(line)
+    if (m) names.push(m[1])
+  }
+  return names
+}
+
+// The fenced ```json example is the third source: parse it as JSON and take its keys.
+function fieldsFromReadmeExample (readme) {
+  const m = /```json\n([\s\S]*?)\n```/.exec(readme)
+  assert.ok(m, 'README has no fenced json example to parse')
+  return Object.keys(JSON.parse(m[1]))
+}
+
+test('the three documented --json field lists parse to something non-empty', () => {
+  // A parser that silently extracts zero names and then finds two empty sets equal
+  // would pin nothing. Guard against document-shape drift breaking the parsers quietly.
+  assert.ok(fieldsFromHelpText(HELP).length > 0, 'HELP fields-block parse came back empty')
+  assert.ok(fieldsFromReadmeTable(README).length > 0, 'README table parse came back empty')
+  assert.ok(fieldsFromReadmeExample(README).length > 0, 'README example parse came back empty')
+})
+
+test('--json payload keys, HELP fields, README table, and README example all agree', () => {
+  const payloadKeys = Object.keys(JSON.parse(run(['--json'])))
+  const helpFields = fieldsFromHelpText(HELP)
+  const tableFields = fieldsFromReadmeTable(README)
+  const exampleFields = fieldsFromReadmeExample(README)
+
+  const payloadSet = new Set(payloadKeys)
+  assert.deepEqual(new Set(helpFields), payloadSet,
+    'HELP --json fields block disagrees with the actual payload keys')
+  assert.deepEqual(new Set(tableFields), payloadSet,
+    'README field table disagrees with the actual payload keys')
+  assert.deepEqual(new Set(exampleFields), payloadSet,
+    'README fenced json example disagrees with the actual payload keys')
 })
 
 test('--block draws a closed frame', () => {
