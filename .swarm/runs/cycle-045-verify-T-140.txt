@@ -1,0 +1,214 @@
+citation numbers found: 11
+  - src/astro.js:363 START
+  - src/args.js:124-130 START
+  - src/args.js:124-130 END
+  - src/args.js:13-23 START
+  - src/args.js:13-23 END
+  - test/args.test.js:87 START
+  - SELF "Line 33 declares"
+  - SELF "Line 60 declares"
+  - SELF "Line 67 declares"
+  - "on line 21"
+  - "on line 60"
+
+CONTROL unmutated: exit=0 -> GREEN
+  contracts.test.js passing assertions: 9
+  -2:kill  -1:kill  +1:kill  +2:kill   src/astro.js:363 START
+  -2:kill  -1:kill  +1:kill  +2:kill   src/args.js:124-130 START
+  -2:kill  -1:kill  +1:kill  +2:kill   src/args.js:124-130 END
+  -2:kill  -1:kill  +1:kill  +2:kill   src/args.js:13-23 START
+  -2:kill  -1:kill  +1:kill  +2:kill   src/args.js:13-23 END
+  -2:kill  -1:kill  +1:kill  +2:kill   test/args.test.js:87 START
+  -2:kill  -1:kill  +1:kill  +2:kill   SELF "Line 33 declares"
+  -2:kill  -1:kill  +1:kill  +2:kill   SELF "Line 60 declares"
+  -2:kill  -1:kill  +1:kill  +2:kill   SELF "Line 67 declares"
+  -2:kill  -1:kill  +1:kill  +2:kill   "on line 21"
+  -2:kill  -1:kill  +1:kill  +2:kill   "on line 60"
+
+CODE-SIDE SHIFTS (cited files moved under a fixed document):
+  kill    :: src/args.js shifted +1
+  kill    :: src/args.js shifted +2
+  kill    :: src/astro.js shifted +1
+  kill    :: src/astro.js shifted +2
+  kill    :: test/args.test.js shifted +1
+  kill    :: test/args.test.js shifted +2
+
+=== RE-GATE VERDICT ===
+mutants run: 50
+doc-side survivors: 0
+code-side survivors: 0
+control green: true
+VERDICT: PASS
+CONTROL: exit=0 -> GREEN
+
+DOC-SIDE SEMANTIC MUTANTS (line numbers untouched, the claim made false):
+  kill    :: flag count word: six -> seven
+  kill    :: ordinal: fifth -> sixth key
+  kill    :: quoted extra key renamed
+  kill    :: quoted astro exports drops nextFullMoon
+  kill    :: quoted test title altered
+  kill    :: named flag in prose: --compact -> --terse
+
+CODE-SIDE SEMANTIC MUTANTS (document untouched, the code made to diverge):
+  kill    :: src/args.js: rename OPTIONS entry compact -> terse
+  kill    :: src/astro.js: drop nextFullMoon from module.exports
+
+=== SEMANTIC GATE VERDICT ===
+survivors: 0
+VERDICT: PASS
+kill    :: whole drift section deleted (all citations vanish)
+         ✖ citation discovery finds at least as many citations as when this test was written (1.51984ms)
+kill    :: one citation deleted (src/astro.js:363 -> prose without a number)
+         ✖ citation discovery finds at least as many citations as when this test was written (2.299694ms)
+✔ no arguments: every flag off, hemisphere null (4.619946ms)
+✔ undefined argv is treated as no arguments (0.778491ms)
+✔ --json (0.577743ms)
+✔ --block (0.249952ms)
+✔ --south (0.252546ms)
+✔ --north (0.35863ms)
+✔ --help (0.284769ms)
+✔ -h is an alias for --help (1.554046ms)
+✔ the returned object has exactly the five contract keys (0.362609ms)
+✔ flag values are always real booleans, never undefined (0.36778ms)
+✔ flags combine in any order (0.852444ms)
+✔ --json --block together (both requested, caller decides precedence) (0.228721ms)
+✔ --south --north together: the last flag on the line wins (1.018924ms)
+✔ conflicting hemisphere flags never throw (0.35779ms)
+✔ repeating the same flag is harmless (0.184165ms)
+✔ an unknown long option is a clear usage error, not a stack trace (3.206201ms)
+✔ an unknown short option is a clear usage error (0.348542ms)
+✔ a near-miss typo of a real flag still errors rather than silently doing nothing (0.449957ms)
+✔ an unknown flag mixed in with valid flags still errors (0.253639ms)
+✔ positional arguments are rejected with a clear message (0.382709ms)
+✔ an empty positional argument still names a token in the error, not a dangling sentence (0.241616ms)
+✔ a token containing an apostrophe is named in full, not truncated at the apostrophe (0.190818ms)
+✔ a token wrapped in its own apostrophes is named with those apostrophes intact (0.175007ms)
+✔ a token with an apostrophe in the middle is named in full (0.377168ms)
+✔ a token that is a single lone apostrophe is named, not dropped (0.352269ms)
+✔ token recovery stays byte-identical for tokens with no apostrophes (1.285628ms)
+✔ node:util ERR_PARSE_ARGS_* messages contain exactly one quoted span (pins the assumption toUsageError relies on) (0.422235ms)
+✔ a token containing a newline is still recovered in full, matching pre-fix behavior (0.215235ms)
+✔ passing a value to a boolean flag is rejected with a clear message (0.445979ms)
+✔ every usage error carries code EUSAGE and a one-line message (0.453393ms)
+✔ argv is not mutated (0.213443ms)
+✔ -- terminator with nothing after it parses cleanly (0.20207ms)
+✔ PHASE_NAMES is the exact frozen contract array (3.773635ms)
+✔ computeMoon rejects non-Dates and invalid Dates (0.662417ms)
+✔ julianDay: J2000.0 epoch 2000-01-01T12:00Z is JD 2451545.0 (0.907979ms)
+✔ MoonState has the contract shape and value ranges (0.401695ms)
+✔ anchor: true new moon 2000-01-06 18:14 UTC within 1 hour (4.820084ms)
+✔ anchor: new moon at the 1999-08-11 total solar eclipse (2.995415ms)
+✔ anchor: new moon at the 2017-08-21 total solar eclipse (2.387463ms)
+✔ successive new moons are 29.53 +/- 0.5 days apart (2019-2024) (41.321957ms)
+✔ illumination ~0 at computed new moons, ~1 at computed full moons (12.540437ms)
+✔ illumination is 0.5 at the quarters and names them (4.324547ms)
+✔ illumination and phaseAngle agree across a full cycle (1.4056ms)
+✔ cycleFraction, age and phaseName stay consistent across a lunation (2.458351ms)
+✔ instant-phase tolerance is +/- 12 hours around the instant (0.980861ms)
+✔ ranges hold across a 40-year daily sweep (1995-2035) (149.947456ms)
+✔ nextFullMoon rejects non-Dates and invalid Dates (1.009746ms)
+✔ nextFullMoon throws TypeError (not a silent Invalid Date) when the result exceeds the Date range (12.191315ms)
+✔ nextFullMoon still succeeds for a valid Date just under the top of the range (5.542706ms)
+✔ nextFullMoon is strictly after its input and closes round-trip (0.334836ms)
+✔ nextFullMoon at a full-moon instant returns the NEXT one (0.148386ms)
+✔ consecutive full moons are 29.53 +/- 0.5 days apart (chained) (1.003475ms)
+✔ anchor: full moon of the 2000-01-21 total lunar eclipse (0.135751ms)
+✔ age reports true elapsed time and is never clamped to the mean lunation (0.127575ms)
+✔ age never exceeds the true maximum lunation length across 60 years (792.201456ms)
+✔ measured lunation length and new->full interval over 1990-2060 match the documented figures (881.276081ms)
+✔ KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled) (42.392863ms)
+✔ T-129: ch.49 correction-table characterization pins (new/Q1/full/Q3, one lunation near year 2150) (3.399804ms)
+✔ default output is exactly two lines: the phase line and the next full moon (77.342786ms)
+✔ --compact collapses to exactly one line (the MOTD/prompt interface) (93.862956ms)
+✔ the next-full-moon line is indented to the phase-name column (83.477413ms)
+✔ --south is the horizontal mirror of --north on the disc (109.464665ms)
+✔ --json is parseable, carries the documented fields, and is not a raw float dump (76.032901ms)
+✔ --json hemisphere follows the override flag (103.499084ms)
+✔ hemisphere is inferred from the ambient timezone when not overridden (141.936972ms)
+✔ the three documented --json field lists parse to something non-empty (1.007241ms)
+✔ --json payload keys, HELP fields, README table, and README example all agree (78.12859ms)
+✔ --block draws a closed frame (81.54654ms)
+✔ the three documented flag-set sources parse to something non-empty (0.998695ms)
+✔ every name the source-side parse extracts is honoured by parseArgs, and a name it does not register is rejected (3.21617ms)
+✔ OPTIONS, the HELP options block, and the README Options table agree on the accepted flag set (48.491672ms)
+✔ an unknown flag exits 2 with a clean one-line message on stderr (42.194309ms)
+✔ no emoji anywhere in any output mode (320.576485ms)
+✔ every successful invocation mode writes nothing to stderr (329.423291ms)
+✔ citation discovery finds at least as many citations as when this test was written (1.442301ms)
+✔ CONTRACTS.md citation src/astro.js#363-363 points at the construct it claims (3.084136ms)
+✔ CONTRACTS.md citation src/args.js#124-130 points at the construct it claims (2.243185ms)
+✔ CONTRACTS.md citation src/args.js#13-23 points at the construct it claims (0.558638ms)
+✔ CONTRACTS.md citation test/args.test.js#87-87 points at the construct it claims (0.498802ms)
+✔ CONTRACTS.md citation SELF#33-33 points at the construct it claims (0.308885ms)
+✔ CONTRACTS.md citation SELF#60-60 points at the construct it claims (0.631057ms)
+✔ CONTRACTS.md citation SELF#67-67 points at the construct it claims (0.256455ms)
+✔ CONTRACTS.md citation src/args.js#21-21 points at the construct it claims (0.700449ms)
+✔ northern zones across every continent (1.624181ms)
+✔ southern zones across every continent (0.378159ms)
+✔ every Australia/* zone is southern, including the legacy aliases (1.570108ms)
+✔ equator-adjacent zones: Africa straddles, so per-zone reasoning is required (0.221977ms)
+✔ equator-adjacent zones: South America and the Pacific straddle too (0.22857ms)
+✔ Indian/* is southern except the Maldives (0.291101ms)
+✔ legacy top-level aliases (0.199334ms)
+✔ lookup is case-insensitive (0.204164ms)
+✔ unknown, malformed and absent zones default to north and never throw (0.282365ms)
+✔ always returns exactly "north" or "south", never undefined (21.852291ms)
+✔ default argument reads the host timezone: southern host (199.58768ms)
+✔ default argument reads the host timezone: northern host (199.236503ms)
+✔ the static table agrees with every zone in the host tz database (8.257832ms)
+✔ explicit argument always beats the host timezone (43.638885ms)
+✔ bin.moon resolves to the exact file test/cli.test.js actually spawns (1.868101ms)
+✔ main resolves to the exact module test/astro.test.js actually requires (0.793469ms)
+✔ declares zero runtime and zero dev dependencies (0.220907ms)
+✔ every files[] allowlist entry exists on disk (0.303786ms)
+✔ every module reachable from bin.moon and main lives under a files[] entry (2.975245ms)
+✔ help does not mis-describe phaseAngle, and warns about the inverse (50.733483ms)
+✔ applying the textbook formula to phaseAngle really does invert illumination (68.829061ms)
+✔ single-digit full-moon days keep their leading pad (84.987854ms)
+✔ block next-full-moon line aligns with the block label column (71.607067ms)
+✔ help stays within 80 columns (51.679096ms)
+✔ next-full-moon date carries the year when it falls in a later calendar year (68.540896ms)
+✔ next-full-moon date omits the year when it falls in the current calendar year (70.790593ms)
+✔ README Install section leads with a command that actually runs (78.17011ms)
+✔ README Install section labels every surviving placeholder (0.857844ms)
+✔ README zshrc prompt snippet does not use the npx fetch-on-render form (3.817781ms)
+✔ T-134 — README headline fence matches renderLine(moon, "north") (1.18234ms)
+✔ T-134 — README `--block` fence (minus its next-full-moon line) matches renderBlock(moon, "north") (3.920308ms)
+✔ T-134 — README north/south sweep table rows are self-consistent and reproducible (19.498593ms)
+✔ T-135/T-136 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce (61.818705ms)
+✔ renderLine: exact output across the full cycle, northern hemisphere (6.024967ms)
+✔ renderLine: exact output across the full cycle, southern hemisphere (1.300348ms)
+✔ renderLine: the southern disc is the northern disc mirrored (0.990068ms)
+✔ renderBlock: every southern art row is the northern row mirrored (8.055772ms)
+✔ renderLine: a moon and its mirror image render the same disc in opposite hemispheres (0.302463ms)
+✔ renderLine: a waxing moon is lit on the right in the north, the left in the south (0.724206ms)
+✔ renderLine: a thin crescent still shows a lit limb (0.215024ms)
+✔ no output anywhere contains an emoji codepoint (83.108893ms)
+✔ no output contains a moon emoji or a variation selector (2.739782ms)
+✔ renderLine emits only geometric block glyphs, digits, letters and spaces (0.834688ms)
+✔ no exclamation marks anywhere — this is a readout, not a greeting (1.472368ms)
+✔ renderLine is exactly one line with no trailing newline (0.354504ms)
+✔ renderLine has no trailing whitespace — it goes in a prompt (0.294026ms)
+✔ renderBlock has no trailing newline and no trailing whitespace on any row (1.543926ms)
+✔ renderLine width is stable as illumination varies (4.535004ms)
+✔ renderLine disc is always exactly five cells (0.409599ms)
+✔ renderLine columns line up across every phase name (0.220315ms)
+✔ renderBlock: exact output for a waxing crescent, both hemispheres (0.309657ms)
+✔ renderBlock: exact output for a waning gibbous, both hemispheres (0.255372ms)
+✔ renderBlock: exact output for new and full (0.236104ms)
+✔ renderBlock: a hair-thin crescent stays continuous down the limb (0.28036ms)
+✔ renderBlock: every block is the same size, whatever the phase (1.468261ms)
+✔ renderBlock: the frame is closed on all four sides (0.25919ms)
+✔ renderBlock reports the same phase and illumination as renderLine (1.716049ms)
+✔ illumination is printed as a whole percent — no spurious decimals (0.23821ms)
+✔ an unknown hemisphere value renders as northern (0.273918ms)
+✔ the whole cycle renders without throwing and never widens the disc (7.704033ms)
+✔ KI-5 pin: disc glyph set matches the documented East Asian Width partition (20.823156ms)
+ℹ tests 144
+ℹ suites 0
+ℹ pass 144
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2076.056622

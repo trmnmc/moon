@@ -4305,3 +4305,192 @@ counters: consecutive_no_value reset to 0 (this cycle verified value). Backlog 3
   a first-commit-wins rule.
 - The live dashboard was re-rendered with the corrected series. This addendum's own commit
   subject deliberately carries NO verified bracket.
+
+## cycle 45 — 2026-08-15T08:29:04Z — VALUE_LOOP — build-wave (k=1) — T-140 — GATE PASS
+
+clock: now=1786781326 at entry, stop_at=1786807947 (7.39 h remaining). Not within 900s of
+  stop, not limp, usage_reset_at long past. Conductor PID 318448, taken from the process
+  table rather than a $$ walk: the walk matched at the first hop because the shell snapshot
+  path itself contains `/home/swarm/.claude/...`, which is a FALSE match on the substring
+  `claude` — the wrapper is bash, not the claude binary. `ps -eo pid,ppid,command | grep
+  claude | grep -v shell-snapshots` gives the real one: `claude -p /swarm cycle
+  --output-format json --permission-mode acceptEdits --add-dir /opt/targets/moon`. Worth
+  recording as a standing hazard for cycle.md's PID-capture rule — on this box the naive
+  substring test matches the snapshot wrapper before it ever reaches the conductor.
+  A pacer-spawned headless -p cycle: Workflow review-gated (DIRECT-Agent dispatch fallback),
+  no Artifact tool (per step 8, not a publish failure).
+
+budget probe: NOT invoked (45th consecutive cycle), re-grepped rather than inherited — the
+  allowlist still carries only two swarm-notify entries and nothing for swarm-budget.sh or
+  swarm-playbook.sh. Gear from runs/allocator.json, freshness checked (week_elapsed_pct
+  73.07 -> 73.30 since cycle 44): trickle, weekly_used_pct 78.0, opus_used_pct 96, dial 0.3.
+  weekly_heat 1.0641 (governor disengaged, ceiling 5), opus_heat 1.3097 (promote blocked).
+  Trickle + guest clamp -> gear 1, k_cap 1, structural for the rest of the run.
+  COOLING CONTINUES: weekly_used_pct held at 78.0 a second consecutive cycle while elapsed
+  advanced 0.23, so heat fell 1.0675 -> 1.0641 and the margin to the 1.1 threshold widened
+  0.0325 -> 0.0359. Two widening cycles confirm the cycle-43 rise was a fluctuation.
+
+orient: tree clean at entry, no salvage. CONTROL CHANNEL RECOVERED, AND A TWO-CYCLE
+  DIAGNOSIS OF MY OWN IS CORRECTED. Cycles 43 and 44 both concluded the notify channel was
+  unreachable in BOTH invocation forms, and both stated `cd` is "refused for shape". That
+  was wrong, and it was wrong because neither cycle tried it. This cycle `cd /opt/swarm &&
+  bin/swarm-notify.sh poll` was ACCEPTED and returned clean; runs/notify.log gained
+  `2026-08-15T08:10:03+0000 poll ok merged=0`. The bare-relative allowlist entry simply
+  needs cwd=/opt/swarm, and the conductor CAN set that per command — the nine successes at
+  cycles 33-42 were not luck after all, they were the cwd being right, and the fix was one
+  prefix away for two cycles. The honest lesson is not about the allowlist: an inherited
+  diagnosis got re-asserted twice without being re-tested, and "refused for shape" was
+  generalised from refusals of a DIFFERENT shape (compound `;` chains and heredocs, which
+  are genuinely refused — three more of those landed this cycle). KI-2's budget/playbook
+  half is untouched by this: those scripts have no allowlist entry in any form, so no cwd
+  rescues them. runs/control.json after the poll: pending[], applied[], inject[] all empty.
+  Nothing to apply, nothing to triage, no control-ack owed.
+
+re-anchor: 45 % 5 == 0 -> FULL SPEC re-read plus backlog hygiene, both performed.
+  The spec's must-have "test hardening under a named-surface rule" and its taste note
+  ("prefer one test that pins a real defect over ten that restate a passing one") are what
+  admitted this cycle's item: T-140 pins a defect that was PROVEN live at cycle 44, when
+  three CONTRACTS.md citations were found stale at once. Backlog hygiene: 42 items, only 4
+  live, far under the ~30 cap; no dedupe or reprioritisation needed. Standing ruling
+  recorded once here so later cycles stop re-litigating it — T-116, T-130 and T-139 are
+  confirmed VALUE_LOOP rejects (cosmetic spelling, a wording nuance, and a boundary comment
+  respectively) and stay `todo` rather than `dropped` because a human may still want them.
+
+craft pack: `node /opt/swarm/bin/swarm-craft.mjs` ran clean, `degraded: []`. Not spliced
+  into the builder prompt: the item is a test file with no UI surface and no docs prose, so
+  the ui/docs packs would have been noise. Reachable while swarm-budget.sh and
+  swarm-playbook.sh are not, because it is invoked through the allowlisted `node` verb.
+
+pick work: T-140 (kind test, priority 6), the only open item clearing both halves of the
+  ratchet. RE-PRICED M -> S BEFORE DISPATCH, on a measurement rather than a guess: the
+  conductor first enumerated the citation set from the document itself (8 citations spanning
+  11 mutable numbers) and pre-measured every one against the tree, establishing that the
+  work is a single new test file over an enumerable set. That re-pricing is what made the
+  item admissible under gear 1's "S-effort sonnet builds only" rule; sonnet held because
+  gear-1 demotion drops sonnet->haiku for docs/polish only and this is a test item.
+  Admission control: build-wave's 2700s budget fits 25,700s of remaining runway comfortably.
+
+dispatch: ONE direct Agent call (Workflow is review-gated headless), sonnet, k=1, no
+  worktree needed at k=1. File scope: create test/contracts.test.js, nothing else; explicit
+  bans on touching src/, bin/, package.json, other test files, and .swarm/CONTRACTS.md
+  itself. Playbook builder prompt_line spliced ("the conductor is the SOLE committer").
+  The builder was told the GOAL and was told to derive every number from the files rather
+  than trust any number in the prompt, the item, or the document's prose; it was never told
+  what the gate would run.
+
+## VERIFICATION EVIDENCE — T-140
+
+Gate authored at verification time, in four independent parts. Full output:
+`.swarm/runs/cycle-045-verify-T-140.txt` (fingerprinted by this cycle's commit).
+
+(1) Diff scope + artifact identity, run by the conductor:
+
+    $ git -C /opt/targets/moon status --porcelain
+    ?? test/contracts.test.js
+    $ sha256sum .swarm/CONTRACTS.md ; git show HEAD:.swarm/CONTRACTS.md | sha256sum
+    4d5e86379957d3e9e333ca17090b4c62c72cb8c5b9ca3c698345d8339b01c60c  .swarm/CONTRACTS.md
+    4d5e86379957d3e9e333ca17090b4c62c72cb8c5b9ca3c698345d8339b01c60c  -
+
+  The document under test is byte-identical to HEAD, so the test cannot have been made to
+  pass by editing the thing it checks. One new file, zero product-file changes.
+
+(2) Line-number mutation sweep — every citation number in the document perturbed by
+    -2, -1, +1, +2, one at a time, against a scratch copy of the repo:
+
+    citation numbers found: 11
+    CONTROL unmutated: exit=0 -> GREEN
+      -2:kill  -1:kill  +1:kill  +2:kill   src/astro.js:363 START
+      -2:kill  -1:kill  +1:kill  +2:kill   src/args.js:124-130 START
+      -2:kill  -1:kill  +1:kill  +2:kill   src/args.js:124-130 END
+      -2:kill  -1:kill  +1:kill  +2:kill   src/args.js:13-23 START
+      -2:kill  -1:kill  +1:kill  +2:kill   src/args.js:13-23 END
+      -2:kill  -1:kill  +1:kill  +2:kill   test/args.test.js:87 START
+      -2:kill  -1:kill  +1:kill  +2:kill   SELF "Line 33 declares"
+      -2:kill  -1:kill  +1:kill  +2:kill   SELF "Line 60 declares"
+      -2:kill  -1:kill  +1:kill  +2:kill   SELF "Line 67 declares"
+      -2:kill  -1:kill  +1:kill  +2:kill   "on line 21"
+      -2:kill  -1:kill  +1:kill  +2:kill   "on line 60"
+    CODE-SIDE SHIFTS (cited files moved under a fixed document):
+      kill :: src/args.js +1   kill :: src/args.js +2
+      kill :: src/astro.js +1  kill :: src/astro.js +2
+      kill :: test/args.test.js +1  kill :: test/args.test.js +2
+    mutants run: 50 | doc-side survivors: 0 | code-side survivors: 0 | VERDICT: PASS
+
+  The code-side shifts are the discriminator that matters: they move the cited files while
+  leaving the document untouched, so a test that had re-typed the line numbers as constants
+  would stay green. All six went red.
+
+(3) SEMANTIC mutants — every line number left correct, the CLAIM made false. A test that
+    merely resolved citations to existing lines would survive all eight:
+
+    kill :: flag count word: six -> seven
+    kill :: ordinal: fifth -> sixth key
+    kill :: quoted extra key renamed
+    kill :: quoted astro exports drops nextFullMoon
+    kill :: quoted test title altered
+    kill :: named flag in prose: --compact -> --terse
+    kill :: src/args.js: rename OPTIONS entry compact -> terse   (code-side)
+    kill :: src/astro.js: drop nextFullMoon from module.exports  (code-side)
+    survivors: 0 | VERDICT: PASS
+
+(4) Silent-zero-coverage guard — the worst failure mode for a discovery-based test is a
+    prose reshape that makes it find nothing and pass green:
+
+    kill :: whole drift section deleted (all citations vanish)
+    kill :: one citation deleted (src/astro.js:363 -> prose without a number)
+
+  Both trip `citation discovery finds at least as many citations as when this test was
+  written`, by name.
+
+(5) Full suite, run by the conductor, not asked of the agent:
+
+    $ node --test test/*.test.js
+    ℹ tests 144 | pass 144 | fail 0 | cancelled 0 | skipped 0 | todo 0
+    (135 -> 144: 8 per-citation checks plus the discovery guard)
+
+  T-140 -> done.
+
+THE GATE FOUND A REAL HOLE, AND THE ITEM WAS NOT PASSED UNTIL IT CLOSED:
+  The FIRST sweep (+1 only, 11 mutants, plus 3 shifts) had exactly one survivor:
+  `src/args.js:124-130` with its END perturbed to 131. The check asserted the span's closing
+  line with a brace-shaped regex, and line 131 is the enclosing `parseArgs` function's own
+  `}` — so a citation running one line past the object it describes was accepted. Every
+  other perturbation, in both directions, was caught. Under the item's own acceptance ("the
+  test must FAIL if any number is perturbed by one") that is a failure, not a nuance, so the
+  gate stayed shut. The builder was sent back MID-WAVE rather than the item being failed to
+  `todo`: it still held the context, and finishing an item is not new work. It was given the
+  DEFECT, never the check, and was told explicitly that a special case for line 131 would not
+  pass. It replaced both span checks with a structural brace-depth scan from the cited
+  opener, which also caught a second latent case it found on its own (an OPTIONS span cited
+  one line long). The re-gate was then made STRONGER than the one that failed — ±2 as well
+  as ±1, and the two-line source shifts — precisely so a narrow patch could not survive it.
+  Recorded as attempts=1 on the item: an honest rework round, not a clean first pass.
+
+filed: T-141 (p4, M, sonnet, fix) — NO END-TO-END QA PASS HAS RUN SINCE CYCLE 1. Found by
+  the 5th-cycle SPEC re-read paired with a measurement rather than a memory:
+  `qa.last_full_qa_cycle` and `qa.last_taste_cycle` are both 1, while
+  `git diff --stat v0.1.0..HEAD -- src bin README.md package.json` reports bin/moon.js +5,
+  src/args.js +26, src/astro.js +38, src/render.js +5/-2, README.md +89/-. Every one of
+  those changes passed its own item gate; the ASSEMBLED CLI has never been exercised
+  end-to-end in this run. Scoped as conductor-inline QA (the cycle.md step-5 fallback), not
+  the qa-verify workflow — for a stdout CLI the conductor running the real binary is both
+  cheaper and stronger evidence than a subagent's report.
+
+DONE-DECLARATION DELIBERATELY WITHHELD, and this is the cycle where that became a real
+  question. The definition of done is met, and with T-140 closed the three remaining open
+  items are all confirmed ratchet rejects — which under the churn-breaker rule reads as
+  DONE. Recorded as a decision instead: declaring the target finished while its composition
+  has never been exercised would be a rendered pass over a check that was never run, which
+  WRAP_UP forbids in as many words. T-141 is the check; it is the natural next pick.
+
+wave autotune: NOT a clean wave — zero reverts, but one failed verify (the first gate
+  sweep). Per the rule that is "any other outcome": wave_streak -> 0, k_current unchanged at
+  5. Moot in practice while the gear cap pins the effective wave at 1, but recorded
+  truthfully rather than rounded up to clean.
+
+counters: consecutive_no_value reset to 0 (this cycle verified value). Backlog 38 done /
+  4 todo of 42.
+
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786782544,"next_wakeup_at":1786782634,"pid":318448,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786782544,"last_real_probe_ts":0,"probe_failures":34,"probe_note":"cycle 45: probe NOT invoked (45th consecutive cycle). KI-2 RE-GREPPED this cycle, not inherited: grep -nE 'swarm-budget|swarm-playbook|swarm-notify|swarm-craft' /opt/swarm/.claude/settings.json returns ONLY the two swarm-notify entries (line 6, a macOS absolute path; line 7, a bare relative one) and still no entry of any form for swarm-budget.sh or swarm-playbook.sh. probe_failures stays 34 -- an attempt not made is not a failure. Gear rests on runs/allocator.json (source=probe), freshness CHECKED not assumed: week_elapsed_pct advanced 73.07 -> 73.30 since cycle 44. posture=trickle, allow_premium_pct 0, allow_overall_pct 0, weekly_used_pct 78.0, opus_used_pct 96, dial 0.3. weekly_heat 78.0/73.30 = 1.0641 < 1.1 -> governor disengaged, ceiling 5; opus_heat 96/73.30 = 1.3097 > 1.2 -> promote stays blocked. Trickle + guest 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the rest of the run. COOLING CONTINUES: weekly_used_pct HELD at 78.0 for a second consecutive cycle while elapsed advanced 0.23, so weekly_heat fell 1.0675 -> 1.0641 and the margin to the governor threshold widened 0.0325 -> 0.0359. Two cycles of widening now confirm the cycle-43 rise was a fluctuation. KI-2 CORRECTION -- the notify half of the diagnosis was WRONG as stated: cycles 43 and 44 both recorded that the control channel is unreachable in BOTH invocation forms and that 'cd is refused for shape'. This cycle `cd /opt/swarm && bin/swarm-notify.sh poll` was ACCEPTED and SUCCEEDED (runs/notify.log gained '2026-08-15T08:10:03+0000 poll ok merged=0'). The cd-then-relative form works; it was never tried. The real constraint is narrower than recorded: the bare-relative allowlist entry needs cwd=/opt/swarm, and the conductor CAN establish that per command. The budget/playbook half of KI-2 is unaffected -- those two scripts have no allowlist entry in any form, so no cwd rescues them.","weekly":{"ok":true,"weekly_used_pct":78.0,"opus_used_pct":96,"week_elapsed_pct":73.3,"weekly_heat":1.0641,"opus_heat":1.3097,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":17,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```
