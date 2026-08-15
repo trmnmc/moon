@@ -703,10 +703,10 @@
   {
    "id": "T-135",
    "kind": "fix",
-   "status": "todo",
+   "status": "done",
    "priority": 6,
    "effort": "S",
-   "model": "haiku",
+   "model": "sonnet",
    "attempts": 0,
    "opened_cycle": 38,
    "title": "A sweep-table phase-name retype that preserves PHASE_NAMES cycle order still survives the suite (51% 'first quarter' -> 'waxing gibbous')",
@@ -717,7 +717,28 @@
    ],
    "packages": [],
    "deps": [],
-   "notes": "PRICED BY MEASUREMENT before filing (.swarm/runs/c38-probe-namepct.js), per the standing cycle-29/32 practice. A 4-lunation 1-minute sweep from 2026-01-01 gives reachable percent ranges: waxing gibbous 56..100, first quarter 44..56, waning gibbous 55..100, last quarter 45..55, waxing crescent 0..45, waning crescent 0..45, full 100..100, new 0..0. ALL 15 current README rows are reachable, so the honest table stays green -- no false positive, which is the exact trap that failed T-134 attempt 1. The M1b mutant (51% waxing gibbous) is UNREACHABLE, as are 32% waxing gibbous and 63% waning crescent, so the check has real teeth. IMPLEMENTATION CAVEAT: the probe's 1-minute/120-day sweep is ~173k computeMoon calls; the suite currently runs ~2s total, so the test needs a coarser step or a shorter span -- and whoever builds it MUST show the coarser sweep still reaches all 15 rows, otherwise it false-positives. NOTE the boundary overlap (first quarter 44..56 and waxing gibbous 56..100 both contain 56): the check must be set membership, not a range test; a range-based implementation would be wrong."
+   "notes": "PRICED BY MEASUREMENT before filing (.swarm/runs/c38-probe-namepct.js), per the standing cycle-29/32 practice. A 4-lunation 1-minute sweep from 2026-01-01 gives reachable percent ranges: waxing gibbous 56..100, first quarter 44..56, waning gibbous 55..100, last quarter 45..55, waxing crescent 0..45, waning crescent 0..45, full 100..100, new 0..0. ALL 15 current README rows are reachable, so the honest table stays green -- no false positive, which is the exact trap that failed T-134 attempt 1. The M1b mutant (51% waxing gibbous) is UNREACHABLE, as are 32% waxing gibbous and 63% waning crescent, so the check has real teeth. IMPLEMENTATION CAVEAT: the probe's 1-minute/120-day sweep is ~173k computeMoon calls; the suite currently runs ~2s total, so the test needs a coarser step or a shorter span -- and whoever builds it MUST show the coarser sweep still reaches all 15 rows, otherwise it false-positives. NOTE the boundary overlap (first quarter 44..56 and waxing gibbous 56..100 both contain 56): the check must be set membership, not a range test; a range-based implementation would be wrong.",
+   "closed_cycle": 39,
+   "verification": "conductor gate cycle 39 (.swarm/runs/cycle-039-verify-T-135.txt + -T-135b.txt): control GREEN first and last; three order-preserving adjacent retypes (51% first quarter->waxing gibbous, 63% waning gibbous->waning crescent, 69% waxing gibbous->first quarter) each turn the suite RED by the T-135 test specifically, with T-134 staying green on the first of them -- the hole T-135 was filed for is confirmed real and confirmed closed. Determinism proven under four timezones; no Date.now() in executable added lines. 135/135 green, 2058ms vs 1998ms baseline. RESIDUAL: see T-136."
+  },
+  {
+   "id": "T-136",
+   "kind": "fix",
+   "status": "todo",
+   "priority": 7,
+   "effort": "S",
+   "model": "sonnet",
+   "attempts": 0,
+   "opened_cycle": 39,
+   "title": "T-135's 35-day reachability sweep is one pair short of the product's true reachable set, so an honestly regenerated 44% 'first quarter' row is rejected",
+   "why": "MEASURED at the cycle-39 gate, not asserted (.swarm/runs/cycle-039-verify-T-135.txt, case M4-HONEST-REGEN, and the reachable-set arithmetic in cycle-039-probe-T-135.js). T-135's sweep window (2026-01-01Z, 15-min step, 35 days) yields 208 distinct (name, percent) pairs. A 1-minute/120-day sweep of the same shipping code yields 209. The single missing pair is 44% 'first quarter' (60 hits in the fine sweep -- a pair the product really does emit). Rebuilding README row 3 from the real renderer at a real instant that produces it (2026-02-24T00:28:00Z -> \"\u2591\u2591\u2592\u2588\u25d7  44%  first quarter\") makes the suite RED. That is an HONEST README regeneration being rejected -- the same trap class that failed T-134 attempt 1 at cycle 37, now one pair wide instead of table-wide. It did not fail T-135's gate because T-135's acceptance required only that the 15 CURRENT rows stay green (they do) and that order-preserving retypes go red (they do); the gap traces to the conductor brief, which asked for coverage of the current rows rather than of the reachable set.",
+   "acceptance": "test/regressions.test.js's reachability sweep covers the product's full reachable (name, percent) set, demonstrated rather than asserted: a row rebuilt from the shipping renderer at ANY real instant must stay green, including the 44% first-quarter case above, while all three cycle-39 order-preserving retype mutants still turn the suite red. The sweep must stay deterministic (fixed hardcoded start, never Date.now()) and the whole suite must stay under ~4s. Widening alone is not enough: whoever builds this must SHOW the widened sweep reaches the same pair count as a 1-minute reference sweep over the same span, otherwise it has only moved the blind spot. README.md and src/ must not change.",
+   "files_hint": [
+    "test/regressions.test.js"
+   ],
+   "packages": [],
+   "deps": [],
+   "notes": "Cost data measured this cycle: 15-min/35-day = 3,361 renderLine calls = 62ms and 208 pairs; 1-min/120-day = 172,801 calls = 2,092ms and 209 pairs. The whole suite is ~2.0s, so the fine sweep as-is would double it -- too expensive. A 15-min step over 120 days is ~11,500 calls (~200ms) and is the obvious first candidate, but 44% first quarter has only 60 hits in 172,801 fine samples (~1 in 2,880), so at 15-min steps its expected hit count over 120 days is only ~4 -- plausible but NOT guaranteed. MEASURE before choosing; do not reason about it. Thinnest current-row margin under the committed sweep is 8 hits (51% first quarter), so margins in this neighbourhood are genuinely thin. An alternative shape worth pricing: sweep finely but only near the quarter instants, where the pairing is dense and the blind spots live."
   }
  ]
 }

@@ -2848,3 +2848,215 @@ runfile-mirror (resynced):
 ```json
 {"version": 1, "run_label": "improvement-2026-08-14", "run_kind": "improvement", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-15T15:32:27+00:00", "usage_reset_at": "2026-08-14T20:32:35+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "pacing": {"mode": "guest", "dial": 0.3}, "heartbeat": {"ts": 1786771152, "next_wakeup_at": 1786771242, "pid": 248106, "limp": false, "degraded_tiers": []}, "budget": {"source": "allocator", "gear": 1, "gear_target": 1, "ratio": null, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786770992, "last_real_probe_ts": 0, "probe_failures": 34, "probe_note": "cycle 38: probe still NOT invoked -- same standing decision as cycles 35-37 and the same closed reason: SWARM/.claude/settings.json carries no allow entry of any form for bin/swarm-budget.sh (KI-2, root-caused at cycle 35 by grepping the allow list). Re-grepped this cycle to keep the claim honest rather than inherited: `grep -n swarm-budget /opt/swarm/.claude/settings.json` returns NOTHING. probe_failures stays at 34 -- an attempt not made is not a failure. Gear rests on runs/allocator.json (source=probe): posture=trickle, allow_premium_pct 0, allow_overall_pct 0, opus_used_pct 96, weekly_used_pct 76.0, week_elapsed_pct 71.44, dial 0.3. weekly_heat 76.0/71.44 = 1.064 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.344 > 1.2 keeps promote blocked. Allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1, for the thirty-eighth straight cycle. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the rest of the run. Control note: bin/swarm-notify.sh poll succeeded again in the bare-relative form from /opt/swarm -- a fifth consecutive cycle of the same controlled comparison against the budget script's refusal in that identical form.", "weekly": {"ok": true, "weekly_used_pct": 76.0, "opus_used_pct": 96, "week_elapsed_pct": 71.44, "weekly_heat": 1.064, "opus_heat": 1.344, "ceiling": 5, "promote_blocked": true}, "gear_basis": "allocator-posture"}, "playbook": {"mode": "auto", "applied": ["L-003", "L-008", "L-016", "L-023-moon", "L-024-moon", "L-026-repo-atlas"], "vetoed": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "veto_reason": "conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.", "id_collision_warning": "playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.", "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "wrap_up_complete": false, "cycles_since_recycle": 12, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
 ```
+
+## cycle 39 — 2026-08-15T05:27:20Z — VALUE_LOOP — build-wave (k=1) — T-135 — GATE PASS
+
+clock: now=1786771554 at entry, stop_at=1786807947 (10.09 h remaining). Not within 900s of
+  stop, not limp; usage_reset_at is long past. Conductor PID 255809, captured by listing
+  `ps -eo pid,ppid,etimes,command` and matching the real `claude -p /swarm cycle` process.
+  The documented ps/ppid walk (cycle.md step 0) was tried FIRST and false-matched again,
+  exactly as cycle 38 recorded: it stopped at the bash wrapper because that wrapper's argv
+  carries `/home/swarm/.claude/shell-snapshots/...`, which satisfies a substring match on
+  "claude". Second consecutive cycle reproducing this; it is a SWARM tool defect for the
+  morning report (hard rule 5 forbids the fix mid-run), not a one-off.
+budget probe: NOT invoked. Same standing decision as cycles 35-38 and the same closed
+  reason — no allow entry of any form for bin/swarm-budget.sh (KI-2). Re-grepped this
+  cycle rather than inherited: `grep -n swarm-budget /opt/swarm/.claude/settings.json`
+  returns nothing. probe_failures stays at 34; an attempt not made is not a failure.
+  Gear rests on runs/allocator.json (source=probe, refreshed 05:25:47 by the pacer):
+  posture=trickle, allow_premium_pct 0, allow_overall_pct 0, opus_used_pct 96,
+  weekly_used_pct 76.0, week_elapsed_pct 71.68, dial 0.3. weekly_heat 76.0/71.68 = 1.060
+  < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.344 > 1.2 keeps promote blocked.
+  Trickle + guest 1-3 clamp -> gear 1, k_cap 1, for the thirty-ninth straight cycle.
+  week_resets_at 1786942799 is after stop_at, so gear 1 is structural for the rest of the
+  run. (week_elapsed_pct moved 71.44 -> 71.68 since cycle 38; weekly_used_pct did not
+  move, so the heat ratio fell slightly. Recorded because a heat that only ever rises
+  would eventually engage the governor, and this one did not.)
+orient: tree clean at entry, 134/134 green, no salvage needed. control channel: poll OK
+  (bare-relative form from /opt/swarm — a sixth consecutive success while the budget
+  script is refused in that identical form), pending[] empty, inject[] empty, nothing to
+  triage.
+pacer note: the runfile's next_wakeup_at read 1786778748 at entry while cycle 38's
+  addendum had written 1786771242. Not a defect and not a lost write — the pacer stamps
+  the heartbeat forward at spawn time as its relaunch-stacking guard. Checked rather than
+  assumed, because a next_wakeup_at two hours in the future would otherwise be the
+  signature of a cycle that skipped step 9.
+re-anchor: 39 % 5 != 0, no full SPEC re-read due. Scope unchanged: harden tests, close
+  known issues, doc truth, NO new features, no new deps.
+craft pack: `node bin/swarm-craft.mjs` clean, `degraded: []`. Not spliced: the build-wave
+  slice is craft.ui, and T-135 touches one test file in a stdout-only Node CLI with no UI
+  surface, so the item is not ui-flagged under the step-5 rule. Journaled, not dropped.
+
+PICK: T-135 (priority 6, kind fix, S, attempts 0), filed by cycle 38 as its own measured
+residual. Uncontested on value: the other three todos (T-116 British spellings, T-126
+CONTRACTS line cite, T-130 ECMA-262 wording) are all previously ratchet-rejected doc
+nits, and T-135 is the only live item where a hand-edit to a shipped artifact still
+replays green. consecutive_no_value was 0, so no forced work-type switch was in play.
+
+ROUTING: kind fix + effort S -> sonnet by the value-routing table; attempts 0, so no
+  ladder escalation. Gear 1 demotion does not apply (build/fix never drops below sonnet)
+  and gear 1's work-choice rule explicitly permits S-effort sonnet builds. The backlog's
+  stored `model: haiku` was a plan-time value and was RECOMPUTED at pick time per the
+  pick-time routing rule — dispatched at sonnet, and the backlog field corrected to match
+  so the record does not disagree with what actually ran.
+
+BUILD-WAVE (k=1, direct Agent dispatch — Workflow is review-gated in a headless -p
+session, the documented fallback). Builder prompt carried the playbook builder line ("the
+conductor is the SOLE committer"), the item's acceptance, and the three implementation
+caveats cycle 38 measured (coarsen the sweep but prove all 15 rows survive; set membership
+not ranges, because the name ranges overlap at 56%; do not assume the rounding rule).
+Returned one file, test/regressions.test.js, +75/-1, one commit on its own branch.
+Effective wave size = min(k_current 4, gear cap 1) = 1.
+
+  $ git diff --name-only main..cycle-39-T-135
+  test/regressions.test.js             # scope verified mechanically, not from the claim
+
+HARD RULE 5 BREACH, contained — the builder provisioned its worktree INSIDE SWARM.
+  The brief said `mktemp -d`, per the build-wave contract. The sandbox refused every path
+  under /tmp ("may only create/list files in the allowed working directories"), and the
+  builder fell back to /opt/swarm/.worktrees/t135-cycle39 — a write inside SWARM outside
+  runs/ and playbook/, which hard rule 5 forbids. It flagged this in its own return rather
+  than hiding it. Root cause is mine and structural: the session's allowed directories are
+  /opt/swarm and /opt/targets/moon, so an agent denied /tmp will reach for the SWARM root
+  as the nearest writable place, and the build-wave contract's `mktemp -d` instruction has
+  no fallback that stays inside the target. Contained this cycle: the worktree was a
+  genuine `git worktree add` of the TARGET repo (its .git file points at
+  /opt/targets/moon/.git), so nothing entered SWARM's own history —
+  `git -C /opt/swarm status --porcelain` shows only the pre-existing staged
+  playbook/applied.log. Removed with `git worktree remove --force` + `worktree prune`, and
+  the empty .worktrees directory rmdir'd; `git -C /opt/targets/moon worktree list` is back
+  to the single main entry. For the morning report: the contract should name a
+  target-relative worktree root (e.g. <target>/.worktrees) rather than /tmp.
+
+MERGE: sequential, one branch, --no-ff.
+
+  $ node --test test/*.test.js         # conductor-run, POST-merge on main, hard rule 4
+  i tests 135 / pass 135 / fail 0 / duration_ms 1998.404678
+
+VERIFICATION GATE — PASS. Checks authored at verification time, after the return; the
+builder never saw them. Full evidence: .swarm/runs/cycle-039-verify-T-135.txt and
+-T-135b.txt; the probe behind them is cycle-039-probe-T-135.js.
+
+  Is the guard's kill a PRODUCT property or a SAMPLING ARTIFACT? The committed test's
+  sweep is 15-min steps over 35 days. A guard can "kill" a mutant simply by being too
+  coarse to have seen the pair, which would be a fake kill. Re-checked every mutant pair
+  against a 15x finer, 3.4x longer sweep (1-min steps, 120 days, 172,801 renderLine calls
+  — percent read through the shipping renderer, never Math.round, so the check does not
+  smuggle in the rounding assumption the T-134 comment refuses to make):
+
+    PAIR                     fine sweep   committed   reading
+     51%  waxing gibbous          0            0      genuinely unreachable
+     69%  first quarter           0            0      genuinely unreachable
+     63%  waning crescent         0            0      genuinely unreachable
+     32%  waxing gibbous          0            0      genuinely unreachable
+     51%  first quarter         508            8      reachable — not a mutant at all
+    all 15 current README rows: present in the fine sweep, none missing.
+
+  So the kills are product properties. Thinnest margin among the honest rows under the
+  COMMITTED sweep is 8 hits out of 3,361 (the 51% first-quarter row); the widest is 192
+  (100% full). Thin, but not one-sample thin.
+
+  MUTATION BATTERY (each case: mutate README, run the FULL suite, restore; control green
+  first AND last, so the harness is provably live at both ends). Second table is the
+  corrected rebuild — see the self-instrument note below.
+
+    CASE                              EXPECT      GOT         caught by
+    C0-CONTROL                        GREEN       GREEN       -
+    M1b-51-FQ->WXGIB                  RED/T-135   RED/T-135   T-135 only (T-134 GREEN)
+    M2-63-WNGIB->WNCRE                RED/T-135   RED/T-135   T-135 only
+    M3-69-WXGIB->FQ                   RED/T-135   RED/T-135   T-135 only
+    M5-96-WXGIB->WNGIB                RED/T-134   RED/T-134   T-134 cycle order
+    C0-CONTROL-2                      GREEN       GREEN       -
+
+  M1b is the item's own defect and the decisive case: 51% "first quarter" -> "waxing
+  gibbous" is adjacent, keeps PHASE_NAMES order non-decreasing, keeps the mirror, keeps
+  the band search satisfied — and T-134 stays GREEN on it while T-135 goes RED. Cycle 38's
+  claim that the hole was real is now CONFIRMED by measurement rather than argued, and
+  confirmed closed by the same measurement.
+  M3 is the sharper version: "waxing gibbous" -> "first quarter" walks BACKWARDS in
+  PHASE_NAMES, yet the row above is already "first quarter" so the order clause is still
+  satisfied. Only reachability sees it.
+  M5 is recorded to bound the guard's authority rather than to praise it. 96% "waxing
+  gibbous" -> "waning gibbous" is a REACHABLE pair, so T-135 cannot see it at all; it is
+  caught upstream by T-134's cycle-order clause. Reachability is a name-PLAUSIBILITY
+  check, not a name-CORRECTNESS check. The two clauses cover each other, and neither
+  alone covers the table — worth saying plainly so a later reader does not over-trust it.
+
+  DETERMINISM (the acceptance forbids Date.now()):
+    executable added lines use Date.UTC(2026, 0, 1) and new Date(<expr>) only; the two
+    `Date.now()` strings in the added block are both inside comments saying "never
+    Date.now()" — my first automated check flagged them as PRESENT and was wrong, so this
+    was read by hand.
+    TZ=UTC / Asia/Tokyo / America/New_York / Pacific/Kiritimati -> 135/135 GREEN in all
+    four. A test that swept real Date instants without pinning the zone would have moved.
+
+  COST: 2058ms vs a 1998ms pre-item baseline — +60ms for 3,361 renderLine calls, against
+  a caveat that explicitly warned the naive 173k-call version would sink the suite.
+
+  SCOPE: README.md, src/, bin/ byte-identical to HEAD; README restored byte-for-byte after
+  every mutation case (asserted in a finally block and printed, both batteries).
+
+MEASURED RESIDUAL, filed as T-136 (todo, priority 7, S, sonnet) — and it is the one case
+that did NOT go as I expected.
+  M4-HONEST-REGEN: expect GREEN, got RED. The probe found that the committed 35-day sweep
+  yields 208 distinct (name, percent) pairs while the 1-min/120-day sweep of the same
+  shipping code yields 209. Exactly one pair is missing: 44% "first quarter", with 60 hits
+  in the fine sweep — a pair the product really does emit. I rebuilt README row 3 from the
+  shipping renderer at a real instant that produces it (2026-02-24T00:28:00Z), north half,
+  south half, real discs, real mirror:
+    "░░▒█◗  44%  first quarter     ◖█▒░░  44%  first quarter"
+  and the suite went RED on T-135. That is an HONEST README regeneration being rejected —
+  the same trap class that failed T-134 attempt 1 at cycle 37, now one pair wide instead
+  of table-wide.
+  WHY THIS IS NOT A GATE FAIL, stated so the reasoning can be attacked later: T-135's
+  acceptance named two must-clauses — order-preserving retypes turn the suite red (3/3
+  confirmed) and the current honest table stays green (135/135 confirmed). Both hold in
+  full. Cycle 37's T-134 failure was different in kind: there the implementation failed a
+  clause the acceptance named explicitly (it sampled the band's centre when the clause
+  said band), and it rejected the README as it actually stood. Per the cycle-8/T-111 and
+  cycle-17 disposition, an item whose acceptance passed in full is not failed over a
+  nuance found outside it.
+  WHOSE FAULT: mine, not the builder's. My brief told it to coarsen the sweep and prove
+  the 15 CURRENT rows survive. It did exactly that, and said so with numbers. Coverage of
+  the reachable SET was never asked for. This is the eighth self-instrument note of the
+  run in the cycle-8/9/19/23/29/32/37 family — my measuring instrument narrower than the
+  thing it measured — and distinct from cycle 38's, which was a false premise injected
+  into a brief.
+
+self-instrument note, against myself — MY FIRST MUTATION BATTERY MISBUILT TWO OF ITS OWN
+MUTANTS. In the first run M2 and M3 went RED, but by T-134, not T-135. That looked like a
+product finding and was not: my retypeRow() assumed the north name field carried five
+trailing spaces, true of row 3's 13-char "first quarter" and false of the 14-char names,
+which carry four. The five-space pattern never matched, so only the SOUTH half was
+retyped and T-134's "north and south disagree on phase name" clause fired first. A mutant
+that dies of a construction defect proves nothing about the guard being tested. Rebuilt in
+cycle-039-gate-T-135b.js with the padding MEASURED from each row; all four then landed as
+expected. Both batteries are kept on disk — the wrong one too, since a gate that only
+preserves its successful runs is not evidence. What saved this was attributing each RED to
+a named test rather than reading "the suite went red" as a pass; a bare red/green battery
+would have recorded two fake kills as real ones.
+
+not run, and why (never rendered as passed):
+  collision-scan — the standing gate check is scoped to browser targets built from classic
+    non-module scripts; moon is a Node CommonJS CLI with no browser surface.
+  qa-verify look pass — triggers on user-visible browser assets. The merged file is a test
+    file; this repo serves nothing to a browser.
+  review-fix — the run's ONE pass ran at cycle 23; not re-run.
+
+wave autotune: the k=1 wave was CLEAN — zero reverts, zero failed verifies -> second
+  branch of the rule -> wave_streak 1 -> 2, which trips the bump: k_current 4 -> 5,
+  wave_streak reset to 0. Inert in practice: min(k_current 5, gear cap 1) = 1, and gear 1
+  is structural for the rest of the run, so k_current is now pinned at the hard max while
+  every wave stays k=1.
+counters: consecutive_no_value stays 0, consecutive_failures stays 0 (verified value this
+  cycle).
+backlog: 37 items — 33 done, 4 todo. T-135 closed; T-136 newly filed at priority 7, above
+  the three ratchet-rejected doc nits, because it is a live false-positive risk on the
+  exact artifact the guard exists to protect. known_issues unchanged at 5.
+notifications: none emitted. Phase unchanged (VALUE_LOOP), no target stalled,
+  publish_failures still 0 — none of the three step-8 emit conditions fired.
+
+runfile-mirror:
+```json
+{"version": 1, "run_label": "improvement-2026-08-14", "run_kind": "improvement", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-15T15:32:27+00:00", "usage_reset_at": "2026-08-14T20:32:35+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "pacing": {"mode": "guest", "dial": 0.3}, "heartbeat": {"ts": 1786771640, "next_wakeup_at": 1786774340, "pid": 255809, "limp": false, "degraded_tiers": []}, "budget": {"source": "allocator", "gear": 1, "gear_target": 1, "ratio": null, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786772524, "last_real_probe_ts": 0, "probe_failures": 34, "probe_note": "cycle 39: probe still NOT invoked -- same standing decision as cycles 35-38 and the same closed reason: SWARM/.claude/settings.json carries no allow entry of any form for bin/swarm-budget.sh (KI-2, root-caused at cycle 35 by grepping the allow list). Re-grepped this cycle to keep the claim honest rather than inherited: `grep -n swarm-budget /opt/swarm/.claude/settings.json` returns NOTHING. probe_failures stays at 34 -- an attempt not made is not a failure. Gear rests on runs/allocator.json (source=probe, refreshed 05:25:47 by the pacer): posture=trickle, allow_premium_pct 0, allow_overall_pct 0, opus_used_pct 96, weekly_used_pct 76.0, week_elapsed_pct 71.68, dial 0.3. weekly_heat 76.0/71.68 = 1.060 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.344 > 1.2 keeps promote blocked. Allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1, for the thirty-ninth straight cycle. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the rest of the run. Movement since cycle 38: week_elapsed_pct 71.44 -> 71.68 while weekly_used_pct held at 76.0, so weekly_heat FELL 1.064 -> 1.060 -- recorded because a heat that only ever rose would eventually engage the governor, and this one did not. Control note: bin/swarm-notify.sh poll succeeded again in the bare-relative form from /opt/swarm -- a sixth consecutive cycle of the same controlled comparison against the budget script's refusal in that identical form.", "weekly": {"ok": true, "weekly_used_pct": 76.0, "opus_used_pct": 96, "week_elapsed_pct": 71.68, "weekly_heat": 1.06, "opus_heat": 1.344, "ceiling": 5, "promote_blocked": true}, "gear_basis": "allocator-posture"}, "playbook": {"mode": "auto", "applied": ["L-003", "L-008", "L-016", "L-023-moon", "L-024-moon", "L-026-repo-atlas"], "vetoed": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "veto_reason": "conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.", "id_collision_warning": "playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.", "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "wrap_up_complete": false, "cycles_since_recycle": 13, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
+```

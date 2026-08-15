@@ -3,7 +3,7 @@
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
  "phase": "VALUE_LOOP",
- "cycle": 38,
+ "cycle": 39,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -468,15 +468,15 @@
  "counters": {
   "consecutive_no_value": 0,
   "consecutive_failures": 0,
-  "k_current": 4,
-  "wave_streak": 1,
+  "k_current": 5,
+  "wave_streak": 0,
   "window_tokens_attributed": 0
  },
  "last_cycle": {
-  "cycle": 37,
-  "work": "VALUE_LOOP candidate scan (hit on probe A after the code-side half of the candidate was rejected by mutation) + T-134 build-wave k=1 at sonnet",
-  "outcome": "0 verified, 131/131 green at baseline, 1 reverted -- GATE FAIL on the rounding-band clause; 4/4 doc-side mutants proven catchable, false positive on an honestly regenerated README proven",
-  "ts": "2026-08-15T04:52:00.000Z"
+  "cycle": 39,
+  "work": "T-135 build-wave k=1 at sonnet (direct Agent dispatch, headless) + conductor mutation gate with an honest-regeneration probe",
+  "outcome": "1 verified, 135/135 green pre- and post-merge, 0 reverted; 3/3 order-preserving retype mutants killed by T-135 specifically, M4 honest-regen blind spot measured and filed as T-136",
+  "ts": "2026-08-15T05:40:21.000Z"
  },
  "run_label": "improvement-2026-08-14",
  "resolved_issues": [

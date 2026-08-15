@@ -1,0 +1,16 @@
+=== T-135 GATE ADDENDUM — mutants rebuilt with measured padding ===
+
+  C0-CONTROL              expect GREEN got GREEN AS EXPECTED
+  M1b-51-FQ->WXGIB        expect RED/T-135got RED/T-135AS EXPECTED   "░░▓█◗  51%  waxing gibbous    ◖█▓░░  51%  waxing gibbous"
+  M2-63-WNGIB->WNCRE      expect RED/T-135got RED/T-135AS EXPECTED   "◖██░░  63%  waning crescent   ░░██◗  63%  waning crescent"
+  M3-69-WXGIB->FQ         expect RED/T-135got RED/T-135AS EXPECTED   "░▒██◗  69%  first quarter     ◖██▒░  69%  first quarter"
+  M5-96-WXGIB->WNGIB      expect RED/T-134got RED/T-134AS EXPECTED   "▐███◗  96%  waning gibbous    ◖███▌  96%  waning gibbous"
+  C0-CONTROL-2            expect GREEN got GREEN AS EXPECTED
+
+=== ADDENDUM VERDICT: ALL AS EXPECTED ===
+M5 note: 96% "waxing gibbous" -> "waning gibbous" IS a reachable pair, so T-135
+  cannot see it; it is caught upstream by T-134 cycle order. Recorded so the
+  guard's authority is not overstated: reachability is a name-PLAUSIBILITY
+  check, not a name-CORRECTNESS check. The two clauses cover each other.
+
+README restored byte-for-byte: true

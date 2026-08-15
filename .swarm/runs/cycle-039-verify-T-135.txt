@@ -1,0 +1,28 @@
+=== T-135 GATE — mutation battery ===
+(each case: mutate README, run the FULL suite, restore)
+
+  C0-CONTROL            expect GREEN got GREEN AS EXPECTED   135/135 pass, 2058ms
+  M1b-ADJACENT-RETYPE   expect RED   got RED   AS EXPECTED   failed: ["T-135 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce","T-135 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce"]
+  M2-WANING-RETYPE      expect RED   got RED   AS EXPECTED   failed: ["T-134 — README north/south sweep table rows are self-consistent and reproducible","T-134 — README north/south sweep table rows are self-consistent and reproducible"]
+  M3-BACKWARD-SAFE      expect RED   got RED   AS EXPECTED   failed: ["T-134 — README north/south sweep table rows are self-consistent and reproducible","T-134 — README north/south sweep table rows are self-consistent and reproducible"]
+  M4-HONEST-REGEN       expect GREEN got RED   *** NOT AS EXPECTED ***   instant 2026-02-24T00:28:00.000Z failed: ["T-135 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce","T-135 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce"]
+      row: "░░▒█◗  44%  first quarter     ◖█▒░░  44%  first quarter"
+  C0-CONTROL-2          expect GREEN got GREEN AS EXPECTED   135/135 pass
+
+=== determinism ===
+  Date.now / new Date() with no args in the added lines: *** PRESENT ***
+  TZ=UTC                 GREEN  135/135
+  TZ=Asia/Tokyo          GREEN  135/135
+  TZ=America/New_York    GREEN  135/135
+  TZ=Pacific/Kiritimati  GREEN  135/135
+
+=== cost ===
+  suite duration: 2058ms (baseline before this item was 1998ms)
+
+=== discrimination detail ===
+  M1b killed by T-135 test specifically: true
+  M1b left T-134 order/band test GREEN:  true  <- confirms the hole T-135 was filed for was real
+
+=== VERDICT: GATE FAIL (M4-HONEST-REGEN) ===
+
+README restored byte-for-byte: true
