@@ -1,0 +1,140 @@
+cycle 37 — VERIFICATION GATE for T-134 — VERDICT: FAIL (reverted, attempts 0 -> 1)
+
+Item: pin README's three rendered example blocks to the shipping renderer so a
+hand-edit of any of them turns the suite red.
+
+All gate checks below were authored AT VERIFICATION TIME and run by the conductor.
+The builder never saw them.
+
+================================================================================
+WHAT PASSED
+================================================================================
+
+G1 SCOPE — clean.
+  $ git -C /opt/targets/moon status --porcelain
+   M .swarm/backlog.json          <- conductor's own filing, not builder output
+   M test/regressions.test.js
+  README.md, src/ and bin/ absent from the porcelain list => byte-identical to HEAD.
+  Test-only change, as the acceptance required.
+
+G2 SUITE — conductor-run, not taken from the builder's report.
+  $ node --test test/*.test.js
+  ℹ tests 134 / pass 134 / fail 0        (131 pre-existing + 3 new)
+
+G3 NO NEW NUMERIC CONSTANT — adjudicated token by token over the diff.
+  pct/100        percent -> fraction; src/render.js illumField() already does *100.
+  1 - cycleFraction   1 = one full cycle in the units the repo defines (0..1).
+  0.5            waxing/waning boundary; src/render.js opticalState() uses the
+                 identical literal (`waxing: f < 0.5`).
+  All other integers are string offsets/indices, not domain quantities.
+  No new domain constant introduced. PASS.
+
+G4 FAILABILITY — matched before/after with the IDENTICAL battery
+  (.swarm/runs/../c37-mutants-docside.py; README edited, src/ byte-identical):
+
+              BEFORE the change      AFTER the change
+  M0-CONTROL  GREEN                  GREEN
+  M1          GREEN                  RED     historical v0.1.0 defect replayed
+  M2          GREEN                  RED     one south disc hand-touched
+  M3          GREEN                  RED     headline retyped to 9%
+  M4          GREEN                  RED     one --block row hand-touched
+
+  Control green in both runs => the instrument is live, not stuck.
+
+G5 ATTRIBUTION — each mutant caught by exactly its intended test, one failure each:
+  M1 -> T-134 — README north/south sweep table rows are self-consistent and reproducible
+  M2 -> T-134 — README north/south sweep table rows are self-consistent and reproducible
+  M3 -> T-134 — README headline fence matches renderLine(moon, "north")
+  M4 -> T-134 — README `--block` fence ...
+  (133 pass / 1 fail in every case: no pre-existing test is doing the catching.)
+
+G7 NON-VACUITY — emptied the --block fence outright:
+  fail=1, caught by the intended test, with a loud parser assertion
+  ("fence parsed to an empty body" / "too few lines"). Parsers do not silently
+  succeed on nothing.
+
+CROSS-FILE CLAIM CHECKED — the added DISC_MIRROR comment says it matches
+  "render.js's own MIRROR table". VERIFIED TRUE: src/render.js:73 carries
+  `const MIRROR = new Map([...])` with exactly those six pairs. (This run has fixed
+  four "comment gloss wider than the code" defects; this one is accurate.)
+  Note against myself: my first mutant regex looked for an OBJECT literal
+  (`const MIRROR = \{...\}`) and therefore SKIPPED — my instrument was narrower than
+  the code, the eighth such instance this run (cycles 8, 9, 19, 23, 29, 32). It cost
+  a skipped mutant, not a wrong verdict.
+
+================================================================================
+WHAT FAILED — acceptance clause 3, the rounding-band predicate
+================================================================================
+
+ACCEPTANCE SAID:  "SOME illumination inside the row's own rounding band reproduces
+                   the north disc through renderLine"
+BUILDER SHIPPED:  illumination = pct / 100  — the band's CENTRE, one single point.
+
+That is a different, narrower predicate, not a wording variation. Consequences,
+measured rather than argued:
+
+G6a  Band width per row (sweeping the full +-0.5pp band in 0.001pp steps,
+     .../c37-gate.py). Margin = distance from the centre to the nearest edge of
+     the sub-band that actually reproduces the row's disc:
+
+        3%  +500   14%  +500   32%  +500   51%  +500   69%  +500
+       85%  +500   96%  +500  100%    +0*  96%  +500   83%  +235
+       63%  +500   40%  +500   19%  +500    5%  +176    0%    +0*
+
+     * the two zeroes are the physical endpoints (k cannot exceed 1 or fall below
+       0), so those bands are one-sided by construction — artifacts, not knife
+       edges. The real signal is 5% (+176) and 83% (+235) milli-percent.
+
+G6b  Are the row illuminations whole percents by construction? NO — measured
+     (.../c37-sweep-origin.js). No even cycleFraction sweep for any N in 8..40
+     reproduces the percent sequence (N=16 gives 0,4,15,31,50,... vs README's
+     3,14,32,51,...), and the inverse-cycleFraction values land on no regular
+     grid. The rows are arbitrary reals from a real time sweep — which is the
+     product's own thesis (elongation does not advance evenly in time). So the
+     centre reproducing every disc today is an ACCIDENT, not a property.
+
+G6c  Is the band check load-bearing? YES — and this is why the defect matters
+     rather than being cosmetic (.../c37-gate-band-load.py):
+       COHERENT FAKE — both discs of the 51% row touched up CONSISTENTLY, so the
+       row still mirrors perfectly and still carries a valid in-order phase name:
+       fail=1, caught ONLY by the band check. Neither the mirror check nor the
+       PHASE_NAMES order check sees it. This is the most sophisticated form of the
+       exact defect the item exists to prevent.
+
+G6d  FALSE POSITIVE — the decisive check. Regenerated the 5% row honestly from a
+     true illumination of k=0.046 (which legitimately rounds to 5%), north disc
+     '▏░░░░', south '░░░░▕', name and mirror both correct:
+       RESULT: fail=1
+       "an illumination inside the row's own 5% rounding band does not reproduce
+        its north disc through renderLine: ..."
+     A CORRECT, honestly regenerated README fails the suite. Worse, the assertion
+     message states the acceptance predicate ("an illumination inside the band")
+     while the code implements a narrower one, so the diagnostic actively
+     misdirects the maintainer who hits it.
+
+WHY THIS IS A FAIL AND NOT A NUANCE
+  The standing cycle-8/T-111 and cycle-17 disposition is that an item whose
+  acceptance PASSED IN FULL is not failed over wording. This acceptance did not
+  pass in full: clause 3's predicate is unimplemented. And the item's entire value
+  is future-conditional — it exists to govern future edits of README — so a defect
+  in how it behaves under the exact future event it governs (a regeneration of the
+  table) is a defect in its core function, not at its periphery. The test as shipped
+  cannot distinguish "regenerated honestly" from "hand-edited" on 2 of 15 rows.
+
+  Not conductor-patched, per the standing cycle-7 rule: a conductor editing the
+  artifact leaves nothing independent checking the conductor's own wording. That
+  bites hardest here, because the conductor authored both the item text and this
+  diagnosis. Whole diff reverted rather than part-salvaged, per cycle 10; the
+  salvage cost is paid down by naming every passing element above so the retry
+  reproduces them instead of rediscovering them.
+
+  THE REPAIR MAKES THE CLAIM TRUE RATHER THAN WEAKENING ANYTHING: searching the
+  band retains every detection result above (the coherent fake is still caught —
+  no illumination in the band reproduces a touched-up disc) and removes the false
+  positive. Nothing is relaxed.
+
+POST-REVERT BASELINE — conductor-run:
+  $ git -C /opt/targets/moon checkout -- test/regressions.test.js
+  $ node --test test/*.test.js
+  ℹ tests 131 / pass 131 / fail 0
+  Rejected diff preserved at .swarm/runs/cycle-037-rejected-T-134.diff (204 lines).
