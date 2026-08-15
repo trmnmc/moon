@@ -3973,3 +3973,55 @@ runfile-mirror:
 ```json
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786779337,"next_wakeup_at":1786781800,"pid":313754,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786779337,"last_real_probe_ts":0,"probe_failures":34,"probe_note":"cycle 43: probe NOT invoked (43rd consecutive cycle). KI-2 RE-GREPPED this cycle rather than inherited — grep -nE \"swarm-budget|swarm-playbook|swarm-notify|swarm-craft\" /opt/swarm/.claude/settings.json returns ONLY the two swarm-notify entries (a macOS absolute path and a bare relative one) and no entry of any form for swarm-budget.sh or swarm-playbook.sh, so no human has applied the one-line fix. probe_failures stays 34: an attempt not made is not a failure. Gear rests on runs/allocator.json (source=probe; week_elapsed_pct advanced 72.63 -> 72.87 since cycle 42, so the file is fresh, not stale): posture=trickle, allow_premium_pct 0, allow_overall_pct 0, weekly_used_pct 78.0, opus_used_pct 96, dial 0.3. weekly_heat 78.0/72.87 = 1.070 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.318 > 1.2 keeps promote blocked. Trickle + guest 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is still after stop_at 1786807947, so gear 1 remains structural for the rest of the run. MOVEMENT REVERSES: after two cooling cycles, weekly_used_pct rose 77.0 -> 78.0 while elapsed advanced only 0.24, so weekly_heat went UP for the first time since cycle 40 (1.060 -> 1.070) and the margin to the 1.1 governor threshold narrowed from 0.040 to 0.030. opus_used_pct held at 96 so opus_heat still fell (1.322 -> 1.318). No effect this cycle — the gear was already at its floor — but a continued rise would engage the governor for any post-reset run. NEW KI-2 MEASUREMENT this cycle: bin/swarm-notify.sh poll returned exit 127 in the bare-relative form that succeeded for cycles 33-42, because the shell cwd this cycle is /opt/targets/moon (verified by ls) rather than /opt/swarm; the /opt absolute form was then refused by the permission layer. The notify channel is unreachable in BOTH forms, so the nine prior successes were contingent on a cwd the conductor does not control and cannot change (cd is refused for shape).","weekly":{"ok":true,"weekly_used_pct":78,"opus_used_pct":96,"week_elapsed_pct":72.87,"weekly_heat":1.07,"opus_heat":1.318,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":15,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+### cycle 43 addendum — commit hash, push, render, wakeup band
+
+- Cycle commit: 6c02de9, pushed to origin/main (0d21ecb..6c02de9). The product tree did NOT
+  move: src/, bin/, README.md and package.json are untouched, and the single product-adjacent
+  file, test/regressions.test.js, is byte-identical to HEAD once full-line comments are
+  stripped. No merge commit and no builder branch: the k=1 builder edited in place, so there
+  was nothing to merge and nothing to delete. `git worktree list` shows only /opt/targets/moon
+  because none was ever created.
+- COMMIT-SUBJECT SLIP, caught at render time and recorded rather than quietly patched: the
+  cycle-43 subject ends `[verified]` instead of `[N verified]`, so the dashboard's burn-up
+  parser — which builds the whole cumulative series by regexing `\[(\d+) verified` out of the
+  target's own commit subjects — would have scored this cycle 0 and shown a flat bar for a
+  cycle that verified an item. The render adds cycle 43's count explicitly from THIS cycle's
+  gate (the real source of truth; a commit subject is a convenience index over it) behind an
+  assert that fires if a subject ever does supply it, and THIS addendum commit carries
+  `[1 verified` in its subject so every future render parses the series from git alone and
+  gets the same answer. The main commit was already pushed; amending a pushed commit to fix a
+  cosmetic subject would have been a worse trade than saying this out loud.
+- Dashboard rendered at 07:39:17Z, 10 live-region substitutions, 43 bars. Burn-up moved at
+  ONE end only for the first time in four cycles — numerator 34 -> 35 (T-137 verified),
+  denominator held at 40 because nothing was filed. Cycles 40, 41 and 42 all grew the queue
+  while landing work; this one did not, and the tooltip says so. No Artifact publish
+  attempted: a headless VPS session has no Artifact tool, which per cycle.md step 8 is not a
+  publish failure, so publish_failures stays 0.
+- The cycle-42 renderer defect stayed fixed: all eight anchor regexes search livetext()
+  (live spans only), and every one matched exactly once on the first run. No blind render,
+  no abort.
+- Notifications: none of the three step-8 emit conditions fired — phase unchanged
+  (VALUE_LOOP), no target stalled, publish_failures still 0. Moot in any case, since the
+  notify channel was unreachable in both its invocation forms this cycle (see the orient
+  note above).
+- Wakeup: 90s base band, not the 900s no-value band — this cycle verified an item. Derived at
+  render time rather than persist time because a 90s band reliably expires during the
+  persist/commit/push tail; next_wakeup_at 1786779647. Clamp checked: wakeup + 900 <= stop_at
+  holds with ~7.8h of margin. No ScheduleWakeup call: on the VPS bin/swarm-pacer.sh reads
+  next_wakeup_at and is the firing mechanism (cycle.md step 9).
+- SWARM-side writes this cycle were confined to runs/ (five helper scripts, the journal
+  staging file, the dashboard, the runfile and its .bak) — inside the hard-rule-5 fence. No
+  .scratch/ debris, which was the cycle-42 defect; at k=1 there is no concurrency to isolate,
+  so no worktree was requested and the sandbox never had to place one.
+- Every git invocation was written as `git -C /opt/targets/moon ...`. Two Bash calls were
+  refused for SHAPE rather than content (the step-0 `$$` PID walk, rejected as
+  "Contains simple_expansion", and one compound `ls; echo; ls`); both were re-issued as
+  separate simple commands and no work was lost.
+- STATE AFTER: backlog 36 done / 4 todo of 40. The four open items are T-130, T-126, T-116
+  and T-139 — all wording, none correctness. Cycle 42 asked whether any of them clears the
+  two-part ratchet; this cycle answered yes for at least three and closed the strongest one.
+  On the same reading, T-130 (a comment asserting a cross-engine guarantee ECMA-262 does not
+  give) is the next pick, and T-116 is the only remaining item a non-contributor would ever
+  see. With ~7.8h left at gear 1 there is room for all four, and the honest risk for the rest
+  of the run is churn, not time.
