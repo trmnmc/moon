@@ -10,7 +10,7 @@ const { execFileSync } = require('node:child_process')
 const fs = require('node:fs')
 const path = require('node:path')
 const { renderLine, renderBlock } = require('../src/render.js')
-const { PHASE_NAMES } = require('../src/astro.js')
+const { computeMoon, PHASE_NAMES } = require('../src/astro.js')
 
 const BIN = path.join(__dirname, '..', 'bin', 'moon.js')
 const REPO_ROOT = path.join(__dirname, '..')
@@ -415,5 +415,79 @@ test('T-134 — README north/south sweep table rows are self-consistent and repr
       'sweep table breaks PHASE_NAMES cycle order between rows ' +
       `${JSON.stringify(rows[i - 1])} and ${JSON.stringify(rows[i])}`)
     wrapped = true
+  }
+})
+
+// T-135 — the check above is an ORDER check only: it walks PHASE_NAMES and accepts any
+// row sequence that doesn't go backwards. Retyping a row's name to an ADJACENT name
+// that still preserves cycle order slips straight through it, and through every other
+// check above too — south-mirrors-north, north/south agree with each other, and the
+// band search, which only asks whether SOME illumination in the row's own band
+// reproduces the row's disc under the row's CLAIMED name. None of that ever asks
+// whether the shipping product would actually have LABELLED that disc with that name.
+// The 51% row read "first quarter"; hand-retyped to "waxing gibbous" (still later in
+// PHASE_NAMES order, so the order check is happy) the whole suite above stays green.
+// That is the same defect family as the shipped v0.1.0 "full" row (RETRO.md lines
+// 38-43), one notch subtler: this one needs the table itself, not just a table row, to
+// be self-inconsistent before anything notices.
+//
+// The fix asks the shipping product, not the table: which (phase name, displayed
+// percent) PAIRS can `computeMoon` + `renderLine` actually produce together, for a real
+// Date instant? A row's pair must be a member of that reachable set. Membership, not a
+// per-name min/max range — the true ranges overlap (e.g. "first quarter" and "waxing
+// gibbous" both cover 56%, per src/astro.js's INSTANT_TOLERANCE_DAYS window landing on
+// either side of a true quarter instant with slightly different illumination each
+// time), so a range check would wave the 51% "waxing gibbous" mutant straight through.
+//
+// The sweep instant is a fixed hardcoded constant, never Date.now(): the reachable set
+// must be identical on every run, or a passing suite today could fail tomorrow for no
+// code reason. Percent is read back through parseRenderedRun on renderLine's own
+// output, exactly like every README row below — never a hand computed
+// Math.round(illumination * 100), which would smuggle in the one assumption (the
+// rounding rule) the T-134 comment above goes out of its way never to make.
+//
+// Sweep window: one synodic month (SYNODIC_MONTH, ~29.53 days — astro.js) is the whole
+// period over which the (name, percent) pairing repeats; astro.js's own
+// PHASE_ILLUMINATION_CONSISTENCY_DOMAIN note documents that phaseName and illumination
+// are two independent Meeus series only checked to agree near J2000, so this sweeps
+// where the table's own moon (readmeMoon(), a real "now" reading) actually lives rather
+// than assuming the pairing holds across centuries. 35 days is a full lunation plus a
+// >5-day margin, so the reachable set can't come up short just because the start
+// instant happened to land next to a phase transition. A 15-minute step keeps the
+// narrowest whole-percent band (around the 50% crossing, illumination changes fastest
+// there — see the T-134 comment above) covered by several samples, not one. That's
+// ~3,400 computeMoon calls: a fraction of a second, next to the T-134 test's own
+// per-row 401-sample band search.
+const REACHABILITY_SWEEP_START_MS = Date.UTC(2026, 0, 1) // fixed instant, never Date.now()
+const REACHABILITY_STEP_MS = 15 * 60 * 1000 // 15 minutes
+const REACHABILITY_SPAN_MS = 35 * 24 * 60 * 60 * 1000 // > one synodic month
+
+test('T-135 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce', () => {
+  const section = readmeSection('Why this one')
+  const lines = firstFence(section).split('\n')
+  const rows = lines.slice(1).filter((l) => l.length > 0)
+  assert.ok(rows.length > 0, 'sweep table has no data rows below its header')
+
+  // Reachable set: every (phaseName, displayed-percent) pair that renderLine actually
+  // prints for some real computeMoon(date) in the sweep window. Keyed on the exact
+  // illum field text parseRenderedRun returns (already zero-padded, e.g. "  3%"), so
+  // this is compared to README rows on identical terms with no separate percent-parsing
+  // logic to drift out of sync with parseRenderedRun.
+  const reachable = new Set()
+  const steps = Math.floor(REACHABILITY_SPAN_MS / REACHABILITY_STEP_MS)
+  for (let i = 0; i <= steps; i++) {
+    const instant = new Date(REACHABILITY_SWEEP_START_MS + i * REACHABILITY_STEP_MS)
+    const moon = computeMoon(instant)
+    const run = parseRenderedRun(renderLine(moon, 'north'))
+    reachable.add(run.name + '|' + run.illum)
+  }
+
+  for (const row of rows) {
+    const north = parseRenderedRun(row)
+    assert.ok(reachable.has(north.name + '|' + north.illum),
+      `no instant in the ${REACHABILITY_SPAN_MS / 86400000}-day sweep makes the ` +
+      `shipping renderer pair "${north.illum.trim()}" with "${north.name}" — this row's ` +
+      'name may have been retyped to an adjacent, cycle-order-preserving name (the ' +
+      `defect T-135 guards against): ${JSON.stringify(row)}`)
   }
 })
