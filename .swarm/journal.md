@@ -723,6 +723,24 @@ recycle: cycles_since_recycle 25 -> RESET to 0. Next forced recycle lands at cyc
   recycle. Next `cycle % 5 == 0` hygiene pass: cycle 30.
 next: cycle 26 takes T-122 (build-wave k=1, haiku). Full brief in the HANDOFF NOTE above.
 
+commit: 71f572e "cycle 25: RECYCLE - handoff note + cycle%5 backlog hygiene folded in
+  [0 items by construction, 114/114 green, backlog delta zero, next step T-122 briefed]"
+  pushed: ff6003f..71f572e main -> main (github.com/trmnmc/moon). Written into the journal
+  AFTER the commit it names, so this line lands in the cycle-25 addendum commit rather
+  than the one it describes -- same split cycles 22 and 23 used.
+dashboard: runs/dashboard.html re-rendered, 12 regions, gen 2026-08-15T00:10:04Z /
+  expected 00:43:04Z. No Artifact tool in a headless VPS cycle, so the file write IS the
+  publication -- that is a skip, NOT a publish failure, and publish_failures stays 0.
+  Two render defects fixed while there: (1) the VISIBLE `gen`/`next` header divs still read
+  23:26 while the machine data-generated attribute read 00:02 -- cycle 24 updated the
+  attribute and not the text, so the page disagreed with its own staleness signal; (2) no
+  live allocator tile existed, only the EXAMPLE values in the template comment (normal /
+  prem 22% / you 41% / q3), which a reader could easily have taken for the live posture.
+  The tile now carries the real numbers from runs/allocator.json: trickle, prem 0%, you 0%.
+notifications: none due. Phase unchanged (VALUE_LOOP), status not stalled, publish_failures
+  0 -- all three step-8 emit conditions are false, so nothing was sent. Notify IS configured
+  and working (.ntfy.json present, poll exit 0); an earlier dashboard line claiming "notify
+  off (helper denied)" was already corrected to "notify on (...0d89)" and is left as-is.
 next wakeup: 1786752441 (+90s)
 runfile-mirror:
 ```json
