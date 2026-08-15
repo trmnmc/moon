@@ -9,6 +9,8 @@ const assert = require('node:assert/strict')
 const { execFileSync } = require('node:child_process')
 const fs = require('node:fs')
 const path = require('node:path')
+const { renderLine, renderBlock } = require('../src/render.js')
+const { PHASE_NAMES } = require('../src/astro.js')
 
 const BIN = path.join(__dirname, '..', 'bin', 'moon.js')
 const REPO_ROOT = path.join(__dirname, '..')
@@ -196,4 +198,222 @@ test('README zshrc prompt snippet does not use the npx fetch-on-render form', ()
   assert.doesNotMatch(zshrcBlock, /npx/,
     'the ~/.zshrc snippet still uses npx, the form the next paragraph says is too ' +
     'slow for prompt rendering: ' + JSON.stringify(zshrcBlock))
+})
+
+// T-134 helpers — README's headline block, `--block` block, and the north/south sweep
+// table are hand-maintained transcriptions of real renderer output. Nothing read them
+// before this, which is exactly how RETRO.md's hand-edited "full" row shipped. These
+// helpers parse the rendered examples back out of README.md itself so they can be
+// checked against the shipping renderer, instead of typing any of README's numbers
+// or names a second time.
+
+// Pulls the first fenced block of the given language tag (empty string for a plain
+// ``` fence, "json" for ```json) out of arbitrary README text, minus its trailing
+// newline. Fails loudly rather than returning an empty match.
+function firstFence (text, lang = '') {
+  const re = new RegExp('```' + lang + '\\n([\\s\\S]*?)```')
+  const m = re.exec(text)
+  assert.ok(m, `no \`\`\`${lang} fence found in the given README text`)
+  const body = m[1].replace(/\n$/, '')
+  assert.ok(body.length > 0, `\`\`\`${lang} fence parsed to an empty body`)
+  return body
+}
+
+// The headline block sits before README's first "## " heading, so readmeSection (which
+// hunts for a numbered heading) can't reach it. Same plain-string-search reasoning.
+function introSection () {
+  const text = fs.readFileSync(README, 'utf8')
+  const end = text.indexOf('\n## ')
+  assert.ok(end !== -1, 'README has no "## " heading to bound the intro section')
+  return text.slice(0, end)
+}
+
+// The MoonState for claims 1 and 2 comes from README's own ```json fence, not from a
+// hand-typed literal, so a future regeneration of that fence is exactly what these
+// tests check against.
+function readmeMoon () {
+  const text = fs.readFileSync(README, 'utf8')
+  const parsed = JSON.parse(firstFence(text, 'json'))
+  assert.ok(Number.isFinite(parsed.illumination),
+    'README ```json fence has no numeric "illumination" field')
+  assert.ok(Number.isFinite(parsed.cycleFraction),
+    'README ```json fence has no numeric "cycleFraction" field')
+  assert.ok(typeof parsed.phase === 'string' && parsed.phase.length > 0,
+    'README ```json fence has no non-empty "phase" field')
+  return { illumination: parsed.illumination, cycleFraction: parsed.cycleFraction, phaseName: parsed.phase }
+}
+
+// Horizontal-mirror map, matching render.js's own MIRROR table: reverse the run, swap
+// any handed glyph, leave everything else (the shade ramp) as-is.
+const DISC_MIRROR = new Map([
+  ['◖', '◗'], ['◗', '◖'],
+  ['▏', '▕'], ['▕', '▏'],
+  ['▌', '▐'], ['▐', '▌']
+])
+
+function mirrorDisc (disc) {
+  return [...disc].reverse().map((ch) => DISC_MIRROR.get(ch) || ch).join('')
+}
+
+// Parses one renderLine-shaped run — DISC ILLUM%  NAME<rest> — out of arbitrary text.
+// Deliberately locates fields by content, not by any hardcoded column width: the disc
+// is whatever precedes the first space (none of its glyphs are a space), the
+// illumination field is whatever precedes the following "%", and the name is matched
+// against astro.js's own PHASE_NAMES. This needs no private layout constant from
+// render.js, and works unchanged on both the north half and the south half of a sweep
+// row.
+function parseRenderedRun (str) {
+  const discEnd = str.indexOf(' ')
+  assert.ok(discEnd > 0, `no space found after a disc in ${JSON.stringify(str)}`)
+  const disc = str.slice(0, discEnd)
+  const pctEnd = str.indexOf('%', discEnd)
+  assert.ok(pctEnd > discEnd, `no illumination percent found in ${JSON.stringify(str)}`)
+  const illum = str.slice(discEnd + 1, pctEnd + 1)
+  const nameField = str.slice(pctEnd + 1).replace(/^ +/, '')
+  const name = PHASE_NAMES.find((n) => nameField.startsWith(n))
+  assert.ok(name, `no known PHASE_NAMES entry at the start of ${JSON.stringify(nameField)}`)
+  return { disc, illum, name, rest: nameField.slice(name.length) }
+}
+
+// T-134 — the headline fence is a hand-maintained transcription of renderLine's output
+// and no test read it, which is exactly the class of defect RETRO.md lines 38-43
+// describe: a rendered example hand-edited to something the renderer never produces,
+// caught by nothing. The moon fed to renderLine here is parsed out of README's own
+// ```json fence, not typed in, so the two blocks are checked against each other and
+// against the shipping renderer rather than against a value duplicated by hand.
+test('T-134 — README headline fence matches renderLine(moon, "north")', () => {
+  const moon = readmeMoon()
+  const headline = firstFence(introSection())
+  const line = headline.split('\n')[0]
+  assert.ok(line.length > 0, 'headline fence has no first line')
+  assert.equal(line, renderLine(moon, 'north'),
+    'README headline no longer matches renderLine(readmeMoon(), "north"): ' +
+    JSON.stringify(line))
+})
+
+// T-134 — same gap, for the `--block` fence. Its last line is "next full moon ...",
+// which renderBlock does not produce (bin/moon.js appends it separately), so it's
+// excluded before comparing.
+test('T-134 — README `--block` fence (minus its next-full-moon line) matches renderBlock(moon, "north")', () => {
+  const moon = readmeMoon()
+  const section = readmeSection('`--block`')
+  const lines = firstFence(section).split('\n')
+  assert.ok(lines.length > 1,
+    '--block fence has too few lines to hold a framed block plus a trailing line')
+  const framed = lines.slice(0, -1).join('\n')
+  assert.equal(framed, renderBlock(moon, 'north'),
+    'README --block fence (minus its next-full-moon line) no longer matches ' +
+    'renderBlock(readmeMoon(), "north")')
+})
+
+// T-134 — the north/south sweep table under "Why this one" is the block RETRO.md's
+// incident actually happened in: a captured "waning gibbous" row was hand-edited to
+// read "full", and all 131 tests stayed green because nothing parsed the table. This
+// test reconstructs every row's two halves by content (see parseRenderedRun) and
+// checks, per row: the south disc is exactly the mirrored north disc; north and south
+// agree on percent and phase name; the sequence of phase names down the table walks
+// astro.js's PHASE_NAMES in cycle order; and — the clause that actually matters, see
+// the band-search note below — SOME illumination inside the row's own displayed-percent
+// rounding band reproduces the row's exact north disc through the shipping renderLine.
+//
+// Band search, not a single sample. An earlier version of this test sampled only the
+// band's centre, illumination = pct / 100. That is a single point, not the band the
+// acceptance criterion actually names, and it produced a false positive: it accepted
+// this table only because every row's true source illumination happened to land near
+// that centre, and it REJECTED an honestly-regenerated row whose true illumination
+// (e.g. k = 0.046, which legitimately displays as "5%") was slightly off-centre. A
+// correct README must not be rejected because a real time sweep doesn't land on exact
+// hundredths.
+//
+// The fix is to search the whole band instead of assuming where in it the real sample
+// sits, and to never assume *how* render.js turns a fraction into a whole percent
+// (Math.round vs floor vs ceil is deliberately not assumed anywhere below — the
+// shipping renderer alone decides what percent a candidate illumination displays as).
+// The only numeric fact borrowed from render.js is the scale factor that defines what
+// "one whole percentage point" means in illumination-fraction units: illumField's
+// `Math.round(clamp(...) * 100)` (src/render.js:235) turns a 0..1 fraction into a 0..100
+// percent via `* 100`, so one percentage point is 1/100 of illumination. Whichever
+// single-step discretization render.js uses (nearest / floor / ceil), the interval of
+// illuminations displaying as a given whole percent is contained within one full
+// percentage point either side of pct/100 — floor's interval is [pct, pct+1)/100,
+// ceil's is (pct-1, pct]/100, nearest's is [pct-0.5, pct+0.5)/100, all subsets of
+// [pct-1, pct+1]/100. Sweeping that superset at fine resolution and asking the real
+// renderer, for each candidate, "what percent do you print, and what disc do you draw"
+// asserts nothing about which rounding rule is in use — only that the renderer really
+// can produce this exact row. That comfortably beats the tightest measured interior
+// margin (0.176 percentage points on the 5% row) and handles the 0%/100% rows honestly:
+// their bands clip against the physical domain k in [0,1] rather than being carved out
+// as special cases.
+const PCT_SCALE = 100 // src/render.js:235 — illumField's `... * 100`
+const BAND_RADIUS = 1 / PCT_SCALE // one whole percentage point, in illumination units
+const BAND_STEPS = 400 // ~0.005 percentage points per step across a 2pp-wide band
+
+test('T-134 — README north/south sweep table rows are self-consistent and reproducible', () => {
+  const moon = readmeMoon()
+  const section = readmeSection('Why this one')
+  const lines = firstFence(section).split('\n')
+  assert.ok(lines.length > 1,
+    'sweep-table fence has too few lines to hold a header plus data rows')
+  const rows = lines.slice(1).filter((l) => l.length > 0)
+  assert.ok(rows.length > 0, 'sweep table has no data rows below its header')
+
+  // Two illuminations, both taken from README's own parsed cycleFraction rather than
+  // typed in: min(cf, 1-cf) always lands in the waxing (first) half of the cycle and
+  // max(cf, 1-cf) always lands in the waning (second) half, whichever half the
+  // README's own example moon happens to be in.
+  const waxingCycleFraction = Math.min(moon.cycleFraction, 1 - moon.cycleFraction)
+  const waningCycleFraction = Math.max(moon.cycleFraction, 1 - moon.cycleFraction)
+  assert.ok(waxingCycleFraction < 0.5 && waningCycleFraction >= 0.5,
+    'could not derive a waxing- and a waning-side cycleFraction from readmeMoon()')
+
+  const cycleIndices = []
+  for (const row of rows) {
+    const north = parseRenderedRun(row)
+    const southRun = north.rest.replace(/^ +/, '')
+    assert.ok(southRun.length > 0,
+      `row has no south half following the north name: ${JSON.stringify(row)}`)
+    const south = parseRenderedRun(southRun)
+    assert.equal(south.rest, '',
+      `row has unparsed trailing text after its south half: ${JSON.stringify(row)}`)
+
+    assert.equal(south.disc, mirrorDisc(north.disc),
+      `south disc is not the exact mirror of the north disc: ${JSON.stringify(row)}`)
+    assert.equal(south.illum, north.illum,
+      `north and south disagree on illumination percent: ${JSON.stringify(row)}`)
+    assert.equal(south.name, north.name,
+      `north and south disagree on phase name: ${JSON.stringify(row)}`)
+
+    const pct = Number(north.illum.replace('%', '').trim())
+    assert.ok(Number.isFinite(pct), `could not parse a percent out of ${JSON.stringify(north.illum)}`)
+    const waxing = !north.name.includes('waning')
+    const cycleFraction = waxing ? waxingCycleFraction : waningCycleFraction
+
+    const lo = Math.max(0, pct / PCT_SCALE - BAND_RADIUS)
+    const hi = Math.min(1, pct / PCT_SCALE + BAND_RADIUS)
+    let found = false
+    for (let i = 0; i <= BAND_STEPS && !found; i++) {
+      const candidate = lo + ((hi - lo) * i) / BAND_STEPS
+      const sample = renderLine({ illumination: candidate, cycleFraction, phaseName: north.name }, 'north')
+      const parsedSample = parseRenderedRun(sample)
+      const samplePct = Number(parsedSample.illum.replace('%', '').trim())
+      if (samplePct === pct && parsedSample.disc === north.disc) found = true
+    }
+    assert.ok(found,
+      `no illumination in the ${pct}% row's own rounding band [${lo}, ${hi}] renders ` +
+      `both that exact percent and that exact north disc through renderLine: ` +
+      JSON.stringify(row))
+
+    cycleIndices.push(PHASE_NAMES.indexOf(north.name))
+  }
+
+  // The table sweeps once around the cycle, so consecutive rows' PHASE_NAMES indices
+  // must be non-decreasing except for a single wrap back to "new" at the very end.
+  let wrapped = false
+  for (let i = 1; i < cycleIndices.length; i++) {
+    if (cycleIndices[i] >= cycleIndices[i - 1]) continue
+    assert.ok(!wrapped && cycleIndices[i] === PHASE_NAMES.indexOf('new'),
+      'sweep table breaks PHASE_NAMES cycle order between rows ' +
+      `${JSON.stringify(rows[i - 1])} and ${JSON.stringify(rows[i])}`)
+    wrapped = true
+  }
 })
