@@ -100,3 +100,51 @@ is what lets it be built and tested in parallel against hand-constructed fixture
 | `src/hemisphere.js`, `src/args.js`, `test/hemisphere.test.js`, `test/args.test.js` | builder T-002 |
 | `src/render.js`, `test/render.test.js` | builder T-003 |
 | `bin/moon.js`, `package.json`, `README.md`, `.swarm/*` | CONDUCTOR ONLY |
+
+## Cycle 1 Freeze vs. Current Code — Recorded Divergences
+
+The following three divergences have developed between the frozen contracts and the actual code, without editing this file per the freeze.
+
+### src/astro.js exports
+
+Line 33 declares:
+
+```js
+module.exports = { computeMoon, PHASE_NAMES }
+```
+
+`src/astro.js:363` currently exports:
+
+```js
+module.exports = { computeMoon, nextFullMoon, PHASE_NAMES, PHASE_ILLUMINATION_CONSISTENCY_DOMAIN };
+```
+
+`nextFullMoon` and `PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` are now exported and are absent from the frozen declaration.
+
+### src/args.js parseArgs return shape
+
+Line 60 declares:
+
+```js
+@returns {{json:boolean, hemisphere:("north"|"south"|null), block:boolean, help:boolean}}
+```
+
+`src/args.js:106-112` currently returns an object with an additional fifth key:
+
+```js
+compact: parsed.values.compact === true,
+```
+
+### src/args.js flag list
+
+Line 67 declares:
+
+```
+Flags: `--json`, `--south`, `--north`, `--block`, `--help`/`-h`.
+```
+
+`src/args.js:15` currently registers six flags in OPTIONS, including `--compact` on line 17.
+
+### Observable consequence
+
+`test/args.test.js:87` is a shipping test titled `'the returned object has exactly the five contract keys'`. It asserts five keys exist (`json`, `hemisphere`, `block`, `compact`, `help`) and passes. The frozen contract on line 60 declares only four keys in the return type. This test would fail if judged against the frozen contract's JSDoc signature.

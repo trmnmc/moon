@@ -1,0 +1,88 @@
+==============================================================================
+T-125 GATE  --  candidate: /opt/targets/moon/.swarm/CONTRACTS.md
+==============================================================================
+
+C1  SCOPE -- one product file touched; the conductor's own edit proven benign
+  PASS  only .swarm/CONTRACTS.md and the conductor-owned backlog are modified
+          modified (excluding .swarm/runs/ evidence dir): ['.swarm/CONTRACTS.md', '.swarm/backlog.json']
+  PASS  backlog: builder added nothing and changed no pre-existing item
+          added=['T-125'] removed=[] content-drifted=[]
+  PASS  no src/, test/, bin/ or top-level doc touched
+          product paths: ['.swarm/CONTRACTS.md', '.swarm/backlog.json']
+
+C2  FREEZE INTEGRITY -- the decisive check: additive, never destructive
+  PASS  every byte of the HEAD file survives as an exact PREFIX of the new file
+          HEAD bytes: 3293 | new bytes: 4753
+  PASS  the change is a non-empty APPEND
+          appended bytes: 1460
+
+C3  CONTENT -- all three divergences recorded
+  PASS  names nextFullMoon
+  PASS  names PHASE_ILLUMINATION_CONSISTENCY_DOMAIN
+  PASS  names the compact key / --compact flag
+  PASS  cites src/astro.js
+  PASS  cites src/args.js
+
+C4  THE CONTRADICTION THAT REACHES THE SHIPPED SUITE
+  PASS  cites test/args.test.js
+  PASS  states the five-vs-four contradiction
+
+C5  CITATION RESOLUTION -- each `path:NN` must resolve and support its claim
+  PASS  the section cites at least three source locations
+          citations found: [('src/astro.js', '363', ''), ('src/args.js', '106', '112'), ('src/args.js', '15', ''), ('test/args.test.js', '87', '')]
+  PASS  every cited line number is in range for its file
+          unresolved: []
+          src/astro.js:363-363 -> module.exports = { computeMoon, nextFullMoon, PHASE_NAMES, PHASE_ILLUMINATION_
+          src/args.js:106-112 -> return {
+    json: parsed.values.json === true,
+    hemisphere,
+    block: par
+          src/args.js:15-15 -> // Exists so the MOTD/shell-prompt use case (the primary interface, per SPEC
+          test/args.test.js:87-87 -> test('the returned object has exactly the five contract keys', () => {
+  PASS  src/astro.js:363 really is the module.exports line
+          module.exports = { computeMoon, nextFullMoon, PHASE_NAMES, PHASE_ILLUMINATION_CONSISTENCY_DOMAIN };
+  PASS  src/args.js:17 really is the compact registration
+          compact: { type: 'boolean' },
+  PASS  test/args.test.js:87 really is the five-contract-keys test
+          test('the returned object has exactly the five contract keys', () => {
+
+C6  TRUTH RE-DERIVATION -- gate does not trust the conductor's own filing
+  PASS  src/astro.js really exports the two the freeze omits
+          actual exports: ['PHASE_ILLUMINATION_CONSISTENCY_DOMAIN', 'PHASE_NAMES', 'computeMoon', 'nextFullMoon']
+  PASS  the freeze really omits them
+  PASS  src/args.js really returns a `compact` key
+  PASS  test/args.test.js really says "five contract keys"
+
+C7  SUITE -- untouched code must still be green
+  PASS  full suite exit 0
+          ℹ tests 115
+          ℹ pass 115
+          ℹ fail 0
+
+C8  COUNT VERIFICATION -- "four"/"fifth"/"six" recomputed from source
+  PASS  the frozen args.js section was located and contains parseArgs
+  PASS  frozen @returns really declares FOUR keys (the section says four)
+          frozen keys: ['json', 'hemisphere', 'block', 'help'] | line: {{json:boolean, hemisphere:("north"|"south"|null), block:boolean, help:boolean}}
+  PASS  parseArgs really returns FIVE keys (the section says a fifth)
+          live keys: ['json', 'hemisphere', 'block', 'compact', 'help']
+  PASS  my parse of the live keys EQUALS the list the shipping test asserts
+          parsed: ['block', 'compact', 'help', 'hemisphere', 'json'] | test asserts: ['block', 'compact', 'help', 'hemisphere', 'json']
+  PASS  the frozen four are a strict SUBSET of the live five
+          frozen: ['block', 'help', 'hemisphere', 'json'] | live: ['block', 'compact', 'help', 'hemisphere', 'json'] | the difference is exactly: ['compact']
+  PASS  OPTIONS really registers SIX flags (the section says six)
+          OPTIONS flags: ['json', 'south', 'north', 'block', 'compact', 'help']
+
+C9  NO UNSOURCED QUANTITY -- every numeral traced to a resolved source
+  PASS  every bare `line NN` self-reference is in range for the frozen file
+          out of range: [] (frozen file has 103 lines)
+          frozen line 33 -> module.exports = { computeMoon, PHASE_NAMES }
+          frozen line 60 -> * @returns {{json:boolean, hemisphere:("north"|"south"|null), block:boolea
+          frozen line 67 -> Flags: `--json`, `--south`, `--north`, `--block`, `--help`/`-h`.
+          frozen line 17 -> function computeMoon(date)
+          frozen line 60 -> * @returns {{json:boolean, hemisphere:("north"|"south"|null), block:boolea
+  PASS  no numeral on added lines lacks a source
+          unsourced numerals: []
+
+==============================================================================
+30 checks, 0 failed
+==============================================================================

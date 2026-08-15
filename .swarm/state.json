@@ -3,7 +3,7 @@
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
  "phase": "VALUE_LOOP",
- "cycle": 28,
+ "cycle": 29,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -21,7 +21,7 @@
   {
    "cycle": 0,
    "what": "port a documented Meeus/Duffett-Smith algorithm into zero-dep Node rather than fork prior art",
-   "why": "prior-art scout returned stance `extend` \u2014 the phoon lineage (Poskanzer -> moontool -> wwn-phoon-rs) is grep-verified to do real phase math offline, so re-deriving the core would be wasted work. But the cleanest candidate is Rust, which conflicts with the user's explicit node/npx/zero-install choice \u2014 and npx distribution is itself one of the three things NO prior art does. Resolution: honor `extend` in substance by porting a published algorithm and using tidecal (MIT, Meeus ch.47 in JS) as reference and wwn-phoon-rs as a cross-check oracle, while keeping the Node surface."
+   "why": "prior-art scout returned stance `extend` — the phoon lineage (Poskanzer -> moontool -> wwn-phoon-rs) is grep-verified to do real phase math offline, so re-deriving the core would be wasted work. But the cleanest candidate is Rust, which conflicts with the user's explicit node/npx/zero-install choice — and npx distribution is itself one of the three things NO prior art does. Resolution: honor `extend` in substance by porting a published algorithm and using tidecal (MIT, Meeus ch.47 in JS) as reference and wwn-phoon-rs as a cross-check oracle, while keeping the Node surface."
   },
   {
    "cycle": 0,
@@ -190,23 +190,23 @@
   },
   {
    "cycle": 19,
-   "what": "T-113 passed, and the fix was accepted in the framing that NAMES 0.88 at all three sites rather than a hedge like \u201cnearly full\u201d",
-   "why": "The run\u2019s standing docs frame rule (cycles 2 and 4) says a quantity may appear only in the frame the repo already computes it in, and 0.88 is not a derived figure \u2014 it is the literal in `else if (cover < 0.88) out += HALF`, one line below the comment being fixed. A hedge would have been the safer-looking choice and the worse one: it would have replaced an incomplete claim with a vague one, and this defect family is precisely prose drifting away from the branch it describes. The builder also wrote the raw fraction, not a percentage, which is the source\u2019s own frame; \u201c88%\u201d would have been a re-expression the repo never computes."
+   "what": "T-113 passed, and the fix was accepted in the framing that NAMES 0.88 at all three sites rather than a hedge like “nearly full”",
+   "why": "The run’s standing docs frame rule (cycles 2 and 4) says a quantity may appear only in the frame the repo already computes it in, and 0.88 is not a derived figure — it is the literal in `else if (cover < 0.88) out += HALF`, one line below the comment being fixed. A hedge would have been the safer-looking choice and the worse one: it would have replaced an incomplete claim with a vague one, and this defect family is precisely prose drifting away from the branch it describes. The builder also wrote the raw fraction, not a percentage, which is the source’s own frame; “88%” would have been a re-expression the repo never computes."
   },
   {
    "cycle": 19,
-   "what": "the gate\u2019s central check was an INSTRUMENTED SWEEP of the real branch, not a reading of the source \u2014 and it is what upgraded the item from \u2018true by inspection\u2019 to \u2018true by measurement\u2019",
-   "why": "Reading `else if (cover < 0.88) HALF; else ROUND_LIMB` proves the fix is consistent with the source, but it does NOT prove the disc ever actually reaches that branch below full lit \u2014 if cover only ever hit 1.0 in practice, the old prose would have been complete after all and this item would have been churn. So renderLine was driven over a 20,000-step synodic sweep in both hemispheres against an instrumented COPY of render.js (repo source untouched): 2,924 of 33,192 round-limb draws land at cover<1.0, least-lit 0.887324. The sweep also checked the converse, which a one-directional check would have missed: outer cells with cover>=0.88 number EXACTLY 33,192, the same as the round-limb draws, so \u20180.88\u2019 is the precise condition and not merely a sufficient one. Generalizable: a comment describing a branch is verifiable by instrumenting the branch and counting which side of it real inputs land on."
+   "what": "the gate’s central check was an INSTRUMENTED SWEEP of the real branch, not a reading of the source — and it is what upgraded the item from ‘true by inspection’ to ‘true by measurement’",
+   "why": "Reading `else if (cover < 0.88) HALF; else ROUND_LIMB` proves the fix is consistent with the source, but it does NOT prove the disc ever actually reaches that branch below full lit — if cover only ever hit 1.0 in practice, the old prose would have been complete after all and this item would have been churn. So renderLine was driven over a 20,000-step synodic sweep in both hemispheres against an instrumented COPY of render.js (repo source untouched): 2,924 of 33,192 round-limb draws land at cover<1.0, least-lit 0.887324. The sweep also checked the converse, which a one-directional check would have missed: outer cells with cover>=0.88 number EXACTLY 33,192, the same as the round-limb draws, so ‘0.88’ is the precise condition and not merely a sufficient one. Generalizable: a comment describing a branch is verifiable by instrumenting the branch and counting which side of it real inputs land on."
   },
   {
    "cycle": 19,
    "what": "three gate flags (C4a, C4b, C4c) were traced to my own instrument and the instrument was repaired; each widening was paired with a strictly stronger assertion, and the normalizer was then falsified against HEAD",
-   "why": "C4a swept `git ls-files`, so it flagged .swarm/backlog.json, .swarm/journal.md and the cycle-12 evidence file \u2014 the RECORD of the defect, which must keep the phrase \u2018declines to establish\u2019 to stay legible; product scope is src/, test/, README.md, REPORT.md, where the hit count is zero. C4b/C4c matched literal strings containing spaces while the edit had reflowed both passages, so \u2018East Asian\\nWidth class\u2019 and \u2018has not\\n * been established\u2019 spanned line breaks. Both are line-wrap blindness, the same class of instrument bug as cycle 8\u2019s .trim() defect and cycle 9\u2019s sentence-scope defect \u2014 third occurrence this run, and all three were MY regexes being narrower than the prose they measured. Guarding the repair the way cycles 8 and 9 did: C4a grew a volitional-verb family so a synonym cannot pass where the literal was caught; C4d now requires the test comment to assert README\u2019s OWN predicate EXTRACTED from README rather than a string I chose, so the allowance cannot be something I invented; and C4f runs the normalized checks against HEAD and REQUIRES them to still catch the old wording \u2014 if prose() were manufacturing matches, C4f fails and the entire C4 block is void."
+   "why": "C4a swept `git ls-files`, so it flagged .swarm/backlog.json, .swarm/journal.md and the cycle-12 evidence file — the RECORD of the defect, which must keep the phrase ‘declines to establish’ to stay legible; product scope is src/, test/, README.md, REPORT.md, where the hit count is zero. C4b/C4c matched literal strings containing spaces while the edit had reflowed both passages, so ‘East Asian\\nWidth class’ and ‘has not\\n * been established’ spanned line breaks. Both are line-wrap blindness, the same class of instrument bug as cycle 8’s .trim() defect and cycle 9’s sentence-scope defect — third occurrence this run, and all three were MY regexes being narrower than the prose they measured. Guarding the repair the way cycles 8 and 9 did: C4a grew a volitional-verb family so a synonym cannot pass where the literal was caught; C4d now requires the test comment to assert README’s OWN predicate EXTRACTED from README rather than a string I chose, so the allowance cannot be something I invented; and C4f runs the normalized checks against HEAD and REQUIRES them to still catch the old wording — if prose() were manufacturing matches, C4f fails and the entire C4 block is void."
   },
   {
    "cycle": 19,
-   "what": "T-113 closes the fourth and last open instance of the \u2018module doc-comment gloss wider than the code\u2019 family (T-110, T-112, T-105, T-113); the candidate playbook lesson promoted at cycle 16 now has a complete case set for WRAP_UP distillation",
-   "why": "Cycle 16 promoted the pattern to a candidate lesson on its fourth instance and named the generalizable test as the MUTANT shape (mutate B, leave A alone; a claim that survives is decoration). T-113 adds a second, cheaper discriminator to that lesson: where the claim is about a BRANCH rather than a cross-file coupling, instrumenting the branch and counting which side real inputs land on settles it directly \u2014 here it converted \u2018the comment is narrower than the code\u2019 from an inspection into 8.8% of 33,192 draws. Both belong in the same lesson: a prose claim about code is checkable by perturbing or instrumenting the code, never by re-reading the prose."
+   "what": "T-113 closes the fourth and last open instance of the ‘module doc-comment gloss wider than the code’ family (T-110, T-112, T-105, T-113); the candidate playbook lesson promoted at cycle 16 now has a complete case set for WRAP_UP distillation",
+   "why": "Cycle 16 promoted the pattern to a candidate lesson on its fourth instance and named the generalizable test as the MUTANT shape (mutate B, leave A alone; a claim that survives is decoration). T-113 adds a second, cheaper discriminator to that lesson: where the claim is about a BRANCH rather than a cross-file coupling, instrumenting the branch and counting which side real inputs land on settles it directly — here it converted ‘the comment is narrower than the code’ from an inspection into 8.8% of 33,192 draws. Both belong in the same lesson: a prose claim about code is checkable by perturbing or instrumenting the code, never by re-reading the prose."
   },
   {
    "cycle": 21,
@@ -282,6 +282,31 @@
    "cycle": 28,
    "what": "the gate's decisive check was a SOURCE mutation (nextFullMoon's target phase k+0.5 -> k+0.5001), not only mutations of the test's own constants.",
    "why": "Mutating the three documented constants proves the comparison is live, but it cannot distinguish a test that measures the implementation from one that would still pass if the measurement were computed some degenerate way. Perturbing the source by 1e-4 lunation (~4 min, above the 0.001-day tolerance) is the discriminator: it turns the suite red through the min assertion, which proves the pinned figures are produced by the ch.49 machinery under test. This is the 'discriminator over remembered reference value' rule from the QA prompt lines, applied at the gate rather than in QA."
+  },
+  {
+   "cycle": 29,
+   "what": "My own first measurement said README's headline accuracy claim was FALSE. It was not -- the claim is true and my measurement was the wrong one. Caught by measuring a second and third way before filing anything.",
+   "why": "README.md:164-165 and REPORT.md:34 both assert the implementation computes the 2000-01-06 new moon at 18:15 UTC. Bisecting the `age` discontinuity off the public surface gave 18:13:43.349Z -- which rounds to 18:14 and would have made the README's figure a fabrication of exactly the kind this run has removed eight times. Two further derivations refuted my own finding: bisecting the `cycleFraction` wrap (the method test/astro.test.js:63-72 itself uses) and, independently, ternary-searching the illumination MINIMUM (which comes from the ch.48 elongation series, not the ch.49 instant tables) both land on 18:15:22.79Z and agree with EACH OTHER to 4 milliseconds. The README is right. The root cause of my bad number is real and worth recording: `age` is computed at src/astro.js:313 from the ch.49 true-phase instant tables while `cycleFraction` is computed at src/astro.js:303 from the ch.48 elongation series, so the two zero 99.4 s apart -- the same two-series split KI-7 documents, showing up at an ordinary epoch rather than an absurd one. GENERALIZABLE, and it is the lesson of the cycle: a 'the docs are wrong' finding must be measured by the method the doc's own evidence uses AND by one method independent of it, because a single derivation off a different series is indistinguishable from a real defect. Evidence: .swarm/runs/cycle-029-anchor-measure.js."
+  },
+  {
+   "cycle": 29,
+   "what": "The scan's other candidate -- `--compact` being the only CLI flag with no positive unit assertion in test/args.test.js -- was PRICED BY MUTATION and rejected as churn rather than accepted as a coverage hole.",
+   "why": "The gap is real: every other flag has a `parseArgs(['--flag'])` deepStrictEqual at args.test.js:33/43/53/63/73 and --compact has none. But 'a test is missing' is not the same claim as 'the surface is unprotected', and the SPEC's taste note names CHURN as this run's chief risk with the rule 'every added test closes a NAMED untested surface; test count is not an outcome'. So I mutated the wiring instead of arguing it: .swarm/runs/cycle-029-compact-mutants.py runs four mutants (compact <- block, compact <- json, pinned true, pinned false) and ZERO survive the full suite -- only 'pinned false' survives args.test.js alone, and cli.test.js:44 kills it end-to-end. The surface is covered at a different level. Adding the unit test would have raised the test count and closed nothing, which is the exact failure the digest warns against."
+  },
+  {
+   "cycle": 29,
+   "what": "T-125 fixed by APPENDING a drift note to .swarm/CONTRACTS.md with every frozen line left byte-identical, rather than by correcting the stale signatures in place.",
+   "why": "The obvious objection to filing this at all is that CONTRACTS.md is a frozen historical artifact -- its header reads 'FROZEN CONTRACTS -- cycle 1 ... Authored by the conductor BEFORE any builder started' -- so drift from it is expected and 'fixing' it would falsify the record of what was actually frozen. That objection is right about the FIX and wrong about the DEFECT. The defect is real because the contradiction does not stay inside .swarm/: test/args.test.js:87 is a SHIPPING test titled 'the returned object has exactly the five contract keys' which asserts five and passes, while the document it calls the contract declares four and says 'no builder may change a signature below'. The additive shape satisfies both concerns at once -- the freeze remains a perfect record, and the misleading is gone -- and the gate enforces it mechanically as a byte-prefix check rather than trusting the builder to have been careful."
+  },
+  {
+   "cycle": 29,
+   "what": "Two gate-instrument defects were found and repaired mid-verification, each paired with a strictly stronger assertion; neither was allowed to change the standard.",
+   "why": "C8 initially reported the frozen @returns as declaring ZERO keys and the live parseArgs as returning four. Both were MY regexes being narrower than the code: the first took the FIRST '@returns' in CONTRACTS.md, which belongs to computeMoon rather than parseArgs, and the second required a colon so it silently dropped the ES6 shorthand `hemisphere,`. This is the FOURTH instance this run of my own instrument being narrower than the thing it measures (cycle 8's .trim() defect, cycle 9's sentence-scope defect, cycle 19's line-wrap defect). Per that standing precedent every widening was paid for: the frozen block is now located by anchoring on the '## src/args.js' SECTION and asserted to contain parseArgs before being counted; and rather than trust my own parse of the live keys at all, the gate now requires it to EQUAL the key list extracted from the shipping test itself, plus asserts the frozen four are a strict SUBSET of the live five with the difference shown to be exactly {compact}. Separately, my C5 repair (replacing a hand-typed numeral permit-list with citation resolution) silently REMOVED the invented-quantity guard while strengthening the wrong-citation guard; I caught it while designing the failability harness and restored it as C9 in the stronger resolved form. The harness then proved the restoration does real work: the invented-quantity mutant is killed."
+  },
+  {
+   "cycle": 29,
+   "what": "The target was NOT declared done, and this cycle's scan is the reason rather than an excuse.",
+   "why": "Cycle 28's handoff named exactly two acceptable outcomes for a fresh VALUE_LOOP candidate scan: return nothing that passes the ratchet and declare done, or return a candidate and build it. The scan returned a candidate (T-125), it was built and verified, so the second branch is what happened -- an empty queue was never the question. The scan itself covered six surfaces (doc-vs-code truth, comment-vs-code gloss, untested named surfaces, hostile input, CONTRACTS.md vs reality, manifest hygiene); five came back clean under conductor re-verification, including a 19-case hostile-input matrix run against the real binary with zero stack traces and zero silent nonzero exits. The DONE question is now genuinely closer than it has been: the surfaces this run knows how to sweep are swept, and what remains on the backlog (T-116, T-126) is two ratchet-rejected cosmetics."
   }
  ],
  "known_issues": [
@@ -333,13 +358,13 @@
   "consecutive_no_value": 0,
   "consecutive_failures": 0,
   "k_current": 5,
-  "wave_streak": 1,
+  "wave_streak": 0,
   "window_tokens_attributed": 0
  },
  "last_cycle": {
-  "cycle": 28,
-  "work": "build-wave k=1 at sonnet (gear 1 clamps the wave to 1; S-effort fix, and build/fix never demotes below sonnet). T-124: the second and last unwindowed-figure claim in the shipped docs. Dispatched as a DIRECT Agent call -- Workflow is review-gated in a headless -p session, the documented failure-table fallback.",
-  "outcome": "1 item verified, 0 failed, 0 reverted. Suite 115/115 green. README and REPORT now state a window-scoped, reproducible new->full range (13.906-15.613 d across 865 intervals, 1990-2060) that the conductor re-measured independently on a different scan grid, pinned by a folded test proven live by five mutations including one source drift. Repo-wide sweep confirms zero survivors of the old figures.",
+  "cycle": 29,
+  "work": "VALUE_LOOP candidate scan over six surfaces (haiku, read-only), every finding conductor-re-verified; then build-wave k=1 at haiku for T-125 -- .swarm/CONTRACTS.md declared export lists and a parseArgs signature the code no longer matches, and the contradiction reached a shipping test title. Dispatched as DIRECT Agent calls: Workflow is review-gated in a headless -p session, the documented failure-table fallback.",
+  "outcome": "1 item verified, 0 failed, 0 reverted. 30-check gate, 0 failed, failability proven 6/6. The cycle-1 freeze is provably byte-identical (HEAD survives as an exact prefix) and the drift is recorded additively. Suite 115/115, zero shipped bytes changed. Two further scan candidates were REJECTED on evidence rather than taste: --compact's missing unit test (0 of 4 mutants survive the full suite, so it closes no real surface) and my own initial reading that README's 18:15 anchor was false (refuted by two independent derivations agreeing to 4 ms).",
   "verified": 1,
   "failed": 0,
   "reverted": 0

@@ -1,0 +1,10 @@
+mutant                       gate       verdict
+--------------------------------------------------------------
+X1 frozen line deleted       RED        correct (must die)
+X2 frozen header reworded    RED        correct (must die)
+X3 test citation dropped     RED        correct (must die)
+X4 one export omitted        RED        correct (must die)
+X5 invented quantity         RED        correct (must die)
+X6 control: cosmetic ws      GREEN      correct (control, must survive)
+--------------------------------------------------------------
+6 of 6 behaved correctly
