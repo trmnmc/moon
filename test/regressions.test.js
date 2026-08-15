@@ -385,7 +385,19 @@ test('T-134 — README north/south sweep table rows are self-consistent and repr
 
     const pct = Number(north.illum.replace('%', '').trim())
     assert.ok(Number.isFinite(pct), `could not parse a percent out of ${JSON.stringify(north.illum)}`)
-    const waxing = !north.name.includes('waning')
+    // Structural, not spelling-based: PHASE_NAMES is laid out in cycle order, one
+    // entry per 1/8 of the cycle, first half (cf < 0.5) then second half (cf >= 0.5)
+    // -- exactly the split src/render.js's own opticalState uses (`waxing: f < 0.5`,
+    // src/render.js:150). A substring check for "waning" false-rejects "last quarter"
+    // (a genuine waning phase whose name doesn't contain that substring); indexing into
+    // PHASE_NAMES instead needs no cooperation from any phase name's spelling. "new"
+    // and "full" sit exactly on the endpoints this split falls back to (index 0 and
+    // PHASE_NAMES.length / 2): both are symmetric discs, so either cycleFraction
+    // renders the same output, but they still take the structurally-correct branch
+    // rather than being assumed safe.
+    const nameIndex = PHASE_NAMES.indexOf(north.name)
+    assert.ok(nameIndex !== -1, `${JSON.stringify(north.name)} is not a PHASE_NAMES entry`)
+    const waxing = nameIndex < PHASE_NAMES.length / 2
     const cycleFraction = waxing ? waxingCycleFraction : waningCycleFraction
 
     const lo = Math.max(0, pct / PCT_SCALE - BAND_RADIUS)
