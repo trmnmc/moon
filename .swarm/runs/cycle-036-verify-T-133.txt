@@ -1,0 +1,84 @@
+CYCLE 36 — VERIFICATION EVIDENCE — T-133 (docs, S, sonnet, attempt 1)
+Baseline HEAD 10d2ee4bfc50a943b6d13c69b28ef07bddbe9a0a
+All checks below were authored by the conductor AT VERIFICATION TIME. The builder never
+saw any of them.
+
+--------------------------------------------------------------------------------
+$ git diff --stat            (.swarm/ bookkeeping excluded from the item's scope)
+ README.md           | 10 +++++++++-
+ bin/moon.js         |  5 +++++
+
+--------------------------------------------------------------------------------
+$ node .swarm/runs/cycle-036-gate.js
+PASS  G2b bin/moon.js outside the HELP literal is byte-identical to HEAD
+PASS  G2c src/ and test/ are byte-identical to HEAD
+PASS  G4 HELP fields block still yields exactly the 9 payload keys
+PASS  G5 --help prints exactly HELP, exit 0, clean stderr
+PASS  G6 README json example + field table still parse to the 9 keys
+PASS  G7 both documents carry the substance of the correction
+
+gate: 6 pass, 0 fail
+
+G4 note: the field-name parser is REIMPLEMENTED in the gate from the block's stated
+two-leading-spaces convention, not imported from test/cli.test.js. A check that reuses
+the suite's own parser cannot catch the suite's own parser being fooled by the new
+CAUTION lines — which is the specific risk this edit introduced.
+
+--------------------------------------------------------------------------------
+$ node --test test/*.test.js
+ℹ tests 131
+ℹ pass 131
+ℹ fail 0
+(baseline before the edit was also 131/131 — this item adds no test; it is a
+documentation-truth fix, and test count is not an outcome per the SPEC.)
+
+--------------------------------------------------------------------------------
+$ node .swarm/runs/cycle-036-failability.js     [does the gate have teeth?]
+KILLED   M1 README caution paragraph deleted  (G7 went red, as designed)
+KILLED   M2 HELP CAUTION block deleted  (G7 went red, as designed)
+KILLED   M3 a HELP CAUTION line dedented to field-name depth  (G4 went red, as designed)
+KILLED   M4 bogus row added to the README field table  (G6 went red, as designed)
+KILLED   M5 a byte OUTSIDE the HELP literal changed in bin/moon.js  (G2b went red, as designed)
+KILLED   M6 src/ touched  (G2c went red, as designed)
+KILLED   M7 the 21-hour figure silently changed in HELP  (G7 went red, as designed)
+
+failability: 7 killed, 0 survived; restore drift: 0
+
+--------------------------------------------------------------------------------
+$ node .swarm/runs/cycle-036-independent.js     [are the DOCUMENTED NUMBERS true?]
+claim 1 -- mid-cycle bound
+  lunations walked: 67  samples: 406967  grid: 7 min
+  worst |cycleFraction - elapsed/trueLunation| = 0.029219 cycle = 20.71 h  at 2037-05-03T05:15:52.421Z
+  doc says "up to about 21 hours" -> NOT understated
+
+claim 2 -- endpoint bound, 1990-2060, every lunation (no sampling gaps)
+  new  moons checked: 865
+  worst |cycleFraction - 0|   at a true new  moon = 0.000000 = 0.0 min  at 2026-07-14T10:01:53.368Z
+  worst |cycleFraction - 0.5| at a true full moon = 0.001029 = 43.8 min  at 2028-03-11T01:05:59.655Z
+  doc says "within about 45 minutes" -> holds
+
+INDEPENDENCE, stated honestly. The original probe (cycle-036-probe-cyclefraction.js)
+located lunation boundaries via `t - age*DAY` on an hourly grid. This re-derivation uses
+a different path on every axis that matters: boundaries by bisection on the cycleFraction
+wrap (never reading `age`), a 7-minute grid (not a divisor of an hour), and a wider
+1990-2060 window walked lunation by lunation. Two independent paths give 21.11 h and
+20.71 h for the mid-cycle bound — both round to the "about 21 hours" the docs now state,
+and neither exceeds it.
+
+ONE SUB-CLAIM IS NOT ESTABLISHED BY THIS SCRIPT, and is reported as such rather than
+counted as passed: the new-moon half of claim 2 reads 0.0 min here only because this
+script DEFINES the new moon as the cycleFraction wrap — the check is circular for that
+one number and its 0.0 is vacuous. That sub-claim rests on the probe instead, which
+derives the boundary from the independent Meeus ch.49 instant via `age` and measured
+0.000990 cycle = 42.8 min over 2020-2040. Both halves of the "~45 minutes" endpoint claim
+therefore hold, each by the method that is not circular for it.
+
+--------------------------------------------------------------------------------
+NOT RUN, and why (never reported as passed):
+- collision-scan: the standing gate check is scoped to browser targets built from
+  classic non-module scripts. moon is a Node CommonJS CLI with no browser surface.
+- qa-verify look pass: the post-merge look pass triggers on user-visible browser assets
+  (html/css/client-js/template/static). The two changed files are a Markdown README and
+  a Node entry point; nothing is served to a browser.
+
+VERDICT: GATE PASS. T-133 -> done.

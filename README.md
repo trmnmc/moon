@@ -133,7 +133,7 @@ echo "$(node ~/src/moon/bin/moon.js --compact)"
 | `phase` | one of the eight canonical phase names |
 | `illumination` | illuminated fraction of the disc, `0`–`1` |
 | `age` | days elapsed since the last new moon |
-| `cycleFraction` | position through the synodic month, `0` = new, `0.5` = full |
+| `cycleFraction` | position through the synodic month, `0` = new, `0.5` = full — see caution below |
 | `phaseAngle` | elongation in degrees, `0` = new, `180` = full — see caution below |
 | `hemisphere` | the hemisphere actually used for rendering |
 | `nextFullMoon` | ISO-8601 instant of the next full moon |
@@ -143,6 +143,14 @@ echo "$(node ~/src/moon/bin/moon.js --compact)"
 Numeric fields are rounded to the precision the algorithm has actually earned. Phase
 instants are good to roughly an hour, so illumination is good to about a percent —
 emitting seventeen significant digits would be precision theatre.
+
+**Caution on `cycleFraction`.** It is angular, not temporal: `phaseAngle / 360`, the
+Moon–Sun elongation as a fraction of the full circle — not elapsed time through the
+synodic month. Mid-cycle it can lead or lag true elapsed time by up to about 21 hours,
+so computing elapsed days as `cycleFraction * 29.53` is wrong by up to most of a day.
+Use the `age` field for elapsed time. The endpoints do hold: at a true new moon
+`cycleFraction` is `0`, and at a true full moon it is `0.5`, each to within about 45
+minutes.
 
 **Caution on `phaseAngle`.** It is the Moon–Sun *elongation* (0 at new, 180 at full),
 not the Meeus phase angle *i* (which is 180 at new). Applying the textbook
