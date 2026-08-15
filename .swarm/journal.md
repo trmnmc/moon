@@ -4968,3 +4968,72 @@ VALUE_LOOP candidate scan — EMPTY, and the DONE call
   the SPEC taste note forbids: "mostly reworded prose and duplicate tests, which looks like
   work and changes nothing." Stopping with budget unspent is the honest outcome, and it is
   reported as a deliberate call rather than as an early exit.
+
+### cycle 47 addendum — WRAP_UP
+
+commit d7bd5b1 `cycle 47: T-142 build-wave k=1 at sonnet -- --help's precedence over --json
+  is now pinned by an attributably-failable test [1 verified, 145/145 green, 0 reverted,
+  0 filed, M6 killed with A/B attribution, VALUE_LOOP scan empty -> DONE]`. Pushed clean to
+  origin/main: 750f5d6..d7bd5b1. This wrap-up commit carries NO `[N verified]` bracket, so
+  the burn-up's MAX-vs-SUM disagreement set stays exactly {32, 44} — the render asserts it.
+
+WRAP_UP, entered from the DONE call rather than from the clock (cycle.md: all targets done
+-> early WRAP_UP now). ~6.5 h of the stop budget goes unspent, deliberately.
+
+  1. Verified work only: committed above. No unmerged branches exist — k=1 direct Agent
+     dispatch works the tree, so there was never a branch to leave dangling.
+  2a. RETRO -> .swarm/RETRO.md. Written against the journal, every entry citing cycle
+     numbers. The dominant entry under "what thrashed" is not a product defect: six
+     instances this run of my own instrument being narrower than the thing it measured
+     (cycles 37, 42, 44, 45, 46, 47), which always presents as the artifact being wrong.
+     Note it did NOT clobber the root RETRO.md — that file is the original build run's.
+  2b. DISTILL: 5 candidate lessons drafted to runs/wrapup-candidates.md, then
+     `bin/swarm-playbook.sh append` was DENIED — KI-2 again, the same allowlist gap that
+     kept the budget probe unreachable for 47 straight cycles. Fell back to the documented
+     manual append: L-029..L-033 written into playbook/learnings.md in v2 grammar with ids
+     taken from the file's own `next_id: 29` header, which was then bumped to 34. Ids were
+     checked against every existing id first, so this run adds no new collisions.
+
+     The manual append deliberately did NOT perform the 26->20 prune the script would
+     normally do. The file was already 26 lessons — over its own documented 20-cap —
+     BEFORE this run appended anything, and it carries pre-existing duplicate ids (L-023,
+     L-025, L-026 each appear twice with different content and different [source:] runs).
+     Hand-deleting eleven lessons from a file whose id integrity is already broken is
+     irreversible and is a policy decision belonging to the tool that owns it, not to a
+     fallback path. Appending is additive; pruning is not. Both defects are flagged in
+     REPORT.md under Operational findings for a human to settle once the allowlist is
+     fixed. "Lessons are never lost to a tool failure" is satisfied; "the file is now
+     tidy" is explicitly NOT claimed.
+  3. REPORT -> REPORT.md, rewritten rather than patched, and it CORRECTS TWO OF ITS OWN
+     PRIOR CLAIMS rather than quietly dropping them:
+       - it stated "the run's review-fix pass has not been run in any cycle". False —
+         state.json records last_review_fix_cycle 23 and the journal has the block. The
+         corrected text names the single cycle-23 pass and says plainly that review-fix
+         was never re-run because premium allowance stayed at zero.
+       - its KI-7 row cited test/astro.test.js:393; the test is at :491. Line cites drift,
+         which is the exact hazard T-140 built a machine-check for on the CONTRACTS.md
+         side. Re-read from the file this time, not copied forward.
+     Also added: KI-8 was missing from the known-issues table entirely (the table said
+     "Known issues (4)" while state.json carried five). Now listed, with what would settle
+     it and who must do it. Test count corrected 114 -> 145.
+  4. Tagged v0.1-overnight.
+  5. Final dashboard render: 11 live-region substitutions, all anchor assertions held, 47
+     bars, cumulative verified 38/43, MAX-vs-SUM set re-asserted as {32, 44}, per_max[47]
+     == 1. On this box the file write IS the publication; no Artifact tool exists in a
+     headless -p session, which step 8 explicitly says is not a publish failure.
+  6. Runfile: wrap_up_complete = true, target status done, heartbeat.next_wakeup_at parked
+     at stop_at so nothing is ever due again. bin/swarm-pacer.sh has its own DONE-guard on
+     wrap_up_complete (line 182) and will archive the runfile rather than spawn cycle 48.
+  7/8. No launchctl and no caffeinate on this box — Linux, per SKILL.md's platform split.
+     swarm-watchdog.timer disabled instead; a future kickoff re-enables it (kickoff step 9
+     asserts it unconditionally), so this is reversible, not destructive.
+  9. wrap-up push sent; control.json and notify.log archived with an epoch suffix so the
+     next run lazy-inits fresh and no stale command can leak into it.
+
+FINAL STATE — moon, improvement run: 47 cycles, 77 cycle commits, 145/145 tests green, 40
+of 43 backlog items verified done, 0 blocked, 0 items at the attempt cap. Three todo items
+remain and all three are correctly declined rather than missed. Five known issues stand: two
+need a human (KI-4 terminal look, KI-8 the MIT copyright holder), one is a SWARM tooling gap
+(KI-2), and two are product defects that are bounded and pinned by tests rather than fixed
+(KI-5 glyph width, KI-7 divergence at absurd epochs) — each reported as pinned, never as
+closed.

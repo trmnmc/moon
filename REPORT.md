@@ -1,8 +1,13 @@
 # REPORT — moon
 
-**Run:** 2026-08-14, 11:29 → 12:59 UTC (90 minutes, attended, thermostat pacing)
+**Build run:** 2026-08-14, 11:29 → 12:59 UTC (90 minutes, attended) — shipped v0.1.0,
+102/102 tests green.
+**Improvement run:** 2026-08-14 15:32 → 2026-08-15 09:00 UTC (allocator auto-kickoff,
+guest pacing, dial 0.3) — cycles 0–47, 77 cycle commits, **145/145 tests green**.
 **Target:** `/opt/targets/moon`
-**Outcome:** shipped, all must-haves verified. 8 commits, 0 reverts, 102/102 tests green.
+**Outcome:** **DONE at cycle 47** — every must-have verified, and the VALUE_LOOP candidate
+scan came back empty with ~6.5 h of the stop budget deliberately unspent. See
+"Why this stopped early" below; that is a decision, not an interruption.
 
 ---
 
@@ -17,6 +22,10 @@ A zero-dependency Node CLI that prints the current phase of the moon.
 
 Flags: `--json`, `--block`, `--compact`, `--south`, `--north`, `--help`.
 Run: `node bin/moon.js` · Test: `node --test test/*.test.js`
+
+The improvement run added **no features** — that was its central non-goal. It closed or
+precisely bounded the open known-issues, replaced prose-only claims with machine-checked
+ones, and made the docs state what is verified versus deferred.
 
 ---
 
@@ -41,6 +50,9 @@ verification time; no builder saw the check that would judge it.
 | Output discipline | Zero trailing whitespace, exactly one trailing newline, nothing on stderr on success, byte-identical when piped, correct exit codes (0 success / 2 usage error). |
 | No emoji, no exclamation marks | Codepoint sweep across all output modes and all source files. |
 | Zero runtime dependencies | `package.json` has no `dependencies` key; source requires only `node:*` and sibling modules. |
+| **The assembled CLI behaves end-to-end as documented** (cycle 46) | 28 checks over the **real binary** executed as a child process, never imported, exit status read from `spawnSync().status` with no shell and no pipe. Expectations derived from the documented contract — the hemisphere check parses README's own north\|south table (15 rows) rather than trusting the renderer. Zero divergences. |
+| **The suite's end-to-end coverage was measured, not assumed** (cycles 46–47) | Ten mutants, each breaking one documented end-to-end behavior, run against the suite in throwaway copies with a green baseline. **Nine killed.** The tenth (`--help`'s precedence over `--json`) survived, was filed as T-142, and is now pinned — see below. |
+| **`--help` wins over `--json`, and the test proving it is attributably failable** (cycle 47) | Two scratch copies, both mutated identically: with the new test present the suite reads 145 tests / 144 pass / **1 fail** (that test); with the new test removed it reads **144/144 green**, i.e. the mutant survives. The kill is attributable to the nine lines added, and cycle 46's separate measurement is independently reproduced rather than trusted. |
 
 ### CLAIMED but NOT independently verified
 
@@ -54,7 +66,7 @@ verification time; no builder saw the check that would judge it.
 
 ---
 
-## Defects found and fixed during the run
+## Defects found and fixed during the build run
 
 The adversarial QA pass found seven real defects *after* the build was already "green."
 This is the strongest argument for the pass existing at all.
@@ -80,22 +92,34 @@ This is the strongest argument for the pass existing at all.
    exist, since npm publish is an explicit non-goal.
 7. **Two help lines ran to 84 columns** and wrapped on a default terminal.
 
-Five regression tests were added in `test/regressions.test.js` so these cannot silently
-return.
+## What the improvement run changed
+
+Three build waves were **reverted on the conductor's own gate**, never on a builder's
+report (T-132 cycle 34, T-134 cycle 37, T-136 cycle 40); each passed on re-dispatch
+(cycles 35, 38, 41). Nine items carry `attempts: 1` and **all nine ended `done`** — no
+item reached the attempt cap, so nothing ended blocked.
+
+The through-line of the run's later half was replacing prose-only claims with
+machine-checked ones: README's rendered example blocks are now regenerated and checked
+against the shipping renderer rather than hand-transcribed (T-134); CONTRACTS.md's line
+citations are machine-checked against the constructs they name (T-140); a comment
+documenting why a check *accepts* certain mutation survivors was added so the next editor
+does not "harden" it into false-rejecting honest output (T-139 family).
 
 ---
 
-## Known issues (4)
+## Known issues (5)
 
 The `severity` column is severity only. A separate `status` column carries how each issue
 now stands, so the two never collide.
 
 | id | severity | status | issue |
 |---|---|---|---|
-| KI-2 | medium | open, blocking | `settings.json` allowlist edit was denied, so `additionalDirectories` does not list the target. Headless relaunches must pass `--add-dir`. SWARM tooling gap, not a product defect. |
+| KI-2 | medium | open, blocking | `settings.json` allowlist edit was denied at both kickoffs, so `permissions.additionalDirectories` is `[]` and **`bin/swarm-budget.sh` and `bin/swarm-playbook.sh` are not allowlisted**. Consequences this run: the budget probe was never invoked in 47 cycles (gear was read from `runs/allocator.json` instead), and the WRAP_UP playbook append was denied and had to be done by hand. Headless relaunches must pass `--add-dir`. SWARM tooling gap, not a product defect. |
 | KI-4 | low | open, unverified | Terminal font variance beyond width (ligatures, exotic fonts) remains unverified — no automated check can cover it; needs a human look. |
-| KI-5 | medium | pinned by test, not fixed | **Glyph width.** The disc mixes East Asian Width classes (`░` `▐` are Neutral; `▒ ▓ █ ▌ ▏ ▕` are Ambiguous). In terminals rendering ambiguous-width as double (CJK locales, iTerm2 setting, `xterm -cjk_width`) the disc is 5–9 columns instead of 5: the line jitters between nights, the two-line form stops aligning, and the `--block` frame does not close. Correct in default Western-locale terminals. `test/render.test.js`'s `KI-5 pin: disc glyph set matches the documented East Asian Width partition` derives the disc's actual glyph set from `renderLine`/`renderBlock` output and checks it against the documented partition, so an unannounced glyph change now fails the suite instead of drifting silently. The glyph-set redesign that would actually fix the width problem is still deferred — this is a pin, not a fix. |
-| KI-7 | low | bounded (sampled), not fixed | At epochs far outside normal use (empirically found around ±270,000 years) `phaseName` and `illumination` can contradict, since the ch.49 and ch.48 Meeus series diverge. `src/astro.js`'s exported `PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` constant (astro.js:71-74) declares the domain over which the two are known to stay consistent — the half-open range of calendar years 1000–3000 — and `test/astro.test.js`'s `KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)` (astro.test.js:393) strides 4000 deterministic points across that domain with zero band violations. This is a sampled bound, not a proof, and nothing enforces it at runtime. |
+| KI-5 | medium | pinned by test, not fixed | **Glyph width.** The disc mixes East Asian Width classes (`░` `▐` are Neutral; `▒ ▓ █ ▌ ▏ ▕` are Ambiguous). In terminals rendering ambiguous-width as double (CJK locales, iTerm2 setting, `xterm -cjk_width`) the disc is 5–9 columns instead of 5: the line jitters between nights, the two-line form stops aligning, and the `--block` frame does not close. Correct in default Western-locale terminals. `test/render.test.js:617` (`KI-5 pin: disc glyph set matches the documented East Asian Width partition`) derives the disc's actual glyph set from `renderLine`/`renderBlock` output and checks it against the documented partition, so an unannounced glyph change now fails the suite instead of drifting silently. The glyph-set redesign that would actually fix the width problem is still deferred — this is a pin, not a fix. |
+| KI-7 | low | bounded (sampled), not fixed | At epochs far outside normal use (empirically found around ±270,000 years) `phaseName` and `illumination` can contradict, since the ch.49 and ch.48 Meeus series diverge. `src/astro.js`'s exported `PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` (astro.js:71-74) declares the domain over which the two are known to stay consistent — the half-open range of calendar years **1000–3000** — and `test/astro.test.js:491` (`KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)`) strides **4000** deterministic points across that domain with zero band violations. This is a sampled bound, not a proof, and nothing enforces it at runtime. |
+| KI-8 | low | open, needs the repo owner | `package.json` declares `"license": "MIT"` and `"private": false`, but **there is no LICENSE file at the repo root** (re-verified at cycle 47). A repo that declares a license without shipping its text is legally ambiguous to the next person who wants to reuse it. Deliberately not fixed here: the MIT body needs a copyright line naming a legal person, which is the owner's decision and not one a build agent or the conductor may invent. **What would settle it:** the owner supplies `Copyright (c) <year> <holder>`; wrapping the standard MIT body around it is then a one-file mechanical change. Adjacent: T-116 notes README's `## Licence` heading disagrees with `package.json`'s spelling. |
 
 ## Resolved issues
 
@@ -103,37 +127,90 @@ now stands, so the two never collide.
 |---|---|---|
 | KI-1 | low | **Prior-art sweep completed, grep-verified against source (not READMEs).** Nearest npm package is `lunarphase-js` v2.0.3 (ISC): its core is the naive mean-synodic modulo with zero periodic correction terms, its "hemisphere support" swaps emoji glyphs rather than mirroring art, and it has no `bin` field, so it is a library, not a CLI. `astronomia` v4.2.0 (MIT) is a genuine Meeus port but is a dependency, which this project's zero-dependency non-goal forbids. The finding is propagated into README's "Why this one" section. |
 | KI-3 | medium | **The repo has a remote and the branch is pushed.** `git remote -v` lists `origin` → `https://github.com/trmnmc/moon.git`; `git branch -vv` shows `main` tracking `origin/main`, up to date; `HEAD` and `origin/main` resolve to the same commit. `gh auth status` reports an authenticated session for account `trmnmc`. |
-| KI-6 | low | **`nextFullMoon()` now throws instead of returning an Invalid Date.** `src/astro.js:357-359` checks the constructed result with `Number.isNaN(result.getTime())` and throws a `TypeError` ("nextFullMoon result is outside the representable Date range") for inputs past the top of the JS `Date` range, matching the module's existing bad-input guard shape. |
+| KI-6 | low | **`nextFullMoon()` now throws instead of returning an Invalid Date.** `src/astro.js:358` checks the constructed result with `Number.isNaN(result.getTime())` and throws a `TypeError` ("nextFullMoon result is outside the representable Date range") for inputs past the top of the JS `Date` range, matching the module's existing bad-input guard shape (`:281`, `:346`). Regression at `test/astro.test.js:294`. |
 
 ---
 
-## Operational finding (SWARM tooling, not the product)
+## Why this stopped early
 
-**A second conductor session ran concurrently with this one.** `swarm-pacer.timer`
-spawned a headless cycle at 11:54:33 (finished 12:03:13, cost $2.93) because this
-session's heartbeat `next_wakeup_at` came due while it was still mid-cycle. That session
-found the dirty working tree, performed a textbook cycle.md step-2 salvage commit
-(`795513e`), and rewrote the runfile.
+The run reached DONE at 09:00 UTC against a 15:32 stop — about 6.5 hours unspent. That was
+a decision and it is worth stating plainly rather than burying.
 
-No damage this time — it committed work-in-progress that was later superseded, and the
-verified tree is intact. But two conductors on one repo is a real hazard: with different
-timing it could have committed a half-written file as though it were finished work, or
-raced the runfile. The heartbeat was subsequently clamped to `stop_at` to prevent a third
-spawn during wrap-up.
+The definition of done was re-verified from evidence at cycle 47, not read off backlog
+labels: KI-1 (REPORT.md above + README:38-41), KI-6 (astro.js:358 + astro.test.js:294),
+KI-7 (`PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` astro.js:71/:363, README:184,
+astro.test.js:491), KI-5 (render.test.js:617), 145/145 green, no `dependencies` key.
 
-Per hard rule 5 this is reported, not fixed live. It belongs in the playbook.
+Three backlog items remain `todo`, and every one fails the value ratchet:
+
+- **T-116** — README uses British "colour" and a `## Licence` heading. Ratchet-rejected on
+  record at cycles 20, 21, 22 and again at 47.
+- **T-130** — a comment in a test file describes its pinned arithmetic as free of
+  nondeterminism; ECMA-262 leaves `Math.sin`/`Math.cos` implementation-approximated. The
+  claim is *measured true* on Node 20/22/24 in CI. A precision-of-wording nit in a file the
+  end user never opens.
+- **T-139** — a comment recording why three mutation survivors at the 0%/100% endpoints are
+  the check being correct rather than holes.
+
+All three are documentation of things that are already true. The SPEC named this run's
+specific taste risk as **churn** — "a diff that is mostly reworded prose and duplicate
+tests, which looks like work and changes nothing" — and building them is precisely that.
+KI-4 and KI-8 both need a human and cannot be closed here at all. The remaining
+nice-to-have (actually *fixing* KI-5 with a single-width glyph set) is L-effort, and the
+SPEC excluded it for this posture on cost grounds, not because the defect is acceptable.
+
+Budget context, since it is the other half of the honesty: the allocator held posture
+`trickle` with a **zero** premium allowance for the entire observed tail, weekly usage
+finished at 79.0% against 73.79% of the week elapsed, and premium sat at 96%. Stopping
+with wall-clock unspent while the weekly runs slightly hot is the correct trade.
+
+---
+
+## Operational findings (SWARM tooling, not the product)
+
+**1. A second conductor session ran concurrently during the build run.**
+`swarm-pacer.timer` spawned a headless cycle at 11:54:33 (finished 12:03:13, cost $2.93)
+because that session's heartbeat `next_wakeup_at` came due while it was still mid-cycle.
+It found the dirty working tree, performed a textbook cycle.md step-2 salvage commit
+(`795513e`), and rewrote the runfile. No damage — but two conductors on one repo is a real
+hazard, and it is now playbook lesson L-027.
+
+**2. KI-2 blocked two distinct tools, all run.** The budget probe was never invoked across
+47 cycles; `probe_failures` correctly stayed at 34 rather than incrementing, on the rule
+that an attempt not made is not a failure. Gear was read from `runs/allocator.json`, whose
+freshness was re-checked against `week_elapsed_pct` movement every cycle rather than
+assumed. At WRAP_UP the same gap denied `bin/swarm-playbook.sh append`, so the five
+distilled lessons were appended to `playbook/learnings.md` by hand as L-029…L-033 per the
+documented fallback.
+
+**3. `playbook/learnings.md` has pre-existing integrity defects that need a human.**
+Two, both found by reading the file rather than by any check:
+- **Duplicate ids.** `L-023`, `L-025` and `L-026` each appear **twice**, with different
+  content and different `[source:]` runs (2026-08-13 repo-atlas and 2026-08-14 moon). The
+  runfile disambiguated them with `-source` suffixes so this run's ledger stays honest,
+  but the file itself is still ambiguous.
+- **Over the cap.** The file held 26 lessons against a documented 20-lesson cap *before*
+  this run appended anything.
+
+The manual append deliberately did **not** attempt the 26→20 prune the script would
+normally perform. Hand-deleting eleven lessons from a file whose id integrity is already
+broken is irreversible and is a policy decision belonging to the tool that owns it, not to
+a fallback path. Appending is additive; pruning is not. **This needs a human to run the
+curator once the allowlist is fixed.**
+
+Per hard rule 5, none of the above was fixed live.
 
 ---
 
 ## How to run it
 
 ```sh
-git clone <this repo> && cd moon
+git clone https://github.com/trmnmc/moon.git && cd moon
 node bin/moon.js              # single line + next full moon
 node bin/moon.js --compact    # exactly one line, for a shell prompt
 node bin/moon.js --block      # framed readout
 node bin/moon.js --json       # structured output
-node --test test/*.test.js    # 114 tests
+node --test test/*.test.js    # 145 tests
 ```
 
 No install step, no dependencies, no network access at any point.
@@ -149,20 +226,20 @@ pass. Hemisphere logic is verified against every timezone the host knows about. 
 discipline, exit codes, flag parsing, and the absence of emoji are all covered by tests.
 If this tool tells you the moon is 41% waxing crescent, that number is trustworthy.
 
-Since this run's header above, three known issues closed and two more moved from
-prose-only to machine-checked. KI-1 (npm prior-art gap), KI-3 (no git remote) and KI-6
-(uncaught out-of-range throw) are resolved — see "Resolved issues" above for what closed
-each one. KI-7 (phase/illumination divergence at absurd epochs) is bounded and
-sampled-tested, not fixed: `PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` in `src/astro.js`
-declares the supported range and `test/astro.test.js` samples 4000 points across it;
-behavior outside that range stays unspecified. KI-5 (glyph width) is now pinned by a test
-in `test/render.test.js`, not fixed: an unannounced change to the disc's glyph set would
-now fail the suite, but the terminal-width defect itself is untouched. KI-2 and KI-4 are
-unchanged and still open — see "Known issues" above.
+Since the build run, three known issues closed (KI-1 npm prior-art gap, KI-3 no git remote,
+KI-6 uncaught out-of-range throw) and two moved from prose-only to machine-checked. KI-7 is
+bounded and sampled-tested, not fixed. KI-5 is pinned by a test, not fixed: an unannounced
+change to the disc's glyph set now fails the suite, but the terminal-width defect itself is
+untouched. KI-2 and KI-4 are unchanged and still open, and KI-8 (declared MIT, no LICENSE
+file) is newly recorded and needs the repo owner.
 
-The run's review-fix pass has not been run in any cycle; review-fix is the most
-premium-heavy work type in the pipeline, and the allocator premium allowance has
-remained zero throughout. Nothing above should be read as claiming that coverage.
+**Coverage this run did NOT provide.** One review-fix pass ran, at **cycle 23**, k=1; it
+was never re-run, because review-fix is the most premium-heavy work type in the pipeline
+and the allocator premium allowance stayed at zero for the rest of the run. (An earlier
+revision of this report claimed review-fix had never run in any cycle. That was wrong —
+`state.json` records `last_review_fix_cycle: 23` — and it is corrected here rather than
+quietly dropped.) Read the correctness coverage as: comprehensive on the astronomy and on
+the documented end-to-end surfaces, one adversarial review pass on the code as a whole.
 
 **What only a human can finish:**
 
@@ -174,9 +251,11 @@ remained zero throughout. Nothing above should be read as claiming that coverage
    emoji-free — it satisfies the brief as written. Whether it feels like *a tiny precision
    instrument* is a judgement no assertion makes. That was your phrase, and you are the
    only one who can say whether it landed.
-3. **npm gap, closed (KI-1).** The sweep found no competing hemisphere-aware Unicode CLI;
-   the nearest package, `lunarphase-js`, is a naive-modulo library with no `bin` entry. See
-   the "Resolved issues" section above for the finding.
+3. **Settle KI-8.** Supply the copyright holder line and the LICENSE file follows
+   mechanically. Until then the repo declares a license it does not ship.
+4. **Fix the SWARM allowlist (KI-2) and run the playbook curator.** Both are noted above
+   under Operational findings; neither is a product defect, and both will silently degrade
+   the next run if left.
 
 **The one thing I would not have you take on trust:** every "verified" claim in this
 document has a command behind it, and those commands are pasted in `.swarm/journal.md`.
