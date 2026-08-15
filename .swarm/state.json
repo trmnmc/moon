@@ -3,7 +3,7 @@
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
  "phase": "VALUE_LOOP",
- "cycle": 27,
+ "cycle": 28,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -267,6 +267,21 @@
    "cycle": 27,
    "what": "Filed the missing LICENSE file as known-issue KI-8 rather than writing one.",
    "why": "package.json declares \"license\": \"MIT\" with \"private\": false and no LICENSE file exists in the repo. Transcribing the MIT text is mechanical, but the copyright holder line is not: it names a legal person, and no builder or conductor on this run has standing to choose one. Inventing a name would be the doc-honesty failure this whole run exists to remove. Surfaced for the repo owner with the exact decision named."
+  },
+  {
+   "cycle": 28,
+   "what": "the REPORT.md row T-124 corrected was sitting UNDER the '### VERIFIED' heading, whose preamble reads 'checked by the conductor running a command and reading its output'. Recorded as a finding about the run, not just about the line.",
+   "why": "T-123 and T-124 have now both removed false figures from that table. The preamble is a strong claim -- it is the document's whole trust argument -- and two of its rows carried numbers that no command this repo can run reproduces. The likely mechanism is that the row was verified once, at v0.1.0, against a smaller ad-hoc sample, and the sample's scope ('36 lunations', no window) was lost in the write-up while the figures were kept. That is a documentation-decay mode a per-row test fixes permanently, which is what both items did. Worth a candidate playbook lesson at wrap-up: a VERIFIED table is a liability unless each row is pinned by a test, because it converts one stale number into an endorsed one."
+  },
+  {
+   "cycle": 28,
+   "what": "ACCEPTED the builder's rename of the REPORT claim column ('Two independent searches agree' -> 'new->full interval tracks the theoretical half-synodic') rather than reverting it as outside the brief.",
+   "why": "The brief said update the row's figures; the builder also rewrote the claim label. Judged in-scope on inspection, not waved through: the old label was ITSELF an unsupported claim in the VERIFIED table -- the row's evidence is one search, not two agreeing ones, so the label asserted a cross-check the evidence never showed. Reverting it would have left a false claim standing in order to honour a narrow reading of the brief, which inverts the run's purpose. The replacement is supported by the row's own evidence (mean 14.765 vs theoretical 14.765). Recorded because accepting an out-of-brief edit is exactly the call that should not be silent."
+  },
+  {
+   "cycle": 28,
+   "what": "the gate's decisive check was a SOURCE mutation (nextFullMoon's target phase k+0.5 -> k+0.5001), not only mutations of the test's own constants.",
+   "why": "Mutating the three documented constants proves the comparison is live, but it cannot distinguish a test that measures the implementation from one that would still pass if the measurement were computed some degenerate way. Perturbing the source by 1e-4 lunation (~4 min, above the 0.001-day tolerance) is the discriminator: it turns the suite red through the min assertion, which proves the pinned figures are produced by the ch.49 machinery under test. This is the 'discriminator over remembered reference value' rule from the QA prompt lines, applied at the gate rather than in QA."
   }
  ],
  "known_issues": [
@@ -318,13 +333,16 @@
   "consecutive_no_value": 0,
   "consecutive_failures": 0,
   "k_current": 5,
-  "wave_streak": 0,
+  "wave_streak": 1,
   "window_tokens_attributed": 0
  },
  "last_cycle": {
-  "cycle": 27,
-  "work": "VALUE_LOOP candidate scan (5 sweeps, haiku) -> one ratchet-passing candidate found, filed as T-123 and built the same cycle: build-wave k=1 at sonnet (gear 1 clamps the wave to 1; S-effort fix routes to sonnet and build/fix never demotes below it). Dispatched as DIRECT Agent calls -- Workflow is review-gated in a headless -p session, the documented failure-table fallback.",
-  "outcome": "1 item verified, 0 failed, 0 reverted. Suite 115/115 green. A false factual claim removed from two shipped documents and replaced with a measured, window-scoped one that now has a mutation-proven test under it. Wave CLEAN -> wave_streak 2 -> k_current bump is a no-op at the hard max 5 -> streak reset to 0."
+  "cycle": 28,
+  "work": "build-wave k=1 at sonnet (gear 1 clamps the wave to 1; S-effort fix, and build/fix never demotes below sonnet). T-124: the second and last unwindowed-figure claim in the shipped docs. Dispatched as a DIRECT Agent call -- Workflow is review-gated in a headless -p session, the documented failure-table fallback.",
+  "outcome": "1 item verified, 0 failed, 0 reverted. Suite 115/115 green. README and REPORT now state a window-scoped, reproducible new->full range (13.906-15.613 d across 865 intervals, 1990-2060) that the conductor re-measured independently on a different scan grid, pinned by a folded test proven live by five mutations including one source drift. Repo-wide sweep confirms zero survivors of the old figures.",
+  "verified": 1,
+  "failed": 0,
+  "reverted": 0
  },
  "run_label": "improvement-2026-08-14",
  "resolved_issues": [

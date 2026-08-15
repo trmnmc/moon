@@ -1,0 +1,25 @@
+M1 test-const: new->full MIN 13.906 -> 13.916        -> exit 1  RED (assertion is live)
+      new->full assertion text in failure output: new->full min
+      restore byte-identical: True
+M2 test-const: new->full MAX 15.613 -> 15.603        -> exit 1  RED (assertion is live)
+      new->full assertion text in failure output: new->full max
+      restore byte-identical: True
+M3 test-const: new->full MEAN 14.765 -> 14.760       -> exit 1  RED (assertion is live)
+      new->full assertion text in failure output: new->full mean
+      restore byte-identical: True
+M4 test-const: interval COUNT 865 -> 864             -> exit 1  RED (assertion is live)
+      new->full assertion text in failure output: new-moon instants
+      restore byte-identical: True
+M5 SOURCE drift: nextFullMoon targets k+0.5 -> k+0.5001 -> exit 1  RED (assertion is live)
+      new->full assertion text in failure output: new->full min
+      restore byte-identical: True
+
+final unmutated suite: exit 0
+  ℹ tests 25
+  ℹ suites 0
+  ℹ pass 25
+  ℹ fail 0
+  ℹ cancelled 0
+  ℹ skipped 0
+  ℹ todo 0
+  ℹ duration_ms 1999.653611

@@ -24,6 +24,14 @@ const HOUR_MS = 3600000;
 const DOCUMENTED_MIN_LUNATION_DAYS = 29.274;
 const DOCUMENTED_MAX_LUNATION_DAYS = 29.826;
 
+// Same window and same found new-moon instants, but measuring new-moon ->
+// next-full-moon via the public nextFullMoon API instead of differencing
+// consecutive new moons. README.md and REPORT.md state these too; same
+// three-way agreement rule applies.
+const DOCUMENTED_MIN_NEWFULL_DAYS = 13.906;
+const DOCUMENTED_MAX_NEWFULL_DAYS = 15.613;
+const DOCUMENTED_MEAN_NEWFULL_DAYS = 14.765;
+
 function moonAt(ms) {
   return computeMoon(new Date(ms));
 }
@@ -387,15 +395,19 @@ test('age never exceeds the true maximum lunation length across 60 years', () =>
 
 // ---------------------------------------------------------------------------
 // README.md ("Accuracy") and REPORT.md both state a min/max true lunation
-// length. Neither prose claim was ever measured by a test -- this closes
-// that gap by doing the measurement the docs describe: locate every true
-// new-moon instant (the discontinuity where `age` drops from ~29-30 back to
-// ~0, ch. 49) over the declared 1990-2060 window by a 6-hour coarse scan
-// with millisecond bisection on the drop, then difference successive
-// instants. This is a real discriminator, not a restatement: it goes red if
-// the docs are edited without re-measuring, or if the phase math drifts.
+// length, and separately a new-moon -> next-full-moon interval. Neither
+// prose claim was ever measured by a test -- this closes that gap by doing
+// the measurement the docs describe: locate every true new-moon instant
+// (the discontinuity where `age` drops from ~29-30 back to ~0, ch. 49) over
+// the declared 1990-2060 window by a 6-hour coarse scan with millisecond
+// bisection on the drop, then (a) difference successive instants for
+// lunation length and (b) feed each instant through the public
+// nextFullMoon() for the new->full interval. This SAMPLES that window --
+// not exhaustively, and not a physical bound -- but it is a real
+// discriminator, not a restatement: it goes red if the docs are edited
+// without re-measuring, or if the phase math drifts.
 // ---------------------------------------------------------------------------
-test('measured min/max true lunation length over 1990-2060 matches the documented figures', () => {
+test('measured lunation length and new->full interval over 1990-2060 match the documented figures', () => {
   const START_MS = Date.UTC(1990, 0, 1);
   const END_MS = Date.UTC(2060, 0, 1);
   const COARSE_STEP_MS = 6 * HOUR_MS;
@@ -441,6 +453,27 @@ test('measured min/max true lunation length over 1990-2060 matches the documente
     `measured min ${min} disagrees with documented ${DOCUMENTED_MIN_LUNATION_DAYS}`);
   assert.ok(Math.abs(max - DOCUMENTED_MAX_LUNATION_DAYS) < 0.001,
     `measured max ${max} disagrees with documented ${DOCUMENTED_MAX_LUNATION_DAYS}`);
+
+  // Reuse the same 865 new-moon instants (no second 6-hour scan) to measure
+  // the new -> full interval via the public nextFullMoon API. One value per
+  // new moon found above.
+  const newFullIntervals = newMoonMs.map(
+    (nm) => (nextFullMoon(new Date(nm)).getTime() - nm) / DAY_MS
+  );
+
+  assert.equal(newFullIntervals.length, 865,
+    `expected 865 new-moon instants (one new->full interval each) in 1990-2060, found ${newFullIntervals.length}`);
+
+  const nfMin = Math.min(...newFullIntervals);
+  const nfMax = Math.max(...newFullIntervals);
+  const nfMean = newFullIntervals.reduce((a, b) => a + b, 0) / newFullIntervals.length;
+
+  assert.ok(Math.abs(nfMin - DOCUMENTED_MIN_NEWFULL_DAYS) < 0.001,
+    `measured new->full min ${nfMin} disagrees with documented ${DOCUMENTED_MIN_NEWFULL_DAYS}`);
+  assert.ok(Math.abs(nfMax - DOCUMENTED_MAX_NEWFULL_DAYS) < 0.001,
+    `measured new->full max ${nfMax} disagrees with documented ${DOCUMENTED_MAX_NEWFULL_DAYS}`);
+  assert.ok(Math.abs(nfMean - DOCUMENTED_MEAN_NEWFULL_DAYS) < 0.001,
+    `measured new->full mean ${nfMean} disagrees with documented ${DOCUMENTED_MEAN_NEWFULL_DAYS}`);
 });
 
 // ---------------------------------------------------------------------------

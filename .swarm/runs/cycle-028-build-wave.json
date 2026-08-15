@@ -1,0 +1,26 @@
+{
+  "cycle": 28,
+  "dispatch": "DIRECT Agent call (Workflow is review-gated in a headless -p session; documented failure-table fallback). k=1, working tree, no branch.",
+  "items": [
+    {
+      "id": "T-124",
+      "model": "sonnet",
+      "attempt": 1,
+      "claim": "measured new->full interval over 1990-2060 via the public surface; rewrote the README bullet and the REPORT row to name the window and the interval count; folded a measuring test into the existing lunation-scan test rather than adding a second scan",
+      "builder_reported": {
+        "count": 865,
+        "min_days": 13.906012546296296,
+        "max_days": 15.612781493055556,
+        "mean_days": 14.76465217738439,
+        "min_at": "1929-07-11T15:50:59.742Z (new moon 2029-07-11)",
+        "max_at": "2046-12-27T10:38:42.760Z",
+        "suite": "115/115 pass",
+        "disagreed_with_backlog_notes": true,
+        "note": "builder recomputed rather than copying the cycle-27 conductor figures, and reported the disagreement with the stale README claim (13.942-15.576 over '36 lunations') explicitly"
+      },
+      "files_changed": ["README.md", "REPORT.md", "test/astro.test.js"],
+      "src_touched": false
+    }
+  ],
+  "conductor_note": "Builder claims are recorded here as CLAIMS. The gate that converted them to facts is the cycle-28 journal block: an independent conductor measurement on a different scan grid (.swarm/runs/cycle-028-conductor-measure.js), a 5-mutation liveness proof (.swarm/runs/cycle-028-mutate.py, output in cycle-028-mutation-out.txt), a repo-wide stale-figure sweep, and a full 115/115 suite run by the conductor."
+}

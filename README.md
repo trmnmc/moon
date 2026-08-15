@@ -170,8 +170,9 @@ Independently checked properties:
 - lunation length varies **29.274–29.826 days** across 864 lunations measured over
   1990–2060 — a lower bound from that window, not the physical range. A mean-only
   implementation is flat at 29.530589 by construction.
-- new→full interval over 36 lunations spans 13.942–15.576 days, mean **14.764** against
-  a theoretical half-synodic of 14.765.
+- new→full interval spans **13.906–15.613 days** across 865 intervals measured over
+  1990–2060, mean **14.765** against a theoretical half-synodic of 14.765 — a lower bound
+  from that window, not the physical range.
 
 `phaseName` and `illumination` come from two different Meeus series, so nothing
 guarantees they stay in step forever. Over the half-open range of years **1000–3000**,
