@@ -3,7 +3,7 @@
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
  "phase": "VALUE_LOOP",
- "cycle": 26,
+ "cycle": 27,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -257,6 +257,16 @@
    "cycle": 26,
    "what": "the DONE precondition is now LIVE and was deliberately NOT exercised this cycle. T-122 closing drains the last ratchet-accepting candidate, but the target stays `active` and cycle 27 must run an explicit VALUE_LOOP candidate scan before any DONE declaration.",
    "why": "The cycle-25 handoff note set the trigger in writing: \"Declare done only when no candidate passes the two-question ratchet. With T-122 open, one does.\" T-122 is now closed, so the trigger has fired. But an EMPTY QUEUE IS NOT AN EXHAUSTED VALUE SPACE, and declaring done off a drained backlog would be the mirror image of the error cycle 22 already named in the other direction (\"an empty queue is not an argument for building something the ratchet rejects\"). The DoD half is genuinely settled -- cycle 23 verified 8/8 SPEC clauses -- so what is missing is only the second conjunct, and that conjunct is a SCAN I have not run, not an inference I can draw from backlog.json having one ratchet-rejected item left in it. The cost of being wrong is asymmetric and that is what decides it: declaring done sets every target's status to done, which makes rotation find no active target and triggers early WRAP_UP immediately -- discarding 15.2 h of remaining clock on an unexamined premise. Deferring costs one gear-1 cycle. A candidate scan is planning work, which is haiku-priced and gear-1 eligible, so the deferral is not blocked by the posture that has bound every other choice on this run."
+  },
+  {
+   "cycle": 27,
+   "what": "Ran the VALUE_LOOP candidate scan the cycle-25 handoff called for, and did NOT declare the target done: the scan found a ratchet-PASSING candidate (T-123), which was built and verified this same cycle.",
+   "why": "The handoff named exactly two acceptable outcomes for this scan and this is the first of them. The scan was a search for value the backlog never captured, not a backlog re-read: five sweeps over untested surfaces, doc-vs-code truth, manifest hygiene, hostile-input error paths, and the ideas ledger. It surfaced that README.md:170 and REPORT.md:33 asserted lunation length spans 29.339-29.775 d and called that 'the real physical range'. Conductor measurement over 1990-2060 (864 lunations, public surface only): 29.2744-29.8264 d, with 134 of 864 lunations (15.5%) OUTSIDE the claimed band. The claim was also contradicted in-repo by src/astro.js:309, test/astro.test.js:378 and SPEC.md:91, all of which put real lunations at ~29.84 d. That is this run's own signature defect (L-025) recurring in prose: L-025 was a MEAN wrongly used as an upper bound in code, this was a small-sample MAX wrongly used as a physical bound in docs."
+  },
+  {
+   "cycle": 27,
+   "what": "Filed the missing LICENSE file as known-issue KI-8 rather than writing one.",
+   "why": "package.json declares \"license\": \"MIT\" with \"private\": false and no LICENSE file exists in the repo. Transcribing the MIT text is mechanical, but the copyright holder line is not: it names a legal person, and no builder or conductor on this run has standing to choose one. Inventing a name would be the doc-honesty failure this whole run exists to remove. Surfaced for the repo owner with the exact decision named."
   }
  ],
  "known_issues": [
@@ -290,6 +300,12 @@
    "bounded_cycle": 6,
    "documented_cycle": 8,
    "prose_corrected_cycle": 17
+  },
+  {
+   "id": "KI-8",
+   "desc": "package.json declares \"license\": \"MIT\" and \"private\": false, but the repo contains no LICENSE file (verified: no LICENSE* at the repo root). A repo that declares a license without shipping its text is legally ambiguous to the next person who wants to reuse it, and the audience for this run is explicitly 'the next person to change this code'. NOT fixed here on purpose: the MIT text needs a copyright holder line naming a legal person, which is the repo owner's decision and not one a build agent or the conductor may invent. Adjacent, separately tracked: T-116 notes README's '## Licence' heading disagrees with package.json's spelling. WHAT WOULD SETTLE IT: the owner supplies the copyright line ('Copyright (c) <year> <holder>'); adding the standard MIT body around it is then a one-file mechanical change.",
+   "severity": "low",
+   "cycle_found": 27
   }
  ],
  "qa": {
@@ -302,13 +318,13 @@
   "consecutive_no_value": 0,
   "consecutive_failures": 0,
   "k_current": 5,
-  "wave_streak": 1,
+  "wave_streak": 0,
   "window_tokens_attributed": 0
  },
  "last_cycle": {
-  "cycle": 26,
-  "work": "build-wave k=1 at haiku (gear 1 clamps the wave to 1 regardless of k_current=5; docs/S routes to haiku per the routing table and attempts=0 means no ladder escalation). One item: T-122, correcting two prose sites that still claimed the round-limb glyphs' East Asian Width class was unestablished. Dispatched as a DIRECT Agent call -- the Workflow tool is review-gated in a headless -p session, which is the documented failure-table fallback, not a degraded mode.",
-  "outcome": "1 item verified, 0 failed, 0 reverted. Suite 114/114 green. Zero shipped bytes changed: the item is prose-only by construction and the render fingerprint proves it (sha256 unchanged over 17,284 rendered strings). Wave was CLEAN -> wave_streak 0 -> 1."
+  "cycle": 27,
+  "work": "VALUE_LOOP candidate scan (5 sweeps, haiku) -> one ratchet-passing candidate found, filed as T-123 and built the same cycle: build-wave k=1 at sonnet (gear 1 clamps the wave to 1; S-effort fix routes to sonnet and build/fix never demotes below it). Dispatched as DIRECT Agent calls -- Workflow is review-gated in a headless -p session, the documented failure-table fallback.",
+  "outcome": "1 item verified, 0 failed, 0 reverted. Suite 115/115 green. A false factual claim removed from two shipped documents and replaced with a measured, window-scoped one that now has a mutation-proven test under it. Wave CLEAN -> wave_streak 2 -> k_current bump is a no-op at the hard max 5 -> streak reset to 0."
  },
  "run_label": "improvement-2026-08-14",
  "resolved_issues": [

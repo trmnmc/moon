@@ -17,6 +17,13 @@ const SYNODIC = 29.530588861;
 const DAY_MS = 86400000;
 const HOUR_MS = 3600000;
 
+// These are the figures README.md's "Accuracy" section and REPORT.md's
+// verification table both state for the min/max true lunation length over
+// the declared 1990-2060 measurement window. If you change one, change all
+// three -- this test, README.md, and REPORT.md must always agree.
+const DOCUMENTED_MIN_LUNATION_DAYS = 29.274;
+const DOCUMENTED_MAX_LUNATION_DAYS = 29.826;
+
 function moonAt(ms) {
   return computeMoon(new Date(ms));
 }
@@ -376,6 +383,64 @@ test('age never exceeds the true maximum lunation length across 60 years', () =>
   }
   assert.ok(max > 29.6, `clamp appears to be back: max age only ${max}`);
   assert.ok(max < 29.9, `age exceeded any real lunation: ${max}`);
+});
+
+// ---------------------------------------------------------------------------
+// README.md ("Accuracy") and REPORT.md both state a min/max true lunation
+// length. Neither prose claim was ever measured by a test -- this closes
+// that gap by doing the measurement the docs describe: locate every true
+// new-moon instant (the discontinuity where `age` drops from ~29-30 back to
+// ~0, ch. 49) over the declared 1990-2060 window by a 6-hour coarse scan
+// with millisecond bisection on the drop, then difference successive
+// instants. This is a real discriminator, not a restatement: it goes red if
+// the docs are edited without re-measuring, or if the phase math drifts.
+// ---------------------------------------------------------------------------
+test('measured min/max true lunation length over 1990-2060 matches the documented figures', () => {
+  const START_MS = Date.UTC(1990, 0, 1);
+  const END_MS = Date.UTC(2060, 0, 1);
+  const COARSE_STEP_MS = 6 * HOUR_MS;
+
+  // Bisect the drop point in (aMs, bMs] where `age` resets from a high
+  // value (near the end of a lunation, > 15 d) to a low one (just after a
+  // new moon). 15 is the midpoint of the ~0-29.8 d range `age` covers, so
+  // it cleanly separates "before the drop" from "after" regardless of
+  // exactly where in that range each side falls.
+  function bisectDrop(aMs, bMs) {
+    let a = aMs, b = bMs;
+    while (b - a > 1) {
+      const m = Math.floor((a + b) / 2);
+      if (moonAt(m).age > 15) a = m; else b = m;
+    }
+    return b;
+  }
+
+  const newMoonMs = [];
+  let prevMs = START_MS;
+  let prevAge = moonAt(START_MS).age;
+  for (let t = START_MS + COARSE_STEP_MS; t <= END_MS; t += COARSE_STEP_MS) {
+    const age = moonAt(t).age;
+    if (age < prevAge) newMoonMs.push(bisectDrop(prevMs, t));
+    prevMs = t;
+    prevAge = age;
+  }
+
+  const intervals = [];
+  for (let i = 1; i < newMoonMs.length; i++) {
+    intervals.push((newMoonMs[i] - newMoonMs[i - 1]) / DAY_MS);
+  }
+
+  // A silently broken scan (e.g. one that only finds a handful of
+  // discontinuities) must not be able to pass by accident.
+  assert.equal(intervals.length, 864,
+    `expected 864 lunation intervals in 1990-2060, found ${intervals.length}`);
+
+  const min = Math.min(...intervals);
+  const max = Math.max(...intervals);
+
+  assert.ok(Math.abs(min - DOCUMENTED_MIN_LUNATION_DAYS) < 0.001,
+    `measured min ${min} disagrees with documented ${DOCUMENTED_MIN_LUNATION_DAYS}`);
+  assert.ok(Math.abs(max - DOCUMENTED_MAX_LUNATION_DAYS) < 0.001,
+    `measured max ${max} disagrees with documented ${DOCUMENTED_MAX_LUNATION_DAYS}`);
 });
 
 // ---------------------------------------------------------------------------

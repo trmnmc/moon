@@ -167,8 +167,9 @@ four hours off.
 
 Independently checked properties:
 
-- lunation length varies across **29.339–29.775 days** — the real physical range. A
-  mean-only implementation is flat at 29.530589 by construction.
+- lunation length varies **29.274–29.826 days** across 864 lunations measured over
+  1990–2060 — a lower bound from that window, not the physical range. A mean-only
+  implementation is flat at 29.530589 by construction.
 - new→full interval over 36 lunations spans 13.942–15.576 days, mean **14.764** against
   a theoretical half-synodic of 14.765.
 

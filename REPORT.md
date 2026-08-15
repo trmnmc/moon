@@ -30,7 +30,7 @@ verification time; no builder saw the check that would judge it.
 
 | Claim | Evidence |
 |---|---|
-| Phase math is real Meeus, not a synodic modulo | Lunation lengths span **29.339–29.775 days** (10.5h spread). A mean-formula implementation is flat at 29.530589 by construction. |
+| Phase math is real Meeus, not a synodic modulo | Lunation lengths span **29.274–29.826 days** across 864 lunations, 1990–2060 (13.2h spread; a measured lower bound over that window, not the physical range). A mean-formula implementation is flat at 29.530589 by construction. |
 | Accuracy is within the ~1h target | True new moon of 2000-01-06 computed **18:15 UTC** vs published 18:14. The mean formula lands at 14:20 — nearly 4h off. |
 | Correction tables are correctly transcribed | Independent audit reproduced Meeus **worked examples 49.a and 49.b to 0.23s and 0.34s**, exercising the mean formula, E, both 25-term tables, W, and A1–A14. |
 | Illumination is true elongation, not faked from age | At Meeus example 48.a the module gives **0.6801** (book: 0.6786); an age-derived fake gives 0.6475. Conclusive discriminator. |

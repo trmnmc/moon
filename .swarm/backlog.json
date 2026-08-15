@@ -453,6 +453,47 @@
    "attempts": 0,
    "notes": "FOUND AT THE CYCLE-24 GATE, as a side effect of T-121 rather than as its goal. README:214-217 and test/render.test.js:584-589 both assert the class 'has not been established'. As of cycle 24 that statement is simply false: .swarm/runs/cycle-024-eaw-audit.py measures both as Neutral against unicodedata UCD 15.0.0, and the conductor's independent gate re-derived the same two values from scratch. This outranks T-116 on the ratchet -- it is a claim the repo makes about ITSELF that is now untrue, not a spelling preference. Scoped deliberately narrow: correcting the prose is S-effort and gear-1 eligible; deciding whether the round limb should JOIN the documented partition is a design judgment and is NOT in scope.\nCYCLE-26 GATE: PASSED on attempt 1, all four acceptance clauses verified with real output. Both prose sites now state the measured class (both Neutral) and name where it was measured (UCD 15.0.0, audit script .swarm/runs/cycle-024-eaw-audit.py). The scope fence held: UNDOCUMENTED_DISC_GLYPHS still holds exactly {0x25d6, 0x25d7}, the test/render.test.js diff is comment-only (inside one /** */ block, zero executable lines touched), and the render fingerprint over 17,284 strings is byte-identical to pre-dispatch (sha256 f71b1f8c..., 5,959,401 bytes, same 48-codepoint alphabet). The gate's strongest check was a citation discriminator the acceptance did not ask for: the README now cites a file path, so the conductor proved that path is TRACKED in git (git ls-files --error-unmatch) and then RAN it -- it reproduces both Neutral classes independently. A README citing an untracked internal artifact would resolve for the conductor and 404 for every reader who clones.",
    "status": "done"
+  },
+  {
+   "id": "T-123",
+   "title": "README/REPORT state a lunation-length range that is false and that no test measures",
+   "kind": "fix",
+   "priority": 3,
+   "value": "M",
+   "effort": "S",
+   "model": "sonnet",
+   "deps": [],
+   "files_hint": [
+    "README.md",
+    "REPORT.md",
+    "test/astro.test.js"
+   ],
+   "acceptance": "README.md:170 and REPORT.md:33 no longer assert the unqualified range '29.339-29.775 days - the real physical range'. Both state a range that is (a) actually produced by this implementation, (b) explicitly scoped to a NAMED measurement window, and (c) not in contradiction with src/astro.js:309 and test/astro.test.js:378, which both put real lunations at ~29.84 d. test/astro.test.js gains ONE test that MEASURES min/max lunation length over that declared window from the public computeMoon surface and asserts the documented bounds, so the prose claim can no longer drift unchecked. No src/ change. No new dependency. Suite green.",
+   "packages": [],
+   "attempts": 0,
+   "route_class": null,
+   "notes": "FOUND AT THE CYCLE-27 VALUE_LOOP CANDIDATE SCAN, and conductor-MEASURED before being filed, not taken on the scanner's word. Independent measurement (runs/c27-lunation-measure.js, conductor-authored, public surface only, bisection on the age discontinuity): over 1990-2060, 864 lunations span 29.2744-29.8264 d. 134 of those 864 (15.5%) fall OUTSIDE the range README:170 calls 'the real physical range'. Over 2020-2040 alone, 32 of 246 fall outside. The claimed numbers are a small-window artifact promoted to a physical constant.\nWHY THIS IS NOT COSMETIC, and why it outranks T-116: it is the run's OWN signature defect (L-025) recurring in prose. L-025 was a MEAN synodic month wrongly used as an upper bound in code; this is a small-sample MAX wrongly used as a physical bound in docs. The repo now contradicts itself in writing: src/astro.js:309 and test/astro.test.js:378 say real lunations run to ~29.84 d while README:170 says they top out at 29.775 d. SPEC.md:91 independently gives ~29.27-29.83, which matches the measurement and not the README.\nNAMED UNTESTED SURFACE (the anti-churn requirement): nothing measures lunation extrema today. test/astro.test.js:144 only asserts successive new moons are 29.53 +/- 0.5 d apart, which admits 29.03-30.03 and would not have caught this; the closest existing check, astro.test.js:378, is a one-sided max < 29.9. The README's stated bounds are pure prose with no gate under them.\nRATCHET RULING - PASSES BOTH QUESTIONS. Would the target user notice? The stated audience is the next person to change this code: they would read a false bound in the shipped README and REPORT and, being the tighter of the two figures in the repo, might well re-derive the exact clamp L-025 removed. Would they still care after 10 minutes? It is a permanent factual claim in two shipped documents, and the fix leaves a gate behind it. It also directly serves the SPEC must-have 'Docs polished for truth'.\nVERIFIED AT THE CYCLE-27 GATE. Conductor measurement (runs/c27-lunation-measure.js, written BEFORE the builder was dispatched) 29.2744/29.8264 vs the test's documented constants 29.274/29.826: agreement 0.0004 d on both, inside the 0.001 d bar. Non-vacuity proven by mutation, not asserted: three separate mutations each turn the new test RED, including restoring the OLD false README figure 29.339 -- so the test would have caught the very defect it was written for. Suite 115/115, exit code 0 captured directly (L-010).",
+   "status": "done"
+  },
+  {
+   "id": "T-124",
+   "title": "README:172's new->full interval range is the same unwindowed-claim shape T-123 just fixed one line above it",
+   "kind": "fix",
+   "priority": 4,
+   "value": "M",
+   "effort": "S",
+   "model": "sonnet",
+   "deps": [],
+   "files_hint": [
+    "README.md",
+    "REPORT.md",
+    "test/astro.test.js"
+   ],
+   "acceptance": "README.md:172 and the corresponding REPORT.md row state a new->full interval range that is scoped to a NAMED window and is actually produced by this implementation over it, and one measuring test pins those figures the way T-123's test pins the lunation-length figures. No src/ change.",
+   "packages": [],
+   "attempts": 0,
+   "notes": "FILED AT CYCLE 27, and conductor-MEASURED before filing rather than assumed by analogy. README.md:172 reads 'new->full interval over 36 lunations spans 13.942-15.576 days, mean 14.764'. Conductor measurement (runs/c27-next-candidate.js, public surface only, nextFullMoon from each true new moon): over 1990-2060, 865 intervals span 13.906-15.613 d, and 55 of the 865 (6.4%) fall OUTSIDE the stated band. Over the first 36 lunations from 1990 -- the claim's apparent basis -- the span is 13.929-15.604, so even its own sample size does not reproduce it exactly.\nWEAKER THAN T-123, and priced honestly as such: this claim does at least name a sample SIZE ('over 36 lunations'), so it is not sold as a physical constant the way 'the real physical range' was. That is why it is priority 4 rather than 3, and why it was not folded into T-123 -- widening a verified brief mid-flight is how scope creep enters. It still passes the ratchet: it is a false range in a shipped document, in the section headed 'Independently checked properties', with no test under it, sitting one line below the claim this run just corrected for exactly the same reason. Leaving it is the half-fix the next maintainer trips on.\nNAMED UNTESTED SURFACE: nothing measures new->full interval extrema. The suite's closest check is the half-synodic mean, not the spread.",
+   "status": "todo"
   }
  ]
 }
