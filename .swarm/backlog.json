@@ -615,6 +615,27 @@
    "packages": [],
    "deps": [],
    "notes": "Filed at the cycle-32 gate under the standing cycle-8 disposition (T-111) and cycle-17 precedent: an item whose acceptance passed in full is not failed over a wording nuance, and the conductor does not patch the artifact itself, because that leaves nothing independent checking the conductor's own wording. Expected to be REJECTED by the VALUE_LOOP ratchet like T-116 and T-126 -- recorded so a human may still want it, not queued as work."
+  },
+  {
+   "id": "T-131",
+   "title": "README's Install section offers no runnable command: all three invocations carry an unresolved YOUR_USER placeholder",
+   "kind": "fix",
+   "status": "done",
+   "priority": 1,
+   "effort": "S",
+   "model": "sonnet",
+   "files_hint": [
+    "README.md",
+    "test/regressions.test.js"
+   ],
+   "packages": [],
+   "deps": [],
+   "acceptance": "README's Install section presents at least one command that is true as written for a reader who has the repo, with no unresolved placeholder in any command presented as directly runnable; every surviving placeholder is explicitly labelled as one, naming what the reader substitutes. The ~/.zshrc snippet no longer shows the form the very next paragraph tells the reader not to use. A regression test pins the guarantee REPORT.md already claims for this defect family.",
+   "notes": "CONDUCTOR-MEASURED, cycle 33. (1) `gh api repos/YOUR_USER/moon` -> HTTP 404: README.md:16 `npx github:YOUR_USER/moon` is the document's FIRST command and is not runnable as written; README.md:22 (git clone) and README.md:91 (~/.zshrc recipe) carry the same placeholder. README.md:13 introduces the section with 'Nothing to install:'. (2) DO NOT substitute the real GitHub account. Measured: the remote is github.com/trmnmc/moon and `gh repo view` reports visibility PRIVATE, so `npx github:trmnmc/moon` fails for a reader too -- substituting would convert an obviously inert placeholder into a plausible-looking command that still 404s, which is strictly worse. Making the repo public is the owner's decision, same shape as KI-8's copyright holder; it is not the builder's or the conductor's to make. (3) The path that IS true today, conductor-run this cycle: `node /opt/targets/moon/bin/moon.js` prints the readout and exits 0. (4) RECURRENCE: REPORT.md:79-80 records that a prior run already found a broken README prompt snippet (`npx --no-install moon`, a package that does not exist) and REPORT.md:83-84 claims 'Five regression tests were added in test/regressions.test.js so these cannot silently return.' The replacement command is also not runnable, and grep confirms NO test reads README's Install section -- so the repo's own stated guarantee does not cover this family. That is what the added test must close.",
+   "attempts": 0,
+   "cycle_filed": 33,
+   "verified_cycle": 33,
+   "evidence": ".swarm/runs/cycle-033-verify-T-131.txt"
   }
  ]
 }

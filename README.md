@@ -10,17 +10,20 @@ dependencies.
 
 ## Install
 
-Nothing to install:
+Nothing to install: if you already have this repo, run it straight from the repo root —
 
 ```sh
-npx github:YOUR_USER/moon
+node bin/moon.js
 ```
 
-Or clone and run it directly — there are no dependencies to fetch:
+To get the repo onto another machine, clone it — there are no dependencies to fetch:
 
 ```sh
-git clone https://github.com/YOUR_USER/moon && node moon/bin/moon.js
+git clone <url-of-this-repo> && node moon/bin/moon.js
 ```
+
+`<url-of-this-repo>` is a placeholder: replace it with wherever you host this repository.
+It's left unfilled here rather than pointing at a URL that would 404 for a reader.
 
 ## Why this one
 
@@ -84,17 +87,11 @@ moon --north   # works
 ## In your prompt or MOTD
 
 `--compact` gives exactly one line with no trailing whitespace, which is the form you
-want in a shell prompt:
+want in a shell prompt. Fetching from git on every prompt render would be slow, so clone
+the repo once and call the local binary directly:
 
 ```sh
-# ~/.zshrc — moon is not on npm; install from git, then call the local binary
-npx github:YOUR_USER/moon --compact
-```
-
-Fetching from git on every prompt render would be slow, so for real prompt use
-clone it once and call it directly:
-
-```sh
+# ~/.zshrc — moon is not on npm; clone once, then call the local binary
 echo "$(node ~/src/moon/bin/moon.js --compact)"
 ```
 

@@ -7,9 +7,35 @@
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { execFileSync } = require('node:child_process')
+const fs = require('node:fs')
 const path = require('node:path')
 
 const BIN = path.join(__dirname, '..', 'bin', 'moon.js')
+const REPO_ROOT = path.join(__dirname, '..')
+const README = path.join(REPO_ROOT, 'README.md')
+
+// Pulls the prose + code between a "## Heading" and the next "## " heading (or EOF).
+// Plain string search on purpose: a regex `$` anchor here would need the `m` flag to
+// match "## " at a line start, but `m` also makes `$` match at every line end, not just
+// the section end, silently truncating the capture to one line.
+function readmeSection (heading) {
+  const text = fs.readFileSync(README, 'utf8')
+  const marker = '\n## ' + heading + '\n'
+  const start = text.indexOf(marker)
+  assert.ok(start !== -1, `README has no "## ${heading}" section`)
+  const contentStart = start + marker.length
+  const nextHeading = text.indexOf('\n## ', contentStart)
+  return text.slice(contentStart, nextHeading === -1 ? text.length : nextHeading)
+}
+
+// Pulls every fenced ```sh block out of a section, in order.
+function shBlocks (section) {
+  const blocks = []
+  const re = /```sh\n([\s\S]*?)```/g
+  let m
+  while ((m = re.exec(section))) blocks.push(m[1])
+  return blocks
+}
 
 function run (args = [], tz = 'UTC') {
   return execFileSync(process.execPath, [BIN, ...args], {
@@ -119,4 +145,55 @@ test('next-full-moon date omits the year when it falls in the current calendar y
   assert.match(dateLine, /next full moon\s+29 Jun$/,
     'next full moon on 2026-06-29 with "now" also 2026 must omit the year suffix: ' +
     JSON.stringify(dateLine))
+})
+
+// T-131 — every command in README's Install section carried an unresolved `YOUR_USER`
+// placeholder (npx github:YOUR_USER/moon, and the git-clone equivalent), so the very
+// first command a reader saw was not runnable as written. `gh api repos/YOUR_USER/moon`
+// 404s; there is no such user.
+test('README Install section leads with a command that actually runs', () => {
+  const section = readmeSection('Install')
+  const blocks = shBlocks(section)
+  assert.ok(blocks.length > 0, 'Install section has no ```sh command block')
+
+  // The first command block is presented as the thing to run right now. It must
+  // contain no unresolved placeholder, and it must actually work from the repo root —
+  // the same condition a reader who has cloned this repo is in.
+  assert.doesNotMatch(blocks[0], /YOUR_USER|<[^>]+>/,
+    'first Install command still carries an unresolved placeholder: ' +
+    JSON.stringify(blocks[0]))
+
+  const out = execFileSync('bash', ['-c', blocks[0]],
+    { cwd: REPO_ROOT, encoding: 'utf8' })
+  assert.match(out, /\d+%\s+(new|waxing|first quarter|waning|full)/,
+    'first Install command did not produce a real moon readout: ' + JSON.stringify(out))
+})
+
+// T-131 — any placeholder that survives elsewhere in Install must be labelled as one,
+// not left looking like a literal value a reader could paste and run.
+test('README Install section labels every surviving placeholder', () => {
+  const section = readmeSection('Install')
+  assert.doesNotMatch(section, /YOUR_USER/,
+    'Install section still contains the bare YOUR_USER placeholder')
+
+  const placeholders = section.match(/<[^>]+>/g) || []
+  for (const p of placeholders) {
+    assert.match(section, new RegExp('`' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') +
+      '`[^.]*\\bplaceholder\\b'),
+    `placeholder ${p} appears but is never explicitly called a placeholder`)
+  }
+})
+
+// T-131 — the ~/.zshrc snippet showed `npx github:YOUR_USER/moon --compact`, i.e. a
+// fetch-from-git-on-every-render command, immediately followed by a paragraph telling
+// the reader not to do exactly that because it's slow. The snippet must not show the
+// form the surrounding prose retracts.
+test('README zshrc prompt snippet does not use the npx fetch-on-render form', () => {
+  const section = readmeSection('In your prompt or MOTD')
+  const blocks = shBlocks(section)
+  const zshrcBlock = blocks.find((b) => b.includes('.zshrc'))
+  assert.ok(zshrcBlock, 'no ~/.zshrc code block found in the prompt/MOTD section')
+  assert.doesNotMatch(zshrcBlock, /npx/,
+    'the ~/.zshrc snippet still uses npx, the form the next paragraph says is too ' +
+    'slow for prompt rendering: ' + JSON.stringify(zshrcBlock))
 })

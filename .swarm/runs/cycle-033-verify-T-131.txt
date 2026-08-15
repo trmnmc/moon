@@ -1,0 +1,92 @@
+CYCLE 33 — VERIFICATION EVIDENCE — T-131
+README's Install section offers no runnable command (all three invocations carried an
+unresolved YOUR_USER placeholder).
+
+Gate authored by the conductor AT VERIFICATION TIME. The builder never saw these checks.
+Instrument: /opt/swarm/runs/cycle-033-gate.py (mutations applied to the real README under
+a sha256-guarded restore in a finally block; restore verified byte-identical).
+
+--------------------------------------------------------------------------------
+FINDING, AS MEASURED BEFORE ANY WORK WAS DISPATCHED
+--------------------------------------------------------------------------------
+  $ gh api repos/YOUR_USER/moon
+  {"message":"Not Found", ... ,"status":"404"}
+
+  README.md:16  npx github:YOUR_USER/moon          <- the document's FIRST command
+  README.md:22  git clone https://github.com/YOUR_USER/moon && node moon/bin/moon.js
+  README.md:91  npx github:YOUR_USER/moon --compact  (inside a ~/.zshrc snippet)
+  README.md:13  "Nothing to install:"
+
+  $ git -C /opt/targets/moon remote -v   -> origin https://github.com/trmnmc/moon.git
+  $ gh repo view trmnmc/moon --json isPrivate,visibility
+    {"isPrivate":true,"visibility":"PRIVATE"}
+
+  => substituting the REAL account would NOT have fixed it: npx github:trmnmc/moon fails
+     for a reader too. It would have converted an obviously inert placeholder into a
+     plausible-looking command that still 404s. Not done; recorded as a pre-decided
+     constraint in the builder's brief. Publishing the repo is the owner's call, the same
+     shape as KI-8's copyright-holder line.
+
+  RECURRENCE: REPORT.md:79-80 records a prior run finding a broken README prompt snippet
+  (`npx --no-install moon`, a package that does not exist), and REPORT.md:83-84 claims
+  "Five regression tests were added in test/regressions.test.js so these cannot silently
+  return." grep confirms NO test read README's Install section. The prior fix replaced one
+  non-runnable command with another, and the stated guarantee did not cover the family.
+
+--------------------------------------------------------------------------------
+GATE RESULT (7 checks, 2 of them controls)
+--------------------------------------------------------------------------------
+README restored, sha256 matches: f499de86f02c8cc8
+
+PASS  C2 full suite :: 123 pass / 0 fail
+PASS  C3 documented cmd runs (conductor-run) :: `node bin/moon.js` -> exit 0,
+      stdout='░░░░▐   7%  waxing crescent\n            next full moon  28 Aug'
+PASS  C4 no YOUR_USER in product prose :: hits=[]
+PASS  C5 zshrc snippet npx-free :: blocks=['# ~/.zshrc — moon is not on npm; clone once,
+      then call the local binary\necho "$(node ~/src/moon/bin/moon.js --compact)"\n']
+PASS  C8 positive control (fixed README -> 3 pass) :: 10 pass / 0 fail, failed=[]
+PASS  C6 failability (old README -> all 3 red) :: red=[labels every surviving placeholder,
+      leads with a command that actually runs, zshrc does not use the npx fetch-on-render
+      form] (want all 3), total fail=3
+PASS  C7 discriminator (broken cmd -> test 1 red) :: red=[leads with a command that
+      actually runs], total fail=1
+
+GATE: PASS
+
+--------------------------------------------------------------------------------
+WHAT EACH CHECK BUYS, AND WHAT IT DOES NOT
+--------------------------------------------------------------------------------
+C3 is the acceptance clause proven by ME, with my own section parser (deliberately not the
+helper the test uses) executing the documented block from the repo root. A shared parser
+would have meant the test and the gate could be wrong together.
+
+C6 + C8 are a matched pair and neither is evidence alone. C8 (fixed README -> all three
+green) rules out a test that can never pass; C6 (HEAD's README -> all three red) rules out
+a test that can never fail. Standing practice on this run since cycle 32: every battery
+carries a control whose answer I already know.
+
+C7 is the discriminator, and it is the check that distinguishes this from a decorative
+test. A test asserting only that README's text contains no placeholder would pass against
+any well-formed, placeholder-free, BROKEN command. Mutating the documented block to
+`node bin/mon.js` (a typo'd path) turns test 1 red and only test 1 -- so the test really
+does spawn the command README documents and read its output.
+
+LIMIT, stated rather than buried: test 1 asserts the command's output matches a phase
+readout, so a README documenting `echo "  7%  waxing crescent"` would satisfy it without
+running the product. That is not a realistic drift for this file (the realistic drift is a
+broken or placeholder command, which C7 covers), and closing it would mean asserting
+against the binary's live output, which is time-varying. Recorded as a known bound of the
+pin, not as a defect it hides.
+
+--------------------------------------------------------------------------------
+SCOPE
+--------------------------------------------------------------------------------
+$ git -C /opt/targets/moon status --porcelain
+ M .swarm/backlog.json      <- conductor's own T-131 filing, not the builder's
+ M README.md
+ M test/regressions.test.js
+
+Suite: 120 -> 123 (3 added). collision-scan: NOT RUN and not applicable -- the standing
+browser-target gate keys on classic non-module scripts served to a browser; moon is a
+stdout Node CLI with no html/css/client-js/template/static asset in the repo. Reported as
+not-run, never as passed. qa-verify look pass: same reason, not dispatched.

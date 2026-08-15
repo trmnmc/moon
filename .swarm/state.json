@@ -3,7 +3,7 @@
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
  "phase": "VALUE_LOOP",
- "cycle": 32,
+ "cycle": 33,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -332,12 +332,32 @@
    "cycle": 32,
    "what": "T-129 accepted as CHARACTERIZATION pins rather than Meeus 49.a/49.b published-reference fixtures, and the exact-millisecond assertion was accepted only after CI proved it reproduces on other engines.",
    "why": "The builder was offered both shapes and chose pins, correctly: the published JDE values for the worked examples are memory-sourced and would have added a second unverifiable magnitude to a repo whose whole run is about removing them, while the existing anchors already prove the tables are RIGHT to ~1 h. The gap was never correctness, it was that the tables could CHANGE silently -- 5 of 7 transcription mutants passed all 119 tests, shifting real instants up to 72.5 s. The residual risk in pins is engine-dependence: ECMA-262 leaves Math.sin/cos implementation-approximated, so an exact-ms pin could have been a flaky tripwire for the declared audience ('the next person to change this code'). Settled empirically rather than by argument, on cycle 21's precedent of verifying a workflow by running it: GitHub's runners report `ok 50 - T-129` with 120/120 on Node 20 and Node 22 against local Node 24 -- three V8 versions, two machines, identical pins. The comment's claim that this follows from IEEE-754 arithmetic is still one notch stronger than the spec allows; filed as T-130 rather than used to fail an item whose acceptance passed in full (cycle-8/T-111 disposition)."
+  },
+  {
+   "cycle": 33,
+   "what": "The scan's hit (T-131) was fixed WITHOUT substituting the repo's real GitHub account, even though that is the one-token change the defect appears to invite.",
+   "why": "README's Install section carried `npx github:YOUR_USER/moon` as its FIRST command; `gh api repos/YOUR_USER/moon` returns 404, so the document's opening instruction was not runnable as written, and the git-clone line and the ~/.zshrc recipe carried the same placeholder -- the section offered NO working path. The obvious repair is to write the real account, and it is wrong: the remote is github.com/trmnmc/moon and `gh repo view` reports visibility PRIVATE, so `npx github:trmnmc/moon` fails for a reader too. That repair would have converted an obviously inert placeholder into a plausible-looking command that still 404s, which is strictly worse -- a reader trusts it, runs it, and gets an error they cannot distinguish from their own mistake. Publishing the repo is the owner's decision, the same shape as KI-8's copyright-holder line, and not one a builder or the conductor may make. So the fix leads with the path that is true today (`node bin/moon.js`, conductor-run: exit 0, real readout) and leaves the remaining placeholder explicitly LABELLED as one. Pre-decided in the brief per the cycle-10 rule, so no judgement call was handed to a cheap tier."
+  },
+  {
+   "cycle": 33,
+   "what": "The defect is a RECURRENCE with a documented guarantee attached, and that is what made it worth a test rather than a prose edit.",
+   "why": "REPORT.md:79-80 records that a prior run already found a broken README prompt snippet (`npx --no-install moon`, a package that does not exist), and REPORT.md:83-84 states 'Five regression tests were added in test/regressions.test.js so these cannot silently return.' grep confirms NO test read README's Install section. So the prior fix swapped one non-runnable command for another, and the repo's own stated guarantee did not cover the family it named. A prose-only repair would have left the third occurrence available. Generalizable, and a candidate playbook lesson for WRAP_UP: when a document claims regression tests were added so a defect cannot return, that claim is itself checkable -- read the tests and confirm they touch the surface the claim names."
+  },
+  {
+   "cycle": 33,
+   "what": "The gate's decisive check was an EXECUTION discriminator (C7), not a reading of the new test or of the prose, and its residual limit is recorded rather than buried.",
+   "why": "C6 (HEAD's README turns all three new tests red) and C8 (the fixed README turns them green) are a matched pair that rule out a never-failing and a never-passing test respectively, but neither shows the test does more than pattern-match README's text -- and a text-only assertion would pass against any well-formed, placeholder-free, BROKEN command. So the documented block was mutated to `node bin/mon.js` (typo'd path): test 1 goes red and ONLY test 1, which proves it spawns the command README documents and reads its output. C3 then proved the acceptance clause independently, with my own section parser rather than the helper the test uses, so test and gate cannot be wrong together. LIMIT, stated: test 1 would also accept a README documenting `echo \"  7%  waxing crescent\"`. That is not a realistic drift for this file and closing it would mean asserting against time-varying live output; recorded as a known bound of the pin."
+  },
+  {
+   "cycle": 33,
+   "what": "DONE is still not declarable, and the falling-hit-rate trend of cycles 30-32 did NOT continue: this scan hit on its FIRST probe.",
+   "why": "Cycle 30's standing rule is that a DONE declaration needs a scan that comes back EMPTY. This one did not: probe A (the packaging/distribution path -- a surface no earlier cycle had swept) hit immediately. Probe cost by cycle is now 1, 4, 3, 1, so the 'hit rate is falling' signal recorded at cycles 31-32 has reversed rather than converged, and the reason is worth naming: every earlier scan swept the correctness core and its prose; this one swept how a READER GETS TO the product, which the run had never examined. T-131 is also the most reader-facing find of the run -- it is the first command in the README. An empty scan remains the trigger, and it has not fired."
   }
  ],
  "known_issues": [
   {
    "id": "KI-2",
-   "desc": "settings.json allowlist edit denied AGAIN at the improvement-run kickoff 2026-08-14 (recurring, same as the original run). permissions.additionalDirectories is still [] and bin/swarm-budget.sh + bin/swarm-playbook.sh are not allowlisted, so the budget probe and playbook parser are both unrunnable from a headless conductor and were worked around (allocator.json for gear evidence; direct file read for the playbook). Headless relaunches must keep passing --add-dir explicitly. SWARM-side tooling gap, not a target defect - hard rule 5 forbids fixing it from inside a run. STILL DENIED at cycle 20 (21st consecutive cycle): bin/swarm-budget.sh was re-invoked this cycle -- the first real re-attempt since the failure streak began, since last_real_probe_ts is 0 and the >=1800s re-probe window is therefore long open -- and the permission layer refused it again. That is now a MEASURED refusal at cycle 20, not an inherited assumption. RE-MEASURED at cycle 21 (22nd consecutive cycle), and the scope is now known to be WIDER than the budget probe: bin/swarm-notify.sh poll was refused in the same cycle, so the control channel could only be read from runs/control.json on disk. Reading the file is a sufficient substitute for the pending[]/inject[] arrays (both were empty), but it is NOT a substitute for the send path - cycle 20's phase-change push and this cycle's control-ack had no way to leave the machine. Every bin/*.sh entry point is behind the same gate; node bin/swarm-craft.mjs, by contrast, RAN fine this cycle, which localises the gap to the shell-script allowlist entries rather than to bin/ as a directory. That is the concrete thing a human can fix before the next run. ROOT CAUSE PINNED AT CYCLE 23 (24th consecutive cycle of denial), and it is one line, not a mystery: SWARM/.claude/settings.json's allow list carries `Bash(bin/swarm-notify.sh:*)` (RELATIVE) and `Bash(/Users/truman/Projects/SWARM/bin/swarm-notify.sh:*)` (the macOS ABSOLUTE path) -- but no /opt/swarm absolute form, and NO entry of any kind for swarm-budget.sh. So the observed flapping across cycles 21-23 was never the permission layer being flaky: notify.sh succeeds iff invoked as `bin/swarm-notify.sh` with cwd=/opt/swarm and is refused via its /opt absolute path, while swarm-budget.sh is refused in EVERY form because it is simply absent from the list. Fix is two allow entries at the next kickoff (settings.json is read-only mid-run per hard rule 5).",
+   "desc": "settings.json allowlist edit denied AGAIN at the improvement-run kickoff 2026-08-14 (recurring, same as the original run). permissions.additionalDirectories is still [] and bin/swarm-budget.sh + bin/swarm-playbook.sh are not allowlisted, so the budget probe and playbook parser are both unrunnable from a headless conductor and were worked around (allocator.json for gear evidence; direct file read for the playbook). Headless relaunches must keep passing --add-dir explicitly. SWARM-side tooling gap, not a target defect - hard rule 5 forbids fixing it from inside a run. STILL DENIED at cycle 20 (21st consecutive cycle): bin/swarm-budget.sh was re-invoked this cycle -- the first real re-attempt since the failure streak began, since last_real_probe_ts is 0 and the >=1800s re-probe window is therefore long open -- and the permission layer refused it again. That is now a MEASURED refusal at cycle 20, not an inherited assumption. RE-MEASURED at cycle 21 (22nd consecutive cycle), and the scope is now known to be WIDER than the budget probe: bin/swarm-notify.sh poll was refused in the same cycle, so the control channel could only be read from runs/control.json on disk. Reading the file is a sufficient substitute for the pending[]/inject[] arrays (both were empty), but it is NOT a substitute for the send path - cycle 20's phase-change push and this cycle's control-ack had no way to leave the machine. Every bin/*.sh entry point is behind the same gate; node bin/swarm-craft.mjs, by contrast, RAN fine this cycle, which localises the gap to the shell-script allowlist entries rather than to bin/ as a directory. That is the concrete thing a human can fix before the next run. ROOT CAUSE PINNED AT CYCLE 23 (24th consecutive cycle of denial), and it is one line, not a mystery: SWARM/.claude/settings.json's allow list carries `Bash(bin/swarm-notify.sh:*)` (RELATIVE) and `Bash(/Users/truman/Projects/SWARM/bin/swarm-notify.sh:*)` (the macOS ABSOLUTE path) -- but no /opt/swarm absolute form, and NO entry of any kind for swarm-budget.sh. So the observed flapping across cycles 21-23 was never the permission layer being flaky: notify.sh succeeds iff invoked as `bin/swarm-notify.sh` with cwd=/opt/swarm and is refused via its /opt absolute path, while swarm-budget.sh is refused in EVERY form because it is simply absent from the list. Fix is two allow entries at the next kickoff (settings.json is read-only mid-run per hard rule 5). RE-MEASURED AT CYCLE 33 (34th consecutive cycle of denial): bin/swarm-budget.sh was re-attempted in the BARE-RELATIVE form with cwd=/opt/swarm -- the exact form bin/swarm-notify.sh succeeds in -- and was refused again, while `bin/swarm-notify.sh poll` SUCCEEDED in that same form for a THIRD consecutive cycle. That is a controlled comparison, not an inference: same shell, same cwd, same invocation shape, opposite outcomes, which isolates the cause to the allowlist ENTRY rather than to bin/, to shell scripts as a class, or to a flaky permission layer. Fix remains two allow entries at the next kickoff.",
    "severity": "medium",
    "cycle_found": 0,
    "recurred_cycle": 21
@@ -383,14 +403,14 @@
   "consecutive_no_value": 0,
   "consecutive_failures": 0,
   "k_current": 5,
-  "wave_streak": 1,
+  "wave_streak": 0,
   "window_tokens_attributed": 0
  },
  "last_cycle": {
-  "cycle": 32,
-  "work": "VALUE_LOOP candidate scan (2 probes rejected by measurement) + build-wave [T-129] k=1 at sonnet",
-  "outcome": "1 verified, 120/120 green local + CI on Node 20/22, 0 reverted, 7/7 conductor mutants now die (5 of 7 survived pre-merge)",
-  "ts": "2026-08-15T02:45:00.000Z"
+  "cycle": 33,
+  "work": "VALUE_LOOP candidate scan (hit on probe 1: distribution/entry path) + build-wave [T-131] k=1 at sonnet",
+  "outcome": "1 verified, 123/123 green (120 -> 123), 0 reverted, 7/7 gate checks pass incl. failability + execution discriminator",
+  "ts": "2026-08-15T03:00:19.000Z"
  },
  "run_label": "improvement-2026-08-14",
  "resolved_issues": [
