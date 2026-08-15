@@ -13,9 +13,11 @@ const { execFileSync, spawnSync } = require('node:child_process')
 const path = require('node:path')
 const fs = require('node:fs')
 const { HELP } = require('../bin/moon.js')
+const { parseArgs } = require('../src/args.js')
 
 const BIN = path.join(__dirname, '..', 'bin', 'moon.js')
 const README = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8')
+const ARGS_SRC = fs.readFileSync(path.join(__dirname, '..', 'src', 'args.js'), 'utf8')
 
 function run (args = [], tz = 'UTC') {
   return execFileSync(process.execPath, [BIN, ...args], {
@@ -173,11 +175,119 @@ test('--block draws a closed frame', () => {
   assert.ok(bottom && bottom.endsWith('┘'))
 })
 
-test('--help exits 0 and documents every flag it accepts', () => {
-  const out = run(['--help'])
-  for (const flag of ['--json', '--block', '--compact', '--south', '--north', '--help']) {
-    assert.ok(out.includes(flag), `help text omits ${flag}`)
+// The accepted flag set is documented in three independent places: src/args.js's
+// OPTIONS table (the thing the parser actually reads), the HELP string's "options"
+// block, and the README's "## Options" table. Nothing links them structurally — see
+// the comment above OPTIONS in src/args.js. These parsers pull the flag names out of
+// each artifact itself, so adding or removing a flag in OPTIONS without mirroring it
+// in both documents (or vice versa) fails here instead of the CLI shipping a flag
+// nobody documented, or documentation for a flag that no longer exists.
+//
+// -h is --help's short alias (`short: 'h'` in OPTIONS), not a second registered flag,
+// so it is not a distinct member of the compared name sets below. Both HELP and the
+// README render it as part of --help's row ("-h, --help" / "`-h`, `--help`"); the
+// parsers below require that exact alias shape on the --help line and record whether
+// they saw it, so a doc edit that silently drops the "-h, " prefix is caught rather
+// than just quietly agreeing with a set that never had "h" in it either way.
+
+// OPTIONS is a flat object — every entry is `name: { type: 'boolean'[, short: '_'] },`
+// on its own line, with the occasional whole-line comment interspersed (see `compact`).
+// The comment lines have no `word:` followed by `{`, so this regex skips them for free.
+function optionNamesFromArgsSource (src) {
+  const start = src.indexOf('const OPTIONS = {')
+  assert.ok(start >= 0, 'src/args.js has no OPTIONS table to parse')
+  const end = src.indexOf('\n};', start)
+  assert.ok(end >= 0, 'src/args.js OPTIONS table has no closing brace')
+  const body = src.slice(start, end)
+  const names = []
+  for (const line of body.split('\n')) {
+    const m = /^\s*(\w+):\s*\{/.exec(line)
+    if (m) names.push(m[1])
   }
+  return names
+}
+
+function optionNamesFromHelpText (help) {
+  const lines = help.split('\n')
+  const start = lines.findIndex((l) => l.trim() === 'options')
+  assert.ok(start >= 0, 'HELP text has no options section to parse')
+  const names = []
+  let sawHelpAlias = false
+  for (let i = start + 1; i < lines.length; i++) {
+    const line = lines[i]
+    if (line.trim() === '') break
+    const alias = /^ {2}-h, --(\S+)/.exec(line)
+    const plain = /^ {2}--(\S+)/.exec(line)
+    if (alias) {
+      names.push(alias[1])
+      sawHelpAlias = true
+    } else if (plain) {
+      names.push(plain[1])
+    }
+  }
+  assert.ok(sawHelpAlias, 'HELP options block does not render -h as --help\'s alias')
+  return names
+}
+
+// The Options table lives under the "## Options" heading, up to the next "## "
+// heading, mirroring fieldsFromReadmeTable's scoping above.
+function optionNamesFromReadmeTable (readme) {
+  const start = readme.indexOf('## Options')
+  assert.ok(start >= 0, 'README has no ## Options section to parse')
+  const end = readme.indexOf('\n## ', start + 1)
+  const section = readme.slice(start, end === -1 ? undefined : end)
+  const names = []
+  let sawHelpAlias = false
+  for (const line of section.split('\n')) {
+    const alias = /^\| `-h`, `--(\w+)` \|/.exec(line)
+    const plain = /^\| `--(\w+)` \|/.exec(line)
+    if (alias) {
+      names.push(alias[1])
+      sawHelpAlias = true
+    } else if (plain) {
+      names.push(plain[1])
+    }
+  }
+  assert.ok(sawHelpAlias, 'README Options table does not render -h as --help\'s alias')
+  return names
+}
+
+test('the three documented flag-set sources parse to something non-empty', () => {
+  // A parser that silently extracts zero names, after which two empty sets compare
+  // equal, would pin nothing. Guard against document-shape drift breaking the parsers
+  // quietly rather than loudly.
+  assert.ok(optionNamesFromArgsSource(ARGS_SRC).length > 0, 'OPTIONS parse came back empty')
+  assert.ok(optionNamesFromHelpText(HELP).length > 0, 'HELP options-block parse came back empty')
+  assert.ok(optionNamesFromReadmeTable(README).length > 0, 'README Options-table parse came back empty')
+})
+
+test('every name the source-side parse extracts is honoured by parseArgs, and a name it does not register is rejected', () => {
+  // This is what stops optionNamesFromArgsSource from silently reading a stale block
+  // or a comment instead of the live table: each extracted name must actually be
+  // accepted by the real parser, and a name absent from OPTIONS must still be rejected.
+  for (const name of optionNamesFromArgsSource(ARGS_SRC)) {
+    assert.doesNotThrow(() => parseArgs([`--${name}`]),
+      `parseArgs rejected --${name}, which was extracted from OPTIONS`)
+  }
+  assert.equal(parseArgs(['-h']).help, true, '-h must parse as --help\'s short alias')
+  assert.throws(() => parseArgs(['--totally-unregistered-flag']), { code: 'EUSAGE' },
+    'a flag absent from OPTIONS must be rejected, or the source-side parse could read anything and this test would not notice')
+})
+
+test('OPTIONS, the HELP options block, and the README Options table agree on the accepted flag set', () => {
+  // run() throws on a non-zero exit, so a reachable --help that exits non-zero fails
+  // this test before the parse even runs — the exit-0 half of the old hardcoded test.
+  const helpOutput = run(['--help'])
+  assert.equal(helpOutput, HELP + '\n', '--help output must be exactly the HELP string')
+
+  const registered = new Set(optionNamesFromArgsSource(ARGS_SRC))
+  const helpNames = new Set(optionNamesFromHelpText(helpOutput))
+  const readmeNames = new Set(optionNamesFromReadmeTable(README))
+
+  assert.deepEqual(helpNames, registered,
+    'HELP options block disagrees with the flags src/args.js actually registers')
+  assert.deepEqual(readmeNames, registered,
+    'README Options table disagrees with the flags src/args.js actually registers')
 })
 
 test('an unknown flag exits 2 with a clean one-line message on stderr', () => {

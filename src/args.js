@@ -3,8 +3,12 @@
 const { parseArgs: nodeParseArgs } = require('node:util');
 
 /**
- * Flag table. Kept here (rather than inline) so the help text and the parser can never
- * drift apart.
+ * Flag table. This is the single source of truth for which flags moon accepts. The
+ * `options` block in bin/moon.js's HELP string and the README's `## Options` table are
+ * independent restatements of it, not derived from it, so nothing here structurally
+ * prevents them from drifting. test/cli.test.js parses this object's keys and both of
+ * those documents at test time and asserts the three agree; that test is the only
+ * thing holding them in sync.
  */
 const OPTIONS = {
   json: { type: 'boolean' },

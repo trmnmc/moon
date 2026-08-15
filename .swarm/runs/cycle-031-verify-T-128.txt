@@ -1,0 +1,159 @@
+cycle 31 — VERIFICATION GATE for T-128
+conductor-authored after the builder returned; the builder never saw any of these checks.
+Scripts: .swarm/runs/cycle-031-mutants.mjs (battery), .swarm/runs/cycle-031-gate.mjs (rest).
+Verbatim tool output below.
+
+================================================================================
+PART 1 — MUTATION BATTERY  (node .swarm/runs/cycle-031-mutants.mjs)
+================================================================================
+
+=== BASELINE (builder diff, unmutated) ===
+exit=0 pass=? fail=?
+  [the pass/fail scrape in the battery script keyed on "# pass N"; node --test emits
+   "ℹ pass N", so the counts read "?" throughout. Exit code is the authority here, and
+   the real counts are captured in PART 2 C1 below: 119/119, exit 0.]
+
+M1 BITES   expect=fail  exit=1
+   flag ADDED to OPTIONS, both documents stale
+   first error: AssertionError [ERR_ASSERTION]: HELP options block disagrees with the flags src/args.js actually registers
+   expected message present: true
+
+M2 BITES   expect=fail  exit=1
+   flag REMOVED from OPTIONS, both documents still advertise it (the direction the old hardcoded test was blind to)
+   first error: Error: Command failed: /usr/bin/node /opt/targets/moon/bin/moon.js --compact
+   expected message present: true
+
+M3 BITES   expect=fail  exit=1
+   README Options row deleted only — OPTIONS and HELP still agree with each other
+   first error: AssertionError [ERR_ASSERTION]: README Options table disagrees with the flags src/args.js actually registers
+   expected message present: true
+
+M4 BITES   expect=fail  exit=1
+   HELP options line deleted only — OPTIONS and README still agree with each other
+   first error: AssertionError [ERR_ASSERTION]: HELP options block disagrees with the flags src/args.js actually registers
+   expected message present: true
+
+M5 BITES   expect=fail  exit=1
+   ANTI-VACUITY: HELP section header renamed, so the HELP parser can find nothing
+   first error: AssertionError [ERR_ASSERTION]: HELP text has no options section to parse
+   expected message present: true
+
+M6 BITES   expect=fail  exit=1
+   ANTI-VACUITY: OPTIONS declaration reformatted so the source-side anchor misses (parser still runs, behaviour unchanged)
+   first error: AssertionError [ERR_ASSERTION]: src/args.js has no OPTIONS table to parse
+   expected message present: true
+
+M7 BITES   expect=fail  exit=1
+   -h alias silently dropped from HELP's --help line
+   first error: AssertionError [ERR_ASSERTION]: HELP options block does not render -h as --help's alias
+   expected message present: true
+
+M8 BITES   expect=fail  exit=1
+   PARTIAL DRIFT: compact renamed to terse in BOTH OPTIONS and HELP, README left stale — a
+   gate that only compared HELP against README would pass this
+   first error: Error: Command failed: /usr/bin/node /opt/targets/moon/bin/moon.js --compact
+   expected message present: true
+
+M9 BITES   expect=pass  exit=0
+   SPECIFICITY (must stay GREEN): a commented-out decoy entry inside OPTIONS must not be
+   read as a registered flag
+
+=== RESTORE ===
+exit=0
+  args:   byte-identical to pre-battery = true
+  moon:   byte-identical to pre-battery = true
+  readme: byte-identical to pre-battery = true
+  test:   byte-identical to pre-battery = true
+
+mutants misbehaving: 0
+
+READING OF M2 AND M8. Both mutate OPTIONS, which changes what the CLI accepts, so a
+PRE-EXISTING --compact test dies first and is what the "first error" line captures. That
+line is therefore NOT the new gate's. What settles both is the separate `expected message
+present` check, which greps the whole run for a string that exists ONLY inside the new
+test's assertion messages ("disagrees with the flags src/args.js actually registers").
+Both returned true, so the new gate did fire in both. Stated rather than glossed, because
+"exit=1" alone would not have proven it.
+
+M8 is the mutant that decides the item and the one the builder could not have anticipated:
+it renames a flag CONSISTENTLY in the two places a lazier gate would compare against each
+other (OPTIONS and HELP), leaving only README stale. A gate wired HELP<->README, or one
+that trusted HELP as the source of truth, passes M8 clean. This one failed on the README
+edge specifically.
+
+M9 is the false-positive control. A source-text parser that is too eager reads
+`// ghost: { type: 'boolean' },` as a seventh registered flag and goes red on a file whose
+behaviour did not change. It stayed green. A gate that has only been shown to fail has not
+been shown to be usable.
+
+RESTORE is proven, not asserted: after nine mutants had been written into four files, all
+four compare byte-identical to their pre-battery contents and the suite is green again.
+
+================================================================================
+PART 2 — REMAINING GATE CHECKS  (node .swarm/runs/cycle-031-gate.mjs)
+================================================================================
+
+=== C1  full suite, real counts ===
+ℹ tests 119
+ℹ suites 0
+ℹ pass 119
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2062.023695
+suite exit = 0
+   [baseline at the start of this cycle was 117/117; +2 net = 3 new tests minus the 1
+    hardcoded test they replace.]
+
+=== C2  behaviour frozen: src/args.js changed in COMMENTS ONLY ===
+code (comments+whitespace stripped) identical to HEAD: true
+raw files differ (so the comment really did change):   true
+
+=== C3  bin/moon.js, README.md, package.json byte-identical to HEAD ===
+  bin/moon.js    unchanged = true
+  README.md      unchanged = true
+  package.json   unchanged = true
+
+=== C4  zero new dependencies ===
+  dependencies=null devDependencies=null
+  requires in test/cli.test.js: node:test, node:assert/strict, node:child_process,
+                                node:path, node:fs, ../bin/moon.js, ../src/args.js
+  [all node: builtins plus two in-repo relative paths]
+
+=== C5  the hardcoded flag list is GONE, not stacked alongside ===
+  old test name present:        false
+  old literal array present:    false
+  any literal flag-name array:  true      <-- investigated, see below
+  grep -rn 'documents every flag' test/ : (no hits)
+
+  The "any literal flag-name array" probe is a deliberately loose regex and it fired.
+  Followed up rather than waved off: grep -n "\['--[a-z]*', '--" test/cli.test.js returns
+    62:  const north = run(['--north', '--compact'])...
+    63:  const south = run(['--south', '--compact'])...
+    89:  assert.equal(JSON.parse(run(['--json', '--south'])).hemisphere, 'south')
+    90:  assert.equal(JSON.parse(run(['--json', '--north'])).hemisphere, 'north')
+  All four are PRE-EXISTING argv invocations, not restatements of the flag set. The two
+  precise probes (old test name, old literal array) both read false. C5 passes.
+
+=== C6  what the three parsers actually extract right now ===
+  OPTIONS: json south north block compact help
+  HELP   : json block compact south north help
+  README : json block compact south north help
+  counts : 6 6 6
+  [set-equal; order differs and the test compares Sets, so order is not load-bearing]
+
+=== C7  working-tree scope ===
+ M .swarm/backlog.json      (conductor)
+ M src/args.js              (builder — comment only, see C2)
+ M test/cli.test.js         (builder)
+ ?? .swarm/runs/cycle-031-*.mjs / .sh   (conductor scan + gate scratch)
+
+================================================================================
+VERDICT: T-128 PASS -> done.
+Not run, and reported as not-run rather than as passed:
+  - collision-scan: not applicable. The standing browser-target gate keys on classic
+    non-module scripts served to a browser; moon is a stdout Node CLI with no html/css/
+    client-js/template/static asset in the repo.
+  - qa-verify look pass: same reason — no merged file is user-visible in the browser
+    sense the step-5 heuristic names.

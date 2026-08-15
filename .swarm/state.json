@@ -3,7 +3,7 @@
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
  "phase": "VALUE_LOOP",
- "cycle": 30,
+ "cycle": 31,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -307,6 +307,11 @@
    "cycle": 29,
    "what": "The target was NOT declared done, and this cycle's scan is the reason rather than an excuse.",
    "why": "Cycle 28's handoff named exactly two acceptable outcomes for a fresh VALUE_LOOP candidate scan: return nothing that passes the ratchet and declare done, or return a candidate and build it. The scan returned a candidate (T-125), it was built and verified, so the second branch is what happened -- an empty queue was never the question. The scan itself covered six surfaces (doc-vs-code truth, comment-vs-code gloss, untested named surfaces, hostile input, CONTRACTS.md vs reality, manifest hygiene); five came back clean under conductor re-verification, including a 19-case hostile-input matrix run against the real binary with zero stack traces and zero silent nonzero exits. The DONE question is now genuinely closer than it has been: the surfaces this run knows how to sweep are swept, and what remains on the backlog (T-116, T-126) is two ratchet-rejected cosmetics."
+  },
+  {
+   "cycle": 31,
+   "what": "DONE is still not declarable: the candidate scan cost three probes to find one ratchet-passing item, but it did find one",
+   "why": "Cycle 30 set the standing rule that a DONE declaration needs a scan that comes back EMPTY. This scan did not. Three candidates were probed and all three came back already-closed by earlier cycles -- (a) the hemisphere table vs the IANA reference latitudes, which test/hemisphere.test.js:327 has cross-checked against /usr/share/zoneinfo since an earlier cycle (conductor re-ran it independently: 418/418 canonical zones agree, 0 reverse mismatches, 0 dead table entries, and the one north-under-a-southern-prefix case, Indian/Maldives, is correctly carved out); (b) an early-closed stdout pipe and the CLI exit-code matrix, both clean -- no EPIPE crash in any of five piped modes, and eight probed invocations exit 0/0/0/0/2/2/2/0 exactly as documented (the three 2s are unknown flag, positional argument, and a value passed to a boolean flag); (c) the next-full-moon line's year-suppression branch, already pinned in both directions by T-106 in test/regressions.test.js. The fourth probe found T-128. Hit rate is falling and that is the signal to record, but three misses is not an empty scan."
   }
  ],
  "known_issues": [
@@ -358,14 +363,14 @@
   "consecutive_no_value": 0,
   "consecutive_failures": 0,
   "k_current": 5,
-  "wave_streak": 1,
+  "wave_streak": 0,
   "window_tokens_attributed": 0
  },
  "last_cycle": {
-  "cycle": 30,
-  "work": "VALUE_LOOP candidate scan + build-wave [T-127] k=1 at sonnet",
-  "outcome": "1 verified, 117/117 green, 0 reverted, 6/6 conductor mutants bite",
-  "ts": "2026-08-15T01:44:14+00:00"
+  "cycle": 31,
+  "work": "VALUE_LOOP candidate scan (3 candidates rejected as already-closed) + build-wave [T-128] k=1 at sonnet",
+  "outcome": "1 verified, 119/119 green, 0 reverted, 9/9 conductor mutants behave as required",
+  "ts": "2026-08-15T02:20:00.000Z"
  },
  "run_label": "improvement-2026-08-14",
  "resolved_issues": [
