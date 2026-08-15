@@ -1,0 +1,131 @@
+cycle 38 — VERIFICATION GATE, T-134 attempt 2 (fix, S, sonnet)
+=============================================================
+Checks authored by the conductor at verification time, after the builder returned. The
+builder never saw them. Every command below was run by the conductor, in the moon repo.
+
+G1 — SCOPE
+  $ git status --porcelain
+   M test/regressions.test.js
+  $ git diff --stat
+   test/regressions.test.js | 220 +++++++++++++++++++++++++++++++++++++++++++++++
+   1 file changed, 220 insertions(+)
+  README.md, src/ and bin/ byte-identical to HEAD. Item's scope constraint met.
+
+G2 — FULL test_cmd, conductor-run, before merge
+  $ node --test test/*.test.js
+  i tests 134 / pass 134 / fail 0        # 131 pre-existing + 3 new
+
+G3 — CITATION CHECK on the one borrowed constant
+  The test introduces PCT_SCALE = 100 with the comment "src/render.js:235 — illumField's
+  `... * 100`". Read directly:
+  $ sed -n '234,236p' src/render.js
+    function illumField(moon) {
+      const pct = Math.round(clamp(Number(moon.illumination) || 0, 0, 1) * 100);
+  Line 235 is exactly the cited expression. Citation TRUE, not approximately true.
+
+G4 — IS IT ACTUALLY A BAND SEARCH? (the whole reason attempt 1 failed)
+  Code read at test/regressions.test.js: loops i = 0..BAND_STEPS over
+  [max(0, pct/100 - 1/100), min(1, pct/100 + 1/100)], renders each candidate through the
+  SHIPPING renderLine, and accepts iff some candidate's RENDERED output matches both the
+  row's exact displayed percent and its exact north disc. It never applies a rounding
+  rule of its own. Attempt 1 evaluated exactly one point (pct/100).
+  Soundness of the +/-1pp bound: candidates are filtered by `samplePct === pct`, so the
+  EFFECTIVE searched set is {k in [lo,hi] : renderer displays pct}. For any single-step
+  discretization (nearest/floor/ceil) the true display band is a subset of [pct-1,pct+1]/100,
+  so the effective set IS the true band, clipped to [0,1]. The superset bound therefore
+  widens nothing.
+
+G5 — INDEPENDENT MEASUREMENT of the band, with my own README parser
+  (.swarm/runs/c38-gate-band.js — line-state fence scanner, deliberately not the test's
+  regex; sweeps the FULL physical domain k in [0,1] at 1e-5, not just the band)
+  $ node .swarm/runs/c38-gate-band.js
+  ROWS PARSED: 15                        # all 15 sweep rows exercised, none silently dropped
+    3%  display-band=[2.5000,3.4990]pp  disc-accepting=[2.5000,3.4990]pp  accept=100.0%
+   14%  display-band=[13.5000,14.5000]pp disc-accepting=[13.5000,14.5000]pp accept=100.0%
+   ...
+   83%  display-band=[82.5000,83.4990]pp disc-accepting=[82.5000,83.2350]pp accept=73.6%
+    5%  display-band=[4.5000,5.4990]pp  disc-accepting=[4.8240,5.4990]pp  accept=67.6%
+    0%  display-band=[0.0000,0.4990]pp  disc-accepting=[0.0000,0.4990]pp  accept=100.0%
+  UNPARSED ROWS: 0
+  This REPRODUCES cycle 37's two measured interior margins to the digit, independently:
+  5% row 5.000 - 4.824 = 0.176pp; 83% row 83.235 - 83.000 = 0.235pp.
+  Reading: accept-fraction 100% on 13 rows is NOT vacuity — it means the disc is constant
+  across the whole display band, so the true disc is accepted everywhere in it and any
+  OTHER disc is accepted nowhere in it. That is maximal discrimination, not the absence
+  of it. Narrowest disc-accepting interval anywhere is 0.499pp against the test's
+  ~0.005pp step: ~100x margin, so the search cannot miss by resolution.
+
+G6 — FAILABILITY BATTERY, conductor-run on a COPY of the repo at /tmp/c38-mut
+  (.swarm/runs/c38-gate-mutants.py — mutating a copy rather than edit-and-restore removes
+  the entire "was README restored byte-for-byte" question from the evidence)
+  $ python3 .swarm/runs/c38-gate-mutants.py
+  MUTANT               EXPECT  GOT     pass/fail  caught by
+  M0-CONTROL           GREEN   GREEN   13/0       -
+  M1-HISTORICAL        RED     RED     12/1       T-134 sweep table
+  M1b-NAME-ORDER-SAFE  ?       GREEN   13/0       -            <-- see RESIDUAL below
+  M2-SOUTH-GLYPH       RED     RED     12/1       T-134 sweep table
+  M3-HEADLINE-PCT      RED     RED     12/1       T-134 headline fence
+  M4-BLOCK-ROW         RED     RED     12/1       T-134 --block fence
+  M5-COHERENT-FAKE     RED     RED     12/1       T-134 sweep table
+  M6-FALSE-POSITIVE    GREEN   GREEN   13/0       -
+  M0-CONTROL-2         GREEN   GREEN   13/0       -
+  BATTERY VERDICT: ALL AS EXPECTED
+  Attribution: every kill is by exactly the intended NEW test, exactly one failing test
+  each — no pre-existing test is doing the catching. Control green first AND last, so the
+  harness is live rather than stuck.
+  M5 (the decisive one for clause 3): BOTH discs of the 63% row replaced by the 83% row's
+  real, correctly-mirrored pair — mirror check passes, name check passes, cycle-order
+  check passes. Only the band search sees it. Cycle 37's claim that the band clause is
+  load-bearing is CONFIRMED, not assumed.
+  M6 (the cycle-37 failure itself): 5% row honestly regenerated at true k=0.046 stays
+  GREEN. The false positive that failed attempt 1 is gone.
+
+G7 — THE HONEST ROW, measured rather than quoted
+  $ node .swarm/runs/c38-honest-row.js
+  k=0.046  north="▏░░░░   5%  waning crescent"  south="░░░░▕   5%  waning crescent"
+  k=0.05   north="▌░░░░   5%  waning crescent"  south="░░░░▐   5%  waning crescent"
+  NOTE AGAINST MYSELF: my builder brief stated the honest k=0.046 disc as "▌░░░░ / ░░░░▐".
+  That was MY transcription error — cycle 37's journal has it right (▏░░░░ / ░░░░▕). The
+  builder did not take my word for it, measured against the shipping renderer, and said
+  so in its return. Had it trusted the brief, its M6 case would have been built wrong and
+  this gate would have been checking the wrong thing.
+
+G8 — POST-MERGE test_cmd on main (hard rule 4)
+  $ git merge --no-ff cycle-38-T-134
+  $ node --test test/*.test.js
+  i tests 134 / pass 134 / fail 0
+
+VERDICT: PASS. Every acceptance clause is implemented and independently shown failable,
+including the clause that failed at cycle 37, and the false positive it caused is proven
+gone.
+
+RESIDUAL, measured and filed as T-135 — NOT a gate failure
+  M1b: retyping a sweep row's phase name to an ADJACENT name that still preserves
+  PHASE_NAMES cycle order (51% "first quarter" -> "waxing gibbous") survives the suite.
+  This meets acceptance — clause 3 asks for cycle ORDER and that is exactly what was
+  built and what M1-HISTORICAL proves works — so per the cycle-8/T-111 and cycle-17
+  disposition the item is not failed over it. But the item's TITLE claims a hand-edit of
+  any block turns the suite red, and this hand-edit does not, so it is recorded rather
+  than left implied.
+  Priced before filing (.swarm/runs/c38-probe-namepct.js), per the standing cycle-29/32
+  practice — sweep 4 lunations of real instants at 1-minute steps through the SHIPPING
+  computeMoon and collect which (phase name, displayed percent) pairs the product can
+  actually emit:
+    waxing gibbous  56..100      first quarter   44..56
+    waning gibbous  55..100      last quarter    45..55
+    waxing crescent  0..45       waning crescent  0..45
+  All 15 current README rows: REACHABLE (so no false positive on the honest table).
+    51% waxing gibbous  -> UNREACHABLE (kills M1b)
+    32% waxing gibbous  -> UNREACHABLE
+    63% waning crescent -> UNREACHABLE
+  So the discriminator is real and introduces no new constant — it only asks the product
+  what it can produce, the same shape as the band search. Implementation caveat carried
+  into the item: the sweep must start from a FIXED instant (never Date.now()) and be
+  coarse enough not to bloat the ~2s suite.
+
+NOT RUN, and why (never rendered as passed)
+  collision-scan — standing gate check scoped to browser targets built from classic
+    non-module scripts; moon is a Node CommonJS CLI with no browser surface.
+  qa-verify look pass — triggers on user-visible browser assets; the merged file is a
+    test file and this repo serves nothing to a browser.
+  review-fix — the run's ONE pass ran at cycle 23; not re-run.

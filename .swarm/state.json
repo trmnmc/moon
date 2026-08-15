@@ -3,7 +3,7 @@
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
  "phase": "VALUE_LOOP",
- "cycle": 37,
+ "cycle": 38,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -412,6 +412,11 @@
    "cycle": 37,
    "what": "wave autotune counts cycle 37 as a wave with a failed verify: k_current 5 -> 4, wave_streak 0. Inert under the gear-1 cap either way.",
    "why": "One item dispatched, one failed verify, so the rule's first branch applies (>=1 failed verify at k=1 is a 100% failure rate for the wave), the same reading cycles 7 and 9 gave a reverted k=1 dispatch. k_current had climbed to 5 on the cycle-36 clean wave, well ahead of anything gear 1 lets this run exercise; min(k_current, gear cap 1) is 1 regardless, so this corrects the overhang rather than changing any dispatch."
+  },
+  {
+   "cycle": 38,
+   "what": "the gear-1 ceiling (\"S-effort sonnet builds only\") BINDS a ladder escalation: T-134 retried at sonnet, not the opus rung its attempts=1 earned",
+   "why": "cycle 2 ruled that a ladder escalation earned by a failed gate outranks the gear-1 DEMOTION rule, and that still holds -- T-134 was never pushed down to haiku. But escalation-vs-demotion and escalation-vs-the-gear-ceiling are different collisions. Demotion is a per-item rung adjustment; the gear-1 work-choice rule is a CEILING on what tier a gear-1 cycle may dispatch at all, and under allocator trickle posture (allow_premium_pct 0, opus_used_pct 96) opus is above it. An escalation may refuse a demotion without being licensed to climb past the ceiling of the gear it is dispatched in. The compensating measure, since the ladder's purpose is 'do not hand the same tier the same task twice': the retry brief carried the full cycle-37 diagnosis, so attempt 2 was a materially different task -- one failing clause named, with the repair stated and the three measurements behind it. That held: attempt 2 passed at the same tier that failed attempt 1."
   }
  ],
  "known_issues": [
@@ -461,10 +466,10 @@
   "last_review_fix_cycle": 23
  },
  "counters": {
-  "consecutive_no_value": 1,
-  "consecutive_failures": 1,
+  "consecutive_no_value": 0,
+  "consecutive_failures": 0,
   "k_current": 4,
-  "wave_streak": 0,
+  "wave_streak": 1,
   "window_tokens_attributed": 0
  },
  "last_cycle": {
