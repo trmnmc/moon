@@ -212,9 +212,10 @@ four-step shade ramp plus a symmetric half-block pair within one width class. Fi
 properly means changing the glyph set, which is deferred rather than rushed.
 
 The disc also draws round-limb glyphs, `◗` and `◖`, once the outer cell's lit fraction reaches
-0.88, not only when it is fully lit. These are Geometric Shapes, not Block Elements, and are
-outside the Neutral/Ambiguous partition above. This repo has not established their East Asian
-Width class, so whether they widen the disc in an ambiguous-width terminal is unknown.
+0.88, not only when it is fully lit. These are Geometric Shapes, not Block Elements. Their East
+Asian Width class has been established: both are Neutral in Unicode Character Database 15.0.0,
+as measured by the audit script at `.swarm/runs/cycle-024-eaw-audit.py`. They thus share the
+Neutral width class of `░` and `▐`, not the Ambiguous class of the other block elements.
 
 ## Licence
 

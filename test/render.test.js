@@ -584,11 +584,11 @@ const DOCUMENTED_EAW = new Map([
  * The disc is also observed (below) to draw two round-limb glyphs —
  * U+25D6/U+25D7, Geometric Shapes, not Block Elements — once the outer
  * cell's lit fraction reaches 0.88, not only when it is fully lit. The
- * README names them and states that their East Asian Width class has not
- * been established, so they remain outside the documented
- * Neutral/Ambiguous partition above. They are pinned separately below,
- * apart from the documented partition, so this test tells the truth about
- * what is and is not classified.
+ * README documents their East Asian Width class as Neutral (Unicode 15.0.0;
+ * audit script: `.swarm/runs/cycle-024-eaw-audit.py`), so they remain
+ * outside the Neutral/Ambiguous Block Element partition above. They are
+ * pinned separately below, so this test tells the truth about what is and
+ * is not classified.
  */
 const UNDOCUMENTED_DISC_GLYPHS = new Set([0x25d6, 0x25d7]); // ◖ ◗
 

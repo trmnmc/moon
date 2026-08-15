@@ -746,3 +746,181 @@ runfile-mirror:
 ```json
 {"version": 1, "run_label": "improvement-2026-08-14", "run_kind": "improvement", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-15T15:32:27+00:00", "usage_reset_at": "2026-08-14T20:32:35+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "pacing": {"mode": "guest", "dial": 0.3}, "heartbeat": {"ts": 1786752351, "next_wakeup_at": 1786752441, "pid": 171625, "limp": false, "degraded_tiers": []}, "budget": {"source": "allocator", "gear": 1, "gear_target": 1, "ratio": null, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786752351, "last_real_probe_ts": 0, "probe_failures": 25, "probe_note": "cycle 25 (RECYCLE): bin/swarm-budget.sh refused once more -> probe_failures 25. last_real_probe_ts stays 0 (a refused invocation is not a probe), so ratio, tokens/hour and projected depletion remain UNKNOWN and are never estimated. New datum this cycle: the PROBE_CMD=false clock-cruise form was ALSO refused, by the command-shape layer rather than the allow list - so both routes to the script are closed from a headless cycle, not just the one KI-2 named. Cause otherwise settled at cycle 23 (no allow-list entry of any kind for the script) and not re-investigated. Gear rests on runs/allocator.json (source=probe), refreshed this cycle: posture=trickle, allow_premium_pct=0, allow_overall_pct=0, reserve 36.58, opus_used_pct=96, weekly_used_pct 71.0->72.0, week_elapsed_pct 68.21->68.49, dial 0.30. weekly_heat 1.051 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.402 > 1.2 keeps promote blocked. Binding constraint for twenty-five straight cycles: allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is AFTER stop_at 1786807947, so gear 1 is structural for the remaining 15.4h of the run.", "weekly": {"ok": true, "weekly_used_pct": 72.0, "opus_used_pct": 96, "week_elapsed_pct": 68.49, "weekly_heat": 1.051, "opus_heat": 1.402, "ceiling": 5, "promote_blocked": true}, "gear_basis": "allocator-posture"}, "playbook": {"mode": "auto", "applied": ["L-003", "L-008", "L-016", "L-023-moon", "L-024-moon", "L-026-repo-atlas"], "vetoed": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "veto_reason": "conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.", "id_collision_warning": "playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.", "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "wrap_up_complete": false, "cycles_since_recycle": 0, "artifact": {"file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
 ```
+
+## cycle 26 | 2026-08-15T00:24:56+00:00 | moon | VALUE_LOOP
+
+orient: tree CLEAN at 88ac2bb, `## main...origin/main` with no ahead/behind marker — nothing
+  to salvage, no in-flight builder branches. Re-oriented from disk per the cycle-25 handoff
+  note, which is what a recycle is for: SPEC.md, the handoff block, backlog items T-122 and
+  T-116, `git log --oneline -8`. No workflow transcripts read (hard rule 7).
+control: `swarm-notify.sh poll` was REFUSED by the permission layer this cycle — same shape as
+  the budget-script refusal, and non-fatal by rule ("a failed poll is non-fatal: journal one
+  line and continue with file-sourced pending[] only"). Read runs/control.json directly
+  instead: pending [] , applied [] , inject [] , since_cursor 1786709879. Nothing to apply,
+  nothing to triage. The refusal means an ntfy command sent in the last ~12 min would not have
+  been pulled into the file yet; the file itself is authoritative for everything already
+  delivered.
+budget: gear 1, k_cap 1, mode guest, dial 0.30, basis allocator-posture. `swarm-budget.sh` was
+  REFUSED again -> probe_failures 25 -> 26. `last_real_probe_ts` stays 0, because a refused
+  invocation is not a probe: ratio, tokens/hour and projected depletion remain UNKNOWN and are
+  NOT estimated. Cause settled at cycle 23 (KI-2: no allow-list entry of any kind for the
+  script) and not re-investigated. Gear rests on runs/allocator.json (source=probe, refreshed:
+  posture trickle, allow_overall_pct 0, allow_premium_pct 0, reserve 36.48, opus_used_pct 96,
+  weekly_used_pct 72.0, week_elapsed_pct 68.49 -> 68.62, dial 0.30).
+  weekly_heat 72.0/68.62 = 1.049 < 1.1 -> governor disengaged, ceiling 5.
+  opus_heat 96/68.62 = 1.399 > 1.2 -> promote stays blocked.
+  Binding constraint for TWENTY-SIX straight cycles: allocator trickle + guest-mode 1-3 clamp
+  -> gear 1, k_cap 1. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is
+  structural for the remaining 15.2 h.
+craft: `node bin/swarm-craft.mjs` ran clean, `degraded: []` — no lines to journal as degraded.
+  NOTHING was spliced into the builder brief, and that is the contract, not an omission: the
+  build-wave craft hook passes `craft.ui`, and an item earns the `ui` flag only if a files_hint
+  path ends in .html/.css/.jsx/.tsx/.vue/.svelte or the title names a UI surface. T-122 touches
+  README.md and test/render.test.js. A zero-dependency stdout CLI has no such surface, so the
+  UI pack would have been noise in a prose-correction brief.
+
+work: build-wave, k=1, ONE item — T-122 (docs, S, haiku, attempts 0).
+  Wave size: min(k_current 5, gear cap 1, hard max 5) = 1. Routing: docs+S is haiku's own table
+  row; attempts 0 so no ladder escalation, and gear-1 demotion cannot push below haiku (its
+  sonnet->haiku step is already at the floor). No decision needed — the table and the posture
+  agree for once.
+  Dispatch: DIRECT Agent call, not Workflow. Workflow is review-gated in a headless -p session;
+  this is the documented failure-table fallback, and per the VPS migration slice it is NOT a
+  degraded mode — this cycle commits and pushes first-class like any other.
+  Playbook builder line spliced verbatim: "The conductor is the SOLE committer - never commit
+  or push yourself." The builder complied; the only untracked path at gate time was the
+  conductor's own instrument.
+
+WHAT T-122 FIXED: the repo contradicted its own committed evidence. README.md:214-217 and the
+  doc comment above `UNDOCUMENTED_DISC_GLYPHS` in test/render.test.js:584-589 both stated the
+  round-limb glyphs' East Asian Width class "has not been established". Cycle 24 established it.
+  Both `◖` U+25D6 and `◗` U+25D7 are Neutral in UCD 15.0.0 — the same class as `░` and `▐`,
+  which means the round limbs are NOT a source of the width jitter the section describes. The
+  correction narrows a documented limitation rather than widening it.
+
+VERIFICATION EVIDENCE (I authored every check below at verification time, after the builder
+returned; the builder never saw any of them, so it cannot have coded to them):
+
+  [C1 scope] only the two in-scope files moved:
+    $ git -C /opt/targets/moon status --porcelain
+     M README.md
+     M test/render.test.js
+    ?? .swarm/runs/cycle-026-render-fingerprint.js
+    The untracked path is MY gate instrument, written before dispatch. Naming it explicitly
+    because cycle 8 was tripped by exactly this: the conductor's own evidence file appearing
+    inside the fence the conductor is measuring, and being read as builder scope creep.
+
+  [C2 citation discriminator] the check the acceptance did NOT ask for, and the one most
+  likely to catch a plausible-looking edit. The new prose cites a file path, so a reader who
+  clones must be able to resolve it — a citation to an untracked internal artifact resolves
+  for me and 404s for everyone else:
+    $ git -C /opt/targets/moon ls-files --error-unmatch .swarm/runs/cycle-024-eaw-audit.py
+    .swarm/runs/cycle-024-eaw-audit.py
+    (exit 0 — tracked, therefore present in any clone)
+  and then RUN, not merely resolved — the cited evidence must actually say what the prose
+  claims it says:
+    $ python3 .swarm/runs/cycle-024-eaw-audit.py
+    unicodedata.unidata_version = 15.0.0
+    U+25D6  '◖' Neutral    LEFT HALF BLACK CIRCLE   <-- now established by this instrument
+    U+25D7  '◗' Neutral    RIGHT HALF BLACK CIRCLE  <-- now established by this instrument
+    0 disagreements: the documented Neutral/Ambiguous partition matches UCD exactly.
+  Third, independent re-derivation from scratch, not through the repo's own instrument:
+    $ python3 -c "import unicodedata as u; print(u.unidata_version,
+        [(hex(c), u.east_asian_width(chr(c))) for c in (0x25D6,0x25D7)])"
+    15.0.0 [('0x25d6', 'N'), ('0x25d7', 'N')]
+
+  [C3 zero rendered bytes] the scope fence's hard half. Instrument written BEFORE dispatch
+  (.swarm/runs/cycle-026-render-fingerprint.js): 4321 timestamps at a 10-minute stride from a
+  fixed 2000-01-06 new moon — a full synodic month, so every lit fraction the art can take —
+  x 2 hemispheres x 2 render forms, sha256 over the concatenation, plus the sorted codepoint
+  alphabet as a second signal in case a digest collision were somehow contrived.
+    pre-dispatch : 17284 strings | 5959401 bytes | sha256 f71b1f8ccf86bf9efaeb5815633bc6487ba670cdccb0c67a3dffdf50b63f32d6
+    post-merge   : 17284 strings | 5959401 bytes | sha256 f71b1f8ccf86bf9efaeb5815633bc6487ba670cdccb0c67a3dffdf50b63f32d6
+    codepoint alphabet identical, 48 entries, U+25D6 and U+25D7 both still drawn.
+    IDENTICAL — the prose-only claim is machine-checked, not taken on the builder's word.
+
+  [C4 comment-only + glyph set intact] the design judgment that was deliberately not bundled:
+    $ git -C /opt/targets/moon diff -- test/render.test.js
+    (the entire diff falls inside one /** */ block; zero executable lines touched)
+     const UNDOCUMENTED_DISC_GLYPHS = new Set([0x25d6, 0x25d7]); // ◖ ◗   <-- unchanged
+    The round limbs did NOT move into DOCUMENTED_EAW. Folding them in is a separate design
+    call and failing to keep them out would have failed this item.
+
+  [C5 both sites state the measured class and name where measured]
+    README.md  : "Their East Asian Width class has been established: both are Neutral in
+                  Unicode Character Database 15.0.0, as measured by the audit script at
+                  `.swarm/runs/cycle-024-eaw-audit.py`. They thus share the Neutral width
+                  class of `░` and `▐`, not the Ambiguous class of the other block elements."
+    render.test.js: "The README documents their East Asian Width class as Neutral (Unicode
+                  15.0.0; audit script: `.swarm/runs/cycle-024-eaw-audit.py`) ..."
+
+  [C6 residual sweep] no stale copy of the old claim survives anywhere shipped:
+    $ grep -rn "not been established\|has not established\|not established\|is unknown" \
+        README.md REPORT.md src test bin
+    test/hemisphere.test.js:285:  // UTC is the build host's own zone. It is unknown to the
+    Single hit, unrelated (the hemisphere lookup table), left alone.
+
+  [C7 test_cmd] run WITHOUT a pipe so the exit status is the real one (L-010):
+    $ node --test test/args.test.js test/astro.test.js test/cli.test.js \
+        test/hemisphere.test.js test/manifest.test.js test/regressions.test.js \
+        test/render.test.js > .swarm/runs/cycle-026-suite.txt 2>&1
+    (exit 0)
+    ✔ KI-5 pin: disc glyph set matches the documented East Asian Width partition (19.591877ms)
+    ℹ tests 114 | ℹ pass 114 | ℹ fail 0 | ℹ cancelled 0 | ℹ skipped 0 | ℹ todo 0
+    Full output: .swarm/runs/cycle-026-suite.txt
+
+  [C8 product] the artifact still does its one job:
+    $ node bin/moon.js
+    ░░░░▐   7%  waxing crescent
+                next full moon  28 Aug
+
+GATE VERDICT: T-122 PASSES on attempt 1. All four acceptance clauses verified with real output.
+
+A FINDING I RAISED AGAINST THE NEW PROSE AND THEN WITHDREW, recorded because a withdrawn
+finding is as much a part of an honest gate as a sustained one:
+  I flagged the closing clause "not the Ambiguous class of the other block elements" as a
+  possible self-contradiction — the preceding sentence says the round limbs are "Geometric
+  Shapes, not Block Elements", so "the OTHER block elements" looked like it was quietly
+  re-sorting them back into a set the prose had just excluded them from, which would be the
+  cycle-8 'behaviour' situation (file it, do not fail on it, do not conductor-patch it).
+  I withdrew it on resolving the anaphora against the paragraph above rather than against the
+  sentence immediately before — the same scope correction cycle 9 had to make to its own C5b
+  instrument. That paragraph names `░` and `▐` as the Neutral block elements and `▒ ▓ █ ▌ ▏ ▕`
+  as the Ambiguous ones. "Other" contrasts with `░` and `▐`, the two glyphs named in the very
+  same clause, not with the round limbs. Under that reading the sentence is simply true, and no
+  item gets filed. Writing it down anyway so cycle 27 does not re-derive the same false alarm.
+
+wave autotune: the wave was CLEAN — zero reverts, zero failed verifies, one item dispatched and
+  one verified. wave_streak 0 -> 1. Not yet 2, so k_current stays 5 and no promotion fires.
+  Restating the standing honesty note: k_current is DECORATIVE at gear 1, since the effective
+  wave is min(k_current, gear cap 1) = 1 whatever k_current reads.
+churn breaker: consecutive_no_value stays 0 — this cycle delivered verified value, which is the
+  reset condition, so it is a genuine reset and not a hold like cycle 25's.
+
+THE DONE PRECONDITION IS NOW LIVE, AND WAS DELIBERATELY NOT EXERCISED (decision recorded):
+  The cycle-25 handoff note set the trigger in writing — "Declare done only when no candidate
+  passes the two-question ratchet. With T-122 open, one does." T-122 is now closed. Backlog is
+  22 done, 1 todo, 0 blocked, and the single todo (T-116, cosmetic British spellings) has been
+  ratchet-rejected with written reasons at cycles 20, 21, 22 and again at the cycle-25 hygiene
+  pass. The DoD half is settled: cycle 23 verified 8/8 SPEC clauses.
+  I did NOT declare the target done. An empty queue is not an exhausted value space, and the
+  second conjunct of the DONE rule is a SCAN I have not run — not something I may infer from
+  backlog.json having one rejected item left in it. That is the exact mirror of the error cycle
+  22 named in the other direction ("an empty queue is not an argument for building something the
+  ratchet rejects").
+  The asymmetry decides it. Declaring done sets every target status to done, rotation then finds
+  no active target, and that is early WRAP_UP — 15.2 h of remaining clock spent on an unexamined
+  premise. Deferring costs one gear-1 cycle, and a candidate scan is planning work: haiku-priced
+  and gear-1 eligible, so for once the posture that has bound every choice on this run does not
+  bind this one.
+next: cycle 27 runs an explicit VALUE_LOOP candidate scan against SPEC.md and the shipped
+  product — not a backlog re-read, a search for value the backlog never captured. It ends in one
+  of exactly two outcomes, both acceptable: new ratchet-PASSING candidates (build them), or a
+  DONE declaration with the reasons written out per known_issues and per must-have. If it lands
+  DONE, that routes to WRAP_UP with ~14 h to spare, and finishing early with an honest report
+  beats manufacturing work to fill a clock.
+next wakeup: 1786753586 (+90s)
+runfile-mirror:
+```json
+{"version": 1, "run_label": "improvement-2026-08-14", "run_kind": "improvement", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-15T15:32:27+00:00", "usage_reset_at": "2026-08-14T20:32:35+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "pacing": {"mode": "guest", "dial": 0.3}, "heartbeat": {"ts": 1786753496, "next_wakeup_at": 1786753586, "pid": 173236, "limp": false, "degraded_tiers": []}, "budget": {"source": "allocator", "gear": 1, "gear_target": 1, "ratio": null, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786753496, "last_real_probe_ts": 0, "probe_failures": 26, "probe_note": "cycle 26: bin/swarm-budget.sh refused again -> probe_failures 26. last_real_probe_ts stays 0 (a refused invocation is not a probe), so ratio, tokens/hour and projected depletion remain UNKNOWN and are never estimated. Cause settled at cycle 23 (KI-2: no allow-list entry of any kind for the script). New datum this cycle: swarm-notify.sh poll was ALSO refused, so the control channel is now read file-only too -- a second helper script closed off from a headless cycle, same root shape as KI-2. Gear rests on runs/allocator.json (source=probe, refreshed this cycle): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, reserve 36.48, opus_used_pct=96, weekly_used_pct 72.0, week_elapsed_pct 68.49->68.62, dial 0.30. weekly_heat 1.049 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.399 > 1.2 keeps promote blocked. Binding for twenty-six straight cycles: allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is AFTER stop_at 1786807947, so gear 1 is structural for the remaining 15.2h.", "weekly": {"ok": true, "weekly_used_pct": 72.0, "opus_used_pct": 96, "week_elapsed_pct": 68.62, "weekly_heat": 1.049, "opus_heat": 1.399, "ceiling": 5, "promote_blocked": true}, "gear_basis": "allocator-posture"}, "playbook": {"mode": "auto", "applied": ["L-003", "L-008", "L-016", "L-023-moon", "L-024-moon", "L-026-repo-atlas"], "vetoed": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "veto_reason": "conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.", "id_collision_warning": "playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.", "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "wrap_up_complete": false, "cycles_since_recycle": 0, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
+```
