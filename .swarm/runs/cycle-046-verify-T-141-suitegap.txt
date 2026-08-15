@@ -1,0 +1,29 @@
+=== cycle 046 — shipping-suite coverage of the end-to-end surfaces ===
+A mutant the T-141 harness KILLED but the suite SURVIVES = a named untested surface.
+
+BASELINE (unmutated copy): status=0 pass=144 fail=0
+
+PINNED   M1  --south becomes a no-op (hemisphere ignored)
+         suite: pass=141 fail=3  killed by: 
+PINNED   M2  --compact no longer suppresses the next-full-moon line
+         suite: pass=143 fail=1  killed by: 
+PINNED   M3  --json renames a documented field
+         suite: pass=142 fail=2  killed by: 
+PINNED   M4  usage errors go to stdout and exit 0
+         suite: pass=143 fail=1  killed by: 
+PINNED   M5  next-full-moon date uses the wrong month
+         suite: pass=142 fail=2  killed by: 
+UNPINNED M6  --help no longer wins over --json
+         suite: pass=144 fail=0  SUITE STAYED GREEN — this surface is not pinned by any shipping test
+PINNED   M7  JSON rounding removed (raw float dump)
+         suite: pass=143 fail=1  killed by: 
+PINNED   M8  block top rule one column wider than the body
+         suite: pass=139 fail=5  killed by: 
+PINNED   M9  readout drops a disc cell
+         suite: pass=129 fail=15  killed by: 
+PINNED   M10  hemisphere auto-detection always answers north
+         suite: pass=133 fail=11  killed by: 
+
+=== RESULT ===
+UNPINNED surfaces (1), each named:
+  M6: --help no longer wins over --json   [bin/moon.js]

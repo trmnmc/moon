@@ -1,0 +1,115 @@
+=== T-141 end-to-end QA — cycle 046 ===
+node v24.19.0  repo /opt/targets/moon
+binary /opt/targets/moon/bin/moon.js
+
+PASS C0  README north|south table yields a CONSISTENT mirror map (derived, not assumed)
+       15 rows, map: ▕->▏ ░->░ ▐->▌ ◗->◖ ▓->▓ █->█ ▒->▒ ◖->◗ ▌->▐ ▏->▕
+       involution: yes
+PASS C1  default invocation: exit 0, stderr empty, stdout is exactly 2 newline-terminated lines
+       status=0 stderr="" lines=2
+       "░░░░▐   9%  waxing crescent\n            next full moon  28 Aug\n"
+PASS C2  readout line matches the documented column layout (name begins at column 12)
+       disc="░░░░▐"(5 cells) pctField="   9%"(9) gap="  " name="waxing crescent"
+       disc5=true pct=true gap=true canonicalName=true
+PASS C3  next-full-moon line is indented to column 12 and carries a "D Mon" date
+       "            next full moon  28 Aug" -> day="28" month=Aug year=(suppressed)
+PASS C4  --compact: exit 0, EXACTLY one line, no trailing whitespace (README:89 prompt contract)
+       status=0 lines=1 trailingWS=false
+       "░░░░▐   9%  waxing crescent\n"
+PASS C5  --compact line is the same readout the default prints (composition, not a second renderer)
+       default: "░░░░▐   9%  waxing crescent"
+       compact: "░░░░▐   9%  waxing crescent"
+PASS C6  --json: exit 0, single line of parseable JSON, field set EXACTLY the 9 documented fields
+       keys=["age","cycleFraction","hemisphere","illumination","julianDay","nextFullMoon","phase","phaseAngle","timestamp"]
+       missing=[] extra=[]
+PASS C7  --json field types and documented ranges hold
+       {"phase":"waxing crescent","illumination":0.0878,"age":2.631,"cycleFraction":0.09573,"phaseAngle":34.464,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461267.86498,"timestamp":"2026-08-15T08:45:34.288Z"}
+       all type/range checks hold
+PASS C8  ROUNDING is as documented ("rounded to the precision the algorithm earned", README:143)
+       no field exceeds its documented precision
+PASS C9  CROSS-MODE: --json agrees with the rendered line (same phase name, illumination within 1pp)
+       line: name="waxing crescent" pct=9
+       json: phase="waxing crescent" illumination=0.0878 (=8.78%)
+       NOTE: 1pp tolerance is deliberate — two invocations are separate instants, and the
+             line/JSON rounding relation is a unit-level claim, not an end-to-end one.
+PASS C10  CROSS-MODE: the printed next-full-moon date is the LOCAL date of json.nextFullMoon
+       expected "            next full moon  28 Aug"
+       actual   "            next full moon  28 Aug"
+       (derived independently from json.nextFullMoon=2026-08-28T04:18:25.225Z, TZ=(system))
+PASS C11  --north / --south: both exit 0 and the discs satisfy the README-DERIVED mirror map
+       north disc "░░░░▐"  south disc "▌░░░░"
+       mirror(north) = "▌░░░░"  match=true
+       phase both sides: "waxing crescent" / "waxing crescent"
+       DISCRIMINATING? YES — north disc != south disc, so a no-op --south fails this check.
+PASS C12  DISCRIMINATOR: --south is not a no-op — forcing a mid-cycle instant via a synthetic run is unavailable, so use the LIVE pair
+       north="░░░░▐" south="▌░░░░" differ=true
+       The live instant DOES discriminate: the two discs differ, and the difference is exactly the README-derived mirror (C11).
+PASS C13  --json --south / --json --north report the FORCED hemisphere
+       --json --south -> south
+       --json --north -> north
+PASS C14  CONFLICTING FLAGS are last-one-wins, no error (src/args.js:88-93, README:80)
+       --south --north          -> exit 0, hemisphere north (expected north)
+       --north --south          -> exit 0, hemisphere south (expected south)
+       --south --south --north  -> exit 0, hemisphere north (expected north; repeats harmless)
+PASS C15  hemisphere is INFERRED from the system timezone when neither flag is given (README:66)
+       TZ=Australia/Sydney   -> south (expected south)
+       TZ=Europe/London      -> north (expected north)
+       TZ=America/New_York   -> north (expected north)
+       TZ=America/Santiago   -> south (expected south)
+       This exercises hemisphere.js THROUGH the binary, which no unit test does.
+PASS C16  --block: exit 0, framed box with equal-width rows, plus the next-full-moon line at indent 3
+       frame rows=11 distinct widths=[34] top=true bottom=true nextFullLineIndent3=true
+       ┌────────────────────────────────┐
+       │            ░░░░░░░▓            │
+       │           ░░░░░░░░░▓           │
+       │          ░░░░░░░░░░░█          │
+       │           ░░░░░░░░░▓           │
+       │            ░░░░░░░▓            │
+       │                                │
+       │  phase        waxing crescent  │
+       │  illuminated               9%  │
+       │  hemisphere          northern  │
+       └────────────────────────────────┘
+          next full moon  28 Aug
+       
+PASS C17  --block label rows agree with --json (phase / illuminated / hemisphere)
+       block phase="waxing crescent" vs json "waxing crescent"
+       block illuminated=9% vs json 8.78%
+       block hemisphere=northern vs json north (expected northern)
+PASS C18  --block --compact suppresses the next-full-moon line (flag composition)
+       status=0 lastLine="└────────────────────────────────┘" mentionsNextFull=false
+       lines: 11 (--block alone had 12)
+PASS C19  --help: exit 0, stderr empty, documents every flag; -h is BYTE-IDENTICAL
+       status=0 stderr="" undocumentedFlags=[]
+       -h status=0 identical=true (bytes 2049 vs 2049)
+PASS C20  --help WINS over rendering flags (no readout leaks into usage output)
+       --json --help status=0 identicalToHelp=true
+       first line: "moon — the current phase of the moon"
+PASS C21  error path ["--nope"]: exit 2, stdout EMPTY, one clean stderr line
+       status=2 stdout=""
+       stderr="moon: unknown option '--nope' - run 'moon --help' to see the available options\n"
+       oneLine=true noStackTrace=true matchesContract=true
+PASS C22  error path ["fullmoon"]: exit 2, stdout EMPTY, one clean stderr line
+       status=2 stdout=""
+       stderr="moon: unexpected argument 'fullmoon' - moon takes no positional arguments; run 'moon --help' to see the available options\n"
+       oneLine=true noStackTrace=true matchesContract=true
+PASS C23  error path ["--json=yes"]: exit 2, stdout EMPTY, one clean stderr line
+       status=2 stdout=""
+       stderr="moon: option '--json' is a flag and takes no value - run 'moon --help' to see the available options\n"
+       oneLine=true noStackTrace=true matchesContract=true
+PASS C24  error path ["-x"]: exit 2, stdout EMPTY, one clean stderr line
+       status=2 stdout=""
+       stderr="moon: unknown option '-x' - run 'moon --help' to see the available options\n"
+       oneLine=true noStackTrace=true matchesContract=true
+PASS C25  runs from an ARBITRARY cwd (README:95 calls the binary by absolute path from a shell prompt)
+       cwd=/tmp status=0 stderr=""
+       "░░░░▐   9%  waxing crescent\n"
+PASS C26  stdout/stderr separation holds: success writes nothing to stderr, failure writes nothing to stdout (README:160)
+       success runs with non-empty stderr: 0
+       error run stdout: "" (README:160 "Safe to pipe")
+PASS C27  no crash signal on any invocation exercised (no segfault / uncaught throw path)
+       signals=0 non-zero-exits-among-valid-invocations=0
+
+=== SUMMARY: 28/28 checks passed ===
+NOT RUN (declared, not claimed): offline/no-network behaviour is not exercised here;
+  it rests on the zero-dependency tree, which this harness does not prove.
