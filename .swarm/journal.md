@@ -1345,7 +1345,7 @@ KI-8 (no LICENSE file, package.json declares MIT with private:false) remains ope
   deliberately unfixed: the MIT text needs a copyright line naming a legal person, which is the
   repo owner's call and not one a build agent or the conductor may invent. Restated so a
   wrap-up reading only the last block still sees it.
-commit: {COMMIT} (stamped by the addendum commit that follows -- the hash cannot be known
+commit: 024bb5b (pushed to origin/main: 7e9c964..024bb5b) (stamped by the addendum commit that follows -- the hash cannot be known
   before the commit exists).
 next wakeup: 1786757397 (+90s, verified-value cycle takes the base delay; the VPS pacer, not
   ScheduleWakeup, is what fires it)
