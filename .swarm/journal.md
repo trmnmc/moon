@@ -3100,3 +3100,222 @@ runfile-mirror (resynced):
 ```json
 {"version": 1, "run_label": "improvement-2026-08-14", "run_kind": "improvement", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-15T15:32:27+00:00", "usage_reset_at": "2026-08-14T20:32:35+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "pacing": {"mode": "guest", "dial": 0.3}, "heartbeat": {"ts": 1786772615, "next_wakeup_at": 1786772705, "pid": 255809, "limp": false, "degraded_tiers": []}, "budget": {"source": "allocator", "gear": 1, "gear_target": 1, "ratio": null, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786772524, "last_real_probe_ts": 0, "probe_failures": 34, "probe_note": "cycle 39: probe still NOT invoked -- same standing decision as cycles 35-38 and the same closed reason: SWARM/.claude/settings.json carries no allow entry of any form for bin/swarm-budget.sh (KI-2, root-caused at cycle 35 by grepping the allow list). Re-grepped this cycle to keep the claim honest rather than inherited: `grep -n swarm-budget /opt/swarm/.claude/settings.json` returns NOTHING. probe_failures stays at 34 -- an attempt not made is not a failure. Gear rests on runs/allocator.json (source=probe, refreshed 05:25:47 by the pacer): posture=trickle, allow_premium_pct 0, allow_overall_pct 0, opus_used_pct 96, weekly_used_pct 76.0, week_elapsed_pct 71.68, dial 0.3. weekly_heat 76.0/71.68 = 1.060 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.344 > 1.2 keeps promote blocked. Allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1, for the thirty-ninth straight cycle. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the rest of the run. Movement since cycle 38: week_elapsed_pct 71.44 -> 71.68 while weekly_used_pct held at 76.0, so weekly_heat FELL 1.064 -> 1.060 -- recorded because a heat that only ever rose would eventually engage the governor, and this one did not. Control note: bin/swarm-notify.sh poll succeeded again in the bare-relative form from /opt/swarm -- a sixth consecutive cycle of the same controlled comparison against the budget script's refusal in that identical form.", "weekly": {"ok": true, "weekly_used_pct": 76.0, "opus_used_pct": 96, "week_elapsed_pct": 71.68, "weekly_heat": 1.06, "opus_heat": 1.344, "ceiling": 5, "promote_blocked": true}, "gear_basis": "allocator-posture"}, "playbook": {"mode": "auto", "applied": ["L-003", "L-008", "L-016", "L-023-moon", "L-024-moon", "L-026-repo-atlas"], "vetoed": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "veto_reason": "conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.", "id_collision_warning": "playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.", "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "wrap_up_complete": false, "cycles_since_recycle": 13, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
 ```
+
+## cycle 40 — 2026-08-15T06:12:00Z — VALUE_LOOP — build-wave (k=1) — T-136 — GATE FAIL, reverted
+
+clock: now=1786772975 at entry, stop_at=1786807947 (9.71 h remaining). Not within 900s of
+  stop, not limp; usage_reset_at long past. Conductor PID 264846. The documented ps/ppid
+  walk (cycle.md step 0) was not attempted this cycle: cycles 38 and 39 both recorded it
+  false-matching on the bash wrapper, whose argv carries
+  /home/swarm/.claude/shell-snapshots/... and so satisfies a substring match on "claude".
+  Used `pgrep -af claude` and took the process whose argv is the real
+  `claude -p /swarm cycle`. Third consecutive cycle where the documented walk is unusable —
+  still a SWARM tool defect for the morning report, still not fixable mid-run (hard rule 5).
+budget probe: NOT invoked, fortieth straight cycle, same closed reason re-grepped rather
+  than inherited: `grep -n swarm-budget /opt/swarm/.claude/settings.json` returns NO-MATCH
+  (KI-2). probe_failures stays 34 — an attempt not made is not a failure. Gear rests on
+  runs/allocator.json (source=probe, refreshed 05:49:28 by the pacer, i.e. this cycle's own
+  spawn): posture=trickle, allow_premium_pct 0, allow_overall_pct 0, weekly_used_pct 77.0,
+  week_elapsed_pct 71.92, opus_used_pct 96, dial 0.3. weekly_heat 77.0/71.92 = 1.071 < 1.1
+  -> governor disengaged, ceiling 5; opus_heat 1.335 > 1.2 keeps promote blocked. Trickle +
+  guest 1–3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is after stop_at, so gear 1
+  is structural for the rest of the run. Movement since cycle 39: weekly_used_pct 76.0 ->
+  77.0 against week_elapsed 71.68 -> 71.92, so weekly_heat ROSE 1.060 -> 1.071 (last cycle
+  it fell). Still 0.03 clear of the 1.1 governor threshold; recorded because the direction
+  reversed, not because it crossed anything.
+orient: tree clean at entry, 135/135 green (duration_ms 2000.25), no salvage needed.
+  Control channel: `bin/swarm-notify.sh poll` succeeded (bare-relative form from /opt/swarm
+  — a seventh consecutive success while the budget script is refused in that identical
+  form, which is now a fairly strong controlled comparison for the morning report:
+  the refusal is per-script allowlisting, not a shell-form problem). pending[] empty,
+  inject[] empty, applied[] empty. Nothing to triage.
+re-anchor: 40 % 5 == 0, so a FULL SPEC.md re-read was due and done. Scope confirmed
+  unchanged: harden tests, close/bound known issues, doc truth; NO new features, no new
+  deps, no rewrite of the astronomy core. Backlog hygiene pass: 37 items, 33 done, 4 todo —
+  no duplicates, nothing near the ~30 live-item cap (4 live). T-116, T-126 and T-130 were
+  re-examined and DELIBERATELY RETAINED as todo rather than dropped: each is a recorded
+  doc nit that the VALUE_LOOP ratchet has rejected repeatedly, and each item's own notes
+  already say so. Dropping them would make them less visible in the morning report, not
+  more honest. They are recorded work, not queued work — this line is the record of that
+  choice being re-made with eyes open rather than inherited.
+craft pack: `node bin/swarm-craft.mjs` clean, degraded: []. Not spliced — the build-wave
+  slice is craft.ui and T-136 touches one test file in a stdout-only Node CLI with no UI
+  surface, so the item is not ui-flagged under the step-5 rule. Journaled, not dropped.
+
+PICK: T-136 (kind fix, S, attempts 0, filed by cycle 39 as its own measured residual).
+Uncontested: the other three todos are the ratchet-rejected doc nits above, and T-136 is
+the only live item where an HONEST edit to a shipped artifact is wrongly rejected by a
+guard this run built. consecutive_no_value was 0, so no forced work-type switch was in play.
+
+ROUTING: kind fix + effort S -> sonnet; attempts 0, no ladder escalation. Gear 1 demotion
+  does not apply (build/fix never drops below sonnet) and gear 1 explicitly permits
+  S-effort sonnet builds. Effective wave size = min(k_current 5, gear cap 1) = 1.
+
+BUILD-WAVE (k=1, direct Agent dispatch — Workflow is review-gated in a headless -p session,
+the documented fallback). Brief carried the playbook builder line, the item's acceptance,
+the cycle-39 measured cost data, and — new this cycle, in response to cycle 39's contained
+hard-rule-5 breach — an explicit worktree instruction: never /tmp, never anything under
+/opt/swarm, use /opt/targets/moon/.worktrees/ if a worktree is wanted at all. The builder
+worked directly on a branch and created no worktree; no breach this cycle. Returned one
+file, +24/-14, one commit on branch cycle-40-T-136.
+
+  $ git diff --name-only main..cycle-40-T-136
+  test/regressions.test.js
+  $ git diff --stat main..cycle-40-T-136 -- README.md src bin package.json
+  (empty — protected paths untouched, checked mechanically, not from the claim)
+
+The change: REACHABILITY_STEP_MS 15min -> 5min, REACHABILITY_SPAN_MS 35d -> 120d, plus a
+rewritten comment. The builder's own diagnosis — that the original blind spot was the SPAN,
+not the STEP — is correct and I confirmed it independently: a 1-min sweep over the old 35
+days still finds only 208 pairs, so no step size could ever have reached the 44% pair from
+that window.
+
+MERGE: sequential, one branch, --no-ff. 135/135 green post-merge (duration_ms 2004.62), so
+hard rule 4 was satisfied and the revert below is a GATE decision, not a broken-tests one.
+
+VERIFICATION GATE — FAIL. Checks authored at verification time, after the return; the
+builder never saw them. Full evidence: .swarm/runs/cycle-040-verify-T-136.txt; probes are
+cycle-040-probe-T-136.js, -battery-T-136.js, -windows-T-136.js, -mutantreach-T-136.js. The
+rejected diff is preserved at .swarm/runs/cycle-040-rejected-T-136.diff.
+
+  The gate read the committed constants OUT OF THE FILE by regex rather than taking the
+  agent's reported numbers, so every figure below is against what actually shipped.
+
+  1. SET PARITY within the chosen span — PASS, and stronger than asked. The acceptance
+     asked for equal pair COUNTS; I compared the SETS, since equal counts can hide one
+     pair swapped for another.
+
+       A. COMMITTED SWEEP: calls=34561  pairs=209  wall=430ms
+       B. 1-MIN REFERENCE, SAME SPAN: calls=172801  pairs=209  wall=2116ms
+          pairs in reference but MISSED by committed sweep: 0
+          pairs in committed but not in reference: 0
+          SET PARITY: IDENTICAL
+
+  2. THE NAMED DEFECT — CLOSED. Cycle 39 measured M4-HONEST-REGEN as RED; the same case is
+     GREEN here. "first quarter|  44%" is in the committed set with 12 hits (60 in the
+     1-min reference), and renderLine at 2026-02-24T00:28:00Z prints
+     "░░▒█◗  44%  first quarter" exactly as cycle 39 recorded.
+
+  3. HONEST-REGENERATION + MUTATION BATTERY (each case: rewrite a README row, run the full
+     regression file, restore, assert the restore is byte-exact; green controls at both
+     ends so the harness is provably live). Row padding was MEASURED per row rather than
+     assumed — the south column starts at offset 30 on all 15 rows — which is the cycle-39
+     lesson about a mutant dying of its own construction defect.
+
+       CASE                          EXPECT          GOT
+       C0-CONTROL                    GREEN           GREEN
+       H1-HONEST-44-FQ               GREEN           GREEN
+       H2-HONEST-55-WXGIB            measure         RED (T-135)
+       M1-51-FQ->WXGIB               RED             RED (T-135)
+       M2-63-WNGIB->WNCRE            RED             RED (T-135)
+       M3-69-WXGIB->FQ               RED             RED (T-135)
+       C0-CONTROL-2                  GREEN           GREEN
+       README byte-identical to entry: true
+
+     H2 is the failing clause and it is not a set-arithmetic inference: README row 5 was
+     rebuilt from the shipping renderer at 2026-05-23T23:11:00Z —
+     "░░▓█◗  55%  waxing gibbous    ◖█▓░░  55%  waxing gibbous" — a real instant, a real
+     render, a row that keeps PHASE_NAMES order and percent monotonicity intact, and the
+     suite goes RED. That is an honest regeneration being rejected: the exact defect class
+     T-136 exists to fix, still live after the fix.
+
+  4. WHY THAT IS A FAIL RATHER THAN A NUANCE. The precedent in this run (cycle-8/T-111,
+     cycle-17, cycle-29, cycle-39) is that an item whose acceptance passed IN FULL is not
+     failed over something found outside it. This is the other case. T-136's acceptance
+     names the property in its first sentence — "a row rebuilt from the shipping renderer
+     at ANY real instant must stay green" — and names this exact outcome as failure:
+     "Widening alone is not enough ... otherwise it has only moved the blind spot." The
+     blind spot moved from 4 missing pairs to 3. Measured at 1-min/400d, the survivors are
+     waxing gibbous|55% (425 hits), last quarter|56% (209 hits), last quarter|44% (27
+     hits). 425 hits in 400 days is not an exotic corner.
+
+  5. WHAT THE GATE FOUND THAT NEITHER THE ITEM NOR THE BUILDER WAS LOOKING FOR, and the
+     reason attempt 2 is a different item rather than a bigger number: the reachable pair
+     set does not converge at any span a test suite can afford.
+
+       CEILING PROBE  5-min / 30 years : calls=3153601 pairs=213 36570ms
+       CEILING PROBE  1-min / 400 days : calls=576001  pairs=212  6628ms
+       WIDE+FINE      1-min / 10 years : calls=5256001 pairs=212 58215ms
+
+       step  span    calls     pairs  ms     reaches the 213-pair union?
+          5m   150d    43201    210    494ms  no, misses 3
+          5m   200d    57601    211    679ms  no, misses 2
+          5m   250d    72001    212    867ms  no, misses 1: waning crescent| 46%
+          5m   400d   115201    212   1259ms  no, misses 1
+         15m   400d    38401    212    496ms  no, misses 1
+         10m   600d    86401    212    977ms  no, misses 1
+          5m    30y  3153601    213  36570ms  (this is where the 213th appears)
+
+     The 213th pair, waning crescent|46%, is invisible even to a 5.26-million-sample
+     one-minute sweep over ten years. A guard that asserts membership in a SAMPLED set is
+     therefore asserting a completeness it cannot have, at any window this suite can pay
+     for. Attempt 1 did not fail because it picked the wrong constants; it failed because
+     the acceptance asked for something constants cannot deliver.
+
+  6. AND THE COUNTERPART FINDING, which is what makes attempt 2 tractable: the guard's
+     discriminating power survives an arbitrarily wide search. All three retype mutants
+     are STILL unreachable at 1-min/10-year (5,256,001 samples), while every honest pair
+     tested is reachable well inside it:
+
+       MUTANT M1  "waxing gibbous| 51%"   still unreachable — guard survives
+       MUTANT M2  "waning crescent| 63%"  still unreachable — guard survives
+       MUTANT M3  "first quarter| 69%"    still unreachable — guard survives
+       HONEST H1  "first quarter| 44%"    REACHABLE
+       HONEST H2  "waxing gibbous| 55%"   REACHABLE
+
+     So an escalate-only-on-failure shape (cheap sweep for the green path; a wide focused
+     search for the one absent pair before failing) would accept the honest rows and still
+     kill all three mutants, paying the wide search only when something is actually wrong.
+     Recorded as a measured candidate in T-136's notes, NOT as a decision handed to the
+     next builder — the escalation window has to be measured against the mutants, not
+     assumed from this table.
+
+  7. Also found, and folded into attempt 2's acceptance as an explicit clause rather than
+     used as the reason to fail: the committed comment claims the shipped window is
+     "11,521 computeMoon calls, ~0.4s". The wall time is right (430ms measured) but the
+     call count is the 15-minute candidate's, not the 5-minute one that shipped — the real
+     figure is 34,561. The builder caught this in its own return and corrected it in prose
+     while leaving the wrong number in the file. On its own this would have been a
+     follow-up nit under the cycle-8 disposition; it is named here because attempt 2's
+     acceptance now forbids citing a measurement the file did not make.
+
+  8. Not run, stated as not-run: I did not re-verify the builder's TZ matrix or its
+     before/after timings, because the gate had already failed on clause 1 and re-measuring
+     a reverted branch buys nothing. Those two claims from the builder's return are
+     UNVERIFIED, not accepted.
+
+REVERT: `git reset --hard 3f55d94` (the merge was local and unpushed, so this is the exact
+  equivalent of never having merged, and matches the cycle-37 artifact shape: rejected work
+  preserved as a .diff, main untouched). Post-revert main is 135/135 green, duration_ms
+  1985.38. Branch cycle-40-T-136 is retained, so nothing is lost.
+
+SELF-INSTRUMENT NOTE, against myself — NINTH of the run (cycle-8/9/19/23/29/32/37/39
+family), and the sharpest yet, because this one is the same mistake twice in a row on the
+same guard. Cycle 39 filed T-136 with a demonstration clause: "SHOW the widened sweep
+reaches the same pair count as a 1-minute reference sweep over the same span." That clause
+is structurally incapable of detecting the defect it was written to prevent — the failure
+mode was a SPAN-limited blind spot, and a same-span reference sweep cannot see past the
+span by construction. I then relayed that clause into the builder's brief verbatim. The
+builder satisfied it exactly and honestly, and flagged the open question in its own
+return ("I did not exhaustively prove 120 days is the minimal safe span ... I picked 120d
+for headroom"). It told me the truth; my acceptance just did not ask the right question.
+The generalisable form: a completeness check whose reference is drawn from the same window
+as the thing it checks is not a check. Candidate lesson for WRAP_UP distillation.
+
+WAVE AUTOTUNE: the wave had a reverted merge -> k_current 5 -> 4, wave_streak 0. Academic
+  while the gear cap holds at 1, but recorded so the counter stays truthful.
+counters: consecutive_no_value 0 -> 1 (no verified value this cycle),
+  consecutive_failures 0 -> 1. At 2 the churn breaker forces a work-type switch; noted for
+  next cycle, not yet in force.
+backlog: 37 items — 33 done, 4 todo. T-136 rewritten in place rather than closed-and-refiled
+  (same defect, same guard, new understanding of why it is hard): attempts 1, priority
+  7 -> 6, title and why and acceptance and notes all replaced with the measured findings
+  above. known_issues unchanged at 5 — attempts is 1, so the attempts>=2 blocked+known_issue
+  rule has not fired.
+notifications: none emitted. Phase unchanged (VALUE_LOOP), no target stalled,
+  publish_failures still 0 — none of the three step-8 emit conditions fired.
+
+runfile-mirror:
+```json
+{"version": 1, "run_label": "improvement-2026-08-14", "run_kind": "improvement", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-15T15:32:27+00:00", "usage_reset_at": "2026-08-14T20:32:35+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "pacing": {"mode": "guest", "dial": 0.3}, "heartbeat": {"ts": 1786774247, "next_wakeup_at": 1786775147, "pid": 264846, "limp": false, "degraded_tiers": []}, "budget": {"source": "allocator", "gear": 1, "gear_target": 1, "ratio": null, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786773071, "last_real_probe_ts": 0, "probe_failures": 34, "probe_note": "cycle 40: probe still NOT invoked -- fortieth straight cycle, same closed reason, re-grepped rather than inherited: `grep -n swarm-budget /opt/swarm/.claude/settings.json` returns NO-MATCH (KI-2, root-caused at cycle 35). probe_failures stays at 34 -- an attempt not made is not a failure. Gear rests on runs/allocator.json (source=probe, refreshed 05:49:28 by the pacer, this cycle's own spawn): posture=trickle, allow_premium_pct 0, allow_overall_pct 0, opus_used_pct 96, weekly_used_pct 77.0, week_elapsed_pct 71.92, dial 0.3. weekly_heat 77.0/71.92 = 1.071 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.335 > 1.2 keeps promote blocked. Trickle + guest 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the rest of the run. Movement since cycle 39: weekly_heat ROSE 1.060 -> 1.071 (it fell last cycle) -- direction reversed, still 0.03 clear of the governor threshold, recorded for the reversal rather than for any crossing. Control note: bin/swarm-notify.sh poll succeeded again in the bare-relative form from /opt/swarm -- a seventh consecutive cycle of the same controlled comparison against the budget script's refusal in that identical form, which now reads as per-script allowlisting rather than a shell-form problem.", "weekly": {"ok": true, "weekly_used_pct": 77.0, "opus_used_pct": 96, "week_elapsed_pct": 71.92, "weekly_heat": 1.071, "opus_heat": 1.335, "ceiling": 5, "promote_blocked": true}, "gear_basis": "allocator-posture"}, "playbook": {"mode": "auto", "applied": ["L-003", "L-008", "L-016", "L-023-moon", "L-024-moon", "L-026-repo-atlas"], "vetoed": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "veto_reason": "conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.", "id_collision_warning": "playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.", "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "wrap_up_complete": false, "cycles_since_recycle": 13, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
+```

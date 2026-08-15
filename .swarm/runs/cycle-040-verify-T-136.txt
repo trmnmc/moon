@@ -1,0 +1,47 @@
+COMMITTED CONSTANTS, read from regressions.test.js:
+  start = 2026-01-01T00:00:00.000Z
+  step  = 5 min
+  span  = 120 days
+
+A. COMMITTED SWEEP: calls=34561  pairs=209  wall=430ms
+   comment in the file claims "11,521 computeMoon calls, ~0.4s" for this window.
+   ARITHMETIC CHECK: 11521 == actual? false
+
+B. 1-MIN REFERENCE, SAME SPAN: calls=172801  pairs=209  wall=2116ms
+   pairs in reference but MISSED by committed sweep: 0
+   pairs in committed but not in reference: 0
+   SET PARITY: IDENTICAL
+
+C. THE T-136 PAIR: keys matching 44% first quarter in the committed set: ["first quarter| 44%"]  hits=12
+   reference hits for the same key: 60
+   renderLine at 2026-02-24T00:28:00Z north = "░░▒█◗  44%  first quarter"
+
+D. WIDE SWEEP (5-min step, 10 years): calls=1051201  pairs=212  wall=12553ms
+   pairs the product emits that the COMMITTED sweep would REJECT: 3
+     "waxing gibbous| 55%"  hits=884
+     "last quarter| 56%"  hits=352
+     "last quarter| 44%"  hits=68
+
+E. FINE-WIDE SWEEP (1-min step, 400 days): calls=576001  pairs=212  wall=6856ms
+   pairs it emits that the COMMITTED sweep would REJECT: 3
+     "waxing gibbous| 55%"  hits=425
+     "last quarter| 56%"  hits=209
+     "last quarter| 44%"  hits=27
+
+
+sweep table: 15 data rows below the header
+measured south-column start offsets across all rows: [30]
+
+CASE                          EXPECT          GOT
+  C0-CONTROL                   expect GREEN    got GREEN
+  H1-HONEST-44-FQ              expect GREEN    got GREEN
+  H2-HONEST-55-WXGIB           expect measure  got RED (T-135)
+  M1-51-FQ->WXGIB              expect RED      got RED (T-135)
+  M2-63-WNGIB->WNCRE           expect RED      got RED (T-135)
+  M3-69-WXGIB->FQ              expect RED      got RED (T-135)
+  C0-CONTROL-2                 expect GREEN    got GREEN
+
+README byte-identical to entry: true
+rows used: H1 replaced row #3 (32% waxing crescent); H2 replaced row #5 (69% waxing gibbous)
+H1 replacement row: "░░▒█◗  44%  first quarter     ◖█▒░░  44%  first quarter"
+H2 replacement row: "░░▓█◗  55%  waxing gibbous    ◖█▓░░  55%  waxing gibbous"

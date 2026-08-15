@@ -1,0 +1,50 @@
+diff --git a/test/regressions.test.js b/test/regressions.test.js
+index f849f9a..1524537 100644
+--- a/test/regressions.test.js
++++ b/test/regressions.test.js
+@@ -446,21 +446,31 @@ test('T-134 — README north/south sweep table rows are self-consistent and repr
+ // Math.round(illumination * 100), which would smuggle in the one assumption (the
+ // rounding rule) the T-134 comment above goes out of its way never to make.
+ //
+-// Sweep window: one synodic month (SYNODIC_MONTH, ~29.53 days — astro.js) is the whole
+-// period over which the (name, percent) pairing repeats; astro.js's own
+-// PHASE_ILLUMINATION_CONSISTENCY_DOMAIN note documents that phaseName and illumination
+-// are two independent Meeus series only checked to agree near J2000, so this sweeps
+-// where the table's own moon (readmeMoon(), a real "now" reading) actually lives rather
+-// than assuming the pairing holds across centuries. 35 days is a full lunation plus a
+-// >5-day margin, so the reachable set can't come up short just because the start
+-// instant happened to land next to a phase transition. A 15-minute step keeps the
+-// narrowest whole-percent band (around the 50% crossing, illumination changes fastest
+-// there — see the T-134 comment above) covered by several samples, not one. That's
+-// ~3,400 computeMoon calls: a fraction of a second, next to the T-134 test's own
+-// per-row 401-sample band search.
++// Sweep window — widened by T-136 after a measured false positive. The original window
++// (35 days, i.e. one synodic month plus margin, 15-minute step) was a false rejector: the
++// pair "first quarter" | 44%, which the shipping renderer really does print (e.g. at
++// 2026-02-24T00:28:00Z), never showed up in that window at ANY step size, because that
++// instant is ~55 days after this sweep's start — the 35-day SPAN was the limiting factor,
++// not the 15-minute STEP. A one-minute reference sweep from this same start confirms the
++// true reachable-pair count only reaches its ceiling of 209 once the span reaches
++// somewhere between 50 and 55 days (measured: 50d -> 208 pairs, 55d -> 209). 120 days
++// (four synodic months) was chosen as the shipped span to sit well clear of that edge
++// rather than hug it, while staying inside astro.js's PHASE_ILLUMINATION_CONSISTENCY_
++// DOMAIN by centuries, not days.
++//
++// Within that 120-day span, a 1-minute-step reference sweep (172,801 computeMoon calls,
++// ~1.9s) finds 209 distinct pairs, of which "first quarter"|44% is the rarest: only 60 of
++// the 172,801 one-minute samples land on it. Measured at coarser steps over the same
++// 120-day span: 15 minutes finds all 209 pairs but only 4 of those 60 hits (thin, and the
++// design note above ("Plausible, NOT guaranteed") turned out to be right to be
++// suspicious); 5 minutes finds all 209 pairs with 12 hits, and its reachable SET —not
++// merely its count — is byte-identical to the 1-minute reference's (diffed, not just
++// counted). 5 minutes over 120 days is 11,521 computeMoon calls, ~0.4s, a ~3x margin
++// over the thinnest step that happens to work, at roughly a fifth the reference sweep's
++// cost. That is the window below.
+ const REACHABILITY_SWEEP_START_MS = Date.UTC(2026, 0, 1) // fixed instant, never Date.now()
+-const REACHABILITY_STEP_MS = 15 * 60 * 1000 // 15 minutes
+-const REACHABILITY_SPAN_MS = 35 * 24 * 60 * 60 * 1000 // > one synodic month
++const REACHABILITY_STEP_MS = 5 * 60 * 1000 // 5 minutes
++const REACHABILITY_SPAN_MS = 120 * 24 * 60 * 60 * 1000 // four synodic months, see above
+ 
+ test('T-135 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce', () => {
+   const section = readmeSection('Why this one')
