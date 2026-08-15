@@ -1460,11 +1460,69 @@ known-issues: unchanged (KI-2 medium, KI-4 low, KI-5 medium, KI-7 low, KI-8 low)
 CI: green on GitHub Actions for every cycle-25..29 push (gh run list, 8/8 success, node 20 and 22
   matrix). Checked this cycle because the SPEC lists CI as a nice-to-have and the conductor wanted
   the claim to rest on the actual run history rather than on the workflow file's existence.
-commit: (stamped by the addendum commit that follows -- the hash cannot be known
-  before the commit exists).
-next wakeup: 1786758444 (+90s from the cycle commit; a verified-value cycle takes the base
-  delay, and the VPS pacer, not ScheduleWakeup, is what fires it)
+commit: e05768e (pushed to origin/main: 1c0aeb0..e05768e)
+next wakeup: 1786758676 = 2026-08-15T01:51:16Z (+90s; a verified-value cycle takes the base
+  delay, and the VPS pacer -- not ScheduleWakeup -- is what fires it). RESYNCED by this
+  addendum: the block first carried 1786758444, pre-computed before the dashboard render, and
+  that instant had already elapsed by the time the render ran. The runfile and both dashboard
+  staleness slots now carry the resynced value. Clamp checked: 1786758676 + 900 <= stop_at
+  1786807947, with 13.7h of run left.
 runfile-mirror:
 ```json
-{"version": 1, "run_label": "improvement-2026-08-14", "run_kind": "improvement", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-15T15:32:27+00:00", "usage_reset_at": "2026-08-14T20:32:35+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "pacing": {"mode": "guest", "dial": 0.3}, "heartbeat": {"ts": 1786758254, "next_wakeup_at": 1786760684, "pid": 192344, "limp": false, "degraded_tiers": []}, "budget": {"source": "allocator", "gear": 1, "gear_target": 1, "ratio": null, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786758254, "last_real_probe_ts": 0, "probe_failures": 30, "probe_note": "cycle 30: bin/swarm-budget.sh refused a 30th time -- and this cycle refused in BOTH the bare-relative form and the absolute-path form, and additionally refused the documented PROBE_CMD=false clock-cruise fallback (the env-var prefix makes it a distinct, unmatched command pattern). That last point is new evidence for KI-2: cycle.md's >=3-failures rule routes to `PROBE_CMD=false bin/swarm-budget.sh` as the zero-cost substitute, and that substitute is ITSELF unreachable under this allowlist, so the documented degradation path has no exit. last_real_probe_ts stays 0: a refused invocation is not a probe, so ratio, tokens/hour and projected depletion remain UNKNOWN and are never estimated. Gear rests on runs/allocator.json (source=probe, refreshed 01:35:47Z by the pacer): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, reserve 35.87, opus_used_pct=96, weekly_used_pct 73.0, week_elapsed_pct 69.17->69.40, dial 0.30. weekly_heat 1.052 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.383 > 1.2 keeps promote blocked. Binding for thirty straight cycles: allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the remaining 13.8h.", "weekly": {"ok": true, "weekly_used_pct": 73.0, "opus_used_pct": 96, "week_elapsed_pct": 69.4, "weekly_heat": 1.052, "opus_heat": 1.383, "ceiling": 5, "promote_blocked": true}, "gear_basis": "allocator-posture"}, "playbook": {"mode": "auto", "applied": ["L-003", "L-008", "L-016", "L-023-moon", "L-024-moon", "L-026-repo-atlas"], "vetoed": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "veto_reason": "conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.", "id_collision_warning": "playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.", "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "wrap_up_complete": false, "cycles_since_recycle": 4, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
+{"version": 1, "run_label": "improvement-2026-08-14", "run_kind": "improvement", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-15T15:32:27+00:00", "usage_reset_at": "2026-08-14T20:32:35+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "pacing": {"mode": "guest", "dial": 0.3}, "heartbeat": {"ts": 1786758586, "next_wakeup_at": 1786758676, "pid": 192344, "limp": false, "degraded_tiers": []}, "budget": {"source": "allocator", "gear": 1, "gear_target": 1, "ratio": null, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786758254, "last_real_probe_ts": 0, "probe_failures": 30, "probe_note": "cycle 30: bin/swarm-budget.sh refused a 30th time -- and this cycle refused in BOTH the bare-relative form and the absolute-path form, and additionally refused the documented PROBE_CMD=false clock-cruise fallback (the env-var prefix makes it a distinct, unmatched command pattern). That last point is new evidence for KI-2: cycle.md's >=3-failures rule routes to `PROBE_CMD=false bin/swarm-budget.sh` as the zero-cost substitute, and that substitute is ITSELF unreachable under this allowlist, so the documented degradation path has no exit. last_real_probe_ts stays 0: a refused invocation is not a probe, so ratio, tokens/hour and projected depletion remain UNKNOWN and are never estimated. Gear rests on runs/allocator.json (source=probe, refreshed 01:35:47Z by the pacer): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, reserve 35.87, opus_used_pct=96, weekly_used_pct 73.0, week_elapsed_pct 69.17->69.40, dial 0.30. weekly_heat 1.052 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.383 > 1.2 keeps promote blocked. Binding for thirty straight cycles: allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the remaining 13.8h.", "weekly": {"ok": true, "weekly_used_pct": 73.0, "opus_used_pct": 96, "week_elapsed_pct": 69.4, "weekly_heat": 1.052, "opus_heat": 1.383, "ceiling": 5, "promote_blocked": true}, "gear_basis": "allocator-posture"}, "playbook": {"mode": "auto", "applied": ["L-003", "L-008", "L-016", "L-023-moon", "L-024-moon", "L-026-repo-atlas"], "vetoed": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "veto_reason": "conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.", "id_collision_warning": "playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.", "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "wrap_up_complete": false, "cycles_since_recycle": 4, "artifact": {"file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
 ```
+
+### cycle 30 addendum | step 8 dashboard
+
+Two live defects fixed in runs/dashboard.html (SWARM-side, and inside the hard-rule-5 fence:
+runs/ is writable during a run, SKILL.md / reference/ / workflows/ / templates/ / bin/ are not).
+
+DEFECT A -- data-expected, and the visible "next" div, carried a PARAGRAPH OF PROSE instead of an
+  instant. The inline staleness script does Date.parse() on both data attributes and returns early
+  on NaN, so the STALE banner could not fire under any circumstance. The dashboard was structurally
+  incapable of admitting it had stopped tracking the run -- it failed silent while looking healthy,
+  which for an observability surface is the worst available failure mode. Both slots now hold
+  parseable instants.
+
+  THIS IS A RECURRENCE, and that is the more interesting half. Cycle 22 already found and fixed
+  this exact defect -- its commit subject reads "dashboard data-expected carried prose, not a
+  timestamp, so the stale banner was dead". It came back by cycle 29. The cause is structural: each
+  cycle hand-writes its own substitution script, so no invariant survives from one render to the
+  next, and any cycle that substitutes the wrong slot silently re-breaks it.
+
+DEFECT B -- the root cause of A, and newly diagnosed. The template's placeholder LEGEND at the top
+  of the file (an HTML comment documenting what each slot should look like) has been overwritten
+  with live values, because earlier renders substituted GLOBALLY. That is how prose reached the
+  next-wakeup slot: one cycle's narrative was written into every copy of the placeholder, the
+  legend included, after which the legend no longer taught the correct shape and the next render
+  had nothing to check itself against. Fixed structurally, not cosmetically: every substitution in
+  runs/cycle-030-dash.py is confined to the LIVE region (after </style>, outside every HTML
+  comment), so the legend and the CSS examples are now unreachable from a render. The
+  already-corrupted legend TEXT is deliberately left as-is -- restoring it is a change to the
+  template's content, and templates/ is fenced during a run. Flagged for the morning report.
+
+STANDING GATE -- runs/dashboard-check.py, new this cycle, is the carrier the per-cycle scripts
+  never had: it asserts both staleness slots parse as instants, that expected is AFTER generated,
+  that the visible meta divs agree with the attributes a reader cannot see, that the banner's cycle
+  number matches state.json, and that step 8's required evidence + burn-up blocks are actually
+  emitted. Future cycles should run it after rendering. It earned its keep on its first run by
+  FAILING this cycle's own render (C3: the +90s wakeup I pre-computed for the journal had already
+  elapsed by the time the render finished, leaving expected BEFORE generated). Resynced, re-run,
+  PASS. A gate that passes the first thing it is pointed at has not been tested; this one was.
+
+TEMPLATE GAP CLOSED -- cycle.md step 8 requires every target section to carry the
+  verification-evidence block and the burn-up strip. The stylesheet has defined .evidence and
+  .burnup since cycle 0; no render had ever emitted either. Both are now rendered, with the burn-up
+  series derived from the target's own commit subjects rather than hand-typed.
+
+  Its number is stated rather than reconciled: the series sums to 24 while backlog.json shows 26
+  done. The gap is fully explained -- T-117 (cycle 21) and T-118 (cycle 22) committed as "live CI
+  evidence pending" rather than with a verified count, because their evidence was a GitHub Actions
+  run that had not finished at commit time, and both were verified in the following cycle. The
+  strip's title says exactly this. Quietly adding 2 to make the two numbers agree would have been
+  the same class of move this run has spent thirty cycles removing from the docs.
+
+notifications: none emitted. Phase unchanged (VALUE_LOOP -> VALUE_LOOP), no target became stalled,
+  publish_failures still 0. Artifact publish: not attempted -- the Artifact tool does not exist in a
+  headless -p session, which step 8 says is a silent skip and not a publish failure. On the VPS the
+  local file write IS the publication.
