@@ -724,7 +724,7 @@
   {
    "id": "T-136",
    "kind": "fix",
-   "status": "todo",
+   "status": "done",
    "priority": 6,
    "effort": "S",
    "model": "sonnet",
@@ -738,7 +738,46 @@
    ],
    "packages": [],
    "deps": [],
-   "notes": "MEASURED COST/COVERAGE TABLE from start Date.UTC(2026,0,1) (.swarm/runs/cycle-040-verify-T-136.txt): 5m/150d 43,201 calls 210 pairs 494ms | 5m/200d 57,601 211 679ms | 5m/250d 72,001 212 867ms | 5m/400d 115,201 212 1,259ms | 15m/400d 38,401 212 496ms | 10m/600d 86,401 212 977ms | 1m/400d 576,001 212 6,628ms | 5m/30y 3,153,601 213 36,570ms. No affordable window reaches 213. SHAPE CANDIDATES, none chosen -- measure before picking. (1) ESCALATE ON FAILURE: keep a cheap sweep for the green path, and when a row's pair is absent, run a wide focused search for THAT pair only before failing. Green runs stay ~0.5s; only a genuine retype pays the escalation. This is the shape the measurements most support, because the three mutant pairs stay unreachable even at 1-min/10-year (5.26M samples, verified this cycle in .swarm/runs/cycle-040-mutantreach-T-136.js) while every honest pair tested is reachable well inside it -- but the escalation window must be measured against all three mutants, not assumed, and the RED-path runtime must be stated in the comment. (2) DOCUMENTED BOUND: keep a widened flat sweep, drop the completeness claim, and make the assertion message tell the editor how to widen and re-verify. Cheapest, honest, weaker. REJECTED SHAPE: per-name percent RANGES. The ranges overlap (first quarter and waxing gibbous both cover 56%), so a range check waves the 51% mutant straight through -- this is why the guard is set membership in the first place. Attempt 1's diagnosis that the 35-day SPAN, not the 15-minute STEP, was the original limit is correct and independently confirmed: 1-min/35d still finds only 208 pairs."
+   "notes": "MEASURED COST/COVERAGE TABLE from start Date.UTC(2026,0,1) (.swarm/runs/cycle-040-verify-T-136.txt): 5m/150d 43,201 calls 210 pairs 494ms | 5m/200d 57,601 211 679ms | 5m/250d 72,001 212 867ms | 5m/400d 115,201 212 1,259ms | 15m/400d 38,401 212 496ms | 10m/600d 86,401 212 977ms | 1m/400d 576,001 212 6,628ms | 5m/30y 3,153,601 213 36,570ms. No affordable window reaches 213. SHAPE CANDIDATES, none chosen -- measure before picking. (1) ESCALATE ON FAILURE: keep a cheap sweep for the green path, and when a row's pair is absent, run a wide focused search for THAT pair only before failing. Green runs stay ~0.5s; only a genuine retype pays the escalation. This is the shape the measurements most support, because the three mutant pairs stay unreachable even at 1-min/10-year (5.26M samples, verified this cycle in .swarm/runs/cycle-040-mutantreach-T-136.js) while every honest pair tested is reachable well inside it -- but the escalation window must be measured against all three mutants, not assumed, and the RED-path runtime must be stated in the comment. (2) DOCUMENTED BOUND: keep a widened flat sweep, drop the completeness claim, and make the assertion message tell the editor how to widen and re-verify. Cheapest, honest, weaker. REJECTED SHAPE: per-name percent RANGES. The ranges overlap (first quarter and waxing gibbous both cover 56%), so a range check waves the 51% mutant straight through -- this is why the guard is set membership in the first place. Attempt 1's diagnosis that the 35-day SPAN, not the 15-minute STEP, was the original limit is correct and independently confirmed: 1-min/35d still finds only 208 pairs.\nCYCLE-41 GATE PASS (attempt 2, branch cycle-41-T-136, merged d05c7a6). Shape chosen: escalate-on-failure — cheap 15m/35d sweep for the green path, and a lazily built, memoized 15m/400d sweep consulted only for a row the cheap sweep misses. Conductor evidence, all independent of the builder (.swarm/runs/cycle-041-verify-T-136.txt, c41-gate-long.txt): 9 end-to-end README-substitution cases — H1/H2 honest rows GREEN; X1 'last quarter| 56%' and X2 'last quarter| 44%' (two honest pairs the builder was NEVER told about, drawn from the cycle-40 false-reject measurement) both ACCEPTED by the guard; M1/M2/M3 plus M4 'first quarter| 32%' and M5 'last quarter| 63%' (two mutants the builder never saw) all killed BY THE GUARD specifically, with green controls before and after and README restored clean each time. All five rows of the committed comment's table re-measured by the conductor against the committed code and EXACT: 3,361/208, 38,401/212, 86,401/212, 3,153,601/213, 5,256,001/212. Residual filed as T-137 (comment provenance).",
+   "closed_cycle": 41
+  },
+  {
+   "id": "T-137",
+   "kind": "docs",
+   "status": "todo",
+   "priority": 5,
+   "effort": "S",
+   "model": "haiku",
+   "attempts": 0,
+   "opened_cycle": 41,
+   "title": "T-136's committed comment says all five of its sweep counts were verified against the code as committed; two were carried from the cycle-40 table, and the script it points at cannot reproduce them",
+   "why": "test/regressions.test.js's T-136 comment introduces its measured table with '(all counts verified against the code as committed here — see the measurement commands in .swarm/runs/c41-measure.js ...)'. The builder's own return states plainly that it did not re-run the 5m/30y (3,153,601-call) or 1m/10y (5,256,001-call) sweeps and carried those two rows from the conductor's cycle-40 measurement. c41-measure.js's `configs` array holds only 15m/35d, 15m/400d, 10m/600d, 5m/250d and 5m/400d — no 30-year or 10-year entry — so an editor following the pointer cannot reproduce either row. The NUMBERS are true: the conductor independently re-measured all five rows at the cycle-41 gate and every one matched exactly (.swarm/runs/c41-gate-long.txt). Only the provenance sentence is wrong.",
+   "acceptance": "The comment attributes the 5m/30y and 1m/10y rows to the measurement that actually produced them rather than to 'the code as committed here', and points at a script that can reproduce them (.swarm/runs/c41-gate-measure.js takes a `long` argument and emits both). The three cheap rows keep their existing attribution, which is correct. No test behavior changes and no number changes.",
+   "files_hint": [
+    "test/regressions.test.js"
+   ],
+   "packages": [],
+   "deps": [],
+   "notes": "Filed at the cycle-41 gate under the standing cycle-7 rule that the conductor does not patch the artifact itself, and the cycle-8/T-111 and cycle-17 disposition that an item whose substance passed is not failed over the wording of a comment. Recorded honestly as a clause the acceptance names explicitly, NOT as a nuance: the conductor chose not to fail on it because it verified the underlying numbers itself and found them exact — see the cycle-41 decision entry for the full reasoning. The builder DISCLOSED this itself in section 4 of its return, which is the behavior the brief asked for and should not be punished."
+  },
+  {
+   "id": "T-138",
+   "kind": "fix",
+   "status": "todo",
+   "priority": 4,
+   "effort": "S",
+   "model": "sonnet",
+   "attempts": 0,
+   "opened_cycle": 41,
+   "title": "T-134's band search infers waxing from `!name.includes('waning')`, so it false-rejects any honest 'last quarter' README row",
+   "why": "test/regressions.test.js:388 derives the half of the cycle a row sits in with `const waxing = !north.name.includes('waning')`. PHASE_NAMES contains 'last quarter', a WANING phase whose name does not contain the substring 'waning', so the band search feeds renderLine a waxing-side cycleFraction and then compares the result against the row's real (waning) disc — the mirror image, which can never match. MEASURED at the cycle-41 gate (.swarm/runs/c41-t134-diag.js): the shipping renderer at 2026-07-07T07:30:00Z prints '◖█▓░░  56%  last quarter' (cycleFraction 0.732, phaseName 'last quarter'); T-134's band search with the waxing cycleFraction returns found=false and its first sample disc is '░░▓█◗', the exact mirror, while the same search with the waning cycleFraction returns found=true. Substituting that genuine renderer row into the table turns the suite RED on T-134 — pass 134 fail 1 — and the T-136 guard correctly stays silent. LATENT TODAY: the shipped sweep table's names are waxing crescent, first quarter, waxing gibbous, full, waning gibbous, waning crescent, new — no last quarter row — so nothing fires until someone regenerates the table across that phase. Same defect family as T-136: a check that rejects honest renderer output.",
+   "acceptance": "An honestly regenerated 'last quarter' row keeps the suite green, and the waxing/waning determination stops depending on the spelling of a phase name. Demonstrate with the two measured instants above (56% at 2026-07-07T07:30:00Z and 44% at 2026-08-06T14:15:00Z), each substituted into the table at a cycle-order-preserving slot, full suite green, README restored byte-for-byte. The existing mutation kills must survive: the five adjacent-retype mutants in .swarm/runs/c41-gate-cases.py must all still turn the suite RED. No product file changes.",
+   "files_hint": [
+    "test/regressions.test.js"
+   ],
+   "packages": [],
+   "deps": [],
+   "notes": "FOUND BY THE CONDUCTOR'S OWN GATE, not by the builder and not by the item — X1/X2 were added to the cycle-41 gate as honest pairs the builder had never been told about, precisely to test whether T-136's fix generalised beyond the two cases its acceptance named. It did; this fired instead. First gate run mis-placed X1/X2 at a slot that broke PHASE_NAMES cycle order, which made T-134 fail for an unrelated reason; the harness was corrected and re-run before any conclusion was drawn (.swarm/runs/c41-gate-diag.txt holds the raw assertion text). Note for whoever takes this: 'new' and 'full' also lack the 'waning' substring but are cycle endpoints where the disc is symmetric, which is why they have never tripped it — check them rather than assuming."
   }
  ]
 }

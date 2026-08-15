@@ -1,0 +1,22 @@
+
+=== 5m/30y: 3153601 calls, 213 distinct pairs, 36906ms ===
+  REACHABLE   "first quarter| 44%"  first at 2026-02-24T00:30:00.000Z
+  REACHABLE   "waxing gibbous| 55%"  first at 2026-05-23T23:15:00.000Z
+  REACHABLE   "last quarter| 56%"  first at 2026-07-07T07:30:00.000Z
+  REACHABLE   "last quarter| 44%"  first at 2026-08-06T14:15:00.000Z
+  unreachable "waxing gibbous| 51%"
+  unreachable "waning crescent| 63%"
+  unreachable "first quarter| 69%"
+  unreachable "first quarter| 32%"
+  unreachable "last quarter| 63%"
+
+=== 1m/10y: 5256001 calls, 212 distinct pairs, 62872ms ===
+  REACHABLE   "first quarter| 44%"  first at 2026-02-24T00:28:00.000Z
+  REACHABLE   "waxing gibbous| 55%"  first at 2026-05-23T23:11:00.000Z
+  REACHABLE   "last quarter| 56%"  first at 2026-07-07T07:29:00.000Z
+  REACHABLE   "last quarter| 44%"  first at 2026-08-06T14:11:00.000Z
+  unreachable "waxing gibbous| 51%"
+  unreachable "waning crescent| 63%"
+  unreachable "first quarter| 69%"
+  unreachable "first quarter| 32%"
+  unreachable "last quarter| 63%"

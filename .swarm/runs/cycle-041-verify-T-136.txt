@@ -1,0 +1,76 @@
+suite files: ['args.test.js', 'astro.test.js', 'cli.test.js', 'hemisphere.test.js', 'manifest.test.js', 'regressions.test.js', 'render.test.js']
+CONTROL (unmodified README): pass 135 fail 0 duration_ms 2130.577944
+
+H1  honest  (acceptance)       row 3 <- shipping renderer @ 2026-02-24T00:28:00Z
+   new row: '░░▒█◗  44%  first quarter     ◖█▒░░  44%  first quarter'
+   -> pass 135 fail 0 duration_ms 1985.751881  expected GREEN  PASS
+   README restored: clean
+
+H2  honest  (acceptance)       row 5 <- shipping renderer @ 2026-05-23T23:11:00Z
+   new row: '░░▓█◗  55%  waxing gibbous    ◖█▓░░  55%  waxing gibbous'
+   -> pass 135 fail 0 duration_ms 2042.294419  expected GREEN  PASS
+   README restored: clean
+
+X1  honest  (conductor-only)   row 12 <- shipping renderer @ 2026-07-07T07:30:00Z
+   new row: '◖█▓░░  56%  last quarter      ░░▓█◗  56%  last quarter'
+   -> pass 134 fail 1 duration_ms 2064.008205  expected GREEN  *** GATE FAIL ***
+   failing test: T-134 — README north/south sweep table rows are self-consistent and reproducible
+   failing test: T-134 — README north/south sweep table rows are self-consistent and reproducible
+   README restored: clean
+
+X2  honest  (conductor-only)   row 12 <- shipping renderer @ 2026-08-06T14:15:00Z
+   new row: '◖█▒░░  44%  last quarter      ░░▒█◗  44%  last quarter'
+   -> pass 134 fail 1 duration_ms 2195.427861  expected GREEN  *** GATE FAIL ***
+   failing test: T-134 — README north/south sweep table rows are self-consistent and reproducible
+   failing test: T-134 — README north/south sweep table rows are self-consistent and reproducible
+   README restored: clean
+
+M1  mutant  (acceptance)       row 4 name retyped -> "waxing gibbous"
+   new row: '░░▓█◗  51%  waxing gibbous    ◖█▓░░  51%  waxing gibbous'
+   -> pass 134 fail 1 duration_ms 2061.436126  expected RED  PASS
+   failing test: T-135/T-136 — every sweep-table row is a
+   failing test: T-135/T-136 — every sweep-table row is a
+   README restored: clean
+
+M2  mutant  (acceptance)       row 11 name retyped -> "waning crescent"
+   new row: '◖██░░  63%  waning crescent   ░░██◗  63%  waning crescent'
+   -> pass 134 fail 1 duration_ms 1977.631697  expected RED  PASS
+   failing test: T-135/T-136 — every sweep-table row is a
+   failing test: T-135/T-136 — every sweep-table row is a
+   README restored: clean
+
+M3  mutant  (acceptance)       row 5 name retyped -> "first quarter"
+   new row: '░▒██◗  69%  first quarter     ◖██▒░  69%  first quarter'
+   -> pass 134 fail 1 duration_ms 2006.643444  expected RED  PASS
+   failing test: T-135/T-136 — every sweep-table row is a
+   failing test: T-135/T-136 — every sweep-table row is a
+   README restored: clean
+
+M4  mutant  (conductor-only)   row 3 name retyped -> "first quarter"
+   new row: '░░░▓◗  32%  first quarter     ◖▓░░░  32%  first quarter'
+   -> pass 134 fail 1 duration_ms 2114.571216  expected RED  PASS
+   failing test: T-135/T-136 — every sweep-table row is a
+   failing test: T-135/T-136 — every sweep-table row is a
+   README restored: clean
+
+M5  mutant  (conductor-only)   row 11 name retyped -> "last quarter"
+   new row: '◖██░░  63%  last quarter      ░░██◗  63%  last quarter'
+   -> pass 133 fail 2 duration_ms 2157.38314  expected RED  PASS
+   failing test: T-134 — README north/south sweep table rows are self-consistent and reproducible
+   failing test: T-135/T-136 — every sweep-table row is a
+   failing test: T-134 — README north/south sweep table rows are self-consistent and reproducible
+   README restored: clean
+
+CONTROL (after all cases): pass 135 fail 0 duration_ms 2052.575806
+
+=== SUMMARY ===
+  H1  honest  (acceptance)       PASS
+  H2  honest  (acceptance)       PASS
+  X1  honest  (conductor-only)   *** GATE FAIL ***
+  X2  honest  (conductor-only)   *** GATE FAIL ***
+  M1  mutant  (acceptance)       PASS
+  M2  mutant  (acceptance)       PASS
+  M3  mutant  (acceptance)       PASS
+  M4  mutant  (conductor-only)   PASS
+  M5  mutant  (conductor-only)   PASS
+OVERALL: GATE FAILED

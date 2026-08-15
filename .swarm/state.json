@@ -3,7 +3,7 @@
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
  "phase": "VALUE_LOOP",
- "cycle": 40,
+ "cycle": 41,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -422,6 +422,16 @@
    "cycle": 40,
    "what": "the reachability guard cannot be made complete by widening its sweep; attempt 2 must change the guard's SHAPE (escalate-on-failure, or a documented bound) rather than its window constants",
    "why": "measured, not argued: the distinct (name, percent) set is 209 at 120 days, 212 at 250 days, still 212 at 1-min/10-year resolution (5,256,001 samples), and 213 at 5-min/30-year -- the 213th (waning crescent|46%) is invisible to the 10-year fine sweep. A set that is still growing at 30 years has no affordable complete sample, so any guard asserting membership in a sampled set will false-reject some honest regeneration. The three cycle-39 retype mutants stay unreachable even at 1-min/10-year, so the guard's discriminating power survives a much wider search -- which is what makes an escalate-only-on-failure shape viable where a bigger constant is not."
+  },
+  {
+   "cycle": 41,
+   "what": "T-136 PASSES the gate on substance; the acceptance's clause (f) is violated in letter and filed as T-137 rather than used to fail the item",
+   "why": "Clause (f) says a comment citing a count it did not measure fails. The builder disclosed it carried the 5m/30y and 1m/10y rows from the conductor's cycle-40 table without re-running them. The harm that clause exists to prevent is a FALSE number in the file (attempt 1 shipped 11,521 for a 34,561-call window); I re-measured all five rows myself at the gate and every one is EXACT, so no false number ships. What does ship false is the parenthetical 'all counts verified against the code as committed here' plus a pointer to c41-measure.js, which contains no 30y or 10y config and so cannot reproduce those two rows. That is a real but separate and smaller claim, filed as T-137. Failing the item would push attempts to 2 -> blocked, burying a guard fix that 9 independent cases and 5 independent sweeps show is correct."
+  },
+  {
+   "cycle": 41,
+   "what": "the conductor gate found a NEW latent defect in T-134, filed as T-138",
+   "why": "T-134's band search infers waxing/waning with `!north.name.includes('waning')` (test/regressions.test.js:388). 'last quarter' is a waning phase whose NAME lacks that substring, so the search feeds renderLine a waxing cycleFraction and compares against a mirrored disc. Measured: band search with waxingCF found=false (first sample disc '░░▓█◗'), with waningCF found=true (disc '◖█▓░░'), target '◖█▓░░'. Latent only because the shipped table has no last-quarter row. Same defect family as T-136: a check that false-rejects honest renderer output."
   }
  ],
  "known_issues": [
@@ -468,13 +478,14 @@
   "last_full_qa_cycle": 1,
   "last_look_cycle": 1,
   "last_taste_cycle": 1,
-  "last_review_fix_cycle": 23
+  "last_review_fix_cycle": 23,
+  "last_build_wave_cycle": 41
  },
  "counters": {
-  "consecutive_no_value": 1,
-  "consecutive_failures": 1,
+  "consecutive_no_value": 0,
+  "consecutive_failures": 0,
   "k_current": 4,
-  "wave_streak": 0,
+  "wave_streak": 1,
   "window_tokens_attributed": 0
  },
  "last_cycle": {

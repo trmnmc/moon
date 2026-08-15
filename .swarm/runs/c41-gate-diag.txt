@@ -1,0 +1,193 @@
+suite files: ['args.test.js', 'astro.test.js', 'cli.test.js', 'hemisphere.test.js', 'manifest.test.js', 'regressions.test.js', 'render.test.js']
+CONTROL (unmodified README): pass 135 fail 0 duration_ms 2273.66394
+
+H1  honest  (acceptance)       row 3 <- shipping renderer @ 2026-02-24T00:28:00Z
+   new row: '░░▒█◗  44%  first quarter     ◖█▒░░  44%  first quarter'
+   -> pass 135 fail 0 duration_ms 2257.106291  expected GREEN  PASS
+   README restored: clean
+
+H2  honest  (acceptance)       row 5 <- shipping renderer @ 2026-05-23T23:11:00Z
+   new row: '░░▓█◗  55%  waxing gibbous    ◖█▓░░  55%  waxing gibbous'
+   -> pass 135 fail 0 duration_ms 2318.237978  expected GREEN  PASS
+   README restored: clean
+--- UNEXPECTED RESULT, raw failure text ---
+derBlock: exact output for new and full (0.452432ms)
+✔ renderBlock: a hair-thin crescent stays continuous down the limb (0.593784ms)
+✔ renderBlock: every block is the same size, whatever the phase (2.967273ms)
+✔ renderBlock: the frame is closed on all four sides (0.449175ms)
+✔ renderBlock reports the same phase and illumination as renderLine (1.49051ms)
+✔ illumination is printed as a whole percent — no spurious decimals (0.262536ms)
+✔ an unknown hemisphere value renders as northern (0.290198ms)
+✔ the whole cycle renders without throwing and never widens the disc (8.254846ms)
+✔ KI-5 pin: disc glyph set matches the documented East Asian Width partition (22.103827ms)
+ℹ tests 135
+ℹ suites 0
+ℹ pass 134
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2140.483539
+
+✖ failing tests:
+
+test at test/regressions.test.js:351:1
+✖ T-134 — README north/south sweep table rows are self-consistent and reproducible (34.419683ms)
+  AssertionError [ERR_ASSERTION]: no illumination in the 56% row's own rounding band [0.55, 0.5700000000000001] renders both that exact percent and that exact north disc through renderLine: "◖█▓░░  56%  last quarter      ░░▓█◗  56%  last quarter"
+      at TestContext.<anonymous> (/opt/targets/moon/test/regressions.test.js:401:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+--- table as written ---
+    0 ''
+    1 'north                          south'
+    2 '░░░░▕   3%  waxing crescent   ▏░░░░   3%  waxing crescent'
+    3 '░░░░▐  14%  waxing crescent   ▌░░░░  14%  waxing crescent'
+    4 '░░░▓◗  32%  waxing crescent   ◖▓░░░  32%  waxing crescent'
+    5 '░░▓█◗  51%  first quarter     ◖█▓░░  51%  first quarter'
+    6 '░▒██◗  69%  waxing gibbous    ◖██▒░  69%  waxing gibbous'
+    7 '▕███◗  85%  waxing gibbous    ◖███▏  85%  waxing gibbous'
+    8 '▐███◗  96%  waxing gibbous    ◖███▌  96%  waxing gibbous'
+    9 '◖███◗ 100%  full              ◖███◗ 100%  full'
+   10 '◖███▌  96%  waning gibbous    ▐███◗  96%  waning gibbous'
+   11 '◖██▓▏  83%  waning gibbous    ▕▓██◗  83%  waning gibbous'
+   12 '◖██░░  63%  waning gibbous    ░░██◗  63%  waning gibbous'
+   13 '◖█▓░░  56%  last quarter      ░░▓█◗  56%  last quarter'
+   14 '◖▒░░░  19%  waning crescent   ░░░▒◗  19%  waning crescent'
+   15 '▌░░░░   5%  waning crescent   ░░░░▐   5%  waning crescent'
+   16 '░░░░░   0%  new               ░░░░░   0%  new'
+   17 ''
+
+X1  honest  (conductor-only)   row 12 <- shipping renderer @ 2026-07-07T07:30:00Z
+   new row: '◖█▓░░  56%  last quarter      ░░▓█◗  56%  last quarter'
+   -> pass 134 fail 1 duration_ms 2140.483539  expected GREEN  *** GATE FAIL ***
+   failing test: T-134 — README north/south sweep table rows are self-consistent and reproducible
+   failing test: T-134 — README north/south sweep table rows are self-consistent and reproducible
+   README restored: clean
+--- UNEXPECTED RESULT, raw failure text ---
+262345ms)
+✔ renderBlock: exact output for new and full (0.247005ms)
+✔ renderBlock: a hair-thin crescent stays continuous down the limb (0.310037ms)
+✔ renderBlock: every block is the same size, whatever the phase (1.78639ms)
+✔ renderBlock: the frame is closed on all four sides (0.314957ms)
+✔ renderBlock reports the same phase and illumination as renderLine (1.561266ms)
+✔ illumination is printed as a whole percent — no spurious decimals (0.263527ms)
+✔ an unknown hemisphere value renders as northern (0.27522ms)
+✔ the whole cycle renders without throwing and never widens the disc (10.568543ms)
+✔ KI-5 pin: disc glyph set matches the documented East Asian Width partition (21.29035ms)
+ℹ tests 135
+ℹ suites 0
+ℹ pass 134
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2063.167277
+
+✖ failing tests:
+
+test at test/regressions.test.js:351:1
+✖ T-134 — README north/south sweep table rows are self-consistent and reproducible (27.997487ms)
+  AssertionError [ERR_ASSERTION]: no illumination in the 44% row's own rounding band [0.43, 0.45] renders both that exact percent and that exact north disc through renderLine: "◖█▒░░  44%  last quarter      ░░▒█◗  44%  last quarter"
+      at TestContext.<anonymous> (/opt/targets/moon/test/regressions.test.js:401:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+--- table as written ---
+    0 ''
+    1 'north                          south'
+    2 '░░░░▕   3%  waxing crescent   ▏░░░░   3%  waxing crescent'
+    3 '░░░░▐  14%  waxing crescent   ▌░░░░  14%  waxing crescent'
+    4 '░░░▓◗  32%  waxing crescent   ◖▓░░░  32%  waxing crescent'
+    5 '░░▓█◗  51%  first quarter     ◖█▓░░  51%  first quarter'
+    6 '░▒██◗  69%  waxing gibbous    ◖██▒░  69%  waxing gibbous'
+    7 '▕███◗  85%  waxing gibbous    ◖███▏  85%  waxing gibbous'
+    8 '▐███◗  96%  waxing gibbous    ◖███▌  96%  waxing gibbous'
+    9 '◖███◗ 100%  full              ◖███◗ 100%  full'
+   10 '◖███▌  96%  waning gibbous    ▐███◗  96%  waning gibbous'
+   11 '◖██▓▏  83%  waning gibbous    ▕▓██◗  83%  waning gibbous'
+   12 '◖██░░  63%  waning gibbous    ░░██◗  63%  waning gibbous'
+   13 '◖█▒░░  44%  last quarter      ░░▒█◗  44%  last quarter'
+   14 '◖▒░░░  19%  waning crescent   ░░░▒◗  19%  waning crescent'
+   15 '▌░░░░   5%  waning crescent   ░░░░▐   5%  waning crescent'
+   16 '░░░░░   0%  new               ░░░░░   0%  new'
+   17 ''
+
+X2  honest  (conductor-only)   row 12 <- shipping renderer @ 2026-08-06T14:15:00Z
+   new row: '◖█▒░░  44%  last quarter      ░░▒█◗  44%  last quarter'
+   -> pass 134 fail 1 duration_ms 2063.167277  expected GREEN  *** GATE FAIL ***
+   failing test: T-134 — README north/south sweep table rows are self-consistent and reproducible
+   failing test: T-134 — README north/south sweep table rows are self-consistent and reproducible
+   README restored: clean
+
+M1  mutant  (acceptance)       row 4 name retyped -> "waxing gibbous"
+   new row: '░░▓█◗  51%  waxing gibbous    ◖█▓░░  51%  waxing gibbous'
+   -> pass 134 fail 1 duration_ms 2030.171943  expected RED  PASS
+   failing test: T-135/T-136 — every sweep-table row is a
+   failing test: T-135/T-136 — every sweep-table row is a
+   README restored: clean
+
+M2  mutant  (acceptance)       row 11 name retyped -> "waning crescent"
+   new row: '◖██░░  63%  waning crescent   ░░██◗  63%  waning crescent'
+   -> pass 134 fail 1 duration_ms 2040.461438  expected RED  PASS
+   failing test: T-135/T-136 — every sweep-table row is a
+   failing test: T-135/T-136 — every sweep-table row is a
+   README restored: clean
+
+M3  mutant  (acceptance)       row 5 name retyped -> "first quarter"
+   new row: '░▒██◗  69%  first quarter     ◖██▒░  69%  first quarter'
+   -> pass 134 fail 1 duration_ms 2084.600785  expected RED  PASS
+   failing test: T-135/T-136 — every sweep-table row is a
+   failing test: T-135/T-136 — every sweep-table row is a
+   README restored: clean
+
+M4  mutant  (conductor-only)   row 3 name retyped -> "first quarter"
+   new row: '░░░▓◗  32%  first quarter     ◖▓░░░  32%  first quarter'
+   -> pass 134 fail 1 duration_ms 1973.296527  expected RED  PASS
+   failing test: T-135/T-136 — every sweep-table row is a
+   failing test: T-135/T-136 — every sweep-table row is a
+   README restored: clean
+
+M5  mutant  (conductor-only)   row 11 name retyped -> "last quarter"
+   new row: '◖██░░  63%  last quarter      ░░██◗  63%  last quarter'
+   -> pass 133 fail 2 duration_ms 1999.078373  expected RED  PASS
+   failing test: T-134 — README north/south sweep table rows are self-consistent and reproducible
+   failing test: T-135/T-136 — every sweep-table row is a
+   failing test: T-134 — README north/south sweep table rows are self-consistent and reproducible
+   README restored: clean
+
+CONTROL (after all cases): pass 135 fail 0 duration_ms 1950.374546
+
+=== SUMMARY ===
+  H1  honest  (acceptance)       PASS
+  H2  honest  (acceptance)       PASS
+  X1  honest  (conductor-only)   *** GATE FAIL ***
+  X2  honest  (conductor-only)   *** GATE FAIL ***
+  M1  mutant  (acceptance)       PASS
+  M2  mutant  (acceptance)       PASS
+  M3  mutant  (acceptance)       PASS
+  M4  mutant  (conductor-only)   PASS
+  M5  mutant  (conductor-only)   PASS
+OVERALL: GATE FAILED
