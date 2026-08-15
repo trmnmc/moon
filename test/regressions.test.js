@@ -467,9 +467,9 @@ test('T-134 — README north/south sweep table rows are self-consistent and repr
 //
 // The tempting fix, widen the sweep, DOES NOT WORK: the reachable-pair set keeps growing
 // with the search window and never stops. Measured against this file's own
-// buildReachableSet, sweeping from the same REACHABILITY_SWEEP_START_MS (all counts
-// verified against the code as committed here — see the measurement commands in
-// .swarm/runs/c41-measure.js and this comment's own trailer):
+// buildReachableSet, sweeping from the same REACHABILITY_SWEEP_START_MS (first three
+// rows reproducible with .swarm/runs/c41-measure.js; 5m/30y and 1m/10y rows carried
+// from cycle-40, reproducible with `node .swarm/runs/c41-gate-measure.js long`):
 //
 //   step   span     computeMoon calls   distinct pairs
 //   15m    35d            3,361              208
@@ -526,7 +526,8 @@ test('T-134 — README north/south sweep table rows are self-consistent and repr
 // would imply; the escalation window was deliberately kept at 400 days (not 30y or 10y)
 // so that even the RED path stays a fraction of a second. Exact numbers for the code as
 // committed are in this file's companion return; re-run .swarm/runs/c41-measure.js
-// against HEAD to reproduce the reachable-set side of them.
+// (first three rows) or `node .swarm/runs/c41-gate-measure.js long` (last two) against
+// HEAD to reproduce the reachable-set side of them.
 const REACHABILITY_SWEEP_START_MS = Date.UTC(2026, 0, 1) // fixed instant, never Date.now()
 const REACHABILITY_STEP_MS = 15 * 60 * 1000 // 15 minutes
 const REACHABILITY_SPAN_MS = 35 * 24 * 60 * 60 * 1000 // > one synodic month — cheap, common-case sweep

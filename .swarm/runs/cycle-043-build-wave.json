@@ -1,0 +1,47 @@
+{
+  "cycle": 43,
+  "type": "build-wave",
+  "dispatch": "direct Agent call (Workflow is review-gated in a headless -p session; k=1 so no worktree was needed and none was created — the file scope is a single file and the conductor is the only other writer)",
+  "k_effective": 1,
+  "k_basis": "min(k_current=5, gear-1 cap=1, hard max 5) = 1",
+  "items": [
+    {
+      "id": "T-137",
+      "kind": "docs",
+      "effort": "S",
+      "priority": 5,
+      "model": "haiku",
+      "model_basis": "backlog routing said haiku; gear 1 demote=true cannot lower it further (docs/polish floor is haiku), so recomputed at pick time to the same rung",
+      "files_hint": ["test/regressions.test.js"],
+      "craft": null,
+      "craft_basis": "not UI: no .html/.css/.jsx/.tsx/.vue/.svelte path and no UI surface named in the title. craft pack ran clean (degraded: [])",
+      "claim": "edited two comment sentences in test/regressions.test.js; no code, no numbers",
+      "returned_edits": [
+        {
+          "lines": "469-471",
+          "before": "// buildReachableSet, sweeping from the same REACHABILITY_SWEEP_START_MS (all counts\n// verified against the code as committed here — see the measurement commands in\n// .swarm/runs/c41-measure.js and this comment's own trailer):",
+          "after": "// buildReachableSet, sweeping from the same REACHABILITY_SWEEP_START_MS (first three\n// rows reproducible with .swarm/runs/c41-measure.js; 5m/30y and 1m/10y rows carried\n// from cycle-40, reproducible with `node .swarm/runs/c41-gate-measure.js long`):"
+        },
+        {
+          "lines": "527-530",
+          "before": "// committed are in this file's companion return; re-run .swarm/runs/c41-measure.js\n// against HEAD to reproduce the reachable-set side of them.",
+          "after": "// committed are in this file's companion return; re-run .swarm/runs/c41-measure.js\n// (first three rows) or `node .swarm/runs/c41-gate-measure.js long` (last two) against\n// HEAD to reproduce the reachable-set side of them."
+        }
+      ]
+    }
+  ],
+  "gate": {
+    "verdict": "PASS",
+    "evidence_file": ".swarm/runs/cycle-043-verify-T-137.txt",
+    "checks": [
+      "diff scope: 1 file, +5/-4, all comment lines",
+      "code identity: full-line // comments stripped, HEAD == working tree at 15,339 bytes; all 5 table rows byte-identical",
+      "discriminator: ran BOTH cited commands — c41-measure.js reproduces rows 1-3 (3361/208, 38401/212, 86401/212) and emits no 30y/10y config at all; `c41-gate-measure.js long` reproduces rows 4-5 (3153601/213, 5256001/212)",
+      "suite: node --test test/*.test.js -> 135/135 pass, 0 fail, 0 skipped",
+      "not applicable, not skipped: collision-scan (no browser surface), qa-verify look pass (no user-visible merged file)"
+    ],
+    "note": "Every number in the table was already correct. The defect was provenance only: a true table with a false claim about how it was obtained, plus a pointer that could not reproduce two of its rows."
+  },
+  "reverted": [],
+  "wave_autotune": "clean wave (0 reverts, 0 failed verifies) -> wave_streak 0 -> 1; bump fires at 2, so k_current stays 5 (moot under the gear-1 cap of 1 either way)"
+}

@@ -1,0 +1,125 @@
+cycle 43 — T-137 verification gate, full conductor-run output
+==============================================================
+Item: T-137 (docs, S, priority 5) — the T-136 comment claimed all five sweep-table counts
+were "verified against the code as committed here" and pointed at .swarm/runs/c41-measure.js;
+two of the five rows were carried from the cycle-40 table and that script cannot produce them.
+
+Three checks, all authored at verification time, all wider than the acceptance.
+The builder was told none of them.
+
+--------------------------------------------------------------------------------
+CHECK 1 — DIFF SCOPE. Acceptance asked for a wording change; this asserts the change is
+ONLY wording, mechanically, rather than by reading the diff.
+--------------------------------------------------------------------------------
+
+$ git -C /opt/targets/moon diff --stat
+ test/regressions.test.js | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+$ node /opt/swarm/runs/c43-code-identity.js
+HEAD  lines: 585  code-only lines: 347
+WORK  lines: 586  code-only lines: 347
+code-only bytes  HEAD=15339  WORK=15339
+CODE IDENTICAL: yes  -> edit is comment-prose only
+table rows HEAD=5 WORK=5  identical=true
+   15m    35d            3,361              208
+   15m   400d           38,401              212
+   10m   600d           86,401              212
+   5m    30y        3,153,601              213
+   1m    10y        5,256,001              212
+
+Both axes hold: with every full-line // comment stripped, HEAD and the working tree are
+byte-identical (15,339 bytes each), and the five table rows are unchanged. No number moved.
+
+--------------------------------------------------------------------------------
+CHECK 2 — THE DISCRIMINATOR. The old comment made an UNCHECKABLE claim ("verified against
+the code as committed"). The new comment makes a CHECKABLE one: it names a command per row
+group. So the gate runs both commands and compares against the table. This is the check
+that separates "the wording was changed" from "the wording is now true".
+--------------------------------------------------------------------------------
+
+$ node /opt/targets/moon/.swarm/runs/c41-measure.js
+=== 15m/35d (current cheap) : 3361 calls, 69ms, 208 distinct pairs ===
+=== 15m/400d : 38401 calls, 490ms, 212 distinct pairs ===
+=== 10m/600d : 86401 calls, 992ms, 212 distinct pairs ===
+=== 5m/250d : 72001 calls, 812ms, 212 distinct pairs ===
+=== 5m/400d : 115201 calls, 1281ms, 212 distinct pairs ===
+
+    table row 1   15m/35d    3,361 calls   208 pairs   -> script says 3361 / 208   MATCH
+    table row 2   15m/400d  38,401 calls   212 pairs   -> script says 38401 / 212  MATCH
+    table row 3   10m/600d  86,401 calls   212 pairs   -> script says 86401 / 212  MATCH
+    5m/30y and 1m/10y: NOT EMITTED by this script, in any form.
+
+$ node /opt/targets/moon/.swarm/runs/c41-gate-measure.js long
+=== 5m/30y: 3153601 calls, 213 distinct pairs, 36405ms ===
+  REACHABLE   "first quarter| 44%"  first at 2026-02-24T00:30:00.000Z
+  REACHABLE   "waxing gibbous| 55%"  first at 2026-05-23T23:15:00.000Z
+  REACHABLE   "last quarter| 56%"  first at 2026-07-07T07:30:00.000Z
+  REACHABLE   "last quarter| 44%"  first at 2026-08-06T14:15:00.000Z
+  unreachable "waxing gibbous| 51%"
+  unreachable "waning crescent| 63%"
+  unreachable "first quarter| 69%"
+  unreachable "first quarter| 32%"
+  unreachable "last quarter| 63%"
+
+=== 1m/10y: 5256001 calls, 212 distinct pairs, 58540ms ===
+  REACHABLE   "first quarter| 44%"  first at 2026-02-24T00:28:00.000Z
+  REACHABLE   "waxing gibbous| 55%"  first at 2026-05-23T23:11:00.000Z
+  REACHABLE   "last quarter| 56%"  first at 2026-07-07T07:29:00.000Z
+  REACHABLE   "last quarter| 44%"  first at 2026-08-06T14:11:00.000Z
+  unreachable "waxing gibbous| 51%"
+  unreachable "waning crescent| 63%"
+  unreachable "first quarter| 69%"
+  unreachable "first quarter| 32%"
+  unreachable "last quarter| 63%"
+
+    table row 4   5m/30y   3,153,601 calls  213 pairs  -> script says 3153601 / 213  MATCH
+    table row 5   1m/10y   5,256,001 calls  212 pairs  -> script says 5256001 / 212  MATCH
+    the "(213th pair still absent)" annotation on row 5 also holds: 212 < 213.
+
+So the NEW attribution is true on both halves, and the two commands together reproduce
+all five rows. The OLD attribution was false on exactly the two rows T-137 named:
+c41-measure.js has no 30-year and no 10-year config (its five configs are 15m/35d,
+15m/400d, 10m/600d, 5m/250d, 5m/400d), so a reader following the old pointer would have
+reproduced three rows and been stranded on two.
+
+CORROBORATION not asked for by the item, recorded because it strengthens the block:
+the 1m/10y first-reachable instants 2026-02-24T00:28:00Z and 2026-05-23T23:11:00Z are
+byte-identical to the H1/H2 instants the same comment cites ~15 lines further down as the
+two honest cases that forced the escalation fix. Two independently-written parts of the
+comment agree, measured rather than assumed.
+
+FINDING WORTH STATING PLAINLY: every number in the table was CORRECT. The defect was
+purely provenance — a true table with a false claim about how it was obtained and a
+pointer that could not reproduce two of its rows. The fix therefore had to change no
+number, and did not.
+
+--------------------------------------------------------------------------------
+CHECK 3 — SUITE. Comment-only edits cannot change behavior; this proves it rather than
+assuming it, and pins the test count against silent loss.
+--------------------------------------------------------------------------------
+
+$ node --test /opt/targets/moon/test/*.test.js
+ℹ tests 135
+ℹ suites 0
+ℹ pass 135
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2057.871052
+
+135/135, identical to the cycle-42 count. No test gained, lost, or skipped — correct for
+a comment-only change, and the absence of a new test is the intended outcome here, not a
+gap: the run's taste note is that the risk is churn.
+
+--------------------------------------------------------------------------------
+NOT RUN, and why — reported as not-run, never as passed.
+--------------------------------------------------------------------------------
+- collision-scan.mjs: gate check 6 scopes it to browser targets built from classic
+  non-module scripts. moon is a zero-dependency Node CLI with no browser surface.
+- qa-verify look pass: step 5 triggers it only when a merged file is user-visible
+  (html/css/client-js/template/static asset). The single merged file is
+  test/regressions.test.js. Neither check is applicable; neither was skipped for time.
+
+GATE VERDICT: PASS. T-137 -> done.
