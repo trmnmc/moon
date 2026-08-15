@@ -1668,3 +1668,156 @@ runfile-mirror:
 ```json
 {"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786760094,"next_wakeup_at":1786760184,"pid":198281,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786760000,"last_real_probe_ts":0,"probe_failures":31,"probe_note":"cycle 31: bin/swarm-budget.sh REFUSED a 31st time (bare-relative form; the absolute-path and PROBE_CMD=false forms were both re-measured as refused at cycle 30 and were not re-attempted). last_real_probe_ts stays 0 -- a refused invocation is not a probe -- so ratio, tokens/hour and projected depletion remain UNKNOWN and are never estimated. NEW KI-2 EVIDENCE THIS CYCLE, and it narrows the diagnosis rather than widening it: `bin/swarm-notify.sh poll` SUCCEEDED, invoked bare-relative with cwd=/opt/swarm. That is a clean positive confirmation of the cycle-23 root cause -- the allowlist carries notify.sh in its relative and macOS-absolute forms but no /opt absolute form, and carries no swarm-budget.sh entry in any form -- and it contradicts the cycle-21 note that read the gap as covering every bin/*.sh entry point. Fix is still two allow entries at the next kickoff; settings.json is read-only mid-run per hard rule 5. Gear rests on runs/allocator.json (source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, reserve 35.7, opus_used_pct=96, weekly_used_pct 73, week_elapsed_pct 69.61, dial 0.3. weekly_heat 1.049 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.379 > 1.2 keeps promote blocked. Binding for thirty-one straight cycles: allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the remainder of the run.","weekly":{"ok":true,"weekly_used_pct":73,"opus_used_pct":96,"week_elapsed_pct":69.61,"weekly_heat":1.049,"opus_heat":1.379,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":5,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 32 | 2026-08-15T02:42:36+00:00 | moon | VALUE_LOOP
+work: VALUE_LOOP candidate scan (cycle 30's standing rule: a DONE declaration needs a scan
+  that comes back EMPTY), then build-wave [T-129] k=1 at sonnet. Two probes were rejected and
+  BOTH were rejected by measurement that I built expecting to CONFIRM a defect:
+  (a) ILLUMINATION-IS-REAL. REPORT.md:36 carries the VERIFIED row "Illumination is true
+      elongation, not faked from age -- at Meeus 48.a the module gives 0.6801 (book 0.6786);
+      an age-derived fake gives 0.6475. Conclusive discriminator." Those figures appear in NO
+      test. And the suite's illumination assertions are all INTERNAL-consistency checks
+      (k=(1+cos i)/2 vs phaseAngle; ~0 at computed new moons; 0.5 at quarters), every one of
+      which a COHERENT fake also satisfies, because if the elongation itself is faked then all
+      three outputs agree with each other. So I built that fake rather than arguing it
+      (.swarm/runs/cycle-032-illum-mutants.py): mutant A faked illumination alone, mutant B
+      faked elongationDeg so phaseAngle, cycleFraction and illumination were consistent
+      together. BOTH DIED -- 5 real failing tests each, no crashes. The surface is protected
+      and my reasoning about it was wrong. Rejected as churn.
+  (b) A CLAIMED DOC ERROR THAT WAS MY OWN FRAME SLIP. The same probe printed 0.6802 at
+      Meeus 48.a where both README and REPORT say 0.6801 -- which would have made it a
+      fabricated figure of exactly the kind this run has removed nine times. It is not.
+      Meeus 48.a is 1992 April 12.0 TD and computeMoon takes UT; correcting for DeltaT
+      (~58.3 s in 1992) gives 0.68013613 -> 0.6801, matching both documents exactly, while my
+      naive Date.UTC probe's 0.68021027 -> 0.6802 was the artifact. This is cycle 29's lesson
+      recurring verbatim on a different figure. Had I filed it, a builder would have been
+      dispatched to "correct" a correct number in the one table whose preamble claims
+      conductor verification.
+  (c) THE HIT -- REPORT.md:35, "Correction tables are correctly transcribed | Independent
+      audit reproduced Meeus worked examples 49.a and 49.b to 0.23s and 0.34s". That audit
+      ran once, by hand, at v0.1.0; grep over test/ for 49.a / 49.b / 0.23 / 0.34 /
+      "worked example" returns ZERO hits. src/astro.js truePhaseJD carries ~65 hand-transcribed
+      coefficients (25-term new/full table, 25-term quarter table, 6-term W, 14-entry A1-A14).
+      Priced by mutation with plausible TRANSCRIPTION errors -- dropped digit, transposed
+      digits, sign flip, because transcription is the exact failure mode the row claims was
+      audited: 5 OF 7 MUTANTS PASSED ALL 119 TESTS, shifting real instants by up to 72.5 s
+      (full moons) and 46.7 s (quarter instants). The only test catching anything was the
+      statistical lunation-length assertion from T-123/T-124, and only for large perturbations.
+  RATCHET: passes both questions. Q1 the audience is "the next person to change this code",
+  and today someone re-typing a coefficient gets a green suite while shipping moon times
+  wrong by over a minute -- against a product whose whole pitch is that a wrong answer is
+  worse than no answer. Q2 it is a standing gate on the correctness core, not a cleanup.
+workflow: DIRECT Agent call, working tree, no branch (Workflow is review-gated in a headless
+  -p session -- the documented failure-table fallback). model: sonnet. kind fix / effort S
+  routes to sonnet by the table; attempts 0 so the ladder offered no escalation; gear 1's
+  demotion rung never drops build/fix below sonnet. craft pack ran clean, degraded []. NOT
+  craft:"ui" -- files_hint is test/astro.test.js, no UI surface.
+gear: 1 | allocator trickle (allow_premium_pct 0, allow_overall_pct 0, dial 0.30), guest mode
+  clamps 1-3 | k_cap 1 | effective wave = min(k_current 5, gear cap 1, hard max 5) = 1 |
+  probe: bin/swarm-budget.sh REFUSED a 32nd time, re-measured in BOTH the compound form and
+  the bare-relative form with cwd=/opt/swarm. rho, tokens/hour and projected depletion stay
+  UNKNOWN and are never estimated; last_real_probe_ts stays 0 because a refused invocation is
+  not a probe. `bin/swarm-notify.sh poll` SUCCEEDED again -- a second consecutive positive
+  confirmation of the cycle-23 root cause (allowlist carries notify.sh relative +
+  macOS-absolute, no /opt form, and no swarm-budget.sh entry in any form). Gear rests on
+  runs/allocator.json (source=probe): weekly_used_pct 74.0, week_elapsed_pct 69.85 ->
+  weekly_heat 1.059 < 1.1, governor disengaged, ceiling 5; opus_used_pct 96 -> opus_heat
+  1.374 > 1.2, promote stays blocked. week_resets_at 1786942800 is after stop_at 1786807947,
+  so gear 1 is structural for the rest of the run.
+control: poll ok; runs/control.json pending [] and inject [] -- nothing to apply, nothing to
+  triage, no control-ack push warranted.
+re-anchor: cycle 32, 32 % 5 != 0, so no full SPEC re-read or backlog hygiene pass (cycle 30
+  did both; backlog is 31 items, at the ~30 live cap -- 28 of them done).
+
+VERIFICATION EVIDENCE (T-129) -- full output .swarm/runs/cycle-032-ch49-mutants.py,
+  -gate-controls.py, -quarter-reach.py
+
+      === C3 TRANSCRIPTION BATTERY (7 mutants, authored BEFORE dispatch, never shown
+          to the builder) ===                          pre-merge -> post-merge
+      M1 new/full 8th term, dropped digit .0011->.00011  DIES     -> DIES
+      M2 new/full M+2F term, sign flip ................  SURVIVES -> DIES  (72.5s shift)
+      M3 A1 transposed 0.000325 -> 0.000352 ...........  SURVIVES -> DIES  ( 1.3s shift)
+      M4 quarter 3rd term transposed .0118->.01138 ....  SURVIVES -> DIES  (37.1s shift)
+      M5 W constant transposed 0.00306 -> 0.00360 .....  SURVIVES -> DIES  (46.7s shift)
+      M6 CONTROL largest term 0.40720 -> 0.40270 ......  DIES     -> DIES
+      M7 A14 dropped entirely 0.000023 -> 0 ...........  SURVIVES -> DIES  ( 2.0s shift)
+      In all 7 post-merge runs the NAMED killer is the new T-129 test.
+      === C5 FALSE-POSITIVE CONTROL (must stay GREEN) ===
+      R1 0.00111 -> 0.001110 | R2 0.000325 -> 3.25e-4 | R3 0.00306 -> 0.0030600
+      value-identity checked BY NODE, not by my reading: all three IDENTICAL. 120/120 GREEN x3
+      === C7 AMBIENT TZ (must stay GREEN) === UTC, Asia/Tokyo, Pacific/Auckland,
+      America/St_Johns -> 120/120 green in all four
+      === C1 SCOPE === src/, bin/, package.json, README.md, REPORT.md byte-identical to HEAD;
+      only test/astro.test.js changed (+98). src/astro.js sha256 identical pre/post battery.
+      === C8 CROSS-ENGINE === CI run 31859738378, GitHub's runners:
+      `ok 50 - T-129: ch.49 correction-table characterization pins` + `# tests 120 / # pass 120
+      / # fail 0` on Node 20 AND Node 22, vs local Node 24.
+
+  C8 IS THE CHECK THAT DECIDED THE ITEM, and it is the one the builder could not self-certify.
+  The pin asserts an EXACT millisecond reached through Math.sin/Math.cos, which ECMA-262
+  leaves IMPLEMENTATION-APPROXIMATED -- so cross-engine bit-identity is an empirical property
+  of V8, not a guarantee of the arithmetic. An ms-exact pin that drifted between engines would
+  not be a gate, it would be a flaky tripwire for the declared audience. Settled empirically
+  on cycle 21's precedent (verify a workflow by RUNNING it): three V8 versions across two
+  machines produce identical pins. The builder's comment nonetheless attributes that stability
+  to IEEE-754 arithmetic rather than to the measurement -- one notch stronger than the spec
+  allows. Filed as T-130 rather than used to fail an item whose acceptance passed in full, and
+  NOT conductor-patched: cycle 7 established that a conductor editing the artifact leaves
+  nothing independent checking the conductor's own wording. Same disposition as T-111/T-116.
+  READ HONESTLY: what T-129 pins is that the tables cannot CHANGE silently, NOT that they are
+  astronomically right -- that remains the job of the memory-sourced anchors (2000-01-06, the
+  two eclipse dates), which it deliberately does not duplicate. A wrong coefficient already in
+  the tree would be pinned exactly as faithfully as a right one. The builder's own comment says
+  so, in those terms, which is why the comment passed the gate.
+
+  TWO OF MY OWN INSTRUMENTS WERE DEAD ON ARRIVAL and both were caught by controls, not by
+  inspection. (1) The battery's parser matched TAP ('# pass', 'not ok'); node:test's default
+  reporter emits 'ℹ pass 119' and marks failures '✖'. It reported ZERO counts on a GREEN
+  baseline -- I nearly accepted "DIES" without knowing what died, which for a crashing mutant
+  would have been a false rejection of a real candidate. (2) The quarter-reach probe bisected
+  the isInstantPhase predicate directly, which assumes ONE false->true crossing; isInstantPhase
+  is a +/-0.5 d PLATEAU recurring once per lunation, so bisection walked to the window end and
+  returned 0.0 s for EVERY mutant -- including a control that provably moves. Rebuilt as
+  bracket-then-bisect it reports 37.1 s and 46.7 s. SIXTH and SEVENTH instance this run of my
+  instrument being narrower than the thing it measures (cycles 8, 9, 19, 23, 29). The defense
+  that actually worked, now standing practice: every battery carries a control whose answer I
+  already know, and a measurement returning the null result for its control is reported BROKEN,
+  never clean. A third instance landed in step 8 the same way -- the dashboard alloc-tile
+  anchor matched zero live nodes because the tile I had "found" was inside the template legend
+  comment; sub()'s assert refused to render blind, which is that guard working as designed.
+  collision-scan: NOT RUN, and not applicable -- the standing browser-target gate keys on
+  classic non-module scripts served to a browser; moon is a stdout Node CLI with no
+  html/css/client-js/template/static asset anywhere in the repo. Reported as not-run, never
+  as passed. qa-verify look pass: same reason, not dispatched.
+
+gate: T-129 PASS -> done. Zero merges (working tree, no branch), zero reverts, zero failed
+  verifies.
+wave autotune: clean k=1 wave -> wave_streak 0 -> 1. k_current stays 5 (already hard max);
+  gear 1 caps the effective wave at 1 regardless, so this changes nothing operationally.
+DONE-declaration check: NOT yet, and the trend from cycle 31 CONTINUED rather than reversed.
+  The definition of done is met (cycle 23 verified 8/8 SPEC clauses) and the suite is green,
+  but cycle 30's rule requires a scan that comes back EMPTY and this one again returned a
+  ratchet-passing candidate. The cost signal is now two cycles old and pointing the same way:
+  cycle 30 found its hit on the first probe, cycle 31 needed four, cycle 32 needed three. The
+  hit rate is falling but the hits are not small -- T-129 closed an unprotected surface on the
+  correctness core, which is the most valuable find since T-123. Standing requirement carries
+  to cycle 33: if that scan comes back empty, DONE is the correct call.
+known-issues: unchanged (KI-2 medium, KI-4 low, KI-5 medium, KI-7 low, KI-8 low). KI-2 gained
+  a second consecutive notify.sh positive confirmation, recorded under `gear` above.
+backlog: 31 items -- 28 done, 3 todo, 0 blocked. The three survivors (T-116 British spellings;
+  T-126 a drift note citing a comment line; T-130 filed this cycle) are all ratchet-rejected
+  and stay `todo` rather than `dropped`, on the cycle-21 reasoning: a human may still want
+  them, and an empty queue is not an argument for building what the ratchet refuses.
+next wakeup: 1786761846 = 2026-08-15T02:44:06+00:00 (+90s base; a verified-value cycle takes
+  the base delay, and the VPS pacer -- not ScheduleWakeup -- is what fires it). No resync was
+  needed: runs/cycle-032-dash.py stamps GEN at render time and DERIVES the wakeup from it,
+  then writes that single value into the runfile, the .bak and both dashboard staleness slots
+  in one pass. Clamp checked: 1786761846 + 900 <= stop_at 1786807947.
+  dashboard-check.py: PASS. Notifications: none emitted -- phase unchanged (VALUE_LOOP ->
+  VALUE_LOOP), no target stalled, publish_failures still 0. Artifact publish not attempted:
+  the Artifact tool does not exist in a headless -p session, which step 8 calls a silent skip
+  and not a publish failure; on the VPS the local file write IS the publication.
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786761756,"next_wakeup_at":1786761846,"pid":206071,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786761756,"last_real_probe_ts":0,"probe_failures":32,"probe_note":"cycle 32: bin/swarm-budget.sh REFUSED a 32nd time, re-measured in BOTH the compound form (RUNFILE=... prefix) and the bare-relative form with cwd=/opt/swarm. last_real_probe_ts stays 0 -- a refused invocation is not a probe -- so ratio, tokens/hour and projected depletion remain UNKNOWN and are never estimated. `bin/swarm-notify.sh poll` SUCCEEDED again this cycle in the bare-relative form, a SECOND consecutive positive confirmation of the cycle-23 root cause: the allowlist carries notify.sh relative and macOS-absolute but no /opt absolute form, and carries no swarm-budget.sh entry in any form. Fix is two allow entries at the next kickoff; settings.json is read-only mid-run per hard rule 5. Gear rests on runs/allocator.json (source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct 74.0, week_elapsed_pct 69.85, dial 0.3. weekly_heat 1.059 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.374 > 1.2 keeps promote blocked. Binding for thirty-two straight cycles: allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942800 is after stop_at 1786807947, so gear 1 is structural for the remainder of the run.","weekly":{"ok":true,"weekly_used_pct":74.0,"opus_used_pct":96,"week_elapsed_pct":69.85,"weekly_heat":1.059,"opus_heat":1.374,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":6,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

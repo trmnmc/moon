@@ -3,7 +3,7 @@
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
  "phase": "VALUE_LOOP",
- "cycle": 31,
+ "cycle": 32,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -21,7 +21,7 @@
   {
    "cycle": 0,
    "what": "port a documented Meeus/Duffett-Smith algorithm into zero-dep Node rather than fork prior art",
-   "why": "prior-art scout returned stance `extend` \u2014 the phoon lineage (Poskanzer -> moontool -> wwn-phoon-rs) is grep-verified to do real phase math offline, so re-deriving the core would be wasted work. But the cleanest candidate is Rust, which conflicts with the user's explicit node/npx/zero-install choice \u2014 and npx distribution is itself one of the three things NO prior art does. Resolution: honor `extend` in substance by porting a published algorithm and using tidecal (MIT, Meeus ch.47 in JS) as reference and wwn-phoon-rs as a cross-check oracle, while keeping the Node surface."
+   "why": "prior-art scout returned stance `extend` — the phoon lineage (Poskanzer -> moontool -> wwn-phoon-rs) is grep-verified to do real phase math offline, so re-deriving the core would be wasted work. But the cleanest candidate is Rust, which conflicts with the user's explicit node/npx/zero-install choice — and npx distribution is itself one of the three things NO prior art does. Resolution: honor `extend` in substance by porting a published algorithm and using tidecal (MIT, Meeus ch.47 in JS) as reference and wwn-phoon-rs as a cross-check oracle, while keeping the Node surface."
   },
   {
    "cycle": 0,
@@ -190,23 +190,23 @@
   },
   {
    "cycle": 19,
-   "what": "T-113 passed, and the fix was accepted in the framing that NAMES 0.88 at all three sites rather than a hedge like \u201cnearly full\u201d",
-   "why": "The run\u2019s standing docs frame rule (cycles 2 and 4) says a quantity may appear only in the frame the repo already computes it in, and 0.88 is not a derived figure \u2014 it is the literal in `else if (cover < 0.88) out += HALF`, one line below the comment being fixed. A hedge would have been the safer-looking choice and the worse one: it would have replaced an incomplete claim with a vague one, and this defect family is precisely prose drifting away from the branch it describes. The builder also wrote the raw fraction, not a percentage, which is the source\u2019s own frame; \u201c88%\u201d would have been a re-expression the repo never computes."
+   "what": "T-113 passed, and the fix was accepted in the framing that NAMES 0.88 at all three sites rather than a hedge like “nearly full”",
+   "why": "The run’s standing docs frame rule (cycles 2 and 4) says a quantity may appear only in the frame the repo already computes it in, and 0.88 is not a derived figure — it is the literal in `else if (cover < 0.88) out += HALF`, one line below the comment being fixed. A hedge would have been the safer-looking choice and the worse one: it would have replaced an incomplete claim with a vague one, and this defect family is precisely prose drifting away from the branch it describes. The builder also wrote the raw fraction, not a percentage, which is the source’s own frame; “88%” would have been a re-expression the repo never computes."
   },
   {
    "cycle": 19,
-   "what": "the gate\u2019s central check was an INSTRUMENTED SWEEP of the real branch, not a reading of the source \u2014 and it is what upgraded the item from \u2018true by inspection\u2019 to \u2018true by measurement\u2019",
-   "why": "Reading `else if (cover < 0.88) HALF; else ROUND_LIMB` proves the fix is consistent with the source, but it does NOT prove the disc ever actually reaches that branch below full lit \u2014 if cover only ever hit 1.0 in practice, the old prose would have been complete after all and this item would have been churn. So renderLine was driven over a 20,000-step synodic sweep in both hemispheres against an instrumented COPY of render.js (repo source untouched): 2,924 of 33,192 round-limb draws land at cover<1.0, least-lit 0.887324. The sweep also checked the converse, which a one-directional check would have missed: outer cells with cover>=0.88 number EXACTLY 33,192, the same as the round-limb draws, so \u20180.88\u2019 is the precise condition and not merely a sufficient one. Generalizable: a comment describing a branch is verifiable by instrumenting the branch and counting which side of it real inputs land on."
+   "what": "the gate’s central check was an INSTRUMENTED SWEEP of the real branch, not a reading of the source — and it is what upgraded the item from ‘true by inspection’ to ‘true by measurement’",
+   "why": "Reading `else if (cover < 0.88) HALF; else ROUND_LIMB` proves the fix is consistent with the source, but it does NOT prove the disc ever actually reaches that branch below full lit — if cover only ever hit 1.0 in practice, the old prose would have been complete after all and this item would have been churn. So renderLine was driven over a 20,000-step synodic sweep in both hemispheres against an instrumented COPY of render.js (repo source untouched): 2,924 of 33,192 round-limb draws land at cover<1.0, least-lit 0.887324. The sweep also checked the converse, which a one-directional check would have missed: outer cells with cover>=0.88 number EXACTLY 33,192, the same as the round-limb draws, so ‘0.88’ is the precise condition and not merely a sufficient one. Generalizable: a comment describing a branch is verifiable by instrumenting the branch and counting which side of it real inputs land on."
   },
   {
    "cycle": 19,
    "what": "three gate flags (C4a, C4b, C4c) were traced to my own instrument and the instrument was repaired; each widening was paired with a strictly stronger assertion, and the normalizer was then falsified against HEAD",
-   "why": "C4a swept `git ls-files`, so it flagged .swarm/backlog.json, .swarm/journal.md and the cycle-12 evidence file \u2014 the RECORD of the defect, which must keep the phrase \u2018declines to establish\u2019 to stay legible; product scope is src/, test/, README.md, REPORT.md, where the hit count is zero. C4b/C4c matched literal strings containing spaces while the edit had reflowed both passages, so \u2018East Asian\\nWidth class\u2019 and \u2018has not\\n * been established\u2019 spanned line breaks. Both are line-wrap blindness, the same class of instrument bug as cycle 8\u2019s .trim() defect and cycle 9\u2019s sentence-scope defect \u2014 third occurrence this run, and all three were MY regexes being narrower than the prose they measured. Guarding the repair the way cycles 8 and 9 did: C4a grew a volitional-verb family so a synonym cannot pass where the literal was caught; C4d now requires the test comment to assert README\u2019s OWN predicate EXTRACTED from README rather than a string I chose, so the allowance cannot be something I invented; and C4f runs the normalized checks against HEAD and REQUIRES them to still catch the old wording \u2014 if prose() were manufacturing matches, C4f fails and the entire C4 block is void."
+   "why": "C4a swept `git ls-files`, so it flagged .swarm/backlog.json, .swarm/journal.md and the cycle-12 evidence file — the RECORD of the defect, which must keep the phrase ‘declines to establish’ to stay legible; product scope is src/, test/, README.md, REPORT.md, where the hit count is zero. C4b/C4c matched literal strings containing spaces while the edit had reflowed both passages, so ‘East Asian\\nWidth class’ and ‘has not\\n * been established’ spanned line breaks. Both are line-wrap blindness, the same class of instrument bug as cycle 8’s .trim() defect and cycle 9’s sentence-scope defect — third occurrence this run, and all three were MY regexes being narrower than the prose they measured. Guarding the repair the way cycles 8 and 9 did: C4a grew a volitional-verb family so a synonym cannot pass where the literal was caught; C4d now requires the test comment to assert README’s OWN predicate EXTRACTED from README rather than a string I chose, so the allowance cannot be something I invented; and C4f runs the normalized checks against HEAD and REQUIRES them to still catch the old wording — if prose() were manufacturing matches, C4f fails and the entire C4 block is void."
   },
   {
    "cycle": 19,
-   "what": "T-113 closes the fourth and last open instance of the \u2018module doc-comment gloss wider than the code\u2019 family (T-110, T-112, T-105, T-113); the candidate playbook lesson promoted at cycle 16 now has a complete case set for WRAP_UP distillation",
-   "why": "Cycle 16 promoted the pattern to a candidate lesson on its fourth instance and named the generalizable test as the MUTANT shape (mutate B, leave A alone; a claim that survives is decoration). T-113 adds a second, cheaper discriminator to that lesson: where the claim is about a BRANCH rather than a cross-file coupling, instrumenting the branch and counting which side real inputs land on settles it directly \u2014 here it converted \u2018the comment is narrower than the code\u2019 from an inspection into 8.8% of 33,192 draws. Both belong in the same lesson: a prose claim about code is checkable by perturbing or instrumenting the code, never by re-reading the prose."
+   "what": "T-113 closes the fourth and last open instance of the ‘module doc-comment gloss wider than the code’ family (T-110, T-112, T-105, T-113); the candidate playbook lesson promoted at cycle 16 now has a complete case set for WRAP_UP distillation",
+   "why": "Cycle 16 promoted the pattern to a candidate lesson on its fourth instance and named the generalizable test as the MUTANT shape (mutate B, leave A alone; a claim that survives is decoration). T-113 adds a second, cheaper discriminator to that lesson: where the claim is about a BRANCH rather than a cross-file coupling, instrumenting the branch and counting which side real inputs land on settles it directly — here it converted ‘the comment is narrower than the code’ from an inspection into 8.8% of 33,192 draws. Both belong in the same lesson: a prose claim about code is checkable by perturbing or instrumenting the code, never by re-reading the prose."
   },
   {
    "cycle": 21,
@@ -312,6 +312,26 @@
    "cycle": 31,
    "what": "DONE is still not declarable: the candidate scan cost three probes to find one ratchet-passing item, but it did find one",
    "why": "Cycle 30 set the standing rule that a DONE declaration needs a scan that comes back EMPTY. This scan did not. Three candidates were probed and all three came back already-closed by earlier cycles -- (a) the hemisphere table vs the IANA reference latitudes, which test/hemisphere.test.js:327 has cross-checked against /usr/share/zoneinfo since an earlier cycle (conductor re-ran it independently: 418/418 canonical zones agree, 0 reverse mismatches, 0 dead table entries, and the one north-under-a-southern-prefix case, Indian/Maldives, is correctly carved out); (b) an early-closed stdout pipe and the CLI exit-code matrix, both clean -- no EPIPE crash in any of five piped modes, and eight probed invocations exit 0/0/0/0/2/2/2/0 exactly as documented (the three 2s are unknown flag, positional argument, and a value passed to a boolean flag); (c) the next-full-moon line's year-suppression branch, already pinned in both directions by T-106 in test/regressions.test.js. The fourth probe found T-128. Hit rate is falling and that is the signal to record, but three misses is not an empty scan."
+  },
+  {
+   "cycle": 32,
+   "what": "The scan's FIRST candidate -- REPORT's 'Illumination is true elongation, not faked from age' row, whose 0.6801/0.6786/0.6475 figures appear in no test -- was PRICED BY MUTATION and rejected as churn.",
+   "why": "The hypothesis was specific and plausible: astro.test.js's illumination assertions are internal-consistency checks (k=(1+cos i)/2 against phaseAngle; ~0 at computed new moons; 0.5 at quarters), and every one of them is also satisfied by a COHERENT fake in which the elongation itself is an age-derived mean-synodic ramp, because then all three outputs agree with each other. So I built that fake rather than arguing it: mutant A faked illumination alone, mutant B faked elongationDeg itself so phaseAngle, cycleFraction and illumination were consistent together. Both died, 5 real failing tests each, no crashes -- the suite does discriminate and my reasoning about it was wrong. Rejecting on a measurement I built to CONFIRM a defect is the outcome worth recording; the SPEC names CHURN as this run's chief risk and 'a test is missing' is not the same claim as 'the surface is unprotected'. Evidence: .swarm/runs/cycle-032-illum-mutants.py."
+  },
+  {
+   "cycle": 32,
+   "what": "My own probe said README/REPORT's Meeus 48.a illumination figure (0.6801) was wrong -- it measured 0.6802. The docs are RIGHT and my measurement was the wrong one. Caught by re-measuring in the book's own frame before filing.",
+   "why": "Meeus example 48.a is 1992 April 12.0 TD, and truePhaseJD/computeMoon take UT; I probed Date.UTC(1992,3,12) directly, which is a different instant by DeltaT (~58.3 s in 1992). Correcting the frame gives 0.68013613 -> 0.6801, exactly what both documents claim, and the naive UTC probe's 0.68021027 -> 0.6802 was an artifact of my frame error. This is cycle 29's lesson recurring verbatim, on a different figure: a 'the docs are wrong' finding must be measured by the method the doc's own evidence uses before it is believed. Had I filed it, a builder would have been sent to 'correct' a correct number in the one table whose preamble claims conductor verification."
+  },
+  {
+   "cycle": 32,
+   "what": "TWO of my own scan instruments were dead on arrival this cycle, and BOTH were caught by controls rather than by inspection -- the second one only because its positive control read 0.0s.",
+   "why": "(1) The mutation battery's output parser looked for TAP ('# pass', 'not ok') while node:test's default reporter emits 'ℹ pass 119' and marks failures with '✖'. It reported zero counts on a GREEN baseline and I nearly accepted 'DIES' with no idea what died. (2) The quarter-reach probe bisected the isInstantPhase predicate directly, which assumes a single false->true crossing; isInstantPhase is a +/-0.5 d PLATEAU recurring once per lunation, so bisection walked to the window end and returned 0.0s for every mutant -- including a control that provably moves. Repaired to bracket-then-bisect, it reports 37.1 s and 46.7 s. This is the SIXTH and SEVENTH instance this run of my instrument being narrower than the thing it measures (cycles 8, 9, 19, 23, 29). The generalizable defense is the one that worked here and is now standing practice: every battery carries a control whose answer I already know, and a measurement that returns the null result for the control is reported as BROKEN, never as clean."
+  },
+  {
+   "cycle": 32,
+   "what": "T-129 accepted as CHARACTERIZATION pins rather than Meeus 49.a/49.b published-reference fixtures, and the exact-millisecond assertion was accepted only after CI proved it reproduces on other engines.",
+   "why": "The builder was offered both shapes and chose pins, correctly: the published JDE values for the worked examples are memory-sourced and would have added a second unverifiable magnitude to a repo whose whole run is about removing them, while the existing anchors already prove the tables are RIGHT to ~1 h. The gap was never correctness, it was that the tables could CHANGE silently -- 5 of 7 transcription mutants passed all 119 tests, shifting real instants up to 72.5 s. The residual risk in pins is engine-dependence: ECMA-262 leaves Math.sin/cos implementation-approximated, so an exact-ms pin could have been a flaky tripwire for the declared audience ('the next person to change this code'). Settled empirically rather than by argument, on cycle 21's precedent of verifying a workflow by running it: GitHub's runners report `ok 50 - T-129` with 120/120 on Node 20 and Node 22 against local Node 24 -- three V8 versions, two machines, identical pins. The comment's claim that this follows from IEEE-754 arithmetic is still one notch stronger than the spec allows; filed as T-130 rather than used to fail an item whose acceptance passed in full (cycle-8/T-111 disposition)."
   }
  ],
  "known_issues": [
@@ -363,14 +383,14 @@
   "consecutive_no_value": 0,
   "consecutive_failures": 0,
   "k_current": 5,
-  "wave_streak": 0,
+  "wave_streak": 1,
   "window_tokens_attributed": 0
  },
  "last_cycle": {
-  "cycle": 31,
-  "work": "VALUE_LOOP candidate scan (3 candidates rejected as already-closed) + build-wave [T-128] k=1 at sonnet",
-  "outcome": "1 verified, 119/119 green, 0 reverted, 9/9 conductor mutants behave as required",
-  "ts": "2026-08-15T02:20:00.000Z"
+  "cycle": 32,
+  "work": "VALUE_LOOP candidate scan (2 probes rejected by measurement) + build-wave [T-129] k=1 at sonnet",
+  "outcome": "1 verified, 120/120 green local + CI on Node 20/22, 0 reverted, 7/7 conductor mutants now die (5 of 7 survived pre-merge)",
+  "ts": "2026-08-15T02:45:00.000Z"
  },
  "run_label": "improvement-2026-08-14",
  "resolved_issues": [
