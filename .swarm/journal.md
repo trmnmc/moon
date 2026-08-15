@@ -1986,3 +1986,111 @@ addendum (cycle 33): commit 211691e stamped; push succeeded (762111e..211691e ma
   Burn-up: 33 bars, cumulative 28 verified / 32 backlog total (the 2-item gap is T-117 and
   T-118, committed as "live CI evidence pending" and verified the following cycle -- the
   bar title says so on the page).
+
+## cycle 34 — 2026-08-15T03:20:49Z — VALUE_LOOP — build-wave (k=1) — T-132 — GATE FAIL, reverted
+
+clock: now=1786764049, stop_at=1786807947 (12.2 h remaining). Not within 900s of stop, not limp.
+budget probe: REFUSED a 34th time (KI-2). Gear 1 / k_cap 1 from runs/allocator.json,
+  posture=trickle. See runfile probe_note for this cycle's NEW control: the notify script
+  was admitted (and failed in the SHELL, exit 127) from a DIFFERENT cwd in which the
+  budget script was still refused by the permission layer -- so the allowlist match is on
+  the command string, not the cwd and not bin/ as a directory. Fourth confirmation, first
+  with cwd varied.
+orient: tree clean at entry, 123/123 green, no salvage needed. control channel: poll OK,
+  pending[] empty, inject[] empty -- nothing to apply, nothing to triage.
+re-anchor: cycle 34 % 5 != 0, no full SPEC re-read due. Scope unchanged: harden tests,
+  close known issues, doc truth, NO new features.
+
+VALUE_LOOP CANDIDATE SCAN (a DONE declaration needs a fresh scan -- standing rule since
+cycle 30). All three carried-over todos (T-116, T-126, T-130) still fail the two-question
+ratchet and are still not built; that is the correct outcome, not a miss.
+
+  probe 1 -- COVERAGE SWEEP, REJECTED as a source of work. `node --test
+  --experimental-test-coverage` reports 123/123 green at 99.47% line / 92.26% branch, with
+  src/args.js:61-63 (toUsageError's `default:` arm) the largest uncovered block. A
+  22-case hostile-argv battery (cycle-034-probe-args.js) then proved that arm is
+  UNREACHABLE from the CLI: argv is always string[], and node:util then only ever raises
+  the three enumerated ERR_PARSE_ARGS_* codes. Writing a test for a branch no user can
+  reach is test-count-as-outcome, which this run's spec names as the thing to avoid.
+  Recorded as a rejected probe rather than quietly dropped.
+
+  probe 2 -- HIT. The same battery surfaced one case whose message read differently from
+  its siblings: `moon ""`. Confirmed end-to-end (cycle-034-probe-empty.js): exit 2, stderr
+  `moon: unexpected argument - moon takes no positional arguments; ...` -- the offending
+  token is silently DROPPED, where `moon bogus` and `moon "   "` both name theirs. Root
+  cause is one character: toUsageError recovers the token with /'([^']+)'/, and `+`
+  cannot match node:util's empty quote pair. Filed as T-132. Ratchet: Q1 yes -- an empty
+  argument is INVISIBLE on the user's command line, so this is the one input class where a
+  message that names nothing leaves them nothing to look at, and the realistic shape is
+  `moon "$MOON_OPTS"` with the variable unset, not `moon ""` typed by hand. Q2 yes -- a
+  deterministic defect in the error path against the module's own stated intent
+  ("recover it so we can name it"), not a wording preference.
+
+dispatch: k=1 at sonnet (gear 1 allows S-effort sonnet builds; a fix item is build-class
+  and never drops below sonnet -- cycle-5 precedent). Direct Agent call, not Workflow:
+  Workflow is review-gated in a headless -p session, the documented failure-table fallback.
+
+VERIFICATION EVIDENCE (gate authored at verification time; the builder saw none of it).
+Full record: .swarm/runs/cycle-034-verify-T-132.txt
+
+  G1  $ node --test test/*.test.js   (builder's change in tree)
+      tests 124 | pass 124 | fail 0          <-- GREEN, and still wrong
+
+  G2  DIFFERENTIAL EXECUTION, 42-case battery, message rendered under both regexes:
+      argv   : ["'x'"]
+        raw  : "Unexpected argument ''x''. This command does not take positional arguments"
+        OLD  : "unexpected argument 'x' - moon takes no positional arguments; ..."
+        NEW  : "unexpected argument '' - moon takes no positional arguments; ..."
+      FAIL: 1 REGRESSION -- a case that already named a token changed.   exit=1
+
+  G4  $ git checkout -- src/args.js test/args.test.js
+      $ node --test test/*.test.js
+      tests 123 | pass 123 | fail 0          <-- main restored to baseline
+
+GATE VERDICT: FAIL. T-132 -> todo, attempts 1, escalated sonnet -> opus. The builder
+shipped /'([^']+)'/ -> /'([^']*)'/ on the claim that "every other case has at least one
+character inside the quotes and matches identically either way (verified directly against
+node:util's raw messages)". That claim is FALSE and it is the claim the fix rests on:
+node:util wraps the token in ITS OWN quotes, so a token BEGINNING with an apostrophe makes
+a leading empty pair that `*` matches and `+` skipped. `moon "'x'"` regressed from naming
+`x` to naming nothing -- correct information replaced by wrong information.
+
+Why the gate could not have been a code read: the claim is about a THIRD PARTY's message
+strings, not about anything in this repo. The diff is one character and reads fine. The
+suite was green and could not have caught it -- no existing test has a token containing an
+apostrophe. Only executing node:util over a battery built around the failure mode settles
+it. Recorded as the cycle's transferable lesson.
+
+NOT shipped as net-positive, and the temptation is worth naming: `moon "$UNSET"` is an
+everyday accident, `moon "'x'"` is not. But "the common case improved more than the rare
+case regressed" is exactly the weighing hard rule 2 forbids, it is how a gate gets opened
+by weakening it, and it fails on its own terms -- the regression substitutes wrong
+information for right, and a rule correct on all 23 measured cases was already visible in
+the same measurement. There was no trade to make.
+
+WHAT THE GATE FOUND THAT THE SCAN DID NOT (G3, rule-scoring table). Measuring node:util's
+raw output for every candidate recovery rule turned up a WIDER pre-existing defect live on
+main: `moon "it's"` reports `unexpected argument 'it'` -- the token TRUNCATED at the user's
+apostrophe. Same line, same mechanism, MORE reachable than the empty case. T-132's
+acceptance is widened to the class rather than a second item filed, because the
+measurement shows any rule that names the empty token must also handle a leading
+apostrophe; the narrow instance fix is provably regressive, and attempt 1 IS that narrow
+fix. The greedy anchor /'(.*)'/ scored correct on all 23 cases -- SCORED, not verified,
+and on Node 24 only. It is handed to the retry as evidence; the retry earns its own gate.
+
+wave autotune: the wave's only change was reverted -> k_current 5 -> 4, wave_streak 0.
+  (Gear 1 caps the effective wave at 1 regardless; the counter is kept honest anyway.)
+churn breaker: consecutive_no_value 0 -> 1. Below the >=2 forced-switch threshold, so the
+  next cycle may still build; T-132 at opus is the pick, fully briefed and ready.
+persisted: state.json (cycle 34, 4 new decisions -> 71), backlog.json (T-132 widened,
+  attempts 1, model opus), this block, runfile + .bak. Evidence and both probe scripts
+  committed into .swarm/runs/ so the target repo's own commit fingerprints them.
+next wakeup: 1786764949 (now + 900, the no-value band). Clamp checked: 1786764949 + 900 <= 1786807947.
+notifications: none emitted -- phase unchanged (VALUE_LOOP), no target stalled,
+  publish_failures still 0. Artifact publish not attempted: the Artifact tool does not
+  exist in a headless -p session, which step 8 calls a silent skip and not a publish
+  failure; on the VPS the local dashboard write IS the publication.
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-2026-08-14","run_kind":"improvement","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-15T15:32:27+00:00","usage_reset_at":"2026-08-14T20:32:35+00:00","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"heartbeat":{"ts":1786764049,"next_wakeup_at":1786764949,"pid":225299,"limp":false,"degraded_tiers":[]},"budget":{"source":"allocator","gear":1,"gear_target":1,"ratio":null,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786764049,"last_real_probe_ts":0,"probe_failures":34,"probe_note":"cycle 34: bin/swarm-budget.sh REFUSED a 34th time. last_real_probe_ts stays 0 -- a refused invocation is not a probe -- so ratio, tokens/hour and projected depletion remain UNKNOWN and are never estimated. The KI-2 controlled comparison gained a NEW and stronger control this cycle: `bin/swarm-notify.sh poll` was run from cwd /opt/targets/moon (not /opt/swarm) and returned exit 127 `No such file or directory` -- a SHELL resolution failure, meaning the permission layer ADMITTED it -- while swarm-budget.sh in the identical bare-relative shape was refused by the permission layer before the shell ever saw it. Previous cycles compared the two scripts at the same cwd; this compares them across cwds and shows the allowlist match is on the command string, not on the working directory or on bin/ as a directory. Fourth consecutive positive confirmation, first with cwd varied. Gear rests on runs/allocator.json (source=probe): posture=trickle, allow_premium_pct=0, allow_overall_pct=0, opus_used_pct=96, weekly_used_pct 75.0, week_elapsed_pct 70.33, dial 0.3. weekly_heat 1.066 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.365 > 1.2 keeps promote blocked. Binding for thirty-four straight cycles: allocator trickle + guest-mode 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the remainder of the run.","weekly":{"ok":true,"weekly_used_pct":75.0,"opus_used_pct":96,"week_elapsed_pct":70.33,"weekly_heat":1.066,"opus_heat":1.365,"ceiling":5,"promote_blocked":true},"gear_basis":"allocator-posture"},"playbook":{"mode":"auto","applied":["L-003","L-008","L-016","L-023-moon","L-024-moon","L-026-repo-atlas"],"vetoed":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"veto_reason":"conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.","id_collision_warning":"playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.","directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"wrap_up_complete":false,"cycles_since_recycle":8,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

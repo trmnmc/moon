@@ -1,0 +1,120 @@
+cycle 34 — VERIFICATION GATE for T-132 — VERDICT: FAIL (change reverted, item re-queued)
+=========================================================================================
+Item      : T-132 — `moon ""` drops the offending token from its usage error
+Builder   : sonnet, k=1, direct Agent dispatch (Workflow is review-gated in a headless -p
+            session, so the documented failure-table fallback applies)
+Gate author: the conductor, AT VERIFICATION TIME. The builder never saw any check below.
+
+The builder's central claim, quoted from its return:
+  "every other case (bogus, `   `, --bogus, -x, --json=1, --jsno) has at least one
+   character inside the quotes and matches identically either way (verified directly
+   against node:util's raw messages before editing)"
+
+That claim is FALSE, and it is the claim the whole fix rests on. It is a statement about
+node:util's MESSAGE STRINGS, not about moon's code, so it cannot be checked by reading the
+diff — only by executing against those strings. That is what G2 does.
+
+-----------------------------------------------------------------------------------------
+G1 — full suite, with the builder's change in the tree
+-----------------------------------------------------------------------------------------
+$ node --test test/*.test.js
+ℹ tests 124
+ℹ pass 124
+ℹ fail 0
+
+124/124 GREEN. The suite does not catch the regression below. Recorded because this is the
+point of the gate: a green suite is not a verdict.
+
+-----------------------------------------------------------------------------------------
+G2 — DIFFERENTIAL EXECUTION (the decisive check)
+     runs/c34-gate-T-132.js — 42-case argv battery; for each, capture node:util's RAW
+     error, then render moon's final message under the OLD regex /'([^']+)'/ and the
+     SHIPPED regex /'([^']*)'/, and diff. Battery deliberately includes tokens that
+     CONTAIN an apostrophe and tokens that ARE an apostrophe.
+-----------------------------------------------------------------------------------------
+cases whose message CHANGED: 7 of 42
+
+argv   : ["'x'"]                       <-- THE REGRESSION
+  code : ERR_PARSE_ARGS_UNEXPECTED_POSITIONAL
+  raw  : "Unexpected argument ''x''. This command does not take positional arguments"
+  OLD  : "unexpected argument 'x' - moon takes no positional arguments; run 'moon --help'..."
+  NEW  : "unexpected argument '' - moon takes no positional arguments; run 'moon --help'..."
+
+=== G2 VERDICT ===
+FAIL: 1 REGRESSION(S) -- a case that already named a token changed:
+  ["'x'"] :: "unexpected argument '' - moon takes no positional arguments; ..."
+$ echo exit=$?  ->  exit=1
+
+MECHANISM. node:util wraps the offending token in ITS OWN quotes. When the token itself
+begins with an apostrophe, the raw message contains ''x'' — and `*` (unlike `+`) happily
+matches that leading EMPTY pair and stops. So the shipped fix makes `moon "'x'"` report an
+empty token where it previously reported `x`. Strictly worse: it does not merely fail to
+improve, it replaces correct information with wrong information.
+
+This violates acceptance clause 2 ("STRICTLY NO OTHER BEHAVIOR CHANGE"). The change is
+reverted rather than shipped-because-net-positive: `moon ""` is likelier than `moon "'x'"`,
+but "the common case got better than the rare case got worse" is exactly the trade the gate
+rules forbid weighing, and a correct fix (below) exists.
+
+-----------------------------------------------------------------------------------------
+G3 — GROUND TRUTH + RULE SCORING (runs/c34-rawmsgs.js)
+     What node:util actually emits, and how each candidate recovery rule scores against
+     the TRUE token. This is what makes the retry brief a design, not a guess.
+-----------------------------------------------------------------------------------------
+argv          TRUE token    current /'([^']+)'/   shipped /'([^']*)'/   greedy  /'(.*)'/
+[""]          ""             XX (no match)         ok ""                 ok ""
+["   "]       "   "          ok "   "              ok "   "              ok "   "
+["bogus"]     "bogus"        ok "bogus"            ok "bogus"            ok "bogus"
+["-"]         "-"            ok "-"                ok "-"                ok "-"
+["it's"]      "it's"         XX "it"               XX "it"               ok "it's"
+["'"]         "'"            XX (no match)         XX ""                 ok "'"
+["''"]        "''"           XX (no match)         XX ""                 ok "''"
+["'x'"]       "'x'"          XX "x"                XX ""                 ok "'x'"
+["a'b'c"]     "a'b'c"        XX "a"                XX "a"                ok "a'b'c"
+["--it's"]    (option)          "--it"                "--it"                "--it's"
+["--'x'"]     (option)          "--"                  "--"                  "--'x'"
+
+TWO THINGS THIS SETTLES.
+
+(a) The greedy anchor /'(.*)'/ is the ONLY candidate correct on every row, including all
+    the option-code rows. It is safe here for a reason visible in the raw dump: node:util
+    emits exactly ONE quoted token and NO other apostrophes in any of its three
+    ERR_PARSE_ARGS_* messages — there is no "Did you mean '--json'?" suffix to be swallowed.
+    (Measured on Node v24 locally; CI covers Node 20 and 22. A retry test must PIN this,
+    because greedy's safety is a property of node:util's wording, which is not a stability
+    guarantee. Also note `.` does not match a newline in JS, so a token containing \n is
+    still unrecovered — a residual to state, not to bury.)
+
+(b) A WIDER, PRE-EXISTING defect on main, not previously known and not what T-132 was filed
+    for: `moon "it's"` reports `unexpected argument 'it'` — the token is TRUNCATED at the
+    user's apostrophe. Same line of code, same root cause, and MORE reachable than the
+    empty case. T-132's acceptance is widened to the class rather than a second item being
+    filed. The widening is forced by the evidence, not chosen: any rule that names the
+    empty token must also handle a leading apostrophe, since both come from the same
+    spurious-quote-pair mechanism. A narrow instance fix is provably regressive here — the
+    shipped attempt IS that narrow fix, and G2 is what it cost.
+
+-----------------------------------------------------------------------------------------
+G4 — POST-REVERT BASELINE
+-----------------------------------------------------------------------------------------
+$ git checkout -- src/args.js test/args.test.js
+$ node --test test/*.test.js
+ℹ tests 123
+ℹ pass 123
+ℹ fail 0
+
+main is back to its pre-wave state. The rejected work is preserved in full at
+.swarm/runs/cycle-034-rejected-T-132.diff — nothing is lost, and the retry starts from
+evidence rather than from scratch.
+
+-----------------------------------------------------------------------------------------
+WHAT IS *NOT* CLAIMED
+-----------------------------------------------------------------------------------------
+- The greedy rule is NOT verified as the fix. It is scored as correct on a 23-case battery
+  on Node 24 only. It has not been built, tested, or run through a gate. The retry has to
+  earn that.
+- The builder's regression test was correct in itself and its own failability was
+  demonstrated; it was reverted with the fix because the item did not pass, not because
+  the test was wrong. The retry should re-land an equivalent, widened test.
+- No claim about Node 20/22 message wording. CI is the mechanism that would surface a
+  divergence, and it has not run against any fix, because no fix is on main.
