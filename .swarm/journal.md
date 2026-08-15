@@ -3747,3 +3747,41 @@ runfile-mirror:
 ```json
 {"version": 1, "run_label": "improvement-2026-08-14", "run_kind": "improvement", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-15T15:32:27+00:00", "usage_reset_at": "2026-08-14T20:32:35+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "pacing": {"mode": "guest", "dial": 0.3}, "heartbeat": {"ts": 1786777381, "next_wakeup_at": 1786780081, "pid": 299778, "limp": false, "degraded_tiers": []}, "budget": {"source": "allocator", "gear": 1, "gear_target": 1, "ratio": null, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786777381, "last_real_probe_ts": 0, "probe_failures": 34, "probe_note": "cycle 42: probe NOT invoked (42nd consecutive cycle) and the KI-2 allowlist was RE-GREPPED this cycle rather than inherited \u2014 grep -n \"swarm-budget|swarm-playbook\" /opt/swarm/.claude/settings.json returns NO-MATCH, so no human fixed it since the cycle-41 morning report. probe_failures stays 34: an attempt not made is not a failure. Gear rests on runs/allocator.json (source=probe, week_elapsed_pct advanced 72.33 -> 72.63 since cycle 41, so the file is fresh, not stale): posture=trickle, allow_premium_pct 0, allow_overall_pct 0, opus_used_pct 96, weekly_used_pct 77.0, dial 0.3. weekly_heat 77.0/72.63 = 1.060 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.322 > 1.2 keeps promote blocked. Trickle + guest 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is still after stop_at 1786807947, so gear 1 remains structural for the rest of the run. Movement since cycle 41: weekly_used_pct and opus_used_pct both HELD exactly (77.0, 96) while elapsed advanced, so both heats fell again (weekly 1.065 -> 1.060, opus 1.327 -> 1.322) \u2014 a second consecutive cycle of cooling, driven entirely by the clock rather than by any drop in usage. Still 0.04 clear of the 1.1 governor threshold.", "weekly": {"ok": true, "weekly_used_pct": 77.0, "opus_used_pct": 96, "week_elapsed_pct": 72.63, "weekly_heat": 1.06, "opus_heat": 1.322, "ceiling": 5, "promote_blocked": true}, "gear_basis": "allocator-posture"}, "playbook": {"mode": "auto", "applied": ["L-003", "L-008", "L-016", "L-023-moon", "L-024-moon", "L-026-repo-atlas"], "vetoed": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "veto_reason": "conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.", "id_collision_warning": "playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.", "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "wrap_up_complete": false, "cycles_since_recycle": 14, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
 ```
+
+### cycle 42 addendum — commit hash, push, render, wakeup band
+
+- Cycle commit: 8181cc4, pushed to origin/main (fe113bf..8181cc4). main's product tree did
+  NOT move: src/, bin/, README.md and package.json are byte-identical to fe113bf; the only
+  product-adjacent change is test/regressions.test.js. Merge commit 42b80fe sits under it.
+- Builder branch wave-1786777381-T-138 deleted after the merge; `git worktree list` shows
+  only /opt/targets/moon.
+- Dashboard rendered at 07:18:42Z, 10 live-region substitutions, 42 bars. Burn-up moved at
+  BOTH ends for the third consecutive cycle — numerator 33 -> 34 (T-138 verified),
+  denominator 39 -> 40 (T-139 filed) — so the bar rises less than one verified item
+  suggests, and the tooltip says so. No Artifact publish attempted: a headless VPS session
+  has no Artifact tool, which per cycle.md step 8 is not a publish failure, so
+  publish_failures stays 0.
+- RENDER DEFECT CAUGHT AND FIXED IN THE RENDERER, recorded because it would have been
+  silent: the first render run aborted on the alloc tile with "live anchor matched 0
+  times". Cause was mine, not the page's — I had written the anchor regexes to search
+  `live()`, which concatenates ALL spans including the HTML-comment placeholder legend.
+  The regex matched the COMMENTED copy of the tile (`<b>normal</b> ... prem 22%`), then
+  handed sub() an anchor that exists nowhere live. Added `livetext()` (live spans only)
+  and pointed all eight anchor regexes at it. The sub() assertion is what turned a
+  would-be silent wrong-anchor render into a loud abort — the guard working as designed,
+  same shape as the cycle-41 lesson about refusing to accept a failure quickly.
+- Wakeup: 90s base band, not the 900s no-value band — this cycle verified an item. Derived
+  at render time rather than persist time because a 90s band reliably expires during the
+  persist/commit/push tail; next_wakeup_at 1786778412. Clamp checked: wakeup + 900 <=
+  stop_at holds with ~8.2h of margin. No ScheduleWakeup call: on the VPS `bin/swarm-pacer.sh`
+  reads next_wakeup_at and is the firing mechanism (cycle.md step 9).
+- No notifications emitted: phase unchanged (VALUE_LOOP), no target stalled,
+  publish_failures still 0 — none of the three step-8 emit conditions fired.
+- Every git invocation this cycle was written as `git -C /opt/targets/moon ...`. Three Bash
+  calls were refused by the permission layer for SHAPE rather than content (a `cd` before
+  `git`, a `tee`, and an `echo "$?"`) and were re-issued in accepted forms; no work lost.
+- STATE AFTER: backlog 35 done / 5 todo of 40. All five open items are wording items —
+  T-137, T-126, T-116, T-130, T-139 — which means no correctness item is open against this
+  repo for the first time since cycle 33. Worth stating plainly for the morning report:
+  from here the value loop is choosing between documentation nits, and the honest question
+  for the remaining ~8h is whether any of them clears the two-part ratchet at all.
