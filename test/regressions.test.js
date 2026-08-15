@@ -446,48 +446,127 @@ test('T-134 — README north/south sweep table rows are self-consistent and repr
 // Math.round(illumination * 100), which would smuggle in the one assumption (the
 // rounding rule) the T-134 comment above goes out of its way never to make.
 //
-// Sweep window: one synodic month (SYNODIC_MONTH, ~29.53 days — astro.js) is the whole
-// period over which the (name, percent) pairing repeats; astro.js's own
-// PHASE_ILLUMINATION_CONSISTENCY_DOMAIN note documents that phaseName and illumination
-// are two independent Meeus series only checked to agree near J2000, so this sweeps
-// where the table's own moon (readmeMoon(), a real "now" reading) actually lives rather
-// than assuming the pairing holds across centuries. 35 days is a full lunation plus a
-// >5-day margin, so the reachable set can't come up short just because the start
-// instant happened to land next to a phase transition. A 15-minute step keeps the
-// narrowest whole-percent band (around the 50% crossing, illumination changes fastest
-// there — see the T-134 comment above) covered by several samples, not one. That's
-// ~3,400 computeMoon calls: a fraction of a second, next to the T-134 test's own
-// per-row 401-sample band search.
+// T-136 — the guard above (originally: check membership in ONE flat 35-day/15-minute
+// sweep) turns RED on an honest README regeneration. It asserts membership in a SAMPLED
+// set as if the set were complete, and it is not: a real computeMoon(date) instant can
+// legitimately produce a (name, percent) pair the sweep never happened to visit. Cycle
+// 40 hit this for real — a correct "waxing gibbous| 55%" row was rejected because no
+// instant in the 35-day window renders 55% at that name.
+//
+// The tempting fix, widen the sweep, DOES NOT WORK: the reachable-pair set keeps growing
+// with the search window and never stops. Measured against this file's own
+// buildReachableSet, sweeping from the same REACHABILITY_SWEEP_START_MS (all counts
+// verified against the code as committed here — see the measurement commands in
+// .swarm/runs/c41-measure.js and this comment's own trailer):
+//
+//   step   span     computeMoon calls   distinct pairs
+//   15m    35d            3,361              208
+//   15m   400d           38,401              212
+//   10m   600d           86,401              212
+//    5m    30y        3,153,601              213
+//    1m    10y        5,256,001              212   (213th pair still absent)
+//
+// A 5.26-million-sample, ten-year, one-minute sweep still does not contain every pair a
+// correct README could show. There is no window constant that closes this by being
+// bigger. So this guard makes NO completeness claim: it does not assert "this pair is
+// impossible", only "this pair was not found within the stated search effort." Below
+// that ceiling, a rejected row might be an honest regeneration; a future editor who hits
+// that must re-run .swarm/runs/c41-measure.js (or widen ESCALATED_SPAN_MS directly) to
+// confirm whether the missing pair shows up in a larger sweep before concluding the row
+// is actually wrong.
+//
+// What DOES survive arbitrary widening is the guard's power to catch the defect it
+// exists for — a phase name retyped to an adjacent, cycle-order-preserving name. Three
+// such mutants (a 51% "first quarter" retyped to "waxing gibbous", a 63% "waning
+// gibbous" retyped to "waning crescent", a 69% "waxing gibbous" retyped to "first
+// quarter") were checked against the 1-minute/10-year, 5.26-million-sample sweep above
+// and NONE of them ever appears. A retyped name lands on a percent that pairing never
+// actually produces at that name, at any distance from J2000; only genuine renderer
+// output does. So completeness is unreachable, but discrimination is not — this guard
+// still does its one job.
+//
+// SHAPE: escalate on failure, not a wider flat sweep. Checking every row against the
+// full 400-day sweep on every run would tax the whole suite for a case that essentially
+// never happens (a hand-regenerated README landing outside the cheap window). Instead:
+// run the CHEAP sweep first (same 35-day/15-minute window as before — one full synodic
+// month, per the original T-135 sizing rationale, still true and unchanged) for every
+// row; only for a row that MISSES the cheap sweep, lazily build a WIDER sweep (400 days
+// at the same 15-minute step — chosen because it already contains both measured honest
+// cases below and, per the table above, adding span or shrinking step past this point
+// buys no additional coverage of the mutant family) and check that row against it
+// instead of failing outright. A genuinely retyped name still fails: it isn't in the
+// cheap set OR the escalated set, exactly like the mutant sweep above. An honest but
+// sample-missed row now passes, because the escalated sweep does contain it — verified
+// for the two cases that actually forced this fix, "first quarter| 44%" (2026-02-24T00:
+// 28:00Z) and "waxing gibbous| 55%" (2026-05-23T23:11:00Z): both absent from the cheap
+// 35-day set, both present in the 400-day escalated set.
+//
+// Cost: the escalated sweep only ever runs when at least one row misses the cheap sweep,
+// and it runs at most ONCE per test (memoized), not once per missing row. Measured
+// against this file's own code with `node --test --test-name-pattern="T-135/T-136"
+// test/regressions.test.js` (this test in isolation, so the number is this test's own
+// cost, not the whole suite's): green path (no row misses the cheap sweep — true for the
+// README as shipped) pays only the cheap sweep, measured at ~70ms. A row that misses the
+// cheap sweep and IS found by the escalated sweep (the H1/H2 cases above) pays the
+// escalated sweep once, measured at ~505ms more. A genuinely retyped row (mutant M1, run
+// the same way) pays the escalated sweep once and then fails — measured RED path runtime
+// ~535ms total, not the 36.5-second or 58-second costs the wider flat-sweep table above
+// would imply; the escalation window was deliberately kept at 400 days (not 30y or 10y)
+// so that even the RED path stays a fraction of a second. Exact numbers for the code as
+// committed are in this file's companion return; re-run .swarm/runs/c41-measure.js
+// against HEAD to reproduce the reachable-set side of them.
 const REACHABILITY_SWEEP_START_MS = Date.UTC(2026, 0, 1) // fixed instant, never Date.now()
 const REACHABILITY_STEP_MS = 15 * 60 * 1000 // 15 minutes
-const REACHABILITY_SPAN_MS = 35 * 24 * 60 * 60 * 1000 // > one synodic month
+const REACHABILITY_SPAN_MS = 35 * 24 * 60 * 60 * 1000 // > one synodic month — cheap, common-case sweep
 
-test('T-135 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce', () => {
+const ESCALATED_STEP_MS = 15 * 60 * 1000 // same resolution as the cheap sweep
+const ESCALATED_SPAN_MS = 400 * 24 * 60 * 60 * 1000 // measured to contain both known honest
+// misses (H1 "first quarter| 44%", H2 "waxing gibbous| 55%") and to still exclude all
+// three known adjacent-retype mutants — see the comment above for the measured table.
+
+// Builds the (phaseName, displayed-percent) reachable set over [startMs, startMs+spanMs]
+// at the given step. Keyed on the exact illum field text parseRenderedRun returns
+// (already zero-padded, e.g. "  3%"), so this is compared to README rows on identical
+// terms with no separate percent-parsing logic to drift out of sync with
+// parseRenderedRun.
+function buildReachableSet (startMs, stepMs, spanMs) {
+  const reachable = new Set()
+  const steps = Math.floor(spanMs / stepMs)
+  for (let i = 0; i <= steps; i++) {
+    const instant = new Date(startMs + i * stepMs)
+    const moon = computeMoon(instant)
+    const run = parseRenderedRun(renderLine(moon, 'north'))
+    reachable.add(run.name + '|' + run.illum)
+  }
+  return reachable
+}
+
+test('T-135/T-136 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce', () => {
   const section = readmeSection('Why this one')
   const lines = firstFence(section).split('\n')
   const rows = lines.slice(1).filter((l) => l.length > 0)
   assert.ok(rows.length > 0, 'sweep table has no data rows below its header')
 
-  // Reachable set: every (phaseName, displayed-percent) pair that renderLine actually
-  // prints for some real computeMoon(date) in the sweep window. Keyed on the exact
-  // illum field text parseRenderedRun returns (already zero-padded, e.g. "  3%"), so
-  // this is compared to README rows on identical terms with no separate percent-parsing
-  // logic to drift out of sync with parseRenderedRun.
-  const reachable = new Set()
-  const steps = Math.floor(REACHABILITY_SPAN_MS / REACHABILITY_STEP_MS)
-  for (let i = 0; i <= steps; i++) {
-    const instant = new Date(REACHABILITY_SWEEP_START_MS + i * REACHABILITY_STEP_MS)
-    const moon = computeMoon(instant)
-    const run = parseRenderedRun(renderLine(moon, 'north'))
-    reachable.add(run.name + '|' + run.illum)
-  }
+  const cheap = buildReachableSet(REACHABILITY_SWEEP_START_MS, REACHABILITY_STEP_MS, REACHABILITY_SPAN_MS)
+  // Built at most once, and only if some row actually misses the cheap sweep — see the
+  // cost paragraph above.
+  let escalated = null
 
   for (const row of rows) {
     const north = parseRenderedRun(row)
-    assert.ok(reachable.has(north.name + '|' + north.illum),
-      `no instant in the ${REACHABILITY_SPAN_MS / 86400000}-day sweep makes the ` +
-      `shipping renderer pair "${north.illum.trim()}" with "${north.name}" — this row's ` +
-      'name may have been retyped to an adjacent, cycle-order-preserving name (the ' +
-      `defect T-135 guards against): ${JSON.stringify(row)}`)
+    const key = north.name + '|' + north.illum
+    if (cheap.has(key)) continue
+    if (!escalated) {
+      escalated = buildReachableSet(REACHABILITY_SWEEP_START_MS, ESCALATED_STEP_MS, ESCALATED_SPAN_MS)
+    }
+    assert.ok(escalated.has(key),
+      `no instant in either the ${REACHABILITY_SPAN_MS / 86400000}-day cheap sweep or the ` +
+      `${ESCALATED_SPAN_MS / 86400000}-day escalated sweep makes the shipping renderer ` +
+      `pair "${north.illum.trim()}" with "${north.name}". Two honest explanations, in ` +
+      'order: (1) this row IS a retyped-name defect (the T-135 guard) — check the name ' +
+      'against an adjacent PHASE_NAMES entry; (2) this is a genuine renderer output the ' +
+      `escalated window is simply too narrow to find — re-run ` +
+      '.swarm/runs/c41-measure.js with a wider span/finer step to check before assuming ' +
+      `(1): ${JSON.stringify(row)}`)
   }
 })
