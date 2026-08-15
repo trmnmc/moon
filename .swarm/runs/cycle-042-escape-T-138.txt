@@ -1,0 +1,16 @@
+merged tree, unmutated README: pass=14 fail=0 ok=True
+
+--- AFTER T-138 (merged, structural predicate) ---
+  slot  9 'full'           -> 'waxing gibbous' : ESCAPED (green) (pass=14 fail=0)
+  slot  9 'full'           -> 'waning gibbous' : ESCAPED (green) (pass=14 fail=0)
+  slot 16 'new'            -> 'waning crescent' : ESCAPED (green) (pass=14 fail=0)
+
+pre-merge tree (fe113bf), unmutated README: pass=14 fail=0 ok=True
+
+--- BEFORE T-138 (fe113bf, substring predicate) ---
+  slot  9 'full'           -> 'waxing gibbous' : ESCAPED (green) (pass=14 fail=0)
+  slot  9 'full'           -> 'waning gibbous' : ESCAPED (green) (pass=14 fail=0)
+  slot 16 'new'            -> 'waning crescent' : ESCAPED (green) (pass=14 fail=0)
+
+restored merged tree: pass=14 fail=0 ok=True
+git diff --stat after restore: ''

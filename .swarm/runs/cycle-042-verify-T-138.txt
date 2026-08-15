@@ -1,0 +1,57 @@
+=== genuine instants found by conductor scan (3h stride through 2026) ===
+  new              2026-01-18T09:00:00.000Z  ░░░░░   0%  new
+  waxing crescent  2026-01-19T09:00:00.000Z  ░░░░░   0%  waxing crescent
+  first quarter    2026-01-25T18:00:00.000Z  ░░▒█◗  45%  first quarter
+  waxing gibbous   2026-01-01T00:00:00.000Z  ▐███◗  92%  waxing gibbous
+  full             2026-01-03T00:00:00.000Z  ◖███◗ 100%  full
+  waning gibbous   2026-01-04T00:00:00.000Z  ◖███◗ 100%  waning gibbous
+  last quarter     2026-01-10T06:00:00.000Z  ◖█▓░░  54%  last quarter
+  waning crescent  2026-01-11T06:00:00.000Z  ◖█▒░░  44%  waning crescent
+
+=== HONEST rows: new code must be GREEN, and we record what OLD code did ===
+  new              slot  2  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  new              slot 15  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  new              slot 16  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waxing crescent  slot  2  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waxing crescent  slot  3  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waxing crescent  slot  4  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waxing crescent  slot  5  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  first quarter    slot  4  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  first quarter    slot  5  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  first quarter    slot  6  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waxing gibbous   slot  5  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waxing gibbous   slot  6  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waxing gibbous   slot  7  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waxing gibbous   slot  8  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waxing gibbous   slot  9  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  full             slot  8  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  full             slot  9  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  full             slot 10  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waning gibbous   slot  9  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waning gibbous   slot 10  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waning gibbous   slot 11  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waning gibbous   slot 12  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waning gibbous   slot 13  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  last quarter     slot 12  new=GREEN(-1/-1)  old=RED(-1/-1)  -> DISCRIMINATING
+  last quarter     slot 13  new=GREEN(-1/-1)  old=RED(-1/-1)  -> DISCRIMINATING
+  waning crescent  slot 12  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waning crescent  slot 13  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waning crescent  slot 14  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waning crescent  slot 15  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+  waning crescent  slot 16  new=GREEN(-1/-1)  old=GREEN(-1/-1)  -> toothless (both green)
+
+=== MUTANTS: adjacent retypes must still turn the suite RED ===
+  ESCAPED (suite stayed green): retype slot  9 'full' -> 'waxing gibbous'
+  ESCAPED (suite stayed green): retype slot  9 'full' -> 'waning gibbous'
+  ESCAPED (suite stayed green): retype slot 16 'new' -> 'waning crescent'
+  33/36 mutants killed (suite went RED)
+  3 ESCAPED:
+    retype slot  9 'full' -> 'waxing gibbous'
+    retype slot  9 'full' -> 'waning gibbous'
+    retype slot 16 'new' -> 'waning crescent'
+
+=== repo state after gate (must be clean) ===
+'?? .swarm/runs/c42-gate.py\n?? .swarm/runs/cycle-042-verify-T-138.txt\n'
+=== full suite on restored tree: pass=-1 fail=-1 ===
+
+SUMMARY: 30 honest cases; 2 discriminating (old RED / new GREEN); 0 red under new code; 33/36 mutants killed
