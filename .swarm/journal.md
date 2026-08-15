@@ -3319,3 +3319,34 @@ runfile-mirror:
 ```json
 {"version": 1, "run_label": "improvement-2026-08-14", "run_kind": "improvement", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-15T15:32:27+00:00", "usage_reset_at": "2026-08-14T20:32:35+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "pacing": {"mode": "guest", "dial": 0.3}, "heartbeat": {"ts": 1786774247, "next_wakeup_at": 1786775147, "pid": 264846, "limp": false, "degraded_tiers": []}, "budget": {"source": "allocator", "gear": 1, "gear_target": 1, "ratio": null, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786773071, "last_real_probe_ts": 0, "probe_failures": 34, "probe_note": "cycle 40: probe still NOT invoked -- fortieth straight cycle, same closed reason, re-grepped rather than inherited: `grep -n swarm-budget /opt/swarm/.claude/settings.json` returns NO-MATCH (KI-2, root-caused at cycle 35). probe_failures stays at 34 -- an attempt not made is not a failure. Gear rests on runs/allocator.json (source=probe, refreshed 05:49:28 by the pacer, this cycle's own spawn): posture=trickle, allow_premium_pct 0, allow_overall_pct 0, opus_used_pct 96, weekly_used_pct 77.0, week_elapsed_pct 71.92, dial 0.3. weekly_heat 77.0/71.92 = 1.071 < 1.1 -> governor disengaged, ceiling 5; opus_heat 1.335 > 1.2 keeps promote blocked. Trickle + guest 1-3 clamp -> gear 1, k_cap 1. week_resets_at 1786942799 is after stop_at 1786807947, so gear 1 is structural for the rest of the run. Movement since cycle 39: weekly_heat ROSE 1.060 -> 1.071 (it fell last cycle) -- direction reversed, still 0.03 clear of the governor threshold, recorded for the reversal rather than for any crossing. Control note: bin/swarm-notify.sh poll succeeded again in the bare-relative form from /opt/swarm -- a seventh consecutive cycle of the same controlled comparison against the budget script's refusal in that identical form, which now reads as per-script allowlisting rather than a shell-form problem.", "weekly": {"ok": true, "weekly_used_pct": 77.0, "opus_used_pct": 96, "week_elapsed_pct": 71.92, "weekly_heat": 1.071, "opus_heat": 1.335, "ceiling": 5, "promote_blocked": true}, "gear_basis": "allocator-posture"}, "playbook": {"mode": "auto", "applied": ["L-003", "L-008", "L-016", "L-023-moon", "L-024-moon", "L-026-repo-atlas"], "vetoed": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "veto_reason": "conductor-scoped, not user-vetoed: all seven target a browser/SPA/React/env-key surface that a zero-dependency Node CLI does not have. Splicing 'open the running product in a browser' into a QA brief for a stdout CLI is noise that degrades the brief. Recorded as vetoed rather than applied so the ledger stays honest.", "id_collision_warning": "playbook/learnings.md contains DUPLICATE ids: L-023, L-025 and L-026 each appear twice with different content and different [source:] runs (repo-atlas 2026-08-13 and moon 2026-08-14). Ids are disambiguated here with a -source suffix. This is a SWARM-side playbook integrity defect for the morning report; hard rule 5 forbids fixing it mid-run.", "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value."]}}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "wrap_up_complete": false, "cycles_since_recycle": 13, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
 ```
+
+### cycle 40 addendum — timestamp correction, commit hash, render, wakeup
+
+- The block header above reads 06:12:00Z. That was written ahead of the append and is
+  ~2 minutes late: the block actually landed at 06:09:40Z. Corrected here rather than
+  edited in place, so the record shows the correction rather than hiding it.
+- Cycle commit: 84e3e18, pushed to origin/main (3f55d94..84e3e18). Main's TREE is
+  unchanged from 3f55d94 except for .swarm/ state, journal and gate artifacts — the
+  reverted merge left no product code behind, which is the point of a revert.
+- Dashboard rendered at 06:12:55Z, 10 live-region substitutions, burn-up now 40 bars,
+  cumulative 32/37. No Artifact publish attempted (headless VPS session has no Artifact
+  tool — per cycle.md step 8 that is not a publish failure, and publish_failures stays 0).
+- Wakeup NOT resynced: the 900s no-value band written at persist time (1786775147) still
+  had 772s left at render, so unlike the 90s bands of cycles 35/36/38/39 nothing had
+  expired. Checked rather than assumed — reporting a resync that did not happen would be
+  as wrong as missing one that did.
+- No notifications emitted: phase unchanged, no target stalled, publish_failures still 0.
+- CONDUCTOR ERROR, caught and undone, recorded because an unrecorded near-miss is worse
+  than a recorded one. The first attempt at this addendum commit ran in the SWARM repo,
+  not the target: an earlier `cd /opt/swarm/runs` to rename this cycle's scripts moved the
+  persistent shell working directory, and the follow-up `git add -A && git commit` was
+  written as a bare relative command. It created commit 39bb271 in /opt/swarm containing
+  playbook/applied.log — a file that was already staged before this session began, not
+  anything this cycle wrote. Nothing from runs/ entered SWARM's history (runs/ is ignored
+  there) and the push failed for lack of remote write access, so it never left the box.
+  Undone with `git reset --soft HEAD~1`; SWARM is byte-for-byte back to its session-start
+  state, `M  playbook/applied.log` staged and uncommitted. Detected by reading the
+  `git log` output rather than by assuming the commit landed where intended — the target
+  repo's own tip was visibly absent from it. Lesson for the morning report: every git
+  invocation in a cycle should be `git -C <explicit path>`, because a conductor that
+  renames a file can silently relocate every later bare git command in the turn.
