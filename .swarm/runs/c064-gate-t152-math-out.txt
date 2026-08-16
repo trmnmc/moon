@@ -1,0 +1,18 @@
+CLAIM A — illumination guard vs the places*10 mutation
+  unmutated: f = 10 ** 4 = 10000
+  f=10000 (10 ** 4, correct): max visible decimals over 40001 grid points = 4 (at k=1, value 0.0001); guard is <= 4 -> GUARD CAN NEVER FIRE (permanently blind)
+  mutated:   f = 4 * 10 = 40
+  f=40 (4 * 10, MUTANT): max visible decimals over 161 grid points = 3 (at k=1, value 0.025); guard is <= 4 -> GUARD CAN NEVER FIRE (permanently blind)
+  => report claims the mutant is invisible to this guard: true
+
+CLAIM B — phaseAngle guard vs the same mutation (report says it is NOT blind)
+  unmutated: f = 10 ** 3 = 1000
+  f=1000 (10 ** 3, correct): max visible decimals over 4001 grid points = 3 (at k=1, value 0.001); guard is <= 3 -> GUARD CAN NEVER FIRE (permanently blind)
+  mutated:   f = 3 * 10 = 30
+  f=30 (3 * 10, MUTANT): max visible decimals over 121 grid points = 17 (at k=1, value 0.03333333333333333); guard is <= 3 -> guard CAN fire
+  => report claims this guard CAN fire (hence the run-to-run flip): true
+
+  prime factors 40 = 2*2*2*5 (2 and 5 only -> 1/40 terminates)
+  prime factors 30 = 2*3*5 (has a 3 -> 1/30 does not terminate)
+
+CLAIM A+B VERDICT: REASONING CONFIRMED

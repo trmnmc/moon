@@ -1,0 +1,91 @@
+scratch dir: /tmp/moon-c064-sweep-nC2j3g
+baseline: pass=147 fail=0
+M1 [1. parseArgs-throw stderr shape]: SURVIVED
+M2 [1. parseArgs-throw exit code]: KILLED (caught by: test/cli.test.js:302:1)
+M3 [2. --help precedence]: KILLED (caught by: test/cli.test.js:296:1)
+M4 [2. --help exit code]: KILLED (caught by: test/cli.test.js:277:1, test/cli.test.js:296:1, test/cli.test.js:310:1, test/cli.test.js:325:1, test/regressions.test.js:52:1, test/regressions.test.js:97:1)
+M5 [3. --json field set (remove a field)]: KILLED (caught by: test/cli.test.js:71:1, test/cli.test.js:88:1, test/cli.test.js:93:1, test/cli.test.js:156:1)
+M6 [3. --json field set (add an undocumented field)]: KILLED (caught by: test/cli.test.js:156:1)
+M7 [3. --json rounding: illumination]: KILLED (caught by: test/cli.test.js:71:1)
+M8 [3. --json rounding: age]: SURVIVED
+M9 [3. --json rounding: cycleFraction]: SURVIVED
+M10 [3. --json rounding: phaseAngle]: KILLED (caught by: test/cli.test.js:71:1)
+M11 [3. --json rounding: julianDay]: SURVIVED
+M12 [4. hemisphere resolution order]: KILLED (caught by: test/cli.test.js:61:1, test/cli.test.js:88:1)
+M13 [5. --block next-full-moon indent]: KILLED (caught by: test/regressions.test.js:88:1)
+M14 [5. default next-full-moon indent (NAME_COLUMN)]: KILLED (caught by: test/cli.test.js:54:1)
+M14b [5. default next-full-moon indent (NAME_COLUMN)]: KILLED (caught by: test/cli.test.js:54:1)
+M15 [5. --block vs default renderer selection]: KILLED (caught by: test/cli.test.js:42:1, test/cli.test.js:49:1, test/cli.test.js:54:1, test/cli.test.js:61:1, test/cli.test.js:171:1, test/regressions.test.js:88:1, test/regressions.test.js:156:1)
+M16 [6. --compact suppression (default branch)]: KILLED (caught by: test/cli.test.js:42:1, test/cli.test.js:49:1, test/cli.test.js:54:1, test/regressions.test.js:69:1, test/regressions.test.js:112:1, test/regressions.test.js:135:1)
+M17 [6. --compact suppression (block branch)]: SURVIVED
+M18 [7. formatFullMoonDate padStart]: KILLED (caught by: test/regressions.test.js:69:1)
+M19 [7. formatFullMoonDate padStart fill char]: KILLED (caught by: test/regressions.test.js:69:1, test/regressions.test.js:112:1)
+M20 [7. formatFullMoonDate LOCAL vs UTC accessors]: SURVIVED
+M21 [7. formatFullMoonDate year ternary]: KILLED (caught by: test/regressions.test.js:112:1, test/regressions.test.js:135:1)
+M22 [7. formatFullMoonDate year ternary (always show)]: KILLED (caught by: test/regressions.test.js:135:1)
+M23 [8. round() rounding rule]: SURVIVED
+M24 [8. round() rounding rule]: SURVIVED
+M25 [8. round() scaling formula]: KILLED (caught by: test/cli.test.js:71:1)
+M26 [8. round() scaling off-by-one]: KILLED (caught by: test/cli.test.js:71:1)
+
+=== WITNESS CAPTURE (survivors only; concrete before/after diffs) ===
+
+--- M1: drop "moon: " stderr prefix --- (moon --bogus)
+baseline stderr: "moon: unknown option '--bogus' - run 'moon --help' to see the available options\nEXITCODE:2\n"
+mutant  stderr: "unknown option '--bogus' - run 'moon --help' to see the available options\nEXITCODE:2\n"
+
+--- M8 (age 3->4) ---
+baseline: {"phase":"waxing crescent","illumination":0.1943,"age":4.073,"cycleFraction":0.1453,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3071,"timestamp":"2026-08-16T19:22:13.533Z"}
+mutant:   {"phase":"waxing crescent","illumination":0.1943,"age":4.0734,"cycleFraction":0.1453,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3071,"timestamp":"2026-08-16T19:22:13.533Z"}
+
+--- M9 (cycleFraction 5->6) ---
+baseline: {"phase":"waxing crescent","illumination":0.1943,"age":4.073,"cycleFraction":0.1453,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3071,"timestamp":"2026-08-16T19:22:13.533Z"}
+mutant:   {"phase":"waxing crescent","illumination":0.1943,"age":4.073,"cycleFraction":0.145301,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3071,"timestamp":"2026-08-16T19:22:13.533Z"}
+
+--- M11 (julianDay 5->6) ---
+baseline: {"phase":"waxing crescent","illumination":0.1943,"age":4.073,"cycleFraction":0.1453,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3071,"timestamp":"2026-08-16T19:22:13.533Z"}
+mutant:   {"phase":"waxing crescent","illumination":0.1943,"age":4.073,"cycleFraction":0.1453,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.307101,"timestamp":"2026-08-16T19:22:13.533Z"}
+
+--- M23 (Math.round->Math.floor) ---
+baseline: {"phase":"waxing crescent","illumination":0.1943,"age":4.073,"cycleFraction":0.1453,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3071,"timestamp":"2026-08-16T19:22:13.533Z"}
+mutant:   {"phase":"waxing crescent","illumination":0.1942,"age":4.073,"cycleFraction":0.1453,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3071,"timestamp":"2026-08-16T19:22:13.533Z"}
+
+--- M24 (Math.round->Math.trunc) ---
+baseline: {"phase":"waxing crescent","illumination":0.1943,"age":4.073,"cycleFraction":0.1453,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3071,"timestamp":"2026-08-16T19:22:13.533Z"}
+mutant:   {"phase":"waxing crescent","illumination":0.1942,"age":4.073,"cycleFraction":0.1453,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3071,"timestamp":"2026-08-16T19:22:13.533Z"}
+
+--- M25 (10**places -> places*10) ---
+baseline: {"phase":"waxing crescent","illumination":0.1943,"age":4.073,"cycleFraction":0.1453,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3071,"timestamp":"2026-08-16T19:22:13.533Z"}
+mutant:   {"phase":"waxing crescent","illumination":0.2,"age":4.066666666666666,"cycleFraction":0.14,"phaseAngle":52.3,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3,"timestamp":"2026-08-16T19:22:13.533Z"}
+
+--- M7 (illumination 4->5, informational) ---
+baseline: {"phase":"waxing crescent","illumination":0.1943,"age":4.073,"cycleFraction":0.1453,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3071,"timestamp":"2026-08-16T19:22:13.533Z"}
+mutant:   {"phase":"waxing crescent","illumination":0.19429,"age":4.073,"cycleFraction":0.1453,"phaseAngle":52.308,"hemisphere":"north","nextFullMoon":"2026-08-28T04:18:25.225Z","julianDay":2461269.3071,"timestamp":"2026-08-16T19:22:13.533Z"}
+
+--- M17: drop compact check on --block branch --- (moon --block --compact)
+baseline: "┌────────────────────────────────┐\n│            ░░░░░░▓█            │\n│           ░░░░░░░░▓█           │\n│          ░░░░░░░░░▒██          │\n│           ░░░░░░░░▓█           │\n│            ░░░░░░▓█            │\n│                                │\n│  phase        waxing crescent  │\n│  illuminated              19%  │\n│  hemisphere          northern  │\n└────────────────────────────────┘\n"
+mutant:   "┌────────────────────────────────┐\n│            ░░░░░░▓█            │\n│           ░░░░░░░░▓█           │\n│          ░░░░░░░░░▒██          │\n│           ░░░░░░░░▓█           │\n│            ░░░░░░▓█            │\n│                                │\n│  phase        waxing crescent  │\n│  illuminated              19%  │\n│  hemisphere          northern  │\n└────────────────────────────────┘\n   next full moon  28 Aug\n"
+
+--- M20: LOCAL vs UTC date accessors --- (TZ=Pacific/Kiritimati, UTC+14;
+    now=2026-06-30T00:00:00Z so nextFullMoon lands at 2026-07-29T14:35:37.963Z UTC,
+    which is 2026-07-30 local in Kiritimati: LOCAL and UTC calendar dates differ)
+baseline: "◖███◗ 100%  full\n            next full moon  30 Jul\n"
+mutant:   "◖███◗ 100%  full\n            next full moon  29 Jul\n"
+
+=== END WITNESS CAPTURE ===
+
+TOTAL mutants: 27  KILLED: 19  SURVIVED: 8  ERROR: 0
+
+SURVIVORS:
+  M1 — 1. parseArgs-throw stderr shape — Drop the "moon: " prefix from the stderr line on a usage error
+  M8 — 3. --json rounding: age — age precision 3 -> 4
+  M9 — 3. --json rounding: cycleFraction — cycleFraction precision 5 -> 6
+  M11 — 3. --json rounding: julianDay — julianDay precision 5 -> 6
+  M17 — 6. --compact suppression (block branch) — Drop the compact check on the --block branch entirely: always push next-full-moon
+  M20 — 7. formatFullMoonDate LOCAL vs UTC accessors — Switch getDate/getMonth/getFullYear to their getUTC* equivalents
+  M23 — 8. round() rounding rule — Math.round -> Math.floor
+  M24 — 8. round() rounding rule — Math.round -> Math.trunc
+
+Confirmed: tracked bin/moon.js is byte-identical to before the sweep.
+(node:1306775) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)

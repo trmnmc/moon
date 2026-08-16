@@ -1,0 +1,29 @@
+BASELINE (pristine copy): ""
+  exit=0 tests=-1 pass=-1 fail=-1
+  baseline green + 147 tests: False
+
+M1   claimed=SURVIVED observed=KILLED   *** MISMATCH ***  | drop the "moon: " stderr prefix
+     exit=0 tests=-1 pass=-1 fail=-1
+
+M8   claimed=SURVIVED observed=KILLED   *** MISMATCH ***  | --json age precision 3 -> 4
+     exit=0 tests=-1 pass=-1 fail=-1
+
+M17  claimed=SURVIVED observed=KILLED   *** MISMATCH ***  | drop the --compact guard on the --block branch
+     exit=0 tests=-1 pass=-1 fail=-1
+
+M20  claimed=SURVIVED observed=KILLED   *** MISMATCH ***  | formatFullMoonDate LOCAL -> UTC date accessors
+     exit=0 tests=-1 pass=-1 fail=-1
+
+M2   claimed=KILLED   observed=KILLED   MATCH  | CONTROL: parseArgs-throw exit code 2 -> 1
+     exit=1 tests=-1 pass=-1 fail=-1
+
+M13  claimed=KILLED   observed=KILLED   MATCH  | CONTROL: --block next-full indent 3 -> 2
+     exit=1 tests=-1 pass=-1 fail=-1
+
+========================================================================
+claimed survivors reproduced as SURVIVED : False  (0/4)
+ATTRIBUTION CONTROLS reproduced as KILLED: True  (2/2)
+
+VERDICT: GATE FAIL
+  (controls going red is what proves the SURVIVED verdicts mean something:
+   this harness demonstrably can detect a broken bin/moon.js.)
