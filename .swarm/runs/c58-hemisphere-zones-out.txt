@@ -1,0 +1,2 @@
+total IANA zones (zone1970.tab + zone.tab union): 418
+mismatches: 0

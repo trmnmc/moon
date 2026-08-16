@@ -1,0 +1,11 @@
+--- A: working tree + M6 (new test present) ---
+tally:  ℹ tests 147 | ℹ pass 146 | ℹ fail 1
+failed: ✖ --help wins over --json regardless of flag order: help text, not the JSON payload
+assert: AssertionError [ERR_ASSERTION]: --json --help must match --help byte-for-byte
+
+--- B: M6 + new test REMOVED (9 lines cut) ---
+tally:  ℹ tests 146 | ℹ pass 146 | ℹ fail 0
+failed: (none)
+
+GATE: A kills M6 = true ; B lets M6 survive (attribution) = true
+VERDICT: PASS

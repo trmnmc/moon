@@ -1,0 +1,7 @@
+verbatim-copy check: PASS (both constants match current src/astro.js text)
+MEAN_PHASE_EPOCH (JDE, TT) = 2451550.09766
+deltaT (s) at this epoch   = 62.924
+mean new moon, TT (uncorrected for UT):  2000-01-06T14:20:37.823Z
+mean new moon, TT->UT converted:         2000-01-06T14:19:34.899Z
+rounds to UTC minute: 14:20
+published true new moon: 2000-01-06T18:14Z ; module (true, corrected): see c58-anchor-2000-measure-out.txt

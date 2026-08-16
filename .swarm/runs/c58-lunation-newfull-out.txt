@@ -1,0 +1,12 @@
+window: 1990-01-01T00:00Z .. 2060-01-01T00:00Z, 6h coarse scan + ms bisection
+new-moon instants found: 865
+lunation intervals: 864
+lunation min (days): 29.274
+lunation max (days): 29.826
+lunation spread (hours): 13.3
+
+new->full intervals: 865
+new->full min (days): 13.906
+new->full max (days): 15.613
+new->full mean (days): 14.765
+theoretical half-synodic (days): 14.765

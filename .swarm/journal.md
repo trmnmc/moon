@@ -6682,3 +6682,184 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-17T04:59:59+00:00","usage_reset_at":"2026-08-17T04:59:59+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1786898453,"next_wakeup_at":1786898543,"pid":1220135,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"clock","gear":1,"gear_target":1,"ratio":0,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786898052,"last_real_probe_ts":1786898052,"probe_failures":6,"gear_evidence":"cycle 57: the REAL probe WAS due (now 1786898052 - last_real_probe_ts 1786895933 = 2119 s >= 1800), so bin/swarm-budget.sh was invoked for real -- both the RUNFILE=... env-prefixed form and the bare form were DENIED by the Bash allowlist (KI-2, 10th consecutive cycle since 48). This WAS a real probe attempt, so probe_failures 5 -> 6 and last_real_probe_ts advances to 1786898052; the next real re-attempt comes due at 1786899852. Gear 1 held on fresh disk evidence, not on the failed probe: runs/allocator.json reads weekly_used_pct 100.0, opus_used_pct 97, week_elapsed_pct 92.59 (up from 92.41 last cycle), posture trickle, allow_overall_pct 0, allow_premium_pct 0, dial 0.30, source probe. week_resets_at 1786942799 == stop_at, so there is no later richer window to save for. Guest clamps 1-3; the weekly governor ceiling is 1. Crawl WITH evidence rather than the failure table evidence-free cruise.","weekly":{"ok":true,"weekly_used_pct":100.0,"opus_used_pct":97,"week_elapsed_pct":92.59,"weekly_heat":1.08,"opus_heat":1.047,"ceiling":1,"promote_blocked":true}},"playbook":{"mode":"auto","applied":["L-003","L-006","L-007","L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-034"],"vetoed":[],"inert_for_this_target":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"parse_source":"MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.","inert_note":"The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.","directives":{"wave_k":3,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer \u2014 never commit or push yourself"],"reviewer":["The conductor is the SOLE committer \u2014 never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer \u2014 never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive \u2014 a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":10,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 58 — 2026-08-16T17:05:00Z — moon — BUILD
+
+work: build-wave k=1 (T-148, S/qa, sonnet) — regenerate REPORT.md's pasted command-output
+figures and correct any that no longer reproduce. outcome: **FAILED GATE on 1 figure of 11**.
+T-148 → `todo`, attempts 0 → 1, retry scoped to that one figure. Four conductor-confirmed
+corrections were **kept** in the tree; the one bad hunk was restored to its committed HEAD
+bytes. 147/147 green throughout. 0 filed.
+
+gear 1 (crawl), guest mode, dial 0.3, k_cap 1. `bin/swarm-budget.sh` denied by the Bash
+allowlist again (**KI-2, 11th consecutive cycle since 48**) — this time the `PROBE_CMD=false`
+clock-cruise form, which is the zero-cost path the ≥3-failures rule mandates. A real probe was
+NOT due (now − `last_real_probe_ts` = 849 s < 1800), so `probe_failures` stays at **6** and
+`last_real_probe_ts` is unchanged: an attempt not due is not a failure. Gear held on fresh
+disk evidence, not on the denial — `runs/allocator.json` reads weekly_used_pct **100.0**,
+opus_used_pct 97, week_elapsed_pct **92.74** (up from 92.59 last cycle, so the file is live),
+posture trickle, allow_overall_pct 0, allow_premium_pct 0, dial 0.30, source probe.
+`week_resets_at` 1786942800 ≈ `stop_at` — no later richer window to save for. Guest clamps 1–3.
+
+control: `runs/control.json` read directly (`bin/swarm-notify.sh poll` denied — KI-2, the
+documented non-fatal fallback). `pending[]` empty, `applied[]` empty, no `inject` array.
+Nothing to apply, nothing to triage.
+
+craft pack: `bin/swarm-craft.mjs` ran clean, `degraded: []`. `craft.docs` was NOT passed and
+the item was NOT flagged `craft: "ui"` — same reasoning as cycle 57: this item forbids
+rewriting prose, and handing a builder authoring guidance would invite the churn the SPEC
+names as this run's chief risk.
+
+post-merge checks (collision-scan, qa-verify look) SKIPPED with reason: the only changed
+tracked product file is `REPORT.md`; nothing user-visible changed and moon has no
+classic-script browser surface.
+
+### The failure: a correct number "corrected" into a wrong one
+
+The builder reran the figures and returned eleven verdicts. Ten are right. Figure 4 is a
+**regression**, and it landed in the one table whose preamble claims conductor verification.
+
+The row reads *"At Meeus example 48.a the module gives **0.6801** (book: 0.6786); an
+age-derived fake gives 0.6475."* The builder probed `Date.UTC(1992, 3, 12)`, got 0.6802 /
+0.6476, classified it DIFFERS, and edited both figures.
+
+**Meeus example 48.a is stated as 1992 April 12.0 TD (Dynamical Time); `computeMoon` takes
+UT.** The naive probe evaluates the module ~58.3 s away from the instant the book specifies.
+My own two-frame re-derivation settles it — and note that the *fake* is derived from `age`,
+an independent output, so the two figures agreeing is not one coincidence but two:
+
+```
+naive UTC 1992-04-12.0       illum= 0.68021027 -> 0.6802 | age= 8.790628 | fake= 0.64755672 -> 0.6476
+TD->UT, dT=58.3s             illum= 0.68013701 -> 0.6801 | age= 8.789953 | fake= 0.64748814 -> 0.6475
+```
+
+The TD-corrected frame reproduces **both** committed figures exactly at 4 dp. The book's own
+0.6786 does not discriminate between the frames — both sit ~0.0015 from it — which is exactly
+why the frame has to be reasoned about rather than eyeballed against the book.
+
+**This repo already caught this, and wrote down that it would happen again.** `journal.md:1687`
+(cycle 32), on this same figure: *"correcting for DeltaT (~58.3 s in 1992) gives 0.68013613 →
+0.6801, matching both documents exactly, while my naive Date.UTC probe's 0.68021027 → 0.6802
+was the artifact … **Had I filed it, a builder would have been dispatched to 'correct' a
+correct number in the one table whose preamble claims conductor verification.**"* Cycle 32
+declined to file it. Twenty-six cycles later a builder working a neighbouring item
+rediscovered 0.6802 on its own and made exactly that edit. The prediction was correct in every
+particular.
+
+The hazard is now sitting on disk: `.swarm/runs/c58-meeus-48a-probe.js` is the wrong-frame
+probe, in the directory the retry builder is told to grep. It is named and forbidden in
+T-148's notes and in `cycle-058-verify-T-148.md` rather than deleted — deleting it would erase
+the record of what attempt 1 actually ran.
+
+### VERIFICATION EVIDENCE — T-148 (conductor-run; full record in `.swarm/runs/cycle-058-verify-T-148.md`)
+
+Figure 1, **13.2h → 13.3h: the builder is right and the old figure was the artifact.** The
+published 13.2 was rounded *from the already-rounded pair* (29.826 − 29.274 = 13.2480). At
+full precision, under three independent conventions — the builder's bisection, cycle-027's
+different bisection predicate, and a halved coarse step:
+
+```
+$ node .swarm/runs/c58-gate-spread.js
+convention B (builder, 6h coarse)  : n=864 min=29.274361 max=29.826448 spread=13.2501 h -> 1dp 13.3
+convention A (cycle-027, 6h coarse): n=864 min=29.274361 max=29.826448 spread=13.2501 h -> 1dp 13.3
+convention B, 3h coarse            : n=864 min=29.274361 max=29.826448 spread=13.2501 h -> 1dp 13.3
+```
+
+13.2501 clears the 13.25 boundary by 0.0001 h. Tight, so I priced the tightness rather than
+waving at it: ±1 ms bisection resolution moves the spread by ~6e-7 h, four orders of magnitude
+below the margin, and halving the coarse step moves it not at all.
+
+Figure 9, **"Nine killed" → all ten killed.** The *unmodified* cycle-46 battery, rerun by me:
+
+```
+$ node .swarm/runs/cycle-046-mutants.js
+  M1 KILLED  M2 KILLED  M3 KILLED  M4 KILLED  M5 KILLED
+  M6 KILLED  M7 KILLED  M8 KILLED  M9 KILLED  M10 KILLED
+applied mutants: 10/10   survivors/partials: 0   not-applied: 0
+$ git status --porcelain -- src test package.json README.md
+(empty — source restored byte-identical after the battery)
+```
+
+Figure 10, **scratch arms.** The cycle-47 attribution gate, rerun by me, not read from the
+builder's capture:
+
+```
+$ node .swarm/runs/cycle-047-gate.mjs
+--- A: working tree + M6 (new test present) ---   tally: tests 147 | pass 146 | fail 1
+--- B: M6 + new test REMOVED (9 lines cut) ---    tally: tests 146 | pass 146 | fail 0
+GATE: A kills M6 = true ; B lets M6 survive (attribution) = true      VERDICT: PASS
+```
+
+Figure 11, **REPORT.md:142 `145/145` → `147/147`** — the figure cycle 57 deliberately left
+wrong because hand-editing it would have destroyed it as evidence:
+
+```
+$ node --test test/*.test.js
+ℹ tests 147   ℹ pass 147   ℹ fail 0
+```
+
+Figures 3, 6b, 7 — **NOT-RERUNNABLE, and the classification is honest.** I spot-checked all
+three rather than accepting them, because a not-rerunnable that is actually rerunnable is a
+silent skip. Figure 3 (Meeus 49.a/49.b to 0.23s/0.34s) is corroborated by cycle 32's own
+finding (c): that audit ran once by hand at v0.1.0 and appears in no test. Figure 7 — I
+grepped `*.js *.py *.mjs *.txt` repo-wide for `11688|11,688|30 zones|St_Johns`; the sole hit is
+`cycle-032-gate-controls.py:36`, a **four**-zone list, not the sweep. Figure 6's "24 zones
+independently probed" has no script and no journal hit. Leaving a figure untouched and saying
+so is the correct outcome for these; it is also the hardest call on the item, and the builder
+got it right three times.
+
+Figures 2, 5, 8 — REPRODUCES, unchanged. Figure 5 additionally cross-checked: my rerun of
+`cycle-027-conductor-measure.js` gives 1990-2060 min 29.2744 / max 29.8264 over 864 intervals,
+matching the row.
+
+### Why the four good corrections were kept instead of reverted with the rest
+
+Cycles 7 and 10 both reverted a whole diff on a partial failure, and I weighed following them.
+The rule they enforce is that a conductor editing the artifact leaves nothing independent
+checking the conductor's own wording — and both of those cases discarded builder-authored
+**prose** the conductor would otherwise have had to vouch for. Neither condition holds here.
+The four kept corrections are **numbers I regenerated myself this cycle**, each with my own
+command output pasted above; my verification does not rest on the builder's report for any of
+them. Reverting them would have knowingly restored four figures this gate had just *proven
+false* into the one document whose entire purpose is doc truth. And the bad hunk was not
+conductor-patched either — it was restored to bytes already committed in HEAD, so there is
+still zero conductor-authored text in the artifact. The item is failed without discount:
+`todo`, attempts 0 → 1, retry scoped to the one figure that is genuinely unverified.
+
+Routing for the retry: **sonnet**, ladder escalation and gear-1 demotion cancelling. Per cycle
+9's distinction, cancelling is only legitimate when attempt 1 did not fail on capability, and
+it did not — it got ten of eleven right including the three hardest calls, and failed on a
+single domain fact (48.a is TD, computeMoon is UT) that lives in no script and no test. A
+larger model does not reliably carry that fact; a brief that hands it over does, and the retry
+brief does, with the journal citation attached.
+
+### Backlog
+
+T-148 stays **todo** (attempts 1). **49 done / 1 todo of 50.** Nothing filed — the wrong-frame
+probe hazard is pinned into T-148's notes rather than opened as its own row, which would be
+churn.
+
+Wave autotune: one failed verify out of one item dispatched — a 100% failure rate for the
+wave. `k_current` 5 → **4**, `wave_streak` → 0. No practical effect: min(4, gear cap 1) = 1.
+
+Candidate playbook lesson flagged for WRAP_UP distillation, and it is about the *prediction*,
+not the number: before changing a published figure, grep the journal for the figure — a prior
+cycle may already have adjudicated it, and that adjudication is evidence. Cycle 32 wrote the
+warning, declined to file it anywhere a builder would look, and the failure it described
+arrived 26 cycles later. Second half, domain-shaped: a regenerated figure must be regenerated
+in the FRAME the original used (time scale, window, units); a same-named quantity computed in
+a different frame is a new derivation, not a reproduction. Figure 1 is the same rule biting in
+the opposite direction — there the *old* figure was the one derived in a sloppier frame.
+
+next pick (cycle 59): **T-148 retry**, scoped to figure 4 only — regenerate Meeus 48.a in the
+TD frame and confirm the committed 0.6801/0.6475 reproduce (expected: they do, so REPORT.md
+needs no edit and the item closes on the capture alone). That closes must-have 4 and empties
+the backlog, at which point the VALUE_LOOP ratchet decides whether anything earns the
+remaining ~11.7 h or the target goes DONE.
+
+next wakeup: see runfile (+90s base, pacer-fired)
+
+runfile-mirror:
+```json
+{"version": 1, "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-17T04:59:59+00:00", "usage_reset_at": "2026-08-17T04:59:59+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "heartbeat": {"ts": 1786900239, "next_wakeup_at": 1786900329, "pid": 1223376, "limp": false, "degraded_tiers": []}, "pacing": {"mode": "guest", "dial": 0.3}, "budget": {"source": "clock", "gear": 1, "gear_target": 1, "ratio": 0, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "api_cap_usd": null, "api_spend_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786900239, "last_real_probe_ts": 1786898052, "probe_failures": 6, "gear_evidence": "cycle 58: the real probe was NOT due (now - last_real_probe_ts 1786898052 = 849 s < 1800), so per the probe_failures>=3 rule the zero-cost PROBE_CMD=false clock-cruise form of bin/swarm-budget.sh was invoked instead -- and it too was DENIED by the Bash allowlist (KI-2, 11th consecutive cycle since 48). Because no real probe was due, probe_failures stays at 6 and last_real_probe_ts is unchanged: an attempt not due is not a failure. Next real re-attempt comes due at 1786899852. Gear 1 held on fresh disk evidence rather than the failure table's evidence-free cruise: runs/allocator.json reads weekly_used_pct 100.0, opus_used_pct 97, week_elapsed_pct 92.74 (up from 92.59 last cycle, so the file is live and not stale), posture trickle, allow_overall_pct 0, allow_premium_pct 0, dial 0.30, source probe. week_resets_at 1786942800 is effectively stop_at, so there is no later richer window to save for. Guest clamps 1-3.", "weekly": {"ok": true, "weekly_used_pct": 100.0, "opus_used_pct": 97, "week_elapsed_pct": 92.74, "weekly_heat": 1.08, "opus_heat": 1.047, "ceiling": 1, "promote_blocked": true}}, "playbook": {"mode": "auto", "applied": ["L-003", "L-006", "L-007", "L-008", "L-011", "L-016", "L-018", "L-020", "L-021", "L-022", "L-024", "L-026", "L-029", "L-031", "L-034"], "vetoed": [], "inert_for_this_target": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "parse_source": "MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.", "inert_note": "The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.", "directives": {"wave_k": 3, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer — never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer — never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer — never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.", "When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive — a kill you cannot attribute is not evidence.", "Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}}, "watchdog": {"mode": "normal", "plist_loaded": true, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "caffeinate_pid": 0, "wrap_up_complete": false, "cycles_since_recycle": 10, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
+```

@@ -1,0 +1,48 @@
+=== T-141 harness failability proof — cycle 046 ===
+Each mutant breaks ONE documented behaviour. A mutant that SURVIVES means the
+harness does not actually check that behaviour.
+
+KILL M1  --south becomes a no-op (hemisphere ignored by the renderer)
+      expected to fail: C11
+      actually failed:  C11, C13, C14, C15
+KILL M2  --compact no longer suppresses the next-full-moon line
+      expected to fail: C4
+      actually failed:  C4, C25
+KILL M3  --json renames a documented field (cycleFraction -> cycle_fraction)
+      expected to fail: C6
+      actually failed:  C6, C7
+KILL M4  usage errors go to STDOUT and exit 0 ("safe to pipe" broken)
+      expected to fail: C21, C22, C23, C24, C26
+      actually failed:  C21, C22, C23, C24, C26
+KILL M5  the next-full-moon date is formatted from the UTC month instead of the local one
+      expected to fail: C10
+      actually failed:  C10
+KILL M6  --help no longer wins over --json
+      expected to fail: C20
+      actually failed:  C20
+KILL M7  JSON rounding removed — raw float dumps ("precision theatre")
+      expected to fail: C8
+      actually failed:  C8
+KILL M8  the block top rule is one column wider than the body (box misalignment)
+      expected to fail: C16
+      actually failed:  C16
+KILL M9  the readout drops a disc cell, shifting the phase name off column 12
+      expected to fail: C2
+      actually failed:  C2, C9, C11
+KILL M10  hemisphere auto-detection always answers north (TZ ignored)
+      expected to fail: C15
+      actually failed:  C15
+
+=== MUTATION SUMMARY ===
+  M1  KILLED  — expected C11 got C11,C13,C14,C15
+  M2  KILLED  — expected C4 got C4,C25
+  M3  KILLED  — expected C6 got C6,C7
+  M4  KILLED  — expected C21,C22,C23,C24,C26 got C21,C22,C23,C24,C26
+  M5  KILLED  — expected C10 got C10
+  M6  KILLED  — expected C20 got C20
+  M7  KILLED  — expected C8 got C8
+  M8  KILLED  — expected C16 got C16
+  M9  KILLED  — expected C2 got C2,C9,C11
+  M10  KILLED  — expected C15 got C15
+
+applied mutants: 10/10   survivors/partials: 0   not-applied: 0

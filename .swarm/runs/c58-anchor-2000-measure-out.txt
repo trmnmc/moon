@@ -1,0 +1,12 @@
+M1 age-discontinuity bisection  : 2000-01-06T18:13:43.349Z
+M2 cycleFraction-wrap bisection : 2000-01-06T18:15:22.785Z (test/astro.test.js:63-72 method)
+M3 illumination-minimum search  : 2000-01-06T18:15:22.789Z (ch.48 series, independent of M1/M2)
+M1-M2 spread (s): -99.436
+M1-M3 spread (s): -99.440
+
+published new moon              : 2000-01-06T18:14:00.000Z
+README.md:165 / REPORT.md:34    : 2000-01-06T18:15 UTC   <- the claim under test
+
+M1: vs published    -16.7 s | vs README claim    -76.7 s | rounds to UTC minute 18:14
+M2: vs published     82.8 s | vs README claim     22.8 s | rounds to UTC minute 18:15
+M3: vs published     82.8 s | vs README claim     22.8 s | rounds to UTC minute 18:15

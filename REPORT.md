@@ -39,7 +39,7 @@ verification time; no builder saw the check that would judge it.
 
 | Claim | Evidence |
 |---|---|
-| Phase math is real Meeus, not a synodic modulo | Lunation lengths span **29.274–29.826 days** across 864 lunations, 1990–2060 (13.2h spread; a measured lower bound over that window, not the physical range). A mean-formula implementation is flat at 29.530589 by construction. |
+| Phase math is real Meeus, not a synodic modulo | Lunation lengths span **29.274–29.826 days** across 864 lunations, 1990–2060 (13.3h spread; a measured lower bound over that window, not the physical range). A mean-formula implementation is flat at 29.530589 by construction. |
 | Accuracy is within the ~1h target | True new moon of 2000-01-06 computed **18:15 UTC** vs published 18:14. The mean formula lands at 14:20 — nearly 4h off. |
 | Correction tables are correctly transcribed | Independent audit reproduced Meeus **worked examples 49.a and 49.b to 0.23s and 0.34s**, exercising the mean formula, E, both 25-term tables, W, and A1–A14. |
 | Illumination is true elongation, not faked from age | At Meeus example 48.a the module gives **0.6801** (book: 0.6786); an age-derived fake gives 0.6475. Conclusive discriminator. |
@@ -51,8 +51,8 @@ verification time; no builder saw the check that would judge it.
 | No emoji, no exclamation marks | Codepoint sweep across all output modes and all source files. |
 | Zero runtime dependencies | `package.json` has no `dependencies` key; source requires only `node:*` and sibling modules. |
 | **The assembled CLI behaves end-to-end as documented** (cycle 46) | 28 checks over the **real binary** executed as a child process, never imported, exit status read from `spawnSync().status` with no shell and no pipe. Expectations derived from the documented contract — the hemisphere check parses README's own north\|south table (15 rows) rather than trusting the renderer. Zero divergences. |
-| **The suite's end-to-end coverage was measured, not assumed** (cycles 46–47) | Ten mutants, each breaking one documented end-to-end behavior, run against the suite in throwaway copies with a green baseline. **Nine killed.** The tenth (`--help`'s precedence over `--json`) survived, was filed as T-142, and is now pinned — see below. |
-| **`--help` wins over `--json`, and the test proving it is attributably failable** (cycle 47) | Two scratch copies, both mutated identically: with the new test present the suite reads 145 tests / 144 pass / **1 fail** (that test); with the new test removed it reads **144/144 green**, i.e. the mutant survives. The kill is attributable to the nine lines added, and cycle 46's separate measurement is independently reproduced rather than trusted. |
+| **The suite's end-to-end coverage was measured, not assumed** (cycles 46–47, re-run cycle 58) | Ten mutants, each breaking one documented end-to-end behavior, run against the suite in throwaway copies with a green baseline. At cycles 46–47, **nine were killed**; the tenth (`--help`'s precedence over `--json`) survived, was filed as T-142, and was fixed at cycle 47 — see below. Re-run cycle 58 against the current tree with the identical, unmodified battery: **all ten are killed, zero survive** — T-142's fix now closes the escape the original battery found. |
+| **`--help` wins over `--json`, and the test proving it is attributably failable** (cycle 47, re-run cycle 58) | Two scratch copies, both mutated identically: with the new test present the suite reads 147 tests / 146 pass / **1 fail** (that test); with the new test removed it reads **146/146 green**, i.e. the mutant survives. The kill is attributable to the nine lines added, and cycle 46's separate measurement is independently reproduced rather than trusted. (At cycle 47, when the suite carried 145 tests, the same script read 145/144/1 fail and 144/144.) |
 
 ### CLAIMED but NOT independently verified
 
@@ -139,7 +139,8 @@ a decision and it is worth stating plainly rather than burying.
 The definition of done was re-verified from evidence at cycle 47, not read off backlog
 labels: KI-1 (REPORT.md above + README:38-41), KI-6 (astro.js:358 + astro.test.js:294),
 KI-7 (`PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` declared astro.js:71-74, exported astro.js:363, README:184,
-astro.test.js:491), KI-5 (render.test.js:629), 145/145 green, no `dependencies` key.
+astro.test.js:491), KI-5 (render.test.js:629), 145/145 green at the time (**147/147**
+re-run against the current tree at cycle 58, T-148), no `dependencies` key.
 
 Two backlog items remain `todo`:
 

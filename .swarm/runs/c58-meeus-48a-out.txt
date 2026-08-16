@@ -1,0 +1,5 @@
+48.a illumination   = 0.6802
+48.a phaseAngle deg = 111.1260
+48.a age days       = 8.7906
+age-derived fake    = 0.6476
+book (Meeus 48.a)   = 0.6786 (memory-sourced, not computed here)
