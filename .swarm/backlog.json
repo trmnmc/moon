@@ -1008,6 +1008,42 @@
    "model": "sonnet",
    "attempts": 0,
    "notes": "Found at cycle 53 by the T-144 sweep. The test asserts the right thing and looks like real coverage, but its discriminating power is zero: under the mutation node:util falls back to process.argv.slice(2), which is [] under `node --test <file>` (verified: PROBE []), so the mutant coincidentally produces the truth's literal []. Conductor's own witness from a process with non-empty ambient argv shows the real divergence: truth {\"hemisphere\":null,...} vs mutant parsing the embedding process's command line (cycle-053-gate-out.txt:94). Directly in scope for this run's must-have \"every new test proven failable AND attributable in two arms\" (L-029). [cycle 55] Unblocked and now the top-ranked remaining test item; T-146 closed the only HOLE that produced wrong output on a stock host, so AA1 (a test that cannot fail) is what is left of this run's \"failable AND attributable\" must-have. Same two-arm proof standard applies, and the ambient-argv subtlety is the whole difficulty: under `node --test <file>` process.argv.slice(2) is [], which is why the mutant coincidentally matches the truth. The arm must be run from a process whose ambient argv is non-empty.\n[cycle 56] DONE. Closed by a child-process test: parseArgs(undefined) is now called from `node -e ... -- --south --json`, so the child's ambient argv is non-empty and the AA1 mutant diverges on two fields at once (hemisphere null->south, json false->true) instead of coincidentally reproducing []. Conductor two-arm gate (.swarm/runs/cycle-056-verify-T-149.txt), method deliberately unlike the builder's -- src/args.js mutated by substitution and the TEST TREE swapped via git rather than tests edited/skipped: Arm A (new tree + AA1) fail 1, sole failure IS the new test; Arm B (HEAD tree + same AA1) fail 0, mutant survives -- attribution proven; final unmutated 147/147."
+  },
+  {
+   "id": "T-150",
+   "title": "REPORT.md's How-to-run block annotates the test command '# 145 tests'; the suite runs 147",
+   "kind": "docs",
+   "priority": 7,
+   "value": "M",
+   "effort": "S",
+   "status": "todo",
+   "deps": [],
+   "files_hint": [
+    "REPORT.md"
+   ],
+   "acceptance": "REPORT.md's 'How to run it' code block annotates the test command with the count a fresh run of the suite actually produces on the current tree, and no other line of that block changes. Historical, run-scoped counts elsewhere in the file (e.g. the cycles 0-47 summary at REPORT.md:6, and the two-arm figures at :55) are true as written and must NOT be rewritten to today's number.",
+   "packages": [],
+   "model": "haiku",
+   "attempts": 0,
+   "notes": "Found at cycle 60 (inline PLAN). Conductor-verified premise, not an agent claim: grep of REPORT.md shows :212 `node --test test/*.test.js    # 145 tests`, while `node --test test/*.test.js` on the current tree reports `tests 147 / pass 147 / fail 0`. This is the one output-cited number T-147 (line citations) and T-148 (pasted command output) did not reach -- it is a comment inside an instruction block rather than a citation or a capture, so both sweeps' scopes stepped over it. Directly in scope for the run's must-have 'every line-cited and output-cited doc claim is re-verified against the current tree'. Beware the trap: :6 and :55 are scoped to the run/cycle they describe and are TRUE at those counts; changing them would be falsifying history to reach agreement."
+  },
+  {
+   "id": "T-151",
+   "title": "README's KI-5 limitation makes the reader learn East Asian Width jargon to answer 'am I affected?'",
+   "kind": "docs",
+   "priority": 6,
+   "value": "M",
+   "effort": "S",
+   "status": "todo",
+   "deps": [],
+   "files_hint": [
+    "README.md"
+   ],
+   "acceptance": "README's 'Known limitation: terminal glyph width' section lets a reader settle whether their own terminal is affected from something they can observe on screen (a check they can run and an outcome they can compare), without needing to know what 'Neutral' or 'Ambiguous' East Asian Width means or which terminal setting they have. The existing technical explanation stays -- nothing is deleted or weakened; the section gains the missing observable, and the truth of every retained sentence is preserved.",
+   "packages": [],
+   "model": "haiku",
+   "attempts": 0,
+   "notes": "Found at cycle 60 (inline PLAN); this is SPEC nice-to-have #2, unlocked now that every must-have is verified. Conductor-verified premise: README.md:205-224 explains the failure via Unicode width classes and names iTerm2's 'treat ambiguous-width as double' and `xterm -cjk_width` as configurations, but nowhere tells the reader what to LOOK AT on their own screen. The section already names an observable a reader could check unassisted (the `--block` frame not closing) -- the gap is that nothing points them at it as the test. Churn guard: rewording the existing paragraphs is NOT this item; if the diff does not add a check a reader can perform, the item is not done."
   }
  ]
 }

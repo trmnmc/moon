@@ -2,8 +2,8 @@
  "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
- "phase": "BUILD",
- "cycle": 59,
+ "phase": "VALUE_LOOP",
+ "cycle": 60,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -612,16 +612,16 @@
   "last_build_wave_cycle": 59
  },
  "counters": {
-  "consecutive_no_value": 0,
+  "consecutive_no_value": 1,
   "consecutive_failures": 0,
   "k_current": 4,
   "wave_streak": 1,
   "window_tokens_attributed": 0
  },
  "last_cycle": {
-  "cycle": 59,
-  "work": "build-wave k=1 (T-148 retry, S/qa, sonnet) -- regenerate Meeus 48.a figure in the TD frame",
-  "outcome": "verified-value: T-148 PASSED, REPORT.md correctly left unedited, backlog empty"
+  "cycle": 60,
+  "work": "inline PLAN (sonnet Plan seat) -- VALUE_LOOP candidate scan against the SPEC nice-to-haves; backlog was empty, 50/50 done",
+  "outcome": "planning: 2 items filed (T-150 stale test count in REPORT's how-to-run block, T-151 KI-5 self-check line); CI nice-to-have closed as already-satisfied on live evidence; no code verified this cycle"
  },
  "run_label": "improvement-2026-08-16",
  "resolved_issues": [
