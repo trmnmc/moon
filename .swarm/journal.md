@@ -7424,3 +7424,132 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-17T04:59:59+00:00","usage_reset_at":"2026-08-17T04:59:59+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1786909509,"next_wakeup_at":1786912209,"pid":1261300,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"clock","gear":1,"gear_target":1,"ratio":0,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786909509,"last_real_probe_ts":1786906571,"probe_failures":8,"gear_evidence":"cycle 64: NO real probe was due at step 1 (now 1786907663 - last_real_probe_ts 1786906571 = 1092 s < 1800), so probe_failures stays 8 and last_real_probe_ts is unchanged; next real re-attempt due 1786908371. The prescribed zero-cost substitute (PROBE_CMD=false bin/swarm-budget.sh) WAS attempted and was DENIED by the Bash allowlist (KI-2, unchanged since cycle 35) -- a denial is not a probe failure, the script never reached the shell and emitted no probe_ok, so no counter moved. Gear 1 held on fresh disk evidence read straight from runs/allocator.json: posture trickle, weekly_used_pct 100.0, opus_used_pct 97, week_elapsed_pct 94.16 (94.01 last cycle, so the file is live), allow_overall_pct 0, allow_premium_pct 0, dial 0.30, source probe. week_resets_at 1786942799 == stop_at, so there is no later, richer window worth saving for. Guest clamps 1-3; gear 1 caps the effective wave at 1, which is what ran. Burn rate and projected depletion remain UNAVAILABLE -- no probe has produced burn evidence since the allowlist gap opened, and this cycle does not pretend otherwise. runs/control.json read directly (swarm-notify.sh poll is behind the same gap): pending [], applied [], no inject array -- nothing to apply or triage.","weekly":{"ok":true,"weekly_used_pct":100.0,"opus_used_pct":97,"week_elapsed_pct":94.16,"weekly_heat":1.064,"opus_heat":1.032,"ceiling":null,"promote_blocked":true,"note":"ceiling stays null because bin/swarm-budget.sh still cannot run (KI-2), so no governor ceiling was emitted this cycle either. Gear 1 rests on the allocator posture, not on the weekly governor."}},"playbook":{"mode":"auto","applied":["L-003","L-006","L-007","L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-034"],"vetoed":[],"inert_for_this_target":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"parse_source":"MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.","inert_note":"The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.","directives":{"wave_k":3,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer — never commit or push yourself"],"reviewer":["The conductor is the SOLE committer — never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer — never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive — a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":16,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 65 | 2026-08-16T20:00:30+00:00 | moon | VALUE_LOOP
+work: build-wave k=1 (effective wave = min(k_current 5, gear cap 1, hard max 5) = 1) -- item T-154,
+the highest-stake of the six holes the cycle-64 sweep measured. Dispatched as a DIRECT Agent call,
+not Workflow: this is a pacer-spawned `claude -p` session (runs/pacer.log 19:52:39 decision=spawned;
+conductor pid 1323571 confirmed by reading /proc and finding `claude -p /swarm cycle
+--output-format json --permission-mode acceptEdits --add-dir /opt/targets/moon`), and Workflow is
+review-gated headless -- the documented failure-table fallback. k=1, so the disjoint-file-scope
+requirement is met by construction.
+budget: gear 1 (guest, clamp 1-3) | a real probe WAS due this cycle (now 1786909965 -
+last_real_probe_ts 1786906571 = 3394 s >= 1800) and was ATTEMPTED: `RUNFILE=... 
+bin/swarm-budget.sh` was DENIED by the Bash allowlist, as was the zero-cost substitute path and
+`bin/swarm-notify.sh poll` (KI-2, root-caused at cycle 35 as a plain missing allow entry, unchanged
+since). A denial is NOT a probe failure -- the script never reached the shell and emitted no
+probe_ok -- so probe_failures holds at 8 and last_real_probe_ts is unchanged; only last_probe_ts
+moves. Gear 1 held on fresh disk evidence read straight from runs/allocator.json: posture trickle,
+weekly_used_pct 100.0, opus_used_pct 97, week_elapsed_pct 94.57 (94.16 last cycle, so the file is
+live), allow_overall_pct 0, allow_premium_pct 0, reserve_overall_pct 16.24, dial 0.30, source probe.
+week_resets_at 1786942800 == stop_at, so there is no later, richer window worth saving for. Burn
+rate and projected depletion remain UNAVAILABLE -- no probe has produced burn evidence since the
+allowlist gap opened, and this cycle does not pretend otherwise.
+control: runs/control.json read directly (poll denied, above) -- pending [], applied [], no inject
+array. Nothing to apply, nothing to triage.
+spec re-anchor: cycle 65 is a 5th cycle, so SPEC.md was re-read in full rather than restated from
+the digest. Backlog hygiene: 57 items, 53 done + 4 todo, 0 blocked, 0 dropped -- 4 live items is far
+under the ~30 cap, the four are pairwise distinct (each names a different measured mutant family),
+and nothing is stale enough to drop. No hygiene edits were needed, which is recorded rather than
+skipped silently.
+craft pack: `node bin/swarm-craft.mjs` ran clean, degraded []. NO craft text was spliced: the item's
+files_hint is test/regressions.test.js, no path ends in a UI extension and the title names no UI
+surface, so the `craft: "ui"` flag does not fire; the item writes no docs and runs no review, so
+craft.docs and craft.review are not its packs either.
+routing: T-154 is kind fix / effort S, attempts 0 -> sonnet per the table; no ladder escalation was
+due. Gear-1 demotion does NOT apply -- sonnet->haiku is permitted only for docs/polish items and a
+fix is neither (build/fix never drops below sonnet). No judgment seat involved, so the fable guard
+is not in play. Model actually used: sonnet.
+prompt lines: builder line spliced ("the conductor is the SOLE committer -- never commit or push
+yourself"). The conductor ALSO spliced four of the playbook's qa-role lines (two-arm
+failable+attributable proof; discriminator over remembered reference value; script the scenario
+deterministically with hand-computed expectations; default to skepticism about your own result).
+The dispatch is a build-wave and the item's kind is fix, so the builder role is the literal match --
+but this item's whole deliverable IS a two-arm proof, and those four lines ARE its method.
+Withholding them on a role label would be letter over substance, and they can only make the work
+stricter. Same reasoning as cycle 64, applied to a fix-kind item.
+pick rationale: gear 1 permits S-effort sonnet builds only, and T-154 is the only live item that is
+both S-effort and dependency-free (T-155 is M and deps T-153; T-156 deps T-155; T-153 is S but
+scores lower). It is also the item cycle 64 named as the natural next pick, and the ratchet agrees
+independently: "would the target user notice?" -- yes, a reader at UTC+13/+14 is shown the WRONG
+NIGHT for the full moon if bin/moon.js's local-calendar accessors ever regress, and "which night is
+the full moon" is the CLI's whole question; "would they still care after 10 minutes?" -- yes, the
+gap is structural, not probabilistic: under TZ=UTC (which every other date test pins) the local and
+UTC accessors are definitionally identical, so re-running the existing suite any number of times
+cannot ever catch it. Deliberately NOT a polish or docs item: gear 1 says must-haves before polish,
+and SPEC must-have 2 (close measured HOLEs with two-arm proofs) is still open.
+VERIFICATION EVIDENCE (conductor-run, authored at gate time -- the builder never saw these checks):
+  1. scope, from the diff rather than the agent's word:
+     git -C /opt/targets/moon diff --stat
+       ->  test/regressions.test.js | 31 +++++++++++++++++++++++++++++++
+           1 file changed, 31 insertions(+)
+     Test-only, one file, insertions ONLY -- no existing assertion was reworded, weakened, or
+     deleted to reach green. bin/moon.js and src/ are byte-identical to HEAD, which matters here
+     because the shipped code is the CORRECT arm: this item is a coverage gap, not a defect, and a
+     builder "fixing" the source would have been the failure mode.
+  2. THE GATE, written by me at .swarm/runs/c065-gate-t154.mjs -- not the builder's harness, my own
+     mutants, my own removal of the test, run against a pristine COPY in /tmp so the real repo is
+     never mutated by the gate. Full output: .swarm/runs/c065-gate-t154-out.txt. Its design point
+     is that a harness reporting RED for everything would "confirm" the claim while proving
+     nothing, so it runs controls in BOTH directions and two mutant variants -- the full accessor
+     swap and the MINIMAL one-accessor swap (when.getDate -> when.getUTCDate alone), so a test that
+     merely notices a broad edit is not mistaken for one that discriminates the behavior:
+       C1 CONTROL pristine bin + test present   exit=0 tests=148 pass=148 fail=0
+       A1 mutant FULL  + test present           exit=1 tests=148 pass=147 fail=1  failed: next-full-moon date prints the reader's local day, not the UTC day
+       B1 mutant FULL  + test REMOVED           exit=0 tests=147 pass=147 fail=0
+       A2 mutant MIN   + test present           exit=1 tests=148 pass=147 fail=1  failed: next-full-moon date prints the reader's local day, not the UTC day
+       B2 mutant MIN   + test REMOVED           exit=0 tests=147 pass=147 fail=0
+       VERDICT: GATE PASS   (9/9 checks)
+     Both arms of SPEC must-have 1 are therefore satisfied twice over: FAILABLE (A1, A2 go red) and
+     ATTRIBUTABLE (B1, B2 go green with the test removed and the SAME mutation still applied, and
+     in both A-arms the single distinct failing test is the new one BY NAME).
+  3. the ARITHMETIC, re-derived by me rather than read off the test's comment, because the test is
+     worthless if its pinned instant does not actually straddle a date line:
+       astro.nextFullMoon(2026-06-01T00:00:00Z) = 2026-06-29T23:56:38.185Z
+       UTC calendar day        : 2026-06-29  -> 29 Jun
+       Pacific/Kiritimati offset: GMT+14:00
+       Kiritimati calendar day : 2026-06-30  -> 30 Jun     days differ: true
+     I also asserted explicitly that Kiritimati resolved to a REAL non-UTC offset rather than
+     silently falling back to GMT -- a tzdata-less box would make the test vacuous, and "days
+     differ: true" alone would not have caught that.
+  4. MY FIRST THREE GATE RUNS WERE WRONG AND ARE OWNED HERE, not quietly overwritten. v1 crashed
+     (I called computeMoon().nextFullMoon; nextFullMoon is a SEPARATE export). v2 hand-listed six
+     test files and silently ran a 134-test SUBSET -- `test/*.test.js` is a shell glob and I had
+     forgotten contracts.test.js and manifest.test.js; fixed by reading the test directory from
+     disk and asserting >= 8 files, so the enumeration cannot drift from what the shell expands.
+     v3 parsed only the TAP `not ok` form while this node emits the spec reporter's `x name`, so
+     attribution came back "(none parsed)" -- fixed to accept both forms AND to THROW when a
+     failure count is positive but no name parsed, so an unrecognized reporter fails loudly instead
+     of reading as "no attribution". (v4 also deduped the spec reporter's double-print of a failing
+     name.) Every fix was to MY harness; no claim, test, or assertion of the item was touched to
+     reach green.
+  5. full test_cmd, conductor-run from /opt/targets/moon: node --test test/*.test.js
+       -> "tests 148 / pass 148 / fail 0 / cancelled 0 / skipped 0 / todo 0"   GREEN
+     148 = 147 + 1, and never below the 145 baseline the definition-of-done fixes.
+gate: T-154 PASS -> done. attempts stays 0. One measured HOLE closed with a two-arm proof; five
+remain (three still filed as T-153/T-155/T-156, two folded into those items' families).
+HONEST CAVEAT, raised by the builder and not dismissed: the test depends on the host having
+Pacific/Kiritimati in its tzdata. Verified present on this box (GMT+14:00 above). On a small-icu
+Node build the zone would resolve to UTC and the test would print 29 Jun and FAIL -- i.e. the
+failure mode is LOUD, not a silent false-green, which is the acceptable direction. Not filed as a
+backlog item: moon declares no engines constraint and its CI runs stock Node (full-icu), so this is
+recorded as a known property of the test rather than a defect.
+post-merge checks: collision-scan and the qa-verify look pass NOT RUN, and recorded as not-run
+rather than passed -- zero tracked source files changed, and moon is a zero-dependency terminal CLI
+with no browser-served surface, so the user-visible heuristic does not fire regardless.
+wave autotune: the wave was CLEAN (zero reverts, zero failed verifies) -> wave_streak 0 -> 1. One
+short of the raise, so k_current stays 5. Bookkeeping only; gear 1 caps the effective wave at 1
+while trickle holds.
+outcome: 1 item verified. counters.consecutive_no_value stays 0. Churn breaker not engaged.
+next: three measured items remain. T-155 is the highest-value survivor (H value, the M25 family --
+the sweep's most severe finding, where the illumination precision guard is provably blind FOREVER
+to a scale-factor mutation) but it is M-effort, which gear 1 does not admit; it needs the gear to
+rise or a deliberate split. T-153 is the S-effort, dependency-free pick that gear 1 DOES admit and
+is the natural next dispatch. Standing alternatives if the gear rises: last full QA was cycle 46
+(19 cycles ago) and last review-fix was cycle 23 -- both increasingly overdue against how much test
+and prose surface has changed since.
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-17T04:59:59+00:00","usage_reset_at":"2026-08-17T04:59:59+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1786910430,"next_wakeup_at":1786910520,"pid":1323571,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"clock","gear":1,"gear_target":1,"ratio":0,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786910430,"last_real_probe_ts":1786906571,"probe_failures":8,"gear_evidence":"cycle 65: a real probe WAS due (now 1786909965 - last_real_probe_ts 1786906571 = 3394 s >= 1800) and was ATTEMPTED -- RUNFILE=... bin/swarm-budget.sh was DENIED by the Bash allowlist (KI-2, unchanged since cycle 35), as was bin/swarm-notify.sh poll. A denial is not a probe failure: the script never reached the shell and emitted no probe_ok, so probe_failures holds at 8 and last_real_probe_ts is unchanged; only last_probe_ts moves. Gear 1 held on fresh disk evidence read straight from runs/allocator.json: posture trickle, weekly_used_pct 100.0, opus_used_pct 97, week_elapsed_pct 94.57 (94.16 last cycle, so the file is live), allow_overall_pct 0, allow_premium_pct 0, reserve_overall_pct 16.24, dial 0.30, source probe. week_resets_at 1786942800 == stop_at, so there is no later, richer window worth saving for. Guest clamps 1-3; gear 1 caps the effective wave at 1, which is what ran. Burn rate and projected depletion remain UNAVAILABLE -- no probe has produced burn evidence since the allowlist gap opened, and this cycle does not pretend otherwise. runs/control.json read directly: pending [], applied [], no inject array -- nothing to apply or triage.","weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":97,"week_elapsed_pct":94.57,"weekly_heat":1.064,"opus_heat":1.032,"ceiling":null,"promote_blocked":true,"note":"ceiling stays null because bin/swarm-budget.sh still cannot run (KI-2), so no governor ceiling was emitted this cycle either. Gear 1 rests on the allocator posture, not on the weekly governor."}},"playbook":{"mode":"auto","applied":["L-003","L-006","L-007","L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-034"],"vetoed":[],"inert_for_this_target":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"parse_source":"MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.","inert_note":"The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.","directives":{"wave_k":3,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer — never commit or push yourself"],"reviewer":["The conductor is the SOLE committer — never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer — never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive — a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":17,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

@@ -149,6 +149,37 @@ test('next-full-moon date omits the year when it falls in the current calendar y
     JSON.stringify(dateLine))
 })
 
+// T-154 — formatFullMoonDate reads when.getDate()/getMonth()/getFullYear(), i.e. the
+// reader's LOCAL calendar day, not UTC. bin/moon.js says this is deliberate: "which
+// night is the full moon" is a question about the reader's calendar. Every other date
+// test in this suite pins TZ=UTC, where local and UTC accessors are definitionally
+// identical, so a regression that swapped them for getUTCDate/getUTCMonth/getUTCFullYear
+// would ship silently. This test uses a TZ far enough ahead of UTC that the two
+// calendars disagree for the pinned full-moon instant. Reusing the same "now" as the
+// T-106 tests above (2026-06-01T00:00:00Z, whose next full moon is
+// 2026-06-29T23:56:38.185Z) under TZ=Pacific/Kiritimati (UTC+14): local time is
+// 23:56:38 UTC + 14h = 13:56:38 the next day, i.e. 30 Jun local vs 29 Jun UTC — the
+// calendar day genuinely differs. Both "now" and the full moon fall in local year
+// 2026, so the year suffix is still omitted; only the day/month accessor choice is
+// under test.
+test('next-full-moon date prints the reader\'s local day, not the UTC day', () => {
+  const script = [
+    "const R = Date; const f = new R('2026-06-01T00:00:00Z');",
+    'class D extends R { constructor(...a){ a.length ? super(...a) : super(f.getTime()) }',
+    '  static now(){ return f.getTime() } }',
+    'global.Date = D;',
+    'require(' + JSON.stringify(BIN) + ').main([]);'
+  ].join('\n')
+  const out = execFileSync(process.execPath, ['-e', script],
+    { encoding: 'utf8', env: { ...process.env, TZ: 'Pacific/Kiritimati' } })
+  const dateLine = out.split('\n').find((l) => l.includes('next full moon'))
+  assert.ok(dateLine, 'no next-full-moon line produced')
+  assert.match(dateLine, /next full moon\s+30 Jun$/,
+    'the full moon at 2026-06-29T23:56:38Z is 30 Jun in Pacific/Kiritimati (UTC+14); ' +
+    'printing 29 Jun means the UTC day leaked through instead of the local day: ' +
+    JSON.stringify(dateLine))
+})
+
 // T-131 — every command in README's Install section carried an unresolved `YOUR_USER`
 // placeholder (npx github:YOUR_USER/moon, and the git-clone equivalent), so the very
 // first command a reader saw was not runnable as written. `gh api repos/YOUR_USER/moon`

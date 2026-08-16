@@ -1,0 +1,30 @@
+=== ARITHMETIC (re-derived by the conductor, not read from the test) ===
+now                       : 2026-06-01T00:00:00.000Z
+astro.nextFullMoon(now)   : 2026-06-29T23:56:38.185Z
+UTC calendar day          : 2026-06-29 -> 29 Jun
+Pacific/Kiritimati offset : GMT+14:00
+Kiritimati calendar day   : 2026-06-30 -> 30 Jun
+days differ               : true
+tz actually resolved (not silently UTC): true
+
+=== SCENARIOS ===
+C1 CONTROL pristine bin + test present   exit=0 tests=148 pass=148 fail=0
+A1 mutant FULL  + test present           exit=1 tests=148 pass=147 fail=1  failed: next-full-moon date prints the reader's local day, not the UTC day
+B1 mutant FULL  + test REMOVED           exit=0 tests=147 pass=147 fail=0
+A2 mutant MIN   + test present           exit=1 tests=148 pass=147 fail=1  failed: next-full-moon date prints the reader's local day, not the UTC day
+B2 mutant MIN   + test REMOVED           exit=0 tests=147 pass=147 fail=0
+
+=== CHECKS ===
+PASS arithmetic: UTC and Kiritimati calendar days genuinely differ   [2026-06-29 vs 2026-06-30]
+PASS arithmetic: Kiritimati resolved to a real non-UTC offset (tzdata present)   [GMT+14:00]
+PASS C1 pristine tree is GREEN with the new test (no false-reject)   [exit=0 fail=0]
+PASS C1 suite grew to 148 and never dropped below the 145 baseline   [tests=148]
+PASS A1 FULL mutant is KILLED with the test present   [exit=1 fail=1]
+PASS A1 kill is ATTRIBUTABLE: the new test is the failing one   [next-full-moon date prints the reader's local day, not the UTC day]
+PASS B1 FULL mutant SURVIVES with the test removed   [exit=0 fail=0 tests=147]
+PASS A2 MINIMAL mutant is KILLED with the test present   [exit=1 fail=1]
+PASS A2 kill is ATTRIBUTABLE: the new test is the failing one   [next-full-moon date prints the reader's local day, not the UTC day]
+PASS B2 MINIMAL mutant SURVIVES with the test removed   [exit=0 fail=0 tests=147]
+
+VERDICT: GATE PASS
+workdir (copy, real repo untouched): /tmp/c065-gate-GyRSrC
