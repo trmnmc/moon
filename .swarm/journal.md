@@ -5144,7 +5144,7 @@ backlog: 49 items, 9 todo, 40 done. PLAN gate satisfied — every must-have now 
 next pick (cycle 49): T-116 at priority 1 (S, docs) — the smallest real thing on the board, and
 the one whose own citations were just proven stale.
 
-commit: %%COMMIT%%
+commit: f35c948
 next wakeup: 1786887545 (+90s, pacer-fired)
 runfile-mirror:
 ```json
