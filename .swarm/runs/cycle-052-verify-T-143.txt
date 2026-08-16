@@ -1,0 +1,62 @@
+
+=== L1 — lineArt dark/hairline cover threshold 0.02 -> 0.05
+  VERDICT: HOLE — witness found
+  domain:  COUPLED (physically reachable)
+  witness: cycleFraction=0.025725 illumination=0.006517255993240267 hemisphere=north
+  surface: renderLine
+    truth : "░░░░▕   1%  waxing crescent"
+    mutant: "░░░░░   1%  waxing crescent"
+
+=== L3 — lineArt half/round-limb cover threshold 0.88 -> 0.95
+  VERDICT: HOLE — witness found
+  domain:  COUPLED (physically reachable)
+  witness: cycleFraction=0.13075 illumination=0.15944783290273662 hemisphere=north
+  surface: renderLine
+    truth : "░░░░◗  16%  waxing crescent"
+    mutant: "░░░░▐  16%  waxing crescent"
+
+=== F3 — renderBlock art padding: floor/ceil swapped between left and right
+  VERDICT: BOUNDARY (no witness at this resolution)
+  searched: coupled f in [0,1] step 1/40000 (renderLine)
+            coupled f in [0,1] step 1/1500 (renderLine + renderBlock)
+            decoupled k in [0,1] step 1/40000, cf in {0.25,0.75} (renderLine)
+            decoupled k in [0,1] step 1/1500, cf in {0.25,0.75} (+renderBlock)
+            both hemispheres throughout
+
+=== P2 — illumField upper clamp 1 -> 1.5
+  VERDICT: BOUNDARY (no witness at this resolution)
+  searched: coupled f in [0,1] step 1/40000 (renderLine)
+            coupled f in [0,1] step 1/1500 (renderLine + renderBlock)
+            decoupled k in [0,1] step 1/40000, cf in {0.25,0.75} (renderLine)
+            decoupled k in [0,1] step 1/1500, cf in {0.25,0.75} (+renderBlock)
+            both hemispheres throughout
+
+=== O1 — opticalState waxing test f < 0.5 -> f <= 0.5
+  VERDICT: BOUNDARY (no witness at this resolution)
+  searched: coupled f in [0,1] step 1/40000 (renderLine)
+            coupled f in [0,1] step 1/1500 (renderLine + renderBlock)
+            decoupled k in [0,1] step 1/40000, cf in {0.25,0.75} (renderLine)
+            decoupled k in [0,1] step 1/1500, cf in {0.25,0.75} (+renderBlock)
+            both hemispheres throughout
+
+=== O2 — opticalState fraction wraparound f -= Math.floor(f) removed
+  VERDICT: BOUNDARY (no witness at this resolution)
+  searched: coupled f in [0,1] step 1/40000 (renderLine)
+            coupled f in [0,1] step 1/1500 (renderLine + renderBlock)
+            decoupled k in [0,1] step 1/40000, cf in {0.25,0.75} (renderLine)
+            decoupled k in [0,1] step 1/1500, cf in {0.25,0.75} (+renderBlock)
+            both hemispheres throughout
+
+=== O3 — blockArt hairline-rescue trigger cover > 0.02 -> 0.05
+  VERDICT: HOLE — witness found
+  domain:  COUPLED (physically reachable)
+  witness: cycleFraction=0.013333333333333334 illumination=0.001753570375247815 hemisphere=north
+  surface: renderBlock
+    row 3 truth : "│          ░░░░░░░░░░░▕          │"
+    row 3 mutant: "│          ░░░░░░░░░░░░          │"
+
+
+=== GATE SUMMARY ===
+survivors classified: 7
+HOLE     (3): L1, L3, O3
+BOUNDARY (4): F3, P2, O1, O2

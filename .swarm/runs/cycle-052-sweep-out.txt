@@ -1,0 +1,72 @@
+Repo root: /opt/targets/moon
+Test files: args.test.js, astro.test.js, cli.test.js, contracts.test.js, hemisphere.test.js, manifest.test.js, regressions.test.js, render.test.js
+
+Running baseline suite against the pristine repo...
+Baseline: tests=145 pass=145 fail=0 exit=0
+
+D1   KILLED    disc glyph selection (lineArt interior ramp)  [red: regressions.test.js, render.test.js]
+D2   KILLED    disc glyph selection (lineArt interior ramp)  [red: regressions.test.js, render.test.js]
+D3   KILLED    disc glyph selection (blockArt cell ramp)  [red: regressions.test.js, render.test.js]
+D4   KILLED    disc glyph selection (blockArt cell ramp)  [red: regressions.test.js, render.test.js]
+L1   SURVIVED  limb selection (cover threshold 0.02, lineArt)
+L2   KILLED    limb selection (cover threshold 0.3, lineArt)  [red: regressions.test.js]
+L3   SURVIVED  limb selection (cover threshold 0.88, lineArt)
+L4   KILLED    limb selection (sunward handedness, lineArt)  [red: regressions.test.js, render.test.js]
+L5   KILLED    limb selection (ROUND_LIMB positional choice, lineArt)  [red: regressions.test.js, render.test.js]
+F1   KILLED    frame closure (BOX glyphs)  [red: cli.test.js, regressions.test.js, render.test.js]
+F2   KILLED    frame closure (BLOCK_INNER width)  [red: regressions.test.js, render.test.js]
+F3   SURVIVED  frame closure (art padding, renderBlock)
+F4   KILLED    frame closure (detail row padding, renderBlock)  [red: regressions.test.js, render.test.js]
+F5   KILLED    frame closure (row structure, renderBlock)  [red: regressions.test.js, render.test.js]
+P1   KILLED    percent formatting (rounding, illumField)  [red: regressions.test.js, render.test.js]
+P2   SURVIVED  percent formatting (clamp, illumField)
+P3   KILLED    percent formatting (padStart width)  [red: cli.test.js, regressions.test.js, render.test.js]
+P4   KILLED    percent formatting (% suffix, illumField)  [red: regressions.test.js, render.test.js]
+H1   KILLED    hemisphere mirroring (mirrorArt reverse)  [red: cli.test.js, render.test.js]
+H2   KILLED    hemisphere mirroring (MIRROR map)  [red: render.test.js]
+H3   KILLED    hemisphere mirroring (renderLine south condition)  [red: regressions.test.js, render.test.js]
+H4   KILLED    hemisphere mirroring (renderBlock south condition)  [red: regressions.test.js, render.test.js]
+O1   SURVIVED  opticalState waxing boundary (f < 0.5)
+O2   SURVIVED  opticalState fraction normalization
+O3   SURVIVED  blockArt hairline rescue threshold (cover > 0.02)
+O4   KILLED    blockArt presence masking (presence < 0.5)  [red: regressions.test.js, render.test.js]
+
+=== Summary table ===
+id   verdict    behavior
+D1   KILLED     disc glyph selection (lineArt interior ramp)
+D2   KILLED     disc glyph selection (lineArt interior ramp)
+D3   KILLED     disc glyph selection (blockArt cell ramp)
+D4   KILLED     disc glyph selection (blockArt cell ramp)
+L1   SURVIVED   limb selection (cover threshold 0.02, lineArt)
+L2   KILLED     limb selection (cover threshold 0.3, lineArt)
+L3   SURVIVED   limb selection (cover threshold 0.88, lineArt)
+L4   KILLED     limb selection (sunward handedness, lineArt)
+L5   KILLED     limb selection (ROUND_LIMB positional choice, lineArt)
+F1   KILLED     frame closure (BOX glyphs)
+F2   KILLED     frame closure (BLOCK_INNER width)
+F3   SURVIVED   frame closure (art padding, renderBlock)
+F4   KILLED     frame closure (detail row padding, renderBlock)
+F5   KILLED     frame closure (row structure, renderBlock)
+P1   KILLED     percent formatting (rounding, illumField)
+P2   SURVIVED   percent formatting (clamp, illumField)
+P3   KILLED     percent formatting (padStart width)
+P4   KILLED     percent formatting (% suffix, illumField)
+H1   KILLED     hemisphere mirroring (mirrorArt reverse)
+H2   KILLED     hemisphere mirroring (MIRROR map)
+H3   KILLED     hemisphere mirroring (renderLine south condition)
+H4   KILLED     hemisphere mirroring (renderBlock south condition)
+O1   SURVIVED   opticalState waxing boundary (f < 0.5)
+O2   SURVIVED   opticalState fraction normalization
+O3   SURVIVED   blockArt hairline rescue threshold (cover > 0.02)
+O4   KILLED     blockArt presence masking (presence < 0.5)
+
+Total: 26  killed: 19  survived: 7
+
+Survivors (need HOLE/BOUNDARY/UNDECIDED classification — see c52-sweep-report.md):
+  L1: limb selection (cover threshold 0.02, lineArt) — the dark/hairline boundary moved from 0.02 to 0.05
+  L3: limb selection (cover threshold 0.88, lineArt) — the half/round-limb boundary moved from 0.88 to 0.95
+  F3: frame closure (art padding, renderBlock) — Math.floor/Math.ceil swapped between the left and right pad
+  P2: percent formatting (clamp, illumField) — upper clamp bound loosened from 1 to 1.5
+  O1: opticalState waxing boundary (f < 0.5) — f < 0.5 loosened to f <= 0.5 (exact-half fraction flips sides)
+  O2: opticalState fraction normalization — the f -= Math.floor(f) wraparound is removed
+  O3: blockArt hairline rescue threshold (cover > 0.02) — the hairline-rescue trigger moved from 0.02 to 0.05

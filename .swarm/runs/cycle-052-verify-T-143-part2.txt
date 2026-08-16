@@ -1,0 +1,53 @@
+=== F3 — settled by arithmetic, not by search ===
+  LABEL_WIDTH=12 NAME_WIDTH=15 VALUE_WIDTH=16
+  BLOCK_INNER=32 BLOCK_COLS=12
+  pad = (32 - 12) / 2 = 10
+  Math.floor(pad)=10  Math.ceil(pad)=10
+  => floor === ceil is true; the swap is a no-op for ALL inputs.
+  VERDICT: BOUNDARY (proven structurally, not sampled)
+  NOTE: it stops being a no-op the moment BLOCK_INNER - BLOCK_COLS turns odd,
+        i.e. this is a boundary of the current widths, not of the code.
+
+=== O1 — cycleFraction EXACTLY 0.5, decoupled from illumination ===
+  WITNESS cf=0.5 k=0.05 north
+    truth : "▌░░░░   5%  waxing crescent"
+    mutant: "░░░░▐   5%  waxing crescent"
+  WITNESS cf=0.5 k=0.05 south
+    truth : "░░░░▐   5%  waxing crescent"
+    mutant: "▌░░░░   5%  waxing crescent"
+  WITNESS cf=0.5 k=0.2 north
+    truth : "◖▒░░░  20%  waxing crescent"
+    mutant: "░░░▒◗  20%  waxing crescent"
+  WITNESS cf=0.5 k=0.2 south
+    truth : "░░░▒◗  20%  waxing crescent"
+    mutant: "◖▒░░░  20%  waxing crescent"
+  witnesses at cf=0.5: 10
+  physical k at f=0.5 is 1 (full moon) — so the witness above is OFF the coupled cycle
+  at the REACHABLE point (cf=0.5, k=1): truth===mutant is true
+
+=== O2 — cycleFraction OUTSIDE [0,1) ===
+  WITNESS cf=-0.25 k=0.25 north
+    truth : "◖▒░░░  25%  waxing crescent"
+    mutant: "░░░▒◗  25%  waxing crescent"
+  WITNESS cf=-0.25 k=0.75 north
+    truth : "◖██▓░  75%  waxing crescent"
+    mutant: "░▓██◗  75%  waxing crescent"
+  WITNESS cf=1.25 k=0.25 north
+    truth : "░░░▒◗  25%  waxing crescent"
+    mutant: "◖▒░░░  25%  waxing crescent"
+  WITNESS cf=1.25 k=0.75 north
+    truth : "░▓██◗  75%  waxing crescent"
+    mutant: "◖██▓░  75%  waxing crescent"
+  witnesses outside [0,1): 6   (CONTRACTS.md declares cycleFraction 0..1)
+
+=== P2 — illumination ABOVE 1 (the clamp guard the mutation loosens) ===
+  k=1     truth="◖███◗ 100%  waxing crescent" mutant="◖███◗ 100%  waxing crescent"  (same)
+  k=1.01  truth="◖███◗ 100%  waxing crescent" mutant="◖███◗ 101%  waxing crescent"  DIFFERS
+  k=1.2   truth="◖███◗ 100%  waxing crescent" mutant="◖███◗ 120%  waxing crescent"  DIFFERS
+  k=1.5   truth="◖███◗ 100%  waxing crescent" mutant="◖███◗ 150%  waxing crescent"  DIFFERS
+  k=2     truth="◖███◗ 100%  waxing crescent" mutant="◖███◗ 150%  waxing crescent"  DIFFERS
+  k=100   truth="◖███◗ 100%  waxing crescent" mutant="◖███◗ 150%  waxing crescent"  DIFFERS
+  witnesses above 1: 5   (CONTRACTS.md declares illumination 0..1)
+  the clamp's LOWER bound is a separate guard; probing it too:
+    k=-0.5: truth="░░░░░   0%  waxing crescent"
+    k=-0.01: truth="░░░░░   0%  waxing crescent"

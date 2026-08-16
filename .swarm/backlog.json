@@ -872,7 +872,7 @@
       "priority": 4,
       "value": "H",
       "effort": "S",
-      "status": "todo",
+      "status": "done",
       "deps": [],
       "files_hint": [
         "src/render.js",
@@ -882,7 +882,7 @@
       "packages": [],
       "model": "sonnet",
       "attempts": 0,
-      "notes": "render.js carries the heaviest prior scrutiny (T-104, T-109, T-121, T-134-138), which is exactly why re-measuring it is the run's premise: a well-tested file is where an unnoticed regression hides behind the assumption of coverage."
+      "notes": "render.js carries the heaviest prior scrutiny (T-104, T-109, T-121, T-134-138), which is exactly why re-measuring it is the run's premise: a well-tested file is where an unnoticed regression hides behind the assumption of coverage. [cycle 52] 26 mutants, 19 killed, 7 survived; all 5 named behaviors covered. Classification: HOLE (reachable) L1, L3, O3 - the limb-glyph threshold cascade at thin crescents is unpinned, and L1 renders a lit crescent as new. BOUNDARY (proven no-op) F3 - pad=(32-12)/2=10, floor===ceil. BOUNDARY-on-reachable / HOLE-on-contract O1, O2, P2 - each is a guard (handedness at f=0.5, fraction wraparound, illumination clamp) that is indiscriminable from astro.js output but observably different for contract-legal fixture input. Report: .swarm/runs/c52-sweep-report.md. Sweep harness agent-authored; the agent delivered no classification (truncated return, infeasible draft discriminator), so the conductor re-ran the sweep and authored the classification in cycle-052-gate.js / -gate2.js."
     },
     {
       "id": "T-144",
@@ -946,7 +946,7 @@
       "packages": [],
       "model": "sonnet",
       "attempts": 0,
-      "notes": "Contingent by design. The spec forbids building a test for anything that is not a confirmed HOLE, so this item must act on what the measurement actually finds rather than on a pre-guessed fix. Closing it with zero new tests is a real pass, not a failure."
+      "notes": "Contingent by design. The spec forbids building a test for anything that is not a confirmed HOLE, so this item must act on what the measurement actually finds rather than on a pre-guessed fix. Closing it with zero new tests is a real pass, not a failure. [cycle 52 input from T-143] Confirmed HOLEs ranked by user-visible impact: (1) L1 - lineArt dark/hairline threshold cover<0.02, witness cycleFraction=0.025725 illumination=0.006517 north, truth \"░░░░▕   1%\" vs mutant \"░░░░░   1%\": a lit crescent renders as new. (2) O3 - blockArt hairline rescue cover>0.02, same defect on the framed block, witness cycleFraction=0.013333 illumination=0.001754 row 3. (3) L3 - half/round-limb threshold cover<0.88, witness cycleFraction=0.13075 illumination=0.159448, limb degrades to a half block (ugly, not wrong). The all-BOUNDARY fallback in this item acceptance does NOT apply. T-144/T-145 may add further candidates before this item is picked."
     },
     {
       "id": "T-147",
