@@ -497,6 +497,22 @@ test('T-134 — README north/south sweep table rows are self-consistent and repr
 // output does. So completeness is unreachable, but discrimination is not — this guard
 // still does its one job.
 //
+// That power to discriminate holds everywhere in the reachable set EXCEPT the table's
+// two endpoint rows, which are a boundary, not a hole. At 0% and 100%, the illumination
+// saturates at its bounds: Meeus's formula in src/astro.js:301 produces a cosine-bounded
+// fraction [0, 1], and src/render.js:235 clamps and rounds to [0, 100]. The disc is
+// symmetric at these endpoints (░░░░░ and ◖███◗), so adjacent phase names render
+// byte-identical visual output. Three adjacent-retype mutants survived a cycle-42
+// mutation sweep, all at endpoints: 100% "full" retyped to "waxing gibbous" (renders
+// "◖███◗ 100%  waxing gibbous", witness 2026-01-02T20:15:00Z), 100% "full" retyped to
+// "waning gibbous" (renders "◖███◗ 100%  waning gibbous", witness 2026-01-03T22:15:00Z),
+// and 0% "new" retyped to "waning crescent" (renders "░░░░░   0%  waning crescent",
+// witness 2026-01-18T03:00:00Z). All three are genuine members of the reachable set
+// built over the shipping renderer's actual output, so the guard correctly accepts them.
+// The three interior mutants (51%, 63%, 69%) are still absent from both sweeps —
+// discrimination holds wherever discrimination is physically possible. Reproduce the
+// measurement with `node .swarm/runs/c51-measure.js`.
+//
 // SHAPE: escalate on failure, not a wider flat sweep. Checking every row against the
 // full 400-day sweep on every run would tax the whole suite for a case that essentially
 // never happens (a hand-regenerated README landing outside the cheap window). Instead:

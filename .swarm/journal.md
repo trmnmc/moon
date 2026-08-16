@@ -5478,3 +5478,205 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-17T04:59:59+00:00","usage_reset_at":"2026-08-17T04:59:59+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1786888684,"next_wakeup_at":1786891384,"pid":1089220,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"clock","gear":1,"gear_target":1,"ratio":0,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786888938,"last_real_probe_ts":1786888938,"probe_failures":3,"gear_evidence":"bin/swarm-budget.sh DENIED a third time at cycle 50 (KI-2). Two invocation forms tried (env-prefixed relative, bare absolute); both refused, so KI-2 is an allowlist gap for the script name in any form, not a path/env artifact. probe_failures 2 -> 3, which trips the step-1 backoff: no real probe until now - last_real_probe_ts >= 1800, and last_real_probe_ts is stamped 1786888938 (was 0). Gear 1 HELD over the failure table's clock-cruise default because cruise is the evidence-FREE fallback and better evidence is on disk: runs/allocator.json + runs/allocator-state.json stamped 1786888607 (9s before this cycle) read weekly_used_pct 98.0, opus_used_pct 97, week_elapsed_pct 91.04, posture trickle, allow_overall_pct 0, allow_premium_pct 0. week_resets_at 1786942800 IS stop_at, so no later richer window exists to save for. Crawl WITH evidence, per the step-1 evidence rule.","weekly":{"ok":true,"weekly_used_pct":98.0,"opus_used_pct":97,"week_elapsed_pct":91.04,"weekly_heat":1.08,"opus_heat":1.07,"ceiling":1,"promote_blocked":true}},"playbook":{"mode":"auto","applied":["L-003","L-006","L-007","L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-034"],"vetoed":[],"inert_for_this_target":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"parse_source":"MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.","inert_note":"The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.","directives":{"wave_k":3,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer \u2014 never commit or push yourself"],"reviewer":["The conductor is the SOLE committer \u2014 never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer \u2014 never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive \u2014 a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":3,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 51 | 2026-08-16T14:10:16Z | moon | BUILD
+
+pacing: gear 1 (crawl), guest mode (clamps 1–3), dial 0.30, effective wave cap k=1.
+
+NO probe was attempted this cycle, and that is not a fourth failure. Two independent
+reasons: the step-1 backoff is in force (`probe_failures` is 3, so the real probe is not
+due until `now − last_real_probe_ts ≥ 1800`, and only 478 s had elapsed at cycle open),
+and the documented zero-cost substitute — `PROBE_CMD=false bin/swarm-budget.sh` — is
+itself unavailable, because KI-2 denies that script under every invocation form tried so
+far. So `probe_failures` is HELD at 3 rather than incremented: declining to probe when the
+backoff says not to is not a probe failure, and inflating the counter would misreport the
+tier's health.
+
+Gear 1 held on fresh disk evidence rather than the failure table's clock-cruise default,
+same reasoning as cycles 49 and 50 and with the numbers re-read at persist time:
+`runs/allocator.json`, refreshed by the pacer at 14:10:10Z (6 s before this cycle's clock),
+reads `weekly_used_pct 99.0` — up from 98.0 last cycle — `opus_used_pct 97`,
+`week_elapsed_pct 91.17`, posture `trickle`, `allow_overall_pct 0`, `allow_premium_pct 0`.
+`week_resets_at 1786942799` IS `stop_at`, so there is still no later, richer window to save
+for. Cruise is the evidence-FREE fallback; the evidence on disk says crawl, and it says it
+slightly louder than it did an hour ago.
+
+control: `bin/swarm-notify.sh poll` invoked BARE from `/opt/swarm` (cycle 50's note said to
+drop the pipe that broke it — that worked, clean exit, no output). `runs/control.json` read
+directly: `pending: []`, `applied: []`, no `inject` array. Nothing to triage.
+
+orient: tree clean at entry, no salvage needed. cycle 51 is not a re-anchor cycle
+(51 % 5 = 1). craft pack ran clean — `degraded: []`.
+
+### Cycle 51 work
+
+Phase gates: DESIGN satisfied (92 decisions on record), PLAN satisfied at cycle 48,
+must-have items remain todo → BUILD.
+
+Picked **T-139** (priority 3, kind docs, effort S, model haiku) — the highest-priority live
+item and the LAST of the three MH3-mandated items ("T-116/T-130/T-139 resolved or refused
+WITH EVIDENCE"). T-116 closed at cycle 49, T-130 at cycle 50. Haiku-priced, which is the
+gear-1 work class; gear 1's demote rung does not apply since haiku is already the floor.
+
+Dispatched as ONE DIRECT Agent call, not a Workflow: `-p` headless session, Workflow tool
+review-gated, documented fallback is direct Agent dispatch. k=1, no concurrency to isolate,
+so the builder edited the working tree directly and the conductor verified and committed.
+Builder carried the playbook `prompt_lines.builder` line (sole-committer) and two craft
+`docs` lines ("pull every fact from the actual repo", "a claim made weaker but true beats
+one made stronger and unverifiable"). The craft `ui` pack was not loaded — no UI surface.
+
+The builder was given the acceptance and the scope fence, and NOT the check — hard rule 2.
+
+### Conductor evidence gathered BEFORE dispatch
+
+T-139's acceptance says the three cited reachability instants "must be re-verified against
+the renderer, not copied from this item". An item whose whole deliverable is a CLAIM cannot
+be handed to a builder on the item's own authority, so the conductor measured first, with
+`.swarm/runs/c51-measure.js` (committed).
+
+The premise needed checking, not assuming. The three cycle-42 survivors are only a BOUNDARY
+if the shipping renderer really produces those pairs AND the T-135/T-136 guard's own
+reachable set really contains them; if the set did not contain them, the mutants would have
+been KILLED and the item's premise would be false. Measured against the guard's own
+constants (`REACHABILITY_SWEEP_START_MS = Date.UTC(2026,0,1)`, 15 min step):
+
+    cheap sweep (35d/15m): 208 distinct pairs
+    escalated  (400d/15m): 212 distinct pairs
+
+    100% truth  "full"             -> CHEAP  first witness 2026-01-02T22:15:00Z
+    100% mutant "waxing gibbous"   -> CHEAP  first witness 2026-01-02T20:15:00Z
+    100% mutant "waning gibbous"   -> CHEAP  first witness 2026-01-03T22:15:00Z
+      0% truth  "new"              -> CHEAP  first witness 2026-01-18T08:00:00Z
+      0% mutant "waning crescent"  -> CHEAP  first witness 2026-01-18T03:00:00Z
+
+    control — three known INTERIOR mutants, which should NOT be reachable:
+      "waxing gibbous"  51% -> ABSENT from both
+      "waning crescent" 63% -> ABSENT from both
+      "first quarter"   69% -> ABSENT from both
+
+The control is what makes this a boundary rather than an excuse: the guard still kills
+adjacent retypes everywhere discrimination is physically possible, and passes them only at
+the two rows where the rendered output genuinely cannot distinguish the names.
+
+The item's own cited instants were also re-checked and all three still reproduce
+(2020-01-10T04:30Z → `◖███◗ 100%  waxing gibbous`; 2020-01-11T07:30Z → the waning twin;
+2020-01-24T05:00Z → `░░░░░   0%  waning crescent`). They were nonetheless NOT the ones
+written into the comment: the 2020 instants sit outside every window the guard searches, so
+a reader checking them has to leave the guard's own frame of reference. The comment cites
+the 2026 witnesses above instead — same claim, checkable with the guard's own constants.
+
+One measurement error on the way, recorded because it nearly produced a false negative: the
+first run keyed the reachable set on `' 100%'` and `'   0%'` and reported every pair —
+including the honest `full` and `new` rows — ABSENT, which would have read as "the item's
+premise is wrong". The illum field `parseRenderedRun` returns is 4 characters wide
+(`'100%'`, `'  0%'`, `' 51%'`), not 5. A result that says a SHIPPING README row is
+unreachable is a result to distrust before believing: the suite is green on that very row,
+so the measurement was wrong, not the README.
+
+### VERIFICATION EVIDENCE — T-139
+
+Gate authored by the conductor at verification time, 20 checks, run via
+`.swarm/runs/c51-gate.js` (committed). The builder never saw any of it.
+
+    A. executable text unchanged (the comment-only claim)
+       HEAD: 586 lines, 347 after stripping full-line comments
+       WORK: 602 lines, 347 after stripping full-line comments
+       PASS  executable text byte-identical to HEAD
+       PASS  file did grow  (33313 -> 34578 bytes)
+
+    B. every citation re-derived from the shipping renderer
+       PASS  renderer at 2026-01-02T20:15:00Z produces "◖███◗ 100%  waxing gibbous"
+       PASS  renderer at 2026-01-03T22:15:00Z produces "◖███◗ 100%  waning gibbous"
+       PASS  renderer at 2026-01-18T03:00:00Z produces "░░░░░   0%  waning crescent"
+       PASS  comment cites each of the three, quotes each rendered prefix
+       PASS  no uncited instant smuggled into the comment  (3 instants, all checked)
+
+    C. mechanism + line citations, checked against src
+       src/astro.js:301  "const illumination = (1 + cos(i * DEG)) / 2;"          PASS
+       src/render.js:235 "const pct = Math.round(clamp(... , 0, 1) * 100);"      PASS
+       PASS  disc+percent identical across adjacent names  "◖███◗ 100%" vs "◖███◗ 100%"
+             (names differ: "waxing gibbous" / "full")
+       PASS  disc+percent identical across adjacent names  "░░░░░   0%" vs "░░░░░   0%"
+             (names differ: "waning crescent" / "new")
+       PASS  the endpoint disc is its own mirror image  "◖███◗" -> "◖███◗", "░░░░░" -> "░░░░░"
+
+    GATE: all checks passed
+
+    test_cmd: node --test test/*.test.js
+       tests 145 / pass 145 / fail 0 / cancelled 0 / skipped 0 / todo 0   PASS
+       (same 145/145 before the change — a null result by construction for a
+        comment-only edit, recorded as unchanged, never as evidence the item works)
+
+Check A is the discriminator. "Every added line starts with `//`" only proves the ADDED
+lines are comments; it cannot see a deleted or edited code line elsewhere in the file, which
+is exactly what a comment-only claim has to exclude. Stripping every full-line comment from
+both versions and comparing the remainder proves invariance directly — 347 executable lines
+byte-identical either side — and that is an observable a behaviour-changing edit could not
+produce. The C-block endpoint checks are the second discriminator: they re-derive the
+comment's central claim (adjacent names render an identical row at the endpoints) from the
+renderer instead of taking the comment's word for it.
+
+T-139 → **done**. No test was added, and none should have been: the check is CORRECT as it
+stands, and this run's spec is explicit that test COUNT is never an outcome.
+
+### One rework round — the gate failed the first return
+
+The builder's first draft passed every scope and citation check and failed check C. It
+explained the endpoint saturation as: "the illumination percent is physically clipped to the
+boundary by the half-sphere projection." No such mechanism exists in the source. `grep -rn
+"projection" src/` returns exactly one hit, `src/render.js:107`, which describes the
+TERMINATOR curve (`w = sqrt(1 - y^2)`) — disc shading geometry, nothing to do with the
+percent field.
+
+This is the run's own taste warning arriving in miniature: churn wearing rigor's clothes. An
+item whose entire purpose is to stop a future reader from believing an unchecked claim had
+drafted a new unchecked claim to do it.
+
+The item was NOT failed to `todo` with `attempts+1`. The scope, the placement, the three
+witnesses and the survivor analysis were all verified-correct; one sentence out of fourteen
+named a wrong mechanism. A bounded rework round on the same agent (context intact, ~35k
+tokens total for both passes) was the cheaper honest path at gear 1 than a fresh dispatch,
+and it is the same shape as cycle 45's rework round. The builder was given the two measured
+source lines and told to cite them the way the surrounding comments cite lines. The
+corrected sentence names the cosine-bounded fraction (src/astro.js:301) and the clamp+round
+(src/render.js:235), and the gate now resolves both citations against the tree and prints
+the line each one lands on, so a miscite would be visible rather than assumed away.
+
+`attempts` is left at 0: this was one dispatch chain that the gate closed, not a second
+attempt at a failed item. `wave_streak` IS reset to 0 — the wave had no revert and no
+item-level verify failure, but a gate check failing on first return is not a CLEAN wave
+either, so it takes the "any other outcome" branch of Wave autotune rather than being
+counted toward a k promotion it did not earn. `k_current` unchanged at 5 (gear 1 caps the
+effective wave at 1 regardless).
+
+### Placement deviates from the acceptance's wording, deliberately
+
+The acceptance says "a comment at the T-134 check". The comment went in at the T-135/T-136
+guard instead, immediately after the paragraph that currently reads "What DOES survive
+arbitrary widening is the guard's power to catch the defect it exists for … NONE of them
+ever appears." That paragraph is the one a future mutation-tester will read as "this guard
+kills adjacent retypes", so it is the one the caveat has to sit next to; a correct caveat
+stranded 200 lines away from the claim it qualifies does not do the job the item exists for.
+The two checks share one contiguous comment region over the same sweep table, so the
+acceptance's substance — the indiscriminability named, the survival called EXPECTED, one
+reachability instant cited per case — is met in full. Recorded here rather than silently.
+
+### Follow-on: MH3 is now fully discharged
+
+T-116 (cycle 49), T-130 (cycle 50), T-139 (cycle 51) — all three resolved WITH EVIDENCE, all
+three by measurement rather than assertion. MH3 is the first of this run's five must-haves to
+close completely. Nothing new was filed this cycle; the sweeps that would file new items are
+T-143/T-144/T-145, still todo.
+
+next pick (cycle 52): T-143 at priority 4 (S, qa, sonnet) — mutation-sweep `src/render.js`'s
+documented behaviours and classify every survivor HOLE vs BOUNDARY. It is the first of the
+three sweep items and the natural successor: this cycle produced the run's worked example of
+a BOUNDARY call with its reasoning on record, which is exactly the classification those items
+have to make. Note it is a sonnet item, one rung above the gear-1 haiku class — admissible
+because gear 1 permits S-effort sonnet builds explicitly, and T-143 is S.
+
+next wakeup: 1786890137 (+90s base, verified-value cycle, pacer-fired)
+runfile-mirror:
+```json
+{"version": 1, "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-17T04:59:59+00:00", "usage_reset_at": "2026-08-17T04:59:59+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "heartbeat": {"ts": 1786889972, "next_wakeup_at": 1786890137, "pid": 1091147, "limp": false, "degraded_tiers": []}, "pacing": {"mode": "guest", "dial": 0.3}, "budget": {"source": "clock", "gear": 1, "gear_target": 1, "ratio": 0, "mode": "guest", "k_cap": 1, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0, "api_cap_usd": null, "api_spend_usd": 0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786889972, "last_real_probe_ts": 1786888938, "probe_failures": 3, "gear_evidence": "cycle 51: NO probe attempted. Step-1 backoff is in force (probe_failures 3) and now - last_real_probe_ts = 1034 s < 1800, so the real probe is not due; PROBE_CMD=false bin/swarm-budget.sh is also unavailable because KI-2 denies the script in every form. probe_failures HELD at 3 rather than incremented — declining to probe is not a probe failure. Gear 1 held on fresh disk evidence: runs/allocator.json stamped at the 14:10:10Z pacer refresh reads weekly_used_pct 99.0 (up from 98.0 last cycle), opus_used_pct 97, week_elapsed_pct 91.17, posture trickle, allow_overall_pct 0, allow_premium_pct 0. week_resets_at 1786942799 IS stop_at, so there is no later richer window to save for. Crawl WITH evidence.", "weekly": {"ok": true, "weekly_used_pct": 99.0, "opus_used_pct": 97, "week_elapsed_pct": 91.17, "weekly_heat": 1.09, "opus_heat": 1.06, "ceiling": 1, "promote_blocked": true}}, "playbook": {"mode": "auto", "applied": ["L-003", "L-006", "L-007", "L-008", "L-011", "L-016", "L-018", "L-020", "L-021", "L-022", "L-024", "L-026", "L-029", "L-031", "L-034"], "vetoed": [], "inert_for_this_target": ["L-006", "L-007", "L-011", "L-018", "L-020", "L-021", "L-022"], "parse_source": "MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.", "inert_note": "The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.", "directives": {"wave_k": 3, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer — never commit or push yourself"], "reviewer": ["The conductor is the SOLE committer — never commit or push yourself", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer — never commit or push yourself", "Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.", "When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive — a kill you cannot attribute is not evidence.", "Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}}, "watchdog": {"mode": "normal", "plist_loaded": true, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "caffeinate_pid": 0, "wrap_up_complete": false, "cycles_since_recycle": 4, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
+```
