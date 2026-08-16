@@ -537,6 +537,11 @@
    "cycle": 58,
    "what": "Cycle 32's written prediction about this figure came true verbatim, and that — not the wrong number itself — is the candidate playbook lesson flagged for WRAP_UP distillation.",
    "why": "journal.md:1693-1695 recorded, of this exact figure: 'Had I filed it, a builder would have been dispatched to \"correct\" a correct number in the one table whose preamble claims conductor verification.' Cycle 32 did not file it — and twenty-six cycles later a builder was dispatched on a neighbouring item, rediscovered the same 0.6802, and made precisely that edit. The generalizable lesson is a cheap precondition: before changing a published figure, grep the journal for the figure itself, because a prior cycle may already have adjudicated it and the adjudication is the evidence. The second half is domain-shaped and worth carrying too: a regenerated figure must be regenerated in the FRAME the original used (time scale, window, units), since a same-named quantity computed in a different frame is a new derivation, not a reproduction — which is also what made the figure-1 spread call subtle in the opposite direction."
+  },
+  {
+   "cycle": 58,
+   "what": "CORRECTION to this cycle's own bookkeeping, made before the wakeup was scheduled: counters.consecutive_no_value set to 0, not 1. consecutive_failures stays 1.",
+   "why": "I first wrote 1 on the conservative reading that no backlog item closed. That is not what the churn breaker measures. cycle.md's rule keys on a 'verified-value outcome', and this cycle had one: four figure corrections landed in REPORT.md, each independently measured by the conductor with output pasted into the journal (full-precision lunation spread under three bisection conventions; the cycle-46 battery rerun at 10/10 killed; the cycle-47 attribution arms; the suite at 147/147). Item closure and verified value are different things, and this cycle separates them unusually cleanly -- which is exactly why consecutive_failures, the counter that DOES track the failed dispatch, is set to 1. Leaving no_value at 1 would also have contradicted the 90 s base wakeup I am about to schedule, since the no-value branch mandates a 900-1800 s stretch; the honest fix is to make the counter match reality, not to stretch a wakeup to match a counter I had set too pessimistically. If T-148's retry fails next cycle, that cycle increments it on its own evidence."
   }
  ],
  "known_issues": [
@@ -587,7 +592,7 @@
   "last_build_wave_cycle": 58
  },
  "counters": {
-  "consecutive_no_value": 1,
+  "consecutive_no_value": 0,
   "consecutive_failures": 1,
   "k_current": 4,
   "wave_streak": 0,
