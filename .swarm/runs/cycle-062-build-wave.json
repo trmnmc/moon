@@ -1,0 +1,30 @@
+{
+  "cycle": 62,
+  "timestamp": 1786904453,
+  "type": "build-wave",
+  "dispatch": "DIRECT Agent call (Workflow tool is review-gated in this -p headless session; documented failure-table fallback). k=1, so no disjoint-scope concern.",
+  "k_effective": 1,
+  "items": [
+    {
+      "id": "T-151",
+      "kind": "docs",
+      "effort": "S",
+      "model_table": "haiku",
+      "model_used": "haiku",
+      "files_scope": ["README.md"],
+      "agent_id": "a8dfe9d2f281c80e3",
+      "claim": {
+        "check_added": "node bin/moon.js --block",
+        "outcome_fine": "the frame closes properly - a clean box with the bottom-right corner U+2518 aligned under the top-right corner U+2510",
+        "outcome_affected": "the frame does not close - the bottom-right corner U+2518 is visibly misaligned with the top-right corner U+2510",
+        "files_touched": "README.md only",
+        "diff": "11 lines added, 0 removed"
+      },
+      "gate": "FAIL",
+      "gate_reason": "The claim is false under the very failure mode the section documents. All six frame glyphs are East Asian Width Ambiguous, so both border rows scale identically: under ambiguous-as-double the top-right and bottom-right corners BOTH land at column 66 of a 68-column row and stay perfectly aligned with each other. The breakage is in the content rows (right bar at columns 34-37, ragged between rows). A reader in an affected terminal would run the documented check, see aligned corners, and wrongly conclude they are unaffected. Evidence: .swarm/runs/cycle-062-verify-t151.txt",
+      "disposition": "change discarded (git checkout -- README.md); item -> todo, attempts 0 -> 1, model escalated haiku -> sonnet per the routing ladder"
+    }
+  ],
+  "post_merge_checks": "N/A - nothing merged this cycle.",
+  "test_cmd_after": "node --test test/*.test.js -> tests 147 / pass 147 / fail 0 (green; tree returned to HEAD)"
+}

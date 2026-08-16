@@ -1,0 +1,54 @@
+T-151 gate, cycle 62 - falsification of the proposed reader check
+Proposed check text: 'If your terminal is fine ... bottom-right corner `┘` aligned
+under the top-right corner `┐`. If your terminal is affected ... `┘` will be
+visibly misaligned with the top-right corner `┐`.'
+
+Method: render the ACTUAL `node bin/moon.js --block` output under both width
+policies using Python's unicodedata.east_asian_width (UCD, authoritative offline),
+and report the column each line's right-hand border glyph starts at.
+
+EAW class of the frame glyphs:
+  ┌ U+250C A
+  ┐ U+2510 A
+  └ U+2514 A
+  ┘ U+2518 A
+  ─ U+2500 A
+  │ U+2502 A
+  -> ALL SIX frame glyphs are Ambiguous. Both border rows are built from the same
+     Ambiguous glyphs, so both scale by the same factor.
+
+--- ambiguous-width = 1 (default Western terminal) ---
+  line 0 width= 34 right-border=('┐', 33)  <- top border
+  line 1 width= 34 right-border=('│', 33)
+  line 2 width= 34 right-border=('│', 33)
+  line 3 width= 34 right-border=('│', 33)
+  line 4 width= 34 right-border=('│', 33)
+  line 5 width= 34 right-border=('│', 33)
+  line 6 width= 34 right-border=('│', 33)
+  line 7 width= 34 right-border=('│', 33)
+  line 8 width= 34 right-border=('│', 33)
+  line 9 width= 34 right-border=('│', 33)
+  line10 width= 34 right-border=('┘', 33)  <- bottom border
+  line11 width= 25 right-border=None
+
+--- ambiguous-width = 2 (CJK / iTerm2 'ambiguous as double' / xterm -cjk_width) ---
+  line 0 width= 68 right-border=('┐', 66)  <- top border
+  line 1 width= 38 right-border=('│', 36)
+  line 2 width= 38 right-border=('│', 36)
+  line 3 width= 39 right-border=('│', 37)
+  line 4 width= 38 right-border=('│', 36)
+  line 5 width= 38 right-border=('│', 36)
+  line 6 width= 36 right-border=('│', 34)
+  line 7 width= 36 right-border=('│', 34)
+  line 8 width= 36 right-border=('│', 34)
+  line 9 width= 36 right-border=('│', 34)
+  line10 width= 68 right-border=('┘', 66)  <- bottom border
+  line11 width= 25 right-border=None
+
+VERDICT: FAIL. Under ambiguous=2 the top-right ┐ and bottom-right ┘ BOTH sit at
+column 66 on 68-column rows - still perfectly aligned with each other. What actually
+breaks is the CONTENT rows: their right │ lands at columns 34-37 and is ragged
+between rows. A reader in an affected terminal running the documented check would
+see the two corners lined up, conclude 'my terminal is fine', and be wrong.
+The pre-existing sentence 'the --block frame does not close' remains true; the new
+check picked the one part of the frame the failure mode leaves intact.
