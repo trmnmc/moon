@@ -1016,7 +1016,7 @@
    "priority": 7,
    "value": "M",
    "effort": "S",
-   "status": "todo",
+   "status": "done",
    "deps": [],
    "files_hint": [
     "REPORT.md"
@@ -1025,7 +1025,7 @@
    "packages": [],
    "model": "haiku",
    "attempts": 0,
-   "notes": "Found at cycle 60 (inline PLAN). Conductor-verified premise, not an agent claim: grep of REPORT.md shows :212 `node --test test/*.test.js    # 145 tests`, while `node --test test/*.test.js` on the current tree reports `tests 147 / pass 147 / fail 0`. This is the one output-cited number T-147 (line citations) and T-148 (pasted command output) did not reach -- it is a comment inside an instruction block rather than a citation or a capture, so both sweeps' scopes stepped over it. Directly in scope for the run's must-have 'every line-cited and output-cited doc claim is re-verified against the current tree'. Beware the trap: :6 and :55 are scoped to the run/cycle they describe and are TRUE at those counts; changing them would be falsifying history to reach agreement."
+   "notes": "Found at cycle 60 (inline PLAN). Conductor-verified premise, not an agent claim: grep of REPORT.md shows :212 `node --test test/*.test.js    # 145 tests`, while `node --test test/*.test.js` on the current tree reports `tests 147 / pass 147 / fail 0`. This is the one output-cited number T-147 (line citations) and T-148 (pasted command output) did not reach -- it is a comment inside an instruction block rather than a citation or a capture, so both sweeps' scopes stepped over it. Directly in scope for the run's must-have 'every line-cited and output-cited doc claim is re-verified against the current tree'. Beware the trap: :6 and :55 are scoped to the run/cycle they describe and are TRUE at those counts; changing them would be falsifying history to reach agreement. | CLOSED cycle 61: haiku builder changed exactly one line (REPORT.md:212, '# 145 tests' -> '# 147 tests'). Conductor gate ran a programmatic discriminator: parse the claimed count out of REPORT.md and compare it to the count a FRESH `node --test test/*.test.js` actually emits -- 147 == 147 -- plus an assertion that the three historical lines (:6, :55, :142) still carry their original 145 text. git diff --numstat was 1/1 on REPORT.md alone, so the no-other-line-changes clause is proven by the diff itself, not by the builder's word."
   },
   {
    "id": "T-151",
