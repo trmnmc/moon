@@ -891,7 +891,7 @@
       "priority": 5,
       "value": "H",
       "effort": "S",
-      "status": "todo",
+      "status": "done",
       "deps": [],
       "files_hint": [
         "src/args.js",
@@ -903,7 +903,7 @@
       "packages": [],
       "model": "sonnet",
       "attempts": 0,
-      "notes": "Two small files with a frozen contract in CONTRACTS.md, so the sweep is boundable at S-effort. The cycle 46-47 battery exercised CLI behavior end-to-end, not these modules' internals directly."
+      "notes": "Two small files with a frozen contract in CONTRACTS.md, so the sweep is boundable at S-effort. The cycle 46-47 battery exercised CLI behavior end-to-end, not these modules' internals directly. [cycle 53] Done. 24 mutants, 21 killed, 3 survived, verified by the conductor re-running the harness itself. Coverage checked clause by clause against the sources: all six live flags (AJ1-AJ4, AH1, AH2 — including --compact, which the frozen CONTRACTS.md does not list), last-one-wins (AH3 + AH5), all four table-priority levels (HZ1-HZ4), unknown-zone fallback (HF1, plus the HF2/HF3 guards and the HI1 route). Survivors: AA1 HOLE-on-contract/CLI-unreachable, HF3 PROVEN BOUNDARY (table-contingent), HI1 BOUNDARY-on-reachable/HOLE-on-contract (whole-moon handedness flip when Intl throws). Two independent classification passes converge on all three. Evidence: cycle-053-gate-report.md (conductor), c53-sweep-report.md (builder), cycle-053-sweep-out.txt, cycle-053-gate-out.txt, cycle-053-gate2-out.txt."
     },
     {
       "id": "T-145",
@@ -946,13 +946,13 @@
       "packages": [],
       "model": "sonnet",
       "attempts": 0,
-      "notes": "Contingent by design. The spec forbids building a test for anything that is not a confirmed HOLE, so this item must act on what the measurement actually finds rather than on a pre-guessed fix. Closing it with zero new tests is a real pass, not a failure. [cycle 52 input from T-143] Confirmed HOLEs ranked by user-visible impact: (1) L1 - lineArt dark/hairline threshold cover<0.02, witness cycleFraction=0.025725 illumination=0.006517 north, truth \"░░░░▕   1%\" vs mutant \"░░░░░   1%\": a lit crescent renders as new. (2) O3 - blockArt hairline rescue cover>0.02, same defect on the framed block, witness cycleFraction=0.013333 illumination=0.001754 row 3. (3) L3 - half/round-limb threshold cover<0.88, witness cycleFraction=0.13075 illumination=0.159448, limb degrades to a half block (ugly, not wrong). The all-BOUNDARY fallback in this item acceptance does NOT apply. T-144/T-145 may add further candidates before this item is picked."
+      "notes": "Contingent by design. The spec forbids building a test for anything that is not a confirmed HOLE, so this item must act on what the measurement actually finds rather than on a pre-guessed fix. Closing it with zero new tests is a real pass, not a failure. [cycle 52 input from T-143] Confirmed HOLEs ranked by user-visible impact: (1) L1 - lineArt dark/hairline threshold cover<0.02, witness cycleFraction=0.025725 illumination=0.006517 north, truth \"░░░░▕   1%\" vs mutant \"░░░░░   1%\": a lit crescent renders as new. (2) O3 - blockArt hairline rescue cover>0.02, same defect on the framed block, witness cycleFraction=0.013333 illumination=0.001754 row 3. (3) L3 - half/round-limb threshold cover<0.88, witness cycleFraction=0.13075 illumination=0.159448, limb degrades to a half block (ugly, not wrong). The all-BOUNDARY fallback in this item acceptance does NOT apply. T-144/T-145 may add further candidates before this item is picked. [cycle 53 input from T-144] Two further confirmed HOLEs, neither displacing L1: HI1 (src/hemisphere.js) — the catch-branch recovery value when Intl.DateTimeFormat() throws is unpinned; witness truth=north vs mutant=south, a whole-moon handedness flip on the live bin/moon.js:106 path, but gated on a runtime where Intl is broken or absent. AA1 (src/args.js) — split off into T-149, since it is a vacuous-test defect rather than a plain coverage gap. Ranking for this item stands at L1 > HI1 > O3 > L3: L1 is the only one that produces wrong output on a normal run of a stock host. HF3 needs no test — it is a proven boundary."
     },
     {
       "id": "T-147",
       "title": "Re-verify every line-number citation in README.md, CONTRACTS.md and REPORT.md against the current tree",
       "kind": "docs",
-      "priority": 8,
+      "priority": 9,
       "value": "M",
       "effort": "S",
       "status": "todo",
@@ -974,7 +974,7 @@
       "id": "T-148",
       "title": "Regenerate REPORT.md's pasted command-output figures and correct any that no longer reproduce",
       "kind": "qa",
-      "priority": 9,
+      "priority": 10,
       "value": "M",
       "effort": "S",
       "status": "todo",
@@ -989,6 +989,24 @@
       "model": "sonnet",
       "attempts": 0,
       "notes": "Enforces L-036, the error the first run self-caught: a captured figure edited even cosmetically stops being evidence. Scoped to REPORT.md's VERIFIED table to stay S-effort."
+    },
+    {
+      "id": "T-149",
+      "title": "Make test/args.test.js:22 discriminating — it currently passes under the AA1 mutation for an incidental reason",
+      "kind": "test",
+      "priority": 8,
+      "value": "H",
+      "effort": "S",
+      "status": "todo",
+      "deps": [],
+      "files_hint": [
+        "test/args.test.js"
+      ],
+      "acceptance": "test/args.test.js's undefined-argv test is shown to FAIL against the AA1 mutation (src/args.js `argv === undefined` -> `argv === null`) in two arms: proven failable with the mutation applied, and proven attributable — removing the new/changed assertion lets the same mutation survive again. The existing assertion must not be weakened or deleted; the fix is to give it discriminating power (e.g. exercise the call from a process whose ambient argv is non-empty), not to restate it.",
+      "packages": [],
+      "model": "sonnet",
+      "attempts": 0,
+      "notes": "Found at cycle 53 by the T-144 sweep. The test asserts the right thing and looks like real coverage, but its discriminating power is zero: under the mutation node:util falls back to process.argv.slice(2), which is [] under `node --test <file>` (verified: PROBE []), so the mutant coincidentally produces the truth's literal []. Conductor's own witness from a process with non-empty ambient argv shows the real divergence: truth {\"hemisphere\":null,...} vs mutant parsing the embedding process's command line (cycle-053-gate-out.txt:94). Directly in scope for this run's must-have \"every new test proven failable AND attributable in two arms\" (L-029)."
     }
   ]
 }

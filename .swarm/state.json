@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "BUILD",
-  "cycle": 52,
+  "cycle": 53,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -487,6 +487,26 @@
       "cycle": 52,
       "what": "a third classification bucket recorded for O1/O2/P2 - BOUNDARY on the reachable domain, HOLE on the contract domain - instead of forcing them into the item HOLE/BOUNDARY binary",
       "why": "All three mutants are indiscriminable from anything astro.js can emit (verified: at the one reachable point cf=0.5, k=1, truth and O1-mutant render identically), so labelling them HOLE would overstate user impact. But all three ARE observably different for input CONTRACTS.md declares legal - 10 witnesses for O1 at cf=0.5 decoupled, 6 for O2 outside [0,1), 5 for P2 above k=1 - and in each case the mutated line is a GUARD whose guarding behaviour is the untested part. A clean BOUNDARY label would have been the exact failure this run spec warns about: a boundary asserted where the search simply never looked. Gate part 1 returned BOUNDARY for all four of F3/P2/O1/O2 precisely because its sweep domain excluded the region where three of them can differ; gate part 2 exists to catch that in the conductor own measurement."
+    },
+    {
+      "cycle": 53,
+      "what": "T-144 closed done with TWO independent classification passes on record — the conductor gate (cycle-053-gate-report.md) and the builder artifact (c53-sweep-report.md) — kept as separate files rather than merged",
+      "why": "The builder returned early mid-cycle having backgrounded its sweep, so the conductor killed the orphaned run, re-ran the harness itself (cycle-053-sweep-out.txt: 24 mutants, 21 killed, 3 survived, baseline 145/145) and authored both discrimination gates and all three classifications WITHOUT any builder report existing. The builder then resumed on its own and produced its report, overwriting the conductor's file at the shared path. Both passes are kept because they are genuinely independent — different instruments (exhaustive enumeration + VM Intl replacement vs direct truth/mutant calls), neither derived from the other — and they CONVERGE on all three survivors. Agreement reached that way is evidence; a merged single file would have destroyed exactly the property that makes it evidence. The conductor's report lives at cycle-053-gate-report.md; the builder's keeps the path it claimed."
+    },
+    {
+      "cycle": 53,
+      "what": "HI1 recorded as BOUNDARY on the stock-runtime domain, HOLE on the contract domain, after the conductor's FIRST gate returned a no-difference result that was worthless for it",
+      "why": "Gate 1 enumerated 616 hemisphere inputs and found no difference for HI1. That result carried no information: HI1 mutates the recovery value inside catch { zone = undefined }, reached only when Intl.DateTimeFormat().resolvedOptions() THROWS, and on stock Node it never throws — so the mutated line never executed under gate 1 at all. Gate 2 loaded the module in a VM context with a throwing Intl and found a full hemisphere flip (truth=north, mutant=south) on the exact call bin/moon.js:106 makes on every run without --north/--south. Reported as BOUNDARY-on-reachable only because a stock host cannot get there; the try/catch exists precisely to serve hosts that can, and the suite pins nothing about its recovery value. The gate recording its own first answer as wrong — the second cycle running in which that has happened — is the mechanism working, not a defect in it."
+    },
+    {
+      "cycle": 53,
+      "what": "HF3 recorded as a PROVEN boundary rather than a sampled one, with an explicit table contingency attached",
+      "why": "The empty-string guard is dead code under the mutation, but that alone does not make it equivalent — the question is whether deleting it changes the answer for key === ''. Proved over the table rather than sampled: '' is in neither Set (NORTHERN_ZONES=1, SOUTHERN_ZONES=95) and no prefix p satisfies ''.startsWith(p) (SOUTHERN_PREFIXES=6, zero matches), so the fall-through reaches the same terminal return DEFAULT_HEMISPHERE. Caveat kept attached in the shape of cycle 52's F3: this is a boundary of the current TABLE, not of the code — an empty-string prefix (which every string startsWith) would make it a live defect with no test behind it. Both passes reached this proof independently."
+    },
+    {
+      "cycle": 53,
+      "what": "AA1 upgraded from \"an unprotected behavior\" to \"a test that cannot fail\", and filed as T-149 — a finding the conductor gate MISSED and the builder found",
+      "why": "The gate witnessed AA1's divergence and stopped at 'untested guard'. The builder went further and identified why it survives: test/args.test.js:22 already asserts parseArgs(undefined) deep-equals the all-defaults object, and that test still passes under the mutation because node:util falls back to process.argv.slice(2), which under `node --test <file>` is empty — coincidentally matching the literal [] the truth code produces. The conductor verified both halves itself rather than taking the claim (the builder's witness scripts were deleted, so none of its evidence survives on disk): grep confirms the test at line 22, and a probe under node --test prints `PROBE []`. Combined with the gate's own AA1 witness from a process WITH non-empty ambient argv, the vacuity is established from disk-resident evidence in both arms. Recorded as a miss on the gate's part, not absorbed silently — the point of two passes is that either one can catch the other."
     }
   ],
   "known_issues": [
@@ -534,7 +554,7 @@
     "last_look_cycle": 1,
     "last_taste_cycle": 1,
     "last_review_fix_cycle": 23,
-    "last_build_wave_cycle": 52
+    "last_build_wave_cycle": 53
   },
   "counters": {
     "consecutive_no_value": 0,

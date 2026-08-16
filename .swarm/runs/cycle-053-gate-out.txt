@@ -1,0 +1,221 @@
+domain src/args.js: 1465 inputs — every argv sequence of length 0..3 over an 11-token alphabet (each flag, -h, an unknown option, a positional, a flag-with-value, and --), plus the no-argv call
+domain src/hemisphere.js: 616 inputs — every zone/prefix literal parsed out of the pristine table itself (x4 case+whitespace variants), every northern counter-example named in the source comments, and every non-string shape
+
+AJ1   DIFFERS    src/args.js — json comparison flipped: === true -> !== true (default becomes true, not false)
+      input:  []
+      truth:  {"json":false,"hemisphere":null,"block":false,"compact":false,"help":false}
+      mutant: {"json":true,"hemisphere":null,"block":false,"compact":false,"help":false}
+      input:  ["--json"]
+      truth:  {"json":true,"hemisphere":null,"block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":null,"block":false,"compact":false,"help":false}
+      input:  ["--south"]
+      truth:  {"json":false,"hemisphere":"south","block":false,"compact":false,"help":false}
+      mutant: {"json":true,"hemisphere":"south","block":false,"compact":false,"help":false}
+AJ2   DIFFERS    src/args.js — block comparison flipped: === true -> !== true
+      input:  []
+      truth:  {"json":false,"hemisphere":null,"block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":null,"block":true,"compact":false,"help":false}
+      input:  ["--json"]
+      truth:  {"json":true,"hemisphere":null,"block":false,"compact":false,"help":false}
+      mutant: {"json":true,"hemisphere":null,"block":true,"compact":false,"help":false}
+      input:  ["--south"]
+      truth:  {"json":false,"hemisphere":"south","block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":"south","block":true,"compact":false,"help":false}
+AJ3   DIFFERS    src/args.js — compact comparison flipped: === true -> !== true
+      input:  []
+      truth:  {"json":false,"hemisphere":null,"block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":null,"block":false,"compact":true,"help":false}
+      input:  ["--json"]
+      truth:  {"json":true,"hemisphere":null,"block":false,"compact":false,"help":false}
+      mutant: {"json":true,"hemisphere":null,"block":false,"compact":true,"help":false}
+      input:  ["--south"]
+      truth:  {"json":false,"hemisphere":"south","block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":"south","block":false,"compact":true,"help":false}
+AJ4   DIFFERS    src/args.js — help comparison flipped: === true -> !== true
+      input:  []
+      truth:  {"json":false,"hemisphere":null,"block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":null,"block":false,"compact":false,"help":true}
+      input:  ["--json"]
+      truth:  {"json":true,"hemisphere":null,"block":false,"compact":false,"help":false}
+      mutant: {"json":true,"hemisphere":null,"block":false,"compact":false,"help":true}
+      input:  ["--south"]
+      truth:  {"json":false,"hemisphere":"south","block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":"south","block":false,"compact":false,"help":true}
+AH1   DIFFERS    src/args.js — south token wired to the wrong value: hemisphere = 'south' -> 'north'
+      input:  ["--south"]
+      truth:  {"json":false,"hemisphere":"south","block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":"north","block":false,"compact":false,"help":false}
+      input:  ["--json","--south"]
+      truth:  {"json":true,"hemisphere":"south","block":false,"compact":false,"help":false}
+      mutant: {"json":true,"hemisphere":"north","block":false,"compact":false,"help":false}
+      input:  ["--south","--json"]
+      truth:  {"json":true,"hemisphere":"south","block":false,"compact":false,"help":false}
+      mutant: {"json":true,"hemisphere":"north","block":false,"compact":false,"help":false}
+AH2   DIFFERS    src/args.js — north token wired to the wrong value: hemisphere = 'north' -> 'south'
+      input:  ["--north"]
+      truth:  {"json":false,"hemisphere":"north","block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":"south","block":false,"compact":false,"help":false}
+      input:  ["--json","--north"]
+      truth:  {"json":true,"hemisphere":"north","block":false,"compact":false,"help":false}
+      mutant: {"json":true,"hemisphere":"south","block":false,"compact":false,"help":false}
+      input:  ["--south","--north"]
+      truth:  {"json":false,"hemisphere":"north","block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":"south","block":false,"compact":false,"help":false}
+AH3   DIFFERS    src/args.js — token walk reversed: LAST flag on the line no longer wins, first one does
+      input:  ["--south","--north"]
+      truth:  {"json":false,"hemisphere":"north","block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":"south","block":false,"compact":false,"help":false}
+      input:  ["--north","--south"]
+      truth:  {"json":false,"hemisphere":"south","block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":"north","block":false,"compact":false,"help":false}
+      input:  ["--json","--south","--north"]
+      truth:  {"json":true,"hemisphere":"north","block":false,"compact":false,"help":false}
+      mutant: {"json":true,"hemisphere":"south","block":false,"compact":false,"help":false}
+AH4   DIFFERS    src/args.js — initial default changed: 'let hemisphere = null' -> 'north', so 'no flag given' stops meaning auto-detect
+      input:  []
+      truth:  {"json":false,"hemisphere":null,"block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":"north","block":false,"compact":false,"help":false}
+      input:  ["--json"]
+      truth:  {"json":true,"hemisphere":null,"block":false,"compact":false,"help":false}
+      mutant: {"json":true,"hemisphere":"north","block":false,"compact":false,"help":false}
+      input:  ["--block"]
+      truth:  {"json":false,"hemisphere":null,"block":true,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":"north","block":true,"compact":false,"help":false}
+AH5   DIFFERS    src/args.js — token.kind !== 'option' guard flipped to === 'option' (skips real option tokens instead of non-option ones)
+      input:  ["--south"]
+      truth:  {"json":false,"hemisphere":"south","block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":null,"block":false,"compact":false,"help":false}
+      input:  ["--north"]
+      truth:  {"json":false,"hemisphere":"north","block":false,"compact":false,"help":false}
+      mutant: {"json":false,"hemisphere":null,"block":false,"compact":false,"help":false}
+      input:  ["--json","--south"]
+      truth:  {"json":true,"hemisphere":"south","block":false,"compact":false,"help":false}
+      mutant: {"json":true,"hemisphere":null,"block":false,"compact":false,"help":false}
+AA1   DIFFERS    src/args.js — argv === undefined -> argv === null, so parseArgs(undefined) no longer normalizes to []
+      input:  (no argv)
+      truth:  {"json":false,"hemisphere":null,"block":false,"compact":false,"help":false}
+      mutant: EUSAGE: unexpected argument '/opt/targets/moon/.swarm/runs/cycle-053-mutants.json' - moon takes no positional arguments; run 'moon --help' to see the available options
+AE1   DIFFERS    src/args.js — the err.code = EUSAGE assignment is dropped
+      input:  ["--bogus"]
+      truth:  EUSAGE: unknown option '--bogus' - run 'moon --help' to see the available options
+      mutant: Error: unknown option '--bogus' - run 'moon --help' to see the available options
+      input:  ["positional"]
+      truth:  EUSAGE: unexpected argument 'positional' - moon takes no positional arguments; run 'moon --help' to see the available options
+      mutant: Error: unexpected argument 'positional' - moon takes no positional arguments; run 'moon --help' to see the available options
+      input:  ["--json=1"]
+      truth:  EUSAGE: option '--json' is a flag and takes no value - run 'moon --help' to see the available options
+      mutant: Error: option '--json' is a flag and takes no value - run 'moon --help' to see the available options
+AE2   DIFFERS    src/args.js — 'unknown option' wording changed to 'bad option' (documented message content)
+      input:  ["--bogus"]
+      truth:  EUSAGE: unknown option '--bogus' - run 'moon --help' to see the available options
+      mutant: EUSAGE: bad option '--bogus' - run 'moon --help' to see the available options
+      input:  ["--json","--bogus"]
+      truth:  EUSAGE: unknown option '--bogus' - run 'moon --help' to see the available options
+      mutant: EUSAGE: bad option '--bogus' - run 'moon --help' to see the available options
+      input:  ["--south","--bogus"]
+      truth:  EUSAGE: unknown option '--bogus' - run 'moon --help' to see the available options
+      mutant: EUSAGE: bad option '--bogus' - run 'moon --help' to see the available options
+AE3   DIFFERS    src/args.js — 'positional arguments' dropped from the unexpected-argument message
+      input:  ["positional"]
+      truth:  EUSAGE: unexpected argument 'positional' - moon takes no positional arguments; run 'moon --help' to see the available options
+      mutant: EUSAGE: unexpected argument 'positional' - moon takes no arguments; run 'moon --help' to see the available options
+      input:  ["--json","positional"]
+      truth:  EUSAGE: unexpected argument 'positional' - moon takes no positional arguments; run 'moon --help' to see the available options
+      mutant: EUSAGE: unexpected argument 'positional' - moon takes no arguments; run 'moon --help' to see the available options
+      input:  ["--south","positional"]
+      truth:  EUSAGE: unexpected argument 'positional' - moon takes no positional arguments; run 'moon --help' to see the available options
+      mutant: EUSAGE: unexpected argument 'positional' - moon takes no arguments; run 'moon --help' to see the available options
+AE4   DIFFERS    src/args.js — 'takes no value' dropped from the flag-given-a-value message
+      input:  ["--json=1"]
+      truth:  EUSAGE: option '--json' is a flag and takes no value - run 'moon --help' to see the available options
+      mutant: EUSAGE: option '--json' is a flag - run 'moon --help' to see the available options
+      input:  ["--json","--json=1"]
+      truth:  EUSAGE: option '--json' is a flag and takes no value - run 'moon --help' to see the available options
+      mutant: EUSAGE: option '--json' is a flag - run 'moon --help' to see the available options
+      input:  ["--south","--json=1"]
+      truth:  EUSAGE: option '--json' is a flag and takes no value - run 'moon --help' to see the available options
+      mutant: EUSAGE: option '--json' is a flag - run 'moon --help' to see the available options
+HZ1   DIFFERS    src/hemisphere.js — the sole NORTHERN_ZONES entry ('indian/maldives') is dropped from the table
+      input:  "indian/maldives"
+      truth:  "north"
+      mutant: "south"
+      input:  "INDIAN/MALDIVES"
+      truth:  "north"
+      mutant: "south"
+      input:  "indian/Maldives"
+      truth:  "north"
+      mutant: "south"
+HZ2   DIFFERS    src/hemisphere.js — the equator-adjacent 'africa/nairobi' entry is dropped from SOUTHERN_ZONES
+      input:  "africa/nairobi"
+      truth:  "south"
+      mutant: "north"
+      input:  "AFRICA/NAIROBI"
+      truth:  "south"
+      mutant: "north"
+      input:  "africa/Nairobi"
+      truth:  "south"
+      mutant: "north"
+HZ3   DIFFERS    src/hemisphere.js — the 'australia/' prefix is dropped, so every Australia/* zone falls through to the northern default
+      input:  "australia/"
+      truth:  "south"
+      mutant: "north"
+      input:  "AUSTRALIA/"
+      truth:  "south"
+      mutant: "north"
+      input:  "australia/"
+      truth:  "south"
+      mutant: "north"
+HZ4   DIFFERS    src/hemisphere.js — the documented priority order (NORTHERN_ZONES, SOUTHERN_ZONES, then SOUTHERN_PREFIXES) is reversed: prefixes now checked first
+      input:  "indian/maldives"
+      truth:  "north"
+      mutant: "south"
+      input:  "INDIAN/MALDIVES"
+      truth:  "north"
+      mutant: "south"
+      input:  "indian/Maldives"
+      truth:  "north"
+      mutant: "south"
+HF1   DIFFERS    src/hemisphere.js — the terminal fallback for a zone matched by nothing changes from DEFAULT_HEMISPHERE ('north') to a hardcoded 'south'
+      input:  "north"
+      truth:  "north"
+      mutant: "south"
+      input:  "NORTH"
+      truth:  "north"
+      mutant: "south"
+      input:  "north"
+      truth:  "north"
+      mutant: "south"
+HF2   DIFFERS    src/hemisphere.js — typeof zone !== 'string' flipped to === 'string' (strings now short-circuit to default, non-strings fall through to .trim() and throw)
+      input:  "antarctica/"
+      truth:  "south"
+      mutant: "north"
+      input:  "ANTARCTICA/"
+      truth:  "south"
+      mutant: "north"
+      input:  "antarctica/"
+      truth:  "south"
+      mutant: "north"
+HF3   NO-DIFF    src/hemisphere.js — over 616 enumerated inputs. NOT a proof of equivalence; the conductor must argue from the mutated line where a difference could live.
+HN1   DIFFERS    src/hemisphere.js — .trim() dropped, so a zone string with leading/trailing whitespace no longer matches the table
+      input:  "  antarctica/  "
+      truth:  "south"
+      mutant: "north"
+      input:  "  antarctica/somewhere  "
+      truth:  "south"
+      mutant: "north"
+      input:  "  australia/  "
+      truth:  "south"
+      mutant: "north"
+HN2   DIFFERS    src/hemisphere.js — .toLowerCase() dropped, so mixed-case zone names no longer match the (lowercased) table
+      input:  "ANTARCTICA/"
+      truth:  "south"
+      mutant: "north"
+      input:  "ANTARCTICA/SOMEWHERE"
+      truth:  "south"
+      mutant: "north"
+      input:  "AUSTRALIA/"
+      truth:  "south"
+      mutant: "north"
+HI1   NO-DIFF    src/hemisphere.js — over 616 enumerated inputs. NOT a proof of equivalence; the conductor must argue from the mutated line where a difference could live.
+
+mutants examined: 24  observably different: 22  no-difference-over-domain: 2

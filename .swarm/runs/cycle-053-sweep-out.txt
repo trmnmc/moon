@@ -1,0 +1,65 @@
+Repo root: /opt/targets/moon
+Test files: args.test.js, astro.test.js, cli.test.js, contracts.test.js, hemisphere.test.js, manifest.test.js, regressions.test.js, render.test.js
+Mutated files: src/args.js, src/hemisphere.js
+
+Running baseline suite against the pristine repo...
+Baseline: tests=145 pass=145 fail=0 exit=0
+
+AJ1  KILLED    [src/args.js] args: --json flag wiring  [red: args.test.js, cli.test.js, regressions.test.js]
+AJ2  KILLED    [src/args.js] args: --block flag wiring  [red: args.test.js, cli.test.js, regressions.test.js]
+AJ3  KILLED    [src/args.js] args: --compact flag wiring  [red: args.test.js, cli.test.js, contracts.test.js, regressions.test.js]
+AJ4  KILLED    [src/args.js] args: --help/-h flag wiring  [red: args.test.js, cli.test.js, regressions.test.js]
+AH1  KILLED    [src/args.js] args: --south sets hemisphere south  [red: args.test.js, cli.test.js]
+AH2  KILLED    [src/args.js] args: --north sets hemisphere north  [red: args.test.js, cli.test.js]
+AH3  KILLED    [src/args.js] args: last-one-wins hemisphere override  [red: args.test.js]
+AH4  KILLED    [src/args.js] args: hemisphere default is null (auto-detect sentinel)  [red: args.test.js, cli.test.js]
+AH5  KILLED    [src/args.js] args: option-token filter in the hemisphere walk  [red: args.test.js, cli.test.js]
+AA1  SURVIVED  [src/args.js] args: undefined argv treated as no arguments
+AE1  KILLED    [src/args.js] args: usage errors carry code EUSAGE  [red: args.test.js, cli.test.js, contracts.test.js]
+AE2  KILLED    [src/args.js] args: unknown-option message wording  [red: args.test.js, cli.test.js]
+AE3  KILLED    [src/args.js] args: unexpected-positional message wording  [red: args.test.js]
+AE4  KILLED    [src/args.js] args: invalid-option-value message wording  [red: args.test.js]
+HZ1  KILLED    [src/hemisphere.js] hemisphere: NORTHERN_ZONES exact-zone override (Indian/Maldives)  [red: hemisphere.test.js]
+HZ2  KILLED    [src/hemisphere.js] hemisphere: SOUTHERN_ZONES exact-zone entry (Africa/Nairobi)  [red: hemisphere.test.js]
+HZ3  KILLED    [src/hemisphere.js] hemisphere: SOUTHERN_PREFIXES whole-region entry (australia/)  [red: cli.test.js, hemisphere.test.js]
+HZ4  KILLED    [src/hemisphere.js] hemisphere: table priority order (NORTHERN_ZONES checked before SOUTHERN_PREFIXES)  [red: hemisphere.test.js]
+HF1  KILLED    [src/hemisphere.js] hemisphere: unknown-zone fallback value  [red: cli.test.js, hemisphere.test.js]
+HF2  KILLED    [src/hemisphere.js] hemisphere: non-string zone guard  [red: cli.test.js, hemisphere.test.js]
+HF3  SURVIVED  [src/hemisphere.js] hemisphere: empty-string-after-trim guard
+HN1  KILLED    [src/hemisphere.js] hemisphere: whitespace trimming before lookup  [red: hemisphere.test.js]
+HN2  KILLED    [src/hemisphere.js] hemisphere: case-insensitive lookup  [red: cli.test.js, hemisphere.test.js]
+HI1  SURVIVED  [src/hemisphere.js] hemisphere: defensive fallback when Intl.DateTimeFormat() throws
+
+=== Summary table ===
+id    verdict    file                   behavior
+AJ1   KILLED     src/args.js            args: --json flag wiring
+AJ2   KILLED     src/args.js            args: --block flag wiring
+AJ3   KILLED     src/args.js            args: --compact flag wiring
+AJ4   KILLED     src/args.js            args: --help/-h flag wiring
+AH1   KILLED     src/args.js            args: --south sets hemisphere south
+AH2   KILLED     src/args.js            args: --north sets hemisphere north
+AH3   KILLED     src/args.js            args: last-one-wins hemisphere override
+AH4   KILLED     src/args.js            args: hemisphere default is null (auto-detect sentinel)
+AH5   KILLED     src/args.js            args: option-token filter in the hemisphere walk
+AA1   SURVIVED   src/args.js            args: undefined argv treated as no arguments
+AE1   KILLED     src/args.js            args: usage errors carry code EUSAGE
+AE2   KILLED     src/args.js            args: unknown-option message wording
+AE3   KILLED     src/args.js            args: unexpected-positional message wording
+AE4   KILLED     src/args.js            args: invalid-option-value message wording
+HZ1   KILLED     src/hemisphere.js      hemisphere: NORTHERN_ZONES exact-zone override (Indian/Maldives)
+HZ2   KILLED     src/hemisphere.js      hemisphere: SOUTHERN_ZONES exact-zone entry (Africa/Nairobi)
+HZ3   KILLED     src/hemisphere.js      hemisphere: SOUTHERN_PREFIXES whole-region entry (australia/)
+HZ4   KILLED     src/hemisphere.js      hemisphere: table priority order (NORTHERN_ZONES checked before SOUTHERN_PREFIXES)
+HF1   KILLED     src/hemisphere.js      hemisphere: unknown-zone fallback value
+HF2   KILLED     src/hemisphere.js      hemisphere: non-string zone guard
+HF3   SURVIVED   src/hemisphere.js      hemisphere: empty-string-after-trim guard
+HN1   KILLED     src/hemisphere.js      hemisphere: whitespace trimming before lookup
+HN2   KILLED     src/hemisphere.js      hemisphere: case-insensitive lookup
+HI1   SURVIVED   src/hemisphere.js      hemisphere: defensive fallback when Intl.DateTimeFormat() throws
+
+Total: 24  killed: 21  survived: 3
+
+Survivors (need HOLE/BOUNDARY/UNDECIDED classification — see c53-sweep-report.md):
+  AA1: [src/args.js] args: undefined argv treated as no arguments — argv === undefined -> argv === null, so parseArgs(undefined) no longer normalizes to []
+  HF3: [src/hemisphere.js] hemisphere: empty-string-after-trim guard — key === '' changed to key === ' ' (a value .trim() can never produce, so the explicit empty-string early-return becomes dead code)
+  HI1: [src/hemisphere.js] hemisphere: defensive fallback when Intl.DateTimeFormat() throws — the catch branch's recovery value changed from 'undefined' (-> DEFAULT_HEMISPHERE) to a hardcoded southern zone string

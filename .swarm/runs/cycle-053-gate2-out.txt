@@ -1,0 +1,25 @@
+=== HF3 — proof, not sample ===
+table sizes: NORTHERN_ZONES=1 SOUTHERN_ZONES=95 SOUTHERN_PREFIXES=6
+'' present in NORTHERN_ZONES: false
+'' present in SOUTHERN_ZONES: false
+prefixes p for which ''.startsWith(p) is true: []
+empty-string prefixes: []
+PROVEN: with key === '', both Set lookups miss and no prefix matches, so the fall-through path
+        reaches the same terminal `return DEFAULT_HEMISPHERE` the deleted guard returned.
+        The guard is therefore semantically dead ON THE CURRENT TABLE, for every input.
+        CONTINGENCY: this is a boundary of the current TABLE, not of the code. Adding '' to
+        either Set, or an empty-string prefix (which every string startsWith), makes HF3 a
+        live defect with no test behind it.
+  key-source "": truth=north mutant=north
+  key-source "   ": truth=north mutant=north
+  key-source "\t\n": truth=north mutant=north
+
+=== HI1 — the region gate 1 never visited ===
+with Intl.DateTimeFormat() throwing (the runtime the catch branch exists for):
+  detectHemisphere()          truth=north  mutant=south
+  detectHemisphere(undefined) truth=north  mutant=south
+with resolvedOptions() returning no timeZone (the other case the comment names):
+  detectHemisphere()          truth=north  mutant=north
+with stock Intl (the reachable domain on a normal Node host):
+  detectHemisphere()          truth=north  mutant=north
+  host zone: UTC
