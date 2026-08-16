@@ -1,0 +1,22 @@
+UCD version: 15.0.0
+frames captured: 368
+frame glyph EAW: U+250C A U+2510 A U+2514 A U+2518 A U+2500 A U+2502 A
+
+--- ambiguous width = 1 ---
+  border row cols        : min 34 max 34
+  body row cols (any row): min 34 max 34
+  named-row right | col  : min 33 max 33
+  top-right corner col   : min 33 max 33
+  bottom-right corner col: min 33 max 33
+--- ambiguous width = 2 ---
+  border row cols        : min 68 max 68
+  body row cols (any row): min 36 max 48
+  named-row right | col  : min 34 max 34
+  top-right corner col   : min 66 max 66
+  bottom-right corner col: min 66 max 66
+
+RESULT
+  frames missing a phase/illuminated/hemisphere row : 0 []
+  UNAFFECTED branch wrong (check says 'affected')   : 0 []
+  AFFECTED branch wrong (check says 'unaffected')   : 128 [('2026-01-01T00:00:00.000Z/north', 68, 47, 66, [34, 34, 34], False, False, True), ('2026-01-01T00:00:00.000Z/south', 68, 47, 66, [34, 34, 34], False, False, True), ('2026-01-01T06:00:00.000Z/north', 68, 48, 66, [34, 34, 34], False, False, True)]
+  VERDICT: CHECK IS WRONG

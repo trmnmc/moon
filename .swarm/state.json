@@ -3,7 +3,7 @@
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
  "phase": "VALUE_LOOP",
- "cycle": 62,
+ "cycle": 63,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -562,6 +562,11 @@
    "cycle": 59,
    "what": "the backlog is now empty (50/50 done) and the target was still NOT declared DONE; cycle 60 runs an explicit VALUE_LOOP candidate scan first.",
    "why": "Same rule cycles 26 and 27 established and cycle 27 then vindicated: an EMPTY QUEUE IS NOT AN EXHAUSTED VALUE SPACE. Cycle 27 ran the scan off an all-but-drained backlog and found T-123, a real false figure in README and REPORT that no backlog row had ever captured. The asymmetry is unchanged -- declaring done sets the target's status to done, rotation finds no active target, and WRAP_UP fires immediately, discarding the 11.5 h remaining to stop_at on an unexamined premise; deferring costs one gear-1 cycle, and a candidate scan is planning work, which gear 1 permits."
+  },
+  {
+   "cycle": 63,
+   "what": "T-151 was retried at SONNET, not demoted back to haiku, even though gear 1 carries demote:true and the demotion rule explicitly permits sonnet->haiku for docs/polish items.",
+   "why": "Two mechanisms collide on this item and the literal composition is perverse. Pick-time routing sends kind=docs/effort=S to haiku; the escalation ladder then raises it one rung to sonnet because attempts>=1; gear-1 demotion would then drop it straight back to haiku -- the exact tier that failed the gate at cycle 62, for a reasoning error (it asserted a corner-alignment observable that is false under the documented failure mode). Arbitration: the ladder is a response to MEASURED failure at a tier, while demotion is a cost-control mechanism. A cost mechanism cannot rationally undo a correctness escalation, because the cheaper run is not cheaper if it reproduces the same wrong answer -- cycle 62 spent a whole cycle to buy exactly that lesson. Demotion is therefore treated as not applicable to a rung the ladder just raised. Recorded because it is a general rule the next conductor will hit again, not a one-off."
   }
  ],
  "known_issues": [
@@ -609,13 +614,13 @@
   "last_look_cycle": 1,
   "last_taste_cycle": 1,
   "last_review_fix_cycle": 23,
-  "last_build_wave_cycle": 62
+  "last_build_wave_cycle": 63
  },
  "counters": {
-  "consecutive_no_value": 1,
+  "consecutive_no_value": 0,
   "consecutive_failures": 0,
   "k_current": 5,
-  "wave_streak": 0,
+  "wave_streak": 1,
   "window_tokens_attributed": 0
  },
  "last_cycle": {

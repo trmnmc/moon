@@ -211,6 +211,13 @@ double", `xterm -cjk_width`), the disc renders 5–9 columns wide depending on p
 of a constant 5. Three consequences there: the single-line readout jitters between nights,
 the two-line form stops aligning, and the `--block` frame does not close.
 
+**Self-check:** run `node bin/moon.js --block` and compare the top and bottom border
+lines to the `│`-bracketed rows between them (`phase`, `illuminated`, `hemisphere`). If
+the right-hand `│` on those rows lines up directly under the right end of the top and
+bottom lines, your terminal is unaffected. If the top and bottom lines run noticeably
+wider than the rows in between — the `│` stopping well short of where the border lines
+end — that is the frame-does-not-close symptom above, and your terminal is affected.
+
 In a default Western-locale terminal — every configuration this was developed and
 tested against — all forms are exactly 5 columns and align correctly.
 

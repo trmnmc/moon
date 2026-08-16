@@ -7192,3 +7192,97 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-17T04:59:59+00:00","usage_reset_at":"2026-08-17T04:59:59+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1786904453,"next_wakeup_at":1786906253,"pid":1256419,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"clock","gear":1,"gear_target":1,"ratio":0,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786904453,"last_real_probe_ts":1786903989,"probe_failures":8,"gear_evidence":"cycle 62: NO real probe was due (now 1786904453 - last_real_probe_ts 1786903989 = 464 s < 1800), so probe_failures stays 8 and last_real_probe_ts is unchanged; next real re-attempt due 1786905789. The prescribed zero-cost substitute (PROBE_CMD=false bin/swarm-budget.sh) was attempted and DENIED by the Bash allowlist (KI-2, unchanged) -- not a real probe failure, so no counter moved. Gear 1 held on fresh disk evidence read directly from runs/allocator.json: posture trickle, weekly_used_pct 100.0, opus_used_pct 97, week_elapsed_pct 93.66 (up from 93.55 last cycle, so the file is live), allow_overall_pct 0, allow_premium_pct 0, dial 0.30, source probe. week_resets_at 1786942799 == stop_at, so there is no later richer window to save for. Guest clamps 1-3; gear 1 caps the effective wave at 1, which is what ran. Burn rate and projected depletion remain UNAVAILABLE -- no probe has produced burn evidence since the allowlist gap opened. runs/control.json read directly (swarm-notify.sh poll is denied by the same gap): pending [], applied [], no inject array -- nothing to apply or triage.","weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":97,"week_elapsed_pct":93.66,"weekly_heat":1.075,"opus_heat":1.042,"ceiling":null,"promote_blocked":true,"note":"ceiling stays null because bin/swarm-budget.sh still cannot run (KI-2), so no governor ceiling was emitted this cycle either. Gear 1 rests on the allocator posture, not on the weekly governor."}},"playbook":{"mode":"auto","applied":["L-003","L-006","L-007","L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-034"],"vetoed":[],"inert_for_this_target":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"parse_source":"MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.","inert_note":"The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.","directives":{"wave_k":3,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer — never commit or push yourself"],"reviewer":["The conductor is the SOLE committer — never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer — never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive — a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":14,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 63 | 2026-08-16T18:56:11+00:00 | moon | VALUE_LOOP
+work: build-wave k=1 (effective wave = min(k_current 5, gear cap 1, hard max 5) = 1) -- item T-151 retry,
+the last open item and SPEC nice-to-have #2. Dispatched as a DIRECT Agent call, not Workflow: this is a
+pacer-spawned `claude -p` session (runs/pacer.log 18:56:05 decision=spawned; pid 1258955), and Workflow is
+review-gated headless -- the documented failure-table fallback. k=1, so the disjoint-file-scope requirement
+is met by construction.
+budget: gear 1 (guest, clamp 1-3) | a REAL probe re-attempt WAS due this cycle (now 1786906571 -
+last_real_probe_ts 1786903989 = 2582 s >= 1800) and was MADE: `bin/swarm-budget.sh` with cwd=/opt/swarm,
+DENIED by the Bash allowlist again. That is a denial, not a probe failure -- the script never reached the
+shell and emitted no probe_ok -- so probe_failures holds at 8 while last_real_probe_ts advances to
+1786906571 (next attempt due 1786908371). Gear held on fresh disk evidence from runs/allocator.json:
+posture trickle, weekly_used_pct 100.0, opus_used_pct 97, week_elapsed_pct 94.01 (93.66 last cycle, so the
+file is live), allow_overall_pct 0, allow_premium_pct 0, dial 0.30. week_resets_at 1786942799 == stop_at,
+so there is no later, richer window worth saving for. Burn rate and projected depletion remain UNAVAILABLE.
+control: bin/swarm-notify.sh poll behind the same allowlist gap; runs/control.json read directly --
+pending [], applied [], no inject array. Nothing to apply, nothing to triage.
+craft pack: node bin/swarm-craft.mjs ran clean, degraded [] -- craft.docs (1737 chars) spliced into the
+builder prompt.
+routing: T-151 is kind docs / effort S -> haiku per the table; attempts was 1 at pick time, so the ladder
+escalates ONE rung to sonnet. Gear-1 demotion (sonnet->haiku is permitted for docs items) was DELIBERATELY
+NOT APPLIED -- it would have returned the item to the exact tier that failed the gate at cycle 62. Reasoning
+recorded as a decision in state.json (cycle 63): the ladder answers a MEASURED failure, demotion is cost
+control, and a cost mechanism cannot rationally undo a correctness escalation. No judgment seat involved,
+so the fable guard is not in play. Model actually used: sonnet.
+pick rationale: T-151 was the only todo item, and unlike cycle 62 the retry had something new to work from --
+a conductor-measured fact about which part of the frame actually goes ragged. It clears the two-question
+ratchet (a reader seeing a jittering disc wants to know whether it is their terminal; that does not go stale)
+and it is a docs/S item, the haiku-priced class gear 1 permits.
+VERIFICATION EVIDENCE (conductor-run, authored at gate time -- the builder never saw these checks):
+  1. scope, from the diff rather than the builder's word:
+     git -C /opt/targets/moon diff --numstat  ->  "7	0	README.md"
+     git -C /opt/targets/moon status --porcelain  ->  " M README.md"
+     A pure 7-line addition, one file: nothing retained was deleted, reworded or weakened, which is half
+     the acceptance criterion settled mechanically rather than by reading the prose.
+  2. the discriminator -- do not grade the prose, TEST THE CLAIM. The check now reads: run
+     `node bin/moon.js --block`, compare the top and bottom border lines to the |-bracketed phase /
+     illuminated / hemisphere rows; bars aligned under the corners -> unaffected; borders noticeably wider
+     with the bars stopping well short -> affected. That is a function verdict(frame, width_policy), so it
+     is correct iff it returns "unaffected" under ambiguous=1 AND "affected" under ambiguous=2, on every
+     frame a reader might see. Rendered 368 real frames (renderBlock, every 6 h across 2026-01-01..
+     2026-02-15 = 1.5+ synodic months, both hemispheres) and measured display width from unicodedata
+     UCD 15.0.0. Script: .swarm/runs/cycle-063-capture-t151.js + cycle-063-verify-t151.py; full output:
+     .swarm/runs/cycle-063-verify-t151.txt. Excerpt:
+       --- ambiguous width = 1 ---
+         border row cols        : min 34 max 34
+         named-row right | col  : min 33 max 33
+         top-right corner col   : min 33 max 33     <- aligned, reader concludes UNAFFECTED, correctly
+       --- ambiguous width = 2 ---
+         border row cols        : min 68 max 68
+         body row cols (any row): min 36 max 48
+         named-row right | col  : min 34 max 34
+         top-right corner col   : min 66 max 66     <- 32 columns short, reader concludes AFFECTED
+       UNAFFECTED branch wrong (check says 'affected')   : 0 []
+       AFFECTED branch wrong (check says 'unaffected')   : 0 []
+       VERDICT: check DISCRIMINATES on every frame
+     Why this observable survives where cycle 62's did not: the three named rows are ASCII text bracketed
+     by two | glyphs, so their width is 32 + 2*w(|) regardless of phase, while the border rows are 34
+     frame glyphs and scale wholly with w. The gap is therefore phase-independent -- it does not depend on
+     which night the reader runs it, which is exactly what cycle 62's corner-to-corner check got wrong by
+     comparing two glyphs that scale together.
+  3. MY OWN FIRST GATE PASS WAS WRONG AND IS KEPT ON DISK. Run v1
+     (.swarm/runs/cycle-063-verify-t151-v1.txt) failed 128 of 368 frames, but on my threshold, not on the
+     README: I had encoded "noticeably wider" as border >= 1.5x EVERY body row, and the widest disc row
+     hits 48 cols against the border's 68 (1.42x). Re-read against what the sentence actually says, the
+     rows it names are the phase/illuminated/hemisphere rows (36 cols, 1.89x), and the literal claim
+     "the top and bottom lines run noticeably wider than the rows in between" is true under BOTH readings
+     -- 68 beats every row in the frame. So the fix was to my arbitrary multiplier, not to the gate's
+     strictness: v2 tests the decision rule (alignment) plus the corroborating clause under both scopings,
+     and the README text was not touched to reach green.
+  4. the literal command a reader is told to run, executed from the repo root:
+     node bin/moon.js --block  ->  frame rendered, phase/illuminated/hemisphere rows present and
+     |-bracketed as the check describes; --block is a real documented flag (confirmed in --help).
+  5. full test_cmd, conductor-run: node --test test/*.test.js
+       -> "tests 147 / pass 147 / fail 0 / skipped 0 / todo 0"   GREEN
+gate: T-151 PASS -> done. attempts stays 1. Backlog is now 52/52 done, zero todo.
+post-merge checks: collision-scan and the qa-verify look pass NOT RUN, and recorded as not-run rather than
+passed -- the merged file is README.md, moon is a zero-dependency terminal CLI with no browser-served
+surface, so the user-visible heuristic does not fire.
+wave autotune: the wave was CLEAN (zero reverts, zero failed verifies) -> wave_streak 0 -> 1. k_current
+unchanged at 5; it takes two consecutive clean waves to raise it, and gear 1 caps the effective wave at 1
+regardless while the trickle posture holds.
+outcome: 1 item verified. counters.consecutive_no_value 1 -> 0. Churn breaker reset; no forced work-type
+switch is now due.
+next: the backlog is EMPTY again (52/52), and per the rule cycles 26/27 established and cycle 60 re-ran, an
+empty queue is not an exhausted value space -- the next cycle runs a VALUE_LOOP candidate scan rather than
+declaring the target done, because declaring done fires WRAP_UP immediately and discards the ~10 h left on
+the clock. Standing candidates if the scan comes up dry: last full QA was cycle 46 (17 cycles ago) and last
+review-fix was cycle 23, both cheap-ish and both overdue relative to the amount of prose and test surface
+that has changed since.
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-17T04:59:59+00:00","usage_reset_at":"2026-08-17T04:59:59+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1786906571,"next_wakeup_at":1786909271,"pid":1258955,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"clock","gear":1,"gear_target":1,"ratio":0,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786906571,"last_real_probe_ts":1786906571,"probe_failures":8,"gear_evidence":"cycle 63: a REAL probe re-attempt WAS due (now 1786906571 - last_real_probe_ts 1786903989 = 2582 s >= 1800) and was MADE: bin/swarm-budget.sh with cwd=/opt/swarm was DENIED by the Bash allowlist again (KI-2, root-caused at cycle 35 as a plain missing allow entry). A denial is not a probe FAILURE -- the script never reached the shell and emitted no probe_ok -- so probe_failures holds at 8; last_real_probe_ts advances to 1786906571 because a real attempt was spent, putting the next re-attempt at 1786908371. Gear 1 held on fresh disk evidence read straight from runs/allocator.json: posture trickle, weekly_used_pct 100.0, opus_used_pct 97, week_elapsed_pct 94.01 (93.66 last cycle, so the file is live), allow_overall_pct 0, allow_premium_pct 0, dial 0.30, source probe. week_resets_at 1786942799 == stop_at, so there is no later, richer window worth saving for. Guest clamps 1-3; gear 1 caps the effective wave at 1, which is what ran. Burn rate and projected depletion remain UNAVAILABLE -- no probe has produced burn evidence since the allowlist gap opened, and this cycle does not pretend otherwise. runs/control.json read directly (swarm-notify.sh poll is behind the same gap): pending [], applied [], no inject array -- nothing to apply or triage.","weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":97,"week_elapsed_pct":94.01,"weekly_heat":1.064,"opus_heat":1.032,"ceiling":null,"promote_blocked":true,"note":"ceiling stays null because bin/swarm-budget.sh still cannot run (KI-2), so no governor ceiling was emitted this cycle either. Gear 1 rests on the allocator posture, not on the weekly governor."}},"playbook":{"mode":"auto","applied":["L-003","L-006","L-007","L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-034"],"vetoed":[],"inert_for_this_target":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"parse_source":"MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.","inert_note":"The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.","directives":{"wave_k":3,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer — never commit or push yourself"],"reviewer":["The conductor is the SOLE committer — never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer — never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive — a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":15,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```
