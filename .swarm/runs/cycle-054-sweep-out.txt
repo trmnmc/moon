@@ -1,0 +1,54 @@
+Repo root: /opt/targets/moon
+Test files: args.test.js, astro.test.js, cli.test.js, contracts.test.js, hemisphere.test.js, manifest.test.js, regressions.test.js, render.test.js
+Mutated file: src/astro.js
+
+Running baseline suite against the pristine repo...
+Baseline: tests=145 pass=145 fail=0 exit=0
+
+IT1   KILLED    astro: instant-tolerance window widened 0.5 -> 0.6 days  [red: astro.test.js]
+IT2   KILLED    astro: instant-tolerance window narrowed 0.5 -> 0.49 days  [red: astro.test.js]
+IT3   SURVIVED  astro: instant-tolerance comparison <= flipped to <
+IT4   SURVIVED  astro: nearest-quarter-instant tie-break < flipped to <=
+CI1   KILLED    astro: cycleFraction re-derived FROM illumination instead of independently from phaseAngle  [red: astro.test.js]
+CI2   KILLED    astro: cycleFraction mirrored (360 - phaseAngle) -- a sign/direction transcription error  [red: astro.test.js]
+IL1   SURVIVED  astro: illumination fold Math.abs(180 - phaseAngle) dropped
+AG1   KILLED    astro: age re-clamped to SYNODIC_MONTH (the exact historical bug, src/astro.js:305-313 comment)  [red: astro.test.js]
+LK1   SURVIVED  astro: lunationK initial-guess rounding Math.round -> Math.floor
+ND1   SURVIVED  astro: normDeg negative-branch boundary < flipped to <=
+ND2   SURVIVED  astro: normDeg terminal 360->0 guard dropped
+EL1   SURVIVED  astro: elongationDeg eq.(47.2) D rate term last digit dropped (445267.1114034 -> 445267.111403)
+EL2   SURVIVED  astro: elongationDeg eq.(47.4) Moon's mean anomaly rate term last digit dropped (477198.8675055 -> 477198.867505)
+DT1   KILLED    astro: deltaTDays constant term 62.92 -> 62.9 (transcription: dropped digit)  [red: astro.test.js]
+NFM1  KILLED    astro: nextFullMoon rounding comparison <= flipped to <  [red: astro.test.js]
+PN1   KILLED    astro: intermediate-arc PHASE_NAMES index off-by-two (arc*2+1 -> arc*2-1)  [red: astro.test.js, cli.test.js, regressions.test.js]
+
+=== Summary table ===
+id    verdict    behavior
+IT1   KILLED     astro: instant-tolerance window widened 0.5 -> 0.6 days
+IT2   KILLED     astro: instant-tolerance window narrowed 0.5 -> 0.49 days
+IT3   SURVIVED   astro: instant-tolerance comparison <= flipped to <
+IT4   SURVIVED   astro: nearest-quarter-instant tie-break < flipped to <=
+CI1   KILLED     astro: cycleFraction re-derived FROM illumination instead of independently from phaseAngle
+CI2   KILLED     astro: cycleFraction mirrored (360 - phaseAngle) -- a sign/direction transcription error
+IL1   SURVIVED   astro: illumination fold Math.abs(180 - phaseAngle) dropped
+AG1   KILLED     astro: age re-clamped to SYNODIC_MONTH (the exact historical bug, src/astro.js:305-313 comment)
+LK1   SURVIVED   astro: lunationK initial-guess rounding Math.round -> Math.floor
+ND1   SURVIVED   astro: normDeg negative-branch boundary < flipped to <=
+ND2   SURVIVED   astro: normDeg terminal 360->0 guard dropped
+EL1   SURVIVED   astro: elongationDeg eq.(47.2) D rate term last digit dropped (445267.1114034 -> 445267.111403)
+EL2   SURVIVED   astro: elongationDeg eq.(47.4) Moon's mean anomaly rate term last digit dropped (477198.8675055 -> 477198.867505)
+DT1   KILLED     astro: deltaTDays constant term 62.92 -> 62.9 (transcription: dropped digit)
+NFM1  KILLED     astro: nextFullMoon rounding comparison <= flipped to <
+PN1   KILLED     astro: intermediate-arc PHASE_NAMES index off-by-two (arc*2+1 -> arc*2-1)
+
+Total: 16  killed: 8  survived: 8
+
+Survivors (need HOLE/BOUNDARY/UNDECIDED classification — see c54-sweep-report.md):
+  IT3: astro: instant-tolerance comparison <= flipped to < — boundary-inclusivity flip; only observable at exact floating-point equality of the offset to the tolerance
+  IT4: astro: nearest-quarter-instant tie-break < flipped to <= — changes which instant wins an exact tie in distance; only observable at exact floating-point equality between two candidate distances
+  IL1: astro: illumination fold Math.abs(180 - phaseAngle) dropped — drops the explicit fold about 180 degrees; candidate EQUIVALENT mutant since cos() is even (cos(-x) === cos(x))
+  LK1: astro: lunationK initial-guess rounding Math.round -> Math.floor — only changes the SEED for the correcting while-loops below it; candidate equivalent mutant since the loops converge to the same fixed point regardless of seed
+  ND1: astro: normDeg negative-branch boundary < flipped to <= — only observable when x is exactly 0.0 entering the branch; candidate equivalent/unreachable mutant (0 + 360 still normalizes to 0 via the trailing >= 360 check... except that check is `>= 360`, so 360 does NOT re-fold to 0 wait it does: x>=360?0:x -- so 0 -> 360 -> 0, same output)
+  ND2: astro: normDeg terminal 360->0 guard dropped — drops the explicit re-fold of exactly 360 back to 0; only observable when the modulo result is exactly 360.0 (impossible for `x %= 360` in IEEE 754, since the result of a real modulo is always < the divisor in magnitude) -- OR when x was already exactly 0 and fell through the (mutated or not) negative branch
+  EL1: astro: elongationDeg eq.(47.2) D rate term last digit dropped (445267.1114034 -> 445267.111403) — subtle transcription error (1 part in ~4.5e10 of the coefficient, ~1e-7 deg/century) -- below the module's own tolerance budget?
+  EL2: astro: elongationDeg eq.(47.4) Moon's mean anomaly rate term last digit dropped (477198.8675055 -> 477198.867505) — subtle transcription error, same class as EL1 but on the Mp argument

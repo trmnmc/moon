@@ -1,0 +1,36 @@
+=== GATE A: IT3 (<= -> <) divergence on the public computeMoon API ===
+  2016-08-02T08:44:38.430Z
+    truth : phaseName="new" isInstantPhase=true
+    IT3   : phaseName="waning crescent" isInstantPhase=false
+    -> DIVERGES
+  2000-06-02T00:13:59.330Z
+    truth : phaseName="new" isInstantPhase=true
+    IT3   : phaseName="waning crescent" isInstantPhase=false
+    -> DIVERGES
+  1003-12-17T04:08:08.598Z
+    truth : phaseName="full" isInstantPhase=true
+    IT3   : phaseName="waxing gibbous" isInstantPhase=false
+    -> DIVERGES
+  witnesses diverging: 3/3
+
+  neighbourhood of 2016-08-02T08:44:38.430Z (is the divergence measure-zero?):
+     -3 ms  truth=false it3=false name(truth)=waning crescent
+     -2 ms  truth=false it3=false name(truth)=waning crescent
+     -1 ms  truth=false it3=false name(truth)=waning crescent
+   * +0 ms  truth=true  it3=false name(truth)=new
+     +1 ms  truth=true  it3=true  name(truth)=new
+     +2 ms  truth=true  it3=true  name(truth)=new
+     +3 ms  truth=true  it3=true  name(truth)=new
+
+=== GATE B: AG1 — age re-clamped to SYNODIC_MONTH (the historical bug) ===
+  suite verdict: RED (mutant KILLED)
+  killing tests (0):
+
+=== GATE C: CI1 — cycleFraction re-derived FROM illumination ===
+  suite verdict: RED (mutant KILLED)
+  killing tests (0):
+
+=== GATE SUMMARY ===
+  A: IT3 divergence reproduced on 3/3 claimed witnesses
+  B: AG1 (age clamp) killed by the suite: true
+  C: CI1 (cycleFraction from illumination) killed by the suite: true

@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "BUILD",
-  "cycle": 53,
+  "cycle": 54,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -507,6 +507,21 @@
       "cycle": 53,
       "what": "AA1 upgraded from \"an unprotected behavior\" to \"a test that cannot fail\", and filed as T-149 — a finding the conductor gate MISSED and the builder found",
       "why": "The gate witnessed AA1's divergence and stopped at 'untested guard'. The builder went further and identified why it survives: test/args.test.js:22 already asserts parseArgs(undefined) deep-equals the all-defaults object, and that test still passes under the mutation because node:util falls back to process.argv.slice(2), which under `node --test <file>` is empty — coincidentally matching the literal [] the truth code produces. The conductor verified both halves itself rather than taking the claim (the builder's witness scripts were deleted, so none of its evidence survives on disk): grep confirms the test at line 22, and a probe under node --test prints `PROBE []`. Combined with the gate's own AA1 witness from a process WITH non-empty ambient argv, the vacuity is established from disk-resident evidence in both arms. Recorded as a miss on the gate's part, not absorbed silently — the point of two passes is that either one can catch the other."
+    },
+    {
+      "cycle": 54,
+      "what": "IT3's BOUNDARY verdict UPHELD but its stated reason overturned: the builder's ground was that the shipped CLI has no --date flag, which is not the test that matters",
+      "why": "package.json declares \"main\": \"src/astro.js\" and ships \"files\": [\"bin/\",\"src/\",\"README.md\"], and .swarm/CONTRACTS.md:17 documents computeMoon(date) as a public contract — a module consumer can pass any Date, so the module's reachable domain is strictly larger than the CLI's. This run already ruled that way once: at cycle 53 HI1 was recorded a HOLE on the contract domain even though a stock CLI host cannot reach it. Applying the builder's reasoning would have contradicted that precedent within two cycles. The verdict survives on different and stronger ground the conductor's own gate established: walking +/-3 ms around the strongest in-window witness (2016-08-02T08:44:38.430Z), EXACTLY one millisecond diverges and every neighbour agrees, so this is an exact-equality effect at dist === 0.5 d; and at that point nothing documents which answer is right — the contract says \"within tolerance\" and both the inclusive and exclusive readings satisfy it. An undocumented answer at an undocumented point is a boundary, not a hole. Practical consequence for T-146: IT3 does not enter the HOLE ranking, which stands unchanged at L1 > HI1 > O3 > L3."
+    },
+    {
+      "cycle": 54,
+      "what": "the conductor gate re-ran its own AG1/CI1 kill checks under --test-reporter=tap rather than accepting its first pass",
+      "why": "Gate pass 1 established RED for both mutants but named zero killing tests: it parsed for TAP `not ok` lines while Node 24 defaults to the spec reporter, so the attribution silently came back empty rather than wrong. A bare RED verdict would have satisfied the acceptance's letter — the mutants were run against the suite — while leaving this run's own standing rule unmet, that a kill you cannot attribute is not evidence. Re-run named them: AG1 dies to the test named for exactly that behavior ('age reports true elapsed time and is never clamped to the mean lunation') plus the 60-year bound; CI1 dies to nine, including the cross-consistency test. The gate catching its own empty result is the third cycle running in which a gate has corrected itself — recorded as the mechanism working."
+    },
+    {
+      "cycle": 54,
+      "what": "zero items filed from a sweep that found eight survivors, and that is recorded as the correct outcome rather than a thin one",
+      "why": "All eight survivors classify BOUNDARY, and this run's SPEC forbids writing a test for anything that is not a confirmed HOLE — the whole premise being that test COUNT is never an outcome. Five of the eight (IL1, LK1, ND1, ND2, IT4) are candidate equivalent mutants that provably cannot change output; the other three (IT3, EL1, EL2) change it only below what the module renders or at a single exactly-representable point. Filing hardening items for any of them would be exactly the CHURN-wearing-rigor's-clothes failure the stress-test named at kickoff. astro.js is the third and last file swept, and it is the first to come back with no holes — after T-129 already characterized the ch.49 tables, that is a plausible result rather than a suspicious one."
     }
   ],
   "known_issues": [
@@ -554,13 +569,13 @@
     "last_look_cycle": 1,
     "last_taste_cycle": 1,
     "last_review_fix_cycle": 23,
-    "last_build_wave_cycle": 53
+    "last_build_wave_cycle": 54
   },
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 5,
-    "wave_streak": 0,
+    "wave_streak": 1,
     "window_tokens_attributed": 0
   },
   "last_cycle": {

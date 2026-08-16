@@ -1,0 +1,17 @@
+=== AG1 — age re-clamped to SYNODIC_MONTH ===
+  killing tests (2):
+    - astro.test.js :: age reports true elapsed time and is never clamped to the mean lunation
+    - astro.test.js :: age never exceeds the true maximum lunation length across 60 years
+
+=== CI1 — cycleFraction re-derived FROM illumination ===
+  killing tests (9):
+    - astro.test.js :: anchor: true new moon 2000-01-06 18:14 UTC within 1 hour
+    - astro.test.js :: anchor: new moon at the 1999-08-11 total solar eclipse
+    - astro.test.js :: anchor: new moon at the 2017-08-21 total solar eclipse
+    - astro.test.js :: successive new moons are 29.53 +/- 0.5 days apart (2019-2024)
+    - astro.test.js :: illumination ~0 at computed new moons, ~1 at computed full moons
+    - astro.test.js :: illumination is 0.5 at the quarters and names them
+    - astro.test.js :: cycleFraction, age and phaseName stay consistent across a lunation
+    - astro.test.js :: instant-phase tolerance is +/- 12 hours around the instant
+    - astro.test.js :: nextFullMoon is strictly after its input and closes round-trip
+

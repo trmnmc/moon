@@ -1,0 +1,55 @@
+Domain: k in [-12370, 12370] (years 1000-3000), sampled every 25 => 990 lunations
+
+=== IT3: instant-tolerance boundary <= vs < ===
+  checked 15840 candidate integer-ms boundary points (nearest ms to the real crossing, both sides, all 4 phase types)
+  exact dist===0.5 hits: 300
+  closest observed |dist-0.5|: 0 days (0 ms)
+
+=== IT4: nearest-quarter tie-break reachability ===
+  min adjacent-instant gap observed: 6.5828042244538665 days (near k=1255)
+  2 * INSTANT_TOLERANCE_DAYS = 1 days
+  gap > 2*tolerance for all sampled k: true
+  => a genuine tie can only occur near the MIDPOINT of two adjacent instants, at distance >= 3.2914021122269332 days from each,
+     which is always > INSTANT_TOLERANCE_DAYS (0.5), so isInstantPhase is false regardless of which instant "nearest" resolves to.
+
+=== IL1: illumination-fold Math.abs() drop -- full-output diff ===
+  checked 7920 real Dates spanning the full domain (8 phase-fractions x 990 lunations)
+  full-output divergences: 0
+  max |illumination diff| observed: 0
+  direct Math.cos(i*DEG) bit-equality check over phaseAngle in [0,360) step 0.1deg (3600 samples): mismatches=0
+
+=== LK1: lunationK seed Math.round -> Math.floor -- full-output diff ===
+  checked 99000 dates (100 within-lunation fractions x 990 lunations, spanning the full domain)
+  seed disagreements (round!=floor at that jd): 49500 of 99000
+  full-output divergences despite seed disagreement: 0
+
+=== ND1/ND2: normDeg boundary handling ===
+  Adversarial direct normDeg(x) calls:
+    x=0: pristine=0 ND1=0 ND2=0
+    x=-0: pristine=-0 ND1=0 ND2=-0
+    x=360: pristine=0 ND1=0 ND2=0
+    x=-360: pristine=-0 ND1=0 ND2=-0
+    x=720: pristine=0 ND1=0 ND2=0
+    x=-720: pristine=-0 ND1=0 ND2=-0
+    x=3600000000000: pristine=0 ND1=0 ND2=0
+    x=-3600000000000: pristine=-0 ND1=0 ND2=-0
+  x%360 exact-360 hits over 200000 near-multiple probes: 0 (closest |r| approached 360 within 5.684341886080802e-14)
+  checked 19800 real elongationDeg(jd) evaluations across the sampled domain
+  exact 0/-0 hits: 0
+  closest observed phaseAngle to 0: 0.0004932382144033909 deg; to 360: 0.0004013385623693466 deg
+
+=== EL1: eq.(47.2) D rate term last digit dropped -- measured divergence ===
+  checked 3960 dates across the full sampled domain
+  max |phaseAngle diff|: 0.00000426173210144043 deg, at 0999-11-30T17:50:43.277Z
+  max |illumination diff|: 3.53931395302709e-8
+  max |cycleFraction diff|: 1.183814468674882e-8
+  rendered illumination resolution: whole percent (1/100 = 0.01) -- max diff is 3.539e-6x that
+
+=== EL2: eq.(47.4) Mp rate term last digit dropped -- measured divergence ===
+  checked 3960 dates across the full sampled domain
+  max |phaseAngle diff|: 6.891787052154541e-7 deg, at 2992-12-07T19:15:55.727Z
+  max |illumination diff|: 5.991142471017952e-9
+  max |cycleFraction diff|: 1.9143852059144706e-9
+  rendered illumination resolution: whole percent (1/100 = 0.01) -- max diff is 5.991e-7x that
+
+Done.
