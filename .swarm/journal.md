@@ -5868,3 +5868,39 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-17T04:59:59+00:00","usage_reset_at":"2026-08-17T04:59:59+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1786891900,"next_wakeup_at":1786891990,"pid":1093702,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"clock","gear":1,"gear_target":1,"ratio":0,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786891900,"last_real_probe_ts":1786888938,"probe_failures":3,"gear_evidence":"cycle 52: NO probe attempted. Step-1 backoff in force (probe_failures 3) and now - last_real_probe_ts = 1505 s < 1800, so the real probe is not due; the PROBE_CMD=false form is unavailable for the same KI-2 reason (bin/swarm-budget.sh is denied by the allowlist in every form). probe_failures HELD at 3 rather than incremented. Gear 1 held on fresh disk evidence: runs/allocator.json stamped at the 14:10Z pacer refresh reads weekly_used_pct 99.0, opus_used_pct 97, week_elapsed_pct 91.34 (up from 91.17 last cycle, so the file is live), posture trickle, allow_overall_pct 0, allow_premium_pct 0. week_resets_at 1786942799 IS stop_at, so there is no later richer window to save for. Crawl WITH evidence.","weekly":{"ok":true,"weekly_used_pct":99,"opus_used_pct":97,"week_elapsed_pct":91.34,"weekly_heat":1.09,"opus_heat":1.06,"ceiling":1,"promote_blocked":true}},"playbook":{"mode":"auto","applied":["L-003","L-006","L-007","L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-034"],"vetoed":[],"inert_for_this_target":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"parse_source":"MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.","inert_note":"The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.","directives":{"wave_k":3,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer — never commit or push yourself"],"reviewer":["The conductor is the SOLE committer — never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer — never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive — a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":5,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+### cycle 52 addendum — dashboard rendered, and one thing it now shows honestly
+
+Rendered `runs/dashboard.html`: 12 live-region substitutions, every anchor assertion held.
+32 timeline ticks, journal strip at 8 entries, evidence block carrying 4 c52 snippets ahead
+of the 2 surviving c51 ones, counts 44/49 at cycle 52, fill 90%.
+
+Two mechanical notes worth keeping, both about the render rather than the product:
+
+**The anchor assertions earned their keep twice, once against me.** The render script asserts
+an exact match count before every substitution — the guard that exists because a
+hand-enumerated render keeps reaching the template's own legend copy instead of the live
+markup. It fired three times this cycle. Once on a genuine near-miss (`<div class="fill"
+style="width:88%">` and `<p class="counts">` each occur twice, live and in the legend
+comment; the target-section edits were re-scoped to the region between the `<!-- TARGETS -->`
+markers and spliced back). Once on a no-op I then dropped rather than risk (`<span
+class="badge">BUILD</span>`, 3 occurrences, and the phase had not changed anyway). And once
+on a bug in the guard itself: `String.match()` without the global flag returns capture groups
+alongside the full match, so any anchor using a group counted as 2 and tripped its own
+assertion. The counter now clones the regex with `g` before counting. The script writes the
+file only at the very end, so all three throws left `dashboard.html` untouched — no partial
+render was ever on disk.
+
+**The burn-up strip's new bar is deliberately discontinuous with the ones left of it.** The
+existing 31 bars run on a denominator that is not documented anywhere and that stopped moving
+at 52% around cycle 47, while the backlog kept closing items. I could not reconstruct what
+they measure. The honest options were to leave the strip frozen (implying no progress), to
+append a plausible-looking 53% (a fabricated number, in a run whose entire premise is that
+unsourced quantities are the defect), or to append the number I can actually compute and say
+so. The new bar is 90% — 44/49 backlog items done, basis stated in its own `title` attribute,
+including the sentence "this bar is not continuous with them". A visible seam that tells the
+truth beats a smooth line that does not. The old bars are left untouched rather than
+retroactively rewritten to a basis I would be guessing at.
+
+This is cosmetic and touches nothing the product does. It is recorded because the same
+instinct — make the chart look right — is the one this run exists to refuse.
