@@ -1,0 +1,43 @@
+###### PRE-CHECK: pristine src/args.js contains exactly one AA1 target line
+  target: argv === undefined ? [] : argv
+  occurrences: 1
+
+###### ARM A - FAILABLE: new tree + AA1 mutation (undefined -> null)
+  src/args.js now carries: argv === null ? [] : argv
+  FAILING TEST> undefined argv ignores the ambient process.argv (discriminates the undefined-vs-null check) (47.105257ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  +   hemisphere: 'south',
+  +   json: true
+  -   hemisphere: null,
+  -   json: false
+  actual: { json: true, hemisphere: 'south', block: false, compact: false, help: false },
+  ℹ tests 147
+  ℹ pass 146
+  ℹ fail 1
+
+###### ARM B - ATTRIBUTABLE: HEAD test tree + the SAME AA1 mutation still applied
+  src/args.js still mutated: True
+  new test present in HEAD tree (expect 0): 0
+  ℹ tests 146
+  ℹ pass 146
+  ℹ fail 0
+
+###### RESTORE + FINAL UNMUTATED RUN
+  src/args.js truth restored: True
+  ℹ tests 147
+  ℹ pass 147
+  ℹ fail 0
+
+###### VERDICT
+  Arm A (mutant + new test)   -> failing tests: 1  (expect exactly 1)
+  Arm B (mutant + HEAD tests) -> failing tests: 0  (expect exactly 0)
+  Final (truth + new test)    -> failing tests: 0  (expect exactly 0)
+  Arm A sole failure IS the new test: True
+  GATE: PASS
+
+###### TREE STATE AFTER RESTORE
+   M .swarm/CONTRACTS.md
+   M test/args.test.js
+  ?? .swarm/runs/cycle-056-gate.py
+  ?? .swarm/runs/cycle-056-gate.sh
+  ?? .swarm/runs/cycle-056-verify-T-149.txt

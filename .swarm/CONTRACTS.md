@@ -147,4 +147,4 @@ Flags: `--json`, `--south`, `--north`, `--block`, `--help`/`-h`.
 
 ### Observable consequence
 
-`test/args.test.js:87` is a shipping test titled `'the returned object has exactly the five contract keys'`. It asserts five keys exist (`json`, `hemisphere`, `block`, `compact`, `help`) and passes. The frozen contract on line 60 declares only four keys in the return type. This test would fail if judged against the frozen contract's JSDoc signature.
+`test/args.test.js:124` is a shipping test titled `'the returned object has exactly the five contract keys'`. It asserts five keys exist (`json`, `hemisphere`, `block`, `compact`, `help`) and passes. The frozen contract on line 60 declares only four keys in the return type. This test would fail if judged against the frozen contract's JSDoc signature.

@@ -2,8 +2,12 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
+const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 
 const { parseArgs } = require('../src/args.js');
+
+const ARGS_MODULE_PATH = path.join(__dirname, '..', 'src', 'args.js');
 
 // These tests are timezone-independent by construction: parseArgs never reads the clock
 // or the host zone. `hemisphere: null` is the contract's "auto-detect later" sentinel,
@@ -21,6 +25,39 @@ test('no arguments: every flag off, hemisphere null', () => {
 
 test('undefined argv is treated as no arguments', () => {
   assert.deepStrictEqual(parseArgs(undefined), {
+    json: false,
+    hemisphere: null,
+    block: false,
+    compact: false,
+    help: false,
+  });
+});
+
+// The test above proves parseArgs(undefined) returns all-defaults, but it has ZERO
+// power to catch `argv === undefined` degrading to `argv === null`: when this suite
+// runs as `node --test test/*.test.js`, the host process's OWN ambient argv is already
+// empty, so a broken `undefined` check would fall through to node:util's "read
+// process.argv.slice(2)" default and coincidentally land on the same `[]` the correct
+// code produces. A test that cannot fail is not coverage.
+//
+// To make the check real we call parseArgs(undefined) from a CHILD process whose
+// ambient argv is deliberately non-empty ('--south --json', via `node -e SCRIPT --
+// --south --json`). If the `undefined` branch is intact, `args` becomes `[]` regardless
+// of the parent's argv and the result is still all-defaults. If it degrades to `null`,
+// `args` stays `undefined`, node:util falls back to the child's real process.argv, and
+// the result flips on two independent fields at once (hemisphere -> 'south', json ->
+// true) - a divergence too specific to be produced by any other bug.
+test('undefined argv ignores the ambient process.argv (discriminates the undefined-vs-null check)', () => {
+  const script = `
+    const { parseArgs } = require(${JSON.stringify(ARGS_MODULE_PATH)});
+    process.stdout.write(JSON.stringify(parseArgs(undefined)));
+  `;
+  const output = execFileSync(
+    process.execPath,
+    ['-e', script, '--', '--south', '--json'],
+    { encoding: 'utf8' },
+  );
+  assert.deepStrictEqual(JSON.parse(output), {
     json: false,
     hemisphere: null,
     block: false,
