@@ -558,9 +558,12 @@ test('KI-7: phaseName/illumination band discriminator holds across the declared 
 // magnitude coefficient in each of the four families, plus A-series argument
 // constants/rates and the shared M' argument, each moved at least one of the
 // four pinned instants by several milliseconds up to tens of seconds --
-// comfortably clear of floating-point noise, since this is pure, fixed-order
-// IEEE-754 double arithmetic with no source of nondeterminism to be robust
-// against. The lunation used is in the year 2150 rather than near J2000:
+// comfortably clear of floating-point noise -- the arithmetic is fixed-order
+// and deterministic within one V8 engine. Math.sin and Math.cos are
+// implementation-approximated per ECMA-262, so cross-engine reproducibility
+// is an observed fact, not a spec guarantee, verified on Node 20, 22, 24
+// across two machines. CI running on every push is the mechanism that would
+// catch a drift. The lunation used is in the year 2150 rather than near J2000:
 // T = k/1236.85 is ~1.5 there instead of ~0.2, which amplifies the
 // T^2-dependent sub-terms buried in some A-table arguments (e.g. A1's
 // "-0.009173 * T2") that are the weakest-signal coefficients to pin near

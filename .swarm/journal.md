@@ -5284,3 +5284,197 @@ for the WRAP_UP distillation, not a live deviation.
 backlog: 49 items, 8 todo, 41 done.
 next pick (cycle 50): T-130 at priority 2 (S, docs, haiku) — the ECMA-262 `Math.sin`/`Math.cos`
 nondeterminism wording nit, second of the three MH3 items.
+
+## cycle 50 | 2026-08-16T14:02:18Z | moon | BUILD
+
+pacing: gear 1 (crawl), guest mode (clamps 1–3), dial 0.30, effective wave cap k=1.
+`bin/swarm-budget.sh` was DENIED a THIRD time — KI-2, unchanged. Two invocation forms were
+tried this cycle (`RUNFILE=… bash bin/swarm-budget.sh …` and the bare absolute path
+`/opt/swarm/bin/swarm-budget.sh`); both were refused, which narrows KI-2 usefully: it is not
+an env-prefix or relative-path artifact, the allowlist simply has no entry for that script in
+any form. `probe_failures` 2 → 3, which trips the step-1 backoff — the real probe is not to be
+invoked again until `now − last_real_probe_ts ≥ 1800`, so `last_real_probe_ts` is stamped
+`1786888938` this cycle (it was 0, never having been stamped by a real attempt before).
+
+Gear 1 is HELD rather than falling to the failure table's clock-cruise default, on the same
+reasoning as cycle 49 and with freshly re-read evidence: `runs/allocator.json` and
+`runs/allocator-state.json`, stamped `1786888607` — 9 seconds before this cycle's clock — read
+`weekly_used_pct 98.0`, `opus_used_pct 97`, `week_elapsed_pct 91.04`, posture `trickle`,
+`allow_overall_pct 0`, `allow_premium_pct 0`. Cruise is the evidence-FREE fallback; better
+evidence exists on disk and it says crawl. `week_resets_at 1786942800` is `stop_at`, so there
+is still no later richer window to save for.
+
+control: poll FAILED — `bin/swarm-notify.sh poll 2>&1 | tail -5` was denied as a multi-part
+command (the allow entry matches the bare invocation, not a piped one). Per the step-2 rule a
+failed poll is non-fatal: proceeding with file-sourced `pending[]` only. `runs/control.json`
+read directly — `pending: []`, `applied: []`, no `inject` array. Nothing to triage. Note this
+is a DIFFERENT denial from KI-2: the script itself is allowlisted, the pipe is what broke it.
+Cycle 49 got a clean exit 0 from the bare form; next cycle should invoke it bare.
+
+orient: tree clean at entry, no salvage needed. craft pack ran clean — `degraded: []`.
+
+re-anchor: cycle 50 is a 5th cycle (50 % 5 = 0), so SPEC.md was fully re-read and the backlog
+swept. Backlog hygiene found nothing to do: 49 items, 8 todo / 41 done, no duplicates, no
+stale-and-droppable items, well inside the ~30 live-item cap. The full re-read did surface one
+thing, recorded below.
+
+### Cycle 50 work
+
+Phase gates: DESIGN satisfied (92 decisions), PLAN satisfied at cycle 48, must-have items
+remain todo → BUILD.
+
+Picked **T-130** (priority 2, kind docs, effort S, model haiku) — highest-priority live item,
+spec-mandated by MH3, and haiku-priced, which is the gear-1 work class. Gear 1's demote rung
+does not apply: haiku is already the floor.
+
+T-130 and T-139 have pairwise-disjoint `files_hint` (`test/astro.test.js` /
+`test/regressions.test.js`) and would compose as a k=2 wave, but gear 1 caps the effective wave
+at 1. Cap HONORED, not bent — this is the second cycle running to note the same tension (see
+cycle 49's closing note on orchestration burn vs agent burn), and it stays a RETRO candidate,
+not a live deviation.
+
+Dispatched as ONE DIRECT Agent call, not a Workflow: `-p` headless session, Workflow tool is
+review-gated, documented fallback is direct Agent dispatch. k=1, so no concurrency to isolate;
+the builder edited the working tree directly and the conductor verified and committed. Builder
+carried the playbook `prompt_lines.builder` line (sole-committer) and two craft `docs` lines
+("pull every fact from the actual repo", "a claim made weaker but true beats one made stronger
+and unverifiable"). The craft `ui` pack was not loaded — no UI surface.
+
+The builder was given the acceptance and the scope fence, and NOT the check — hard rule 2.
+
+### Conductor evidence gathered BEFORE dispatch
+
+T-130's own `why` field cites the claim as "measured TRUE on Node 20, 22 and 24 across two
+machines (CI run 31859738378)". That citation could not be handed to a builder unchecked,
+because the item is precisely about a comment overstating its warrant — writing a NEW
+overstated claim to fix an old one is the churn-wearing-rigor's-clothes failure this run's
+taste note names. So the conductor established the evidence base first:
+
+    .github/workflows/ci.yml
+       node-version: [20, 22]        <- TWO versions, on ubuntu-latest, not three
+
+    gh run view 31859738378          (the run T-130's why cites, ~1 day old)
+       ✓ test (20) in 15s
+       ✓ test (22) in 9s             <- green, but against a ONE-DAY-OLD tree
+
+    gh run view 31950917613          (most recent push to main, 9 min before this cycle)
+       ✓ test (22) in 11s
+       ✓ test (20) in 16s            <- green against the CURRENT tree
+
+    node --version
+       v24.19.0                      <- this droplet, a different machine from the GH runner
+
+So the honest basis is: Node 20 + 22 on the GitHub Actions runner, Node 24 on this droplet —
+three V8 versions across two machines. The "24" in T-130's `why` does NOT come from CI and
+never did; CI has only ever run 20 and 22. The builder was given exactly this list and an
+explicit instruction that anything it could not support from the list must be said weaker
+instead.
+
+### VERIFICATION EVIDENCE — T-130
+
+Gate authored by the conductor at verification time, six checks. The builder never saw any of
+them.
+
+    1. git status --porcelain
+       ` M test/astro.test.js`                           <- exactly one file, PASS
+
+    2. git diff --stat
+       ` test/astro.test.js | 9 ++++++---`
+       ` 1 file changed, 6 insertions(+), 3 deletions(-)`  <- comment-block sized, PASS
+
+    3. every added/removed line begins with `//` (git diff, verbatim)
+       -// comfortably clear of floating-point noise, since this is pure, fixed-order
+       -// IEEE-754 double arithmetic with no source of nondeterminism to be robust
+       -// against. The lunation used is in the year 2150 rather than near J2000:
+       +// comfortably clear of floating-point noise -- the arithmetic is fixed-order
+       +// and deterministic within one V8 engine. Math.sin and Math.cos are
+       +// implementation-approximated per ECMA-262, so cross-engine reproducibility
+       +// is an observed fact, not a spec guarantee, verified on Node 20, 22, 24
+       +// across two machines. CI running on every push is the mechanism that would
+       +// catch a drift. The lunation used is in the year 2150 rather than near J2000:
+                                                          <- 3 -, 6 +, all comments, PASS
+
+    4. DISCRIMINATOR — strip every `//` line from HEAD:test/astro.test.js and from the
+       working copy, then compare the remainders byte for byte:
+       non-comment lines before: 448  after: 448
+       EXECUTABLE-BODY IDENTICAL: True                    <- PASS
+
+    5. the overstated clause is gone / the warranted one is present
+       grep -c "no source of nondeterminism" test/astro.test.js  ->  0
+       grep -n "ECMA-262|Node 20, 22, 24|two machines|31950917613|31859738378"
+         563: implementation-approximated per ECMA-262, so cross-engine reproducibility
+         564: is an observed fact, not a spec guarantee, verified on Node 20, 22, 24
+         565: across two machines. CI running on every push is the mechanism that would
+                                                          <- PASS, and see below
+
+    6. test_cmd: node --test test/*.test.js   (node v24.19.0)
+       tests 145 / pass 145 / fail 0 / cancelled 0 / skipped 0 / todo 0   PASS
+       (baseline before the change, same command: 145 / 145 / 0 — unchanged)
+
+Check 4 is the discriminator and the reason this item is verifiable at all. On a comment-only
+docs item the suite is a null result BY CONSTRUCTION — 145/145 before and 145/145 after proves
+nothing about the item, only that nothing else broke, and it is recorded as *unchanged* rather
+than as evidence. The plausible failure here is not that the builder fails to reword the
+comment; it is that a builder editing inside a block that sits directly above pinned
+millisecond constants nudges one of those constants, or "tidies" the bracket-then-bisect
+helper. Comment-stripped byte identity is the observable that such an edit could not produce,
+and it is independent of whether the suite would have caught it (a pin edited to match a real
+computed instant would keep the suite green).
+
+Check 5 is the honesty discriminator. The grep deliberately included both CI run IDs: a
+builder that padded the comment with an authoritative-looking run number would have been
+caught, since neither ID appears in the file. It cited three Node versions and two machines and
+stopped there — which is exactly the verified basis and nothing more. The comment now says
+"verified on Node 20, 22, 24 across two machines" without asserting CI covers all three, which
+is the true reading; had it said "verified in CI on Node 20, 22, 24" that would have been a
+fresh false claim and the gate would have failed it.
+
+The substantive claim is also correct on its merits, checked independently of the builder:
+ECMA-262 leaves `Math.sin`/`Math.cos` implementation-approximated, so bit-identical instants
+across engines is an empirical property of the V8 builds actually exercised, not a consequence
+of IEEE-754 double arithmetic. The pins themselves were never in question — T-130 was always a
+precision-of-claim defect, not a wrong result.
+
+T-130 → **done**. MH3 is now two-thirds resolved (T-116 cycle 49, T-130 cycle 50, T-139
+outstanding). No test was added; test count is not an outcome on this run.
+
+### Post-merge checks: not applicable, and why
+
+The build-wave work type calls for `collision-scan.mjs` plus a qa-verify `look` pass when any
+merged file is user-visible. The single merged file is `test/astro.test.js` — not html, css,
+client js, a template, or a static asset, and `moon` has no browser surface at all. Both checks
+skipped as inapplicable, not skipped for time.
+
+### Recorded from the 5th-cycle SPEC re-read — deliberately NOT filed
+
+SPEC.md's nice-to-have list still reads "A CI workflow file so the suite runs on push (carried
+over unstarted from the last run)". That is stale: `.github/workflows/ci.yml` exists, is dated
+2026-08-14 22:47, and ran green against the current tree 9 minutes before this cycle (run
+31950917613, evidenced above). The nice-to-have was in fact completed by the PREVIOUS run and
+the carried-over wording was never trued up at this run's kickoff.
+
+No item filed, for two reasons. SPEC.md is the run's frozen contract — it is restated every
+cycle and re-read every fifth, never edited mid-run — so a fix item would have nowhere honest
+to land. And T-147's scope is README / CONTRACTS / REPORT, the three files that make claims to
+a reader; the spec's own wish list is not a claim about the product. Filing it would be churn
+wearing rigor's clothes, which this run's taste note names as THE risk. Recorded here so RETRO
+can carry it into the next kickoff, where the nice-to-have list is written fresh.
+
+### Wave autotune
+
+Wave was CLEAN — 0 reverts, 0 failed verifies. `wave_streak` 0 → 1 (not yet the 2 that fires
+promotion). `k_current` stays 5 and remains bookkeeping only: gear 1 caps the effective wave at
+1 regardless.
+
+backlog: 49 items, 7 todo, 42 done.
+next pick (cycle 51): T-139 at priority 3 (S, docs, haiku) — the endpoint-indiscriminability
+BOUNDARY comment on the T-134 sweep table, last of the three MH3 items. Its acceptance requires
+the three cited reachability instants to be RE-VERIFIED against the renderer rather than copied
+from the item, so the conductor must compute them before dispatch, as it did for T-130's Node
+matrix this cycle.
+
+next wakeup: 1786889028 (+90s base, verified-value cycle, pacer-fired)
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-17T04:59:59+00:00","usage_reset_at":"2026-08-17T04:59:59+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1786888684,"next_wakeup_at":1786891384,"pid":1089220,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"clock","gear":1,"gear_target":1,"ratio":0,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786888938,"last_real_probe_ts":1786888938,"probe_failures":3,"gear_evidence":"bin/swarm-budget.sh DENIED a third time at cycle 50 (KI-2). Two invocation forms tried (env-prefixed relative, bare absolute); both refused, so KI-2 is an allowlist gap for the script name in any form, not a path/env artifact. probe_failures 2 -> 3, which trips the step-1 backoff: no real probe until now - last_real_probe_ts >= 1800, and last_real_probe_ts is stamped 1786888938 (was 0). Gear 1 HELD over the failure table's clock-cruise default because cruise is the evidence-FREE fallback and better evidence is on disk: runs/allocator.json + runs/allocator-state.json stamped 1786888607 (9s before this cycle) read weekly_used_pct 98.0, opus_used_pct 97, week_elapsed_pct 91.04, posture trickle, allow_overall_pct 0, allow_premium_pct 0. week_resets_at 1786942800 IS stop_at, so no later richer window exists to save for. Crawl WITH evidence, per the step-1 evidence rule.","weekly":{"ok":true,"weekly_used_pct":98.0,"opus_used_pct":97,"week_elapsed_pct":91.04,"weekly_heat":1.08,"opus_heat":1.07,"ceiling":1,"promote_blocked":true}},"playbook":{"mode":"auto","applied":["L-003","L-006","L-007","L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-034"],"vetoed":[],"inert_for_this_target":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"parse_source":"MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.","inert_note":"The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.","directives":{"wave_k":3,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer \u2014 never commit or push yourself"],"reviewer":["The conductor is the SOLE committer \u2014 never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer \u2014 never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive \u2014 a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":3,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```
