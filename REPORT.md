@@ -117,9 +117,9 @@ now stands, so the two never collide.
 |---|---|---|---|
 | KI-2 | medium | open, blocking | `settings.json` allowlist edit was denied at both kickoffs, so `permissions.additionalDirectories` is `[]` and **`bin/swarm-budget.sh` and `bin/swarm-playbook.sh` are not allowlisted**. Consequences this run: the budget probe was never invoked in 47 cycles (gear was read from `runs/allocator.json` instead), and the WRAP_UP playbook append was denied and had to be done by hand. Headless relaunches must pass `--add-dir`. SWARM tooling gap, not a product defect. |
 | KI-4 | low | open, unverified | Terminal font variance beyond width (ligatures, exotic fonts) remains unverified — no automated check can cover it; needs a human look. |
-| KI-5 | medium | pinned by test, not fixed | **Glyph width.** The disc mixes East Asian Width classes (`░` `▐` are Neutral; `▒ ▓ █ ▌ ▏ ▕` are Ambiguous). In terminals rendering ambiguous-width as double (CJK locales, iTerm2 setting, `xterm -cjk_width`) the disc is 5–9 columns instead of 5: the line jitters between nights, the two-line form stops aligning, and the `--block` frame does not close. Correct in default Western-locale terminals. `test/render.test.js:617` (`KI-5 pin: disc glyph set matches the documented East Asian Width partition`) derives the disc's actual glyph set from `renderLine`/`renderBlock` output and checks it against the documented partition, so an unannounced glyph change now fails the suite instead of drifting silently. The glyph-set redesign that would actually fix the width problem is still deferred — this is a pin, not a fix. |
+| KI-5 | medium | pinned by test, not fixed | **Glyph width.** The disc mixes East Asian Width classes (`░` `▐` are Neutral; `▒ ▓ █ ▌ ▏ ▕` are Ambiguous). In terminals rendering ambiguous-width as double (CJK locales, iTerm2 setting, `xterm -cjk_width`) the disc is 5–9 columns instead of 5: the line jitters between nights, the two-line form stops aligning, and the `--block` frame does not close. Correct in default Western-locale terminals. `test/render.test.js:629` (`KI-5 pin: disc glyph set matches the documented East Asian Width partition`) derives the disc's actual glyph set from `renderLine`/`renderBlock` output and checks it against the documented partition, so an unannounced glyph change now fails the suite instead of drifting silently. The glyph-set redesign that would actually fix the width problem is still deferred — this is a pin, not a fix. |
 | KI-7 | low | bounded (sampled), not fixed | At epochs far outside normal use (empirically found around ±270,000 years) `phaseName` and `illumination` can contradict, since the ch.49 and ch.48 Meeus series diverge. `src/astro.js`'s exported `PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` (astro.js:71-74) declares the domain over which the two are known to stay consistent — the half-open range of calendar years **1000–3000** — and `test/astro.test.js:491` (`KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)`) strides **4000** deterministic points across that domain with zero band violations. This is a sampled bound, not a proof, and nothing enforces it at runtime. |
-| KI-8 | low | open, needs the repo owner | `package.json` declares `"license": "MIT"` and `"private": false`, but **there is no LICENSE file at the repo root** (re-verified at cycle 47). A repo that declares a license without shipping its text is legally ambiguous to the next person who wants to reuse it. Deliberately not fixed here: the MIT body needs a copyright line naming a legal person, which is the owner's decision and not one a build agent or the conductor may invent. **What would settle it:** the owner supplies `Copyright (c) <year> <holder>`; wrapping the standard MIT body around it is then a one-file mechanical change. Adjacent: T-116 notes README's `## Licence` heading disagrees with `package.json`'s spelling. |
+| KI-8 | low | open, needs the repo owner | `package.json` declares `"license": "MIT"` and `"private": false`, but **there is no LICENSE file at the repo root** (re-verified at cycle 47). A repo that declares a license without shipping its text is legally ambiguous to the next person who wants to reuse it. Deliberately not fixed here: the MIT body needs a copyright line naming a legal person, which is the owner's decision and not one a build agent or the conductor may invent. **What would settle it:** the owner supplies `Copyright (c) <year> <holder>`; wrapping the standard MIT body around it is then a one-file mechanical change. |
 
 ## Resolved issues
 
@@ -138,24 +138,22 @@ a decision and it is worth stating plainly rather than burying.
 
 The definition of done was re-verified from evidence at cycle 47, not read off backlog
 labels: KI-1 (REPORT.md above + README:38-41), KI-6 (astro.js:358 + astro.test.js:294),
-KI-7 (`PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` astro.js:71/:363, README:184,
-astro.test.js:491), KI-5 (render.test.js:617), 145/145 green, no `dependencies` key.
+KI-7 (`PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` declared astro.js:71-74, exported astro.js:363, README:184,
+astro.test.js:491), KI-5 (render.test.js:629), 145/145 green, no `dependencies` key.
 
-Three backlog items remain `todo`, and every one fails the value ratchet:
+Two backlog items remain `todo`:
 
-- **T-116** — README uses British "colour" and a `## Licence` heading. Ratchet-rejected on
-  record at cycles 20, 21, 22 and again at 47.
-- **T-130** — a comment in a test file describes its pinned arithmetic as free of
-  nondeterminism; ECMA-262 leaves `Math.sin`/`Math.cos` implementation-approximated. The
-  claim is *measured true* on Node 20/22/24 in CI. A precision-of-wording nit in a file the
-  end user never opens.
-- **T-139** — a comment recording why three mutation survivors at the 0%/100% endpoints are
-  the check being correct rather than holes.
+- **T-147** — Re-verify every line-number citation in README.md, .swarm/CONTRACTS.md and REPORT.md.
+- **T-148** — Regenerate REPORT.md's pasted output figures by rerunning the commands.
 
-All three are documentation of things that are already true. The SPEC named this run's
-specific taste risk as **churn** — "a diff that is mostly reworded prose and duplicate
-tests, which looks like work and changes nothing" — and building them is precisely that.
-KI-4 and KI-8 both need a human and cannot be closed here at all. The remaining
+Both are doc-truth work — the tail of must-have 4 (every doc claim re-verified), and both
+are being executed this run rather than ratchet-rejected. The three items this paragraph
+previously listed (T-116, T-130, T-139) were all closed with evidence at cycles 49, 50 and
+51. The SPEC named this run's specific taste risk as **churn** — "a diff that is mostly
+reworded prose and duplicate tests, which looks like work and changes nothing" — which is
+why T-147 and T-148 correct claims that are *false against the current tree* rather than
+rewording ones that are already true. KI-4 and KI-8 both need a human and cannot be closed
+here at all. The remaining
 nice-to-have (actually *fixing* KI-5 with a single-width glyph set) is L-effort, and the
 SPEC excluded it for this posture on cost grounds, not because the defect is acceptable.
 
