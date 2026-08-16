@@ -190,7 +190,7 @@ outside it, behavior is unspecified and the two fields may disagree.
 - **No moonrise/moonset times.** Those need your latitude and longitude, which is a
   genuinely different and harder problem. This tool tells you what phase the moon is
   in; it does not tell you whether the moon is above your horizon right now.
-- No emoji, no colour themes, no config file.
+- No emoji, no color themes, no config file.
 
 ## Tests
 
@@ -224,6 +224,6 @@ Asian Width class has been established: both are Neutral in Unicode Character Da
 as measured by the audit script at `.swarm/runs/cycle-024-eaw-audit.py`. They thus share the
 Neutral width class of `░` and `▐`, not the Ambiguous class of the other block elements.
 
-## Licence
+## License
 
 MIT
