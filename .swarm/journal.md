@@ -5037,3 +5037,116 @@ need a human (KI-4 terminal look, KI-8 the MIT copyright holder), one is a SWARM
 (KI-2), and two are product defects that are bounded and pinned by tests rather than fixed
 (KI-5 glyph width, KI-7 divergence at absurd epochs) — each reported as pinned, never as
 closed.
+
+## cycle 48 | 2026-08-16T13:37:35Z | moon | PLAN
+
+work: KICKOFF for improvement run 2, then inline PLAN — the phase gate demanded it (a freshly
+locked SPEC whose five must-haves had exactly one covered by the three surviving backlog items).
+
+### KICKOFF record
+
+- Allocator auto-kickoff. `runs/kickoff-hints.json` = guest / dial 0.30 / trickle brief /
+  stop_at 1786942799, source allocator → interactive Q&A skipped per SKILL.md step 1d, hints
+  consumed and deleted. Improvement run: existing repo REUSED (no dir create, no git init, no
+  gh repo create); `git rev-parse --is-inside-work-tree` → true, remote origin → trmnmc/moon.
+- STRESS-TEST verdict `proceed`, confidence 7. One reshape landed and it changed the run's
+  shape: "harden tests" invites test-count theater, so the run was re-aimed at MEASUREMENT —
+  mutants killed and doc claims re-verified are the outcome; test count is explicitly not one.
+  A second reshape (claim KI-2 at kickoff via the step-5 settings edit) was REFUTED by
+  evidence 20 minutes later — see the KI-2 escalation below. Recording the refutation rather
+  than quietly dropping it.
+- PRIOR-ART SCOUT: no new searches run, and saying so plainly rather than claiming six. The
+  brief forbids new features, so there is no new prior-art surface; the cycle-47 sweep
+  (lunarphase-js ISC, astronomia MIT) is one day old and was grep-verified against source.
+- TASTE JUDGE (fable, fresh subagent, spec text only): product-not-demo 8, scope-fits-night 8,
+  use-twice 6, one-memorable-thing 6. Verdict: "worth the night as scoped … with the inherently
+  low use-twice score being the accepted cost of a no-features run, not a defect."
+- Conductor taste critique, recorded because it names a real cap: the ONE thing a human would
+  actually notice — KI-5, the disc rendering 5–9 columns wide in ambiguous-width terminals —
+  CANNOT be fixed tonight, because the glyph-set redesign that fixes it is a behavior change
+  and the brief forbids behavior changes. This run can only keep it pinned. That is a
+  constraint accepted with eyes open, not an oversight.
+- SPEC.md rewritten for run 2; the previous improvement spec preserved verbatim at
+  `.swarm/SPEC-improve-2026-08-14.md` (it was NOT overwritten blind — it was read first, found
+  to be the 2026-08-14 spec whose must-haves are all now satisfied, and archived).
+- Playbook: `bin/swarm-playbook.sh parse` DENIED → parsed `playbook/learnings.md` by hand.
+  apply_mode auto, next_id 37, no wave_k directive → k defaults to 3 (gear 1 caps it to 1).
+  15 apply-able lessons staged. SEVEN are staged-but-inert and deliberately kept OUT of
+  prompt_lines (L-006/007/011/018/020/021/022): they instruct browser and React behavior —
+  open the page, hard-reload after restart, mount a component, clear persisted UI state — and
+  moon is a zero-dependency terminal CLI with no browser surface. Handing a QA agent an
+  instruction it cannot honestly follow is worse than not staging it. The `record-applied`
+  ledger line could not be written (same denial); this journal line is the record.
+
+### KI-2 ESCALATION — the sanctioned repair path is itself blocked
+
+SKILL.md KICKOFF step 5 explicitly authorises the conductor to edit `.claude/settings.json`'s
+allow list at kickoff — one of the two carve-outs in hard rule 5. This kickoff attempted exactly
+that edit, adding the `/opt/swarm/bin/*.sh` and relative `bin/*.sh` entries that cycle 23 had
+already root-caused. **The Edit was DENIED**, not merely the Bash calls. So: a headless conductor
+cannot repair this gap in any mode, including the one step designed for it. KI-2 cannot close by
+itself no matter how many runs observe it — it needs a human or an interactive session.
+
+Measured effects on this run: budget probe denied (gear taken from allocator-state.json instead),
+playbook parser denied (hand-parsed), record-applied ledger line unwritable, and the step-11
+`claude -p` zero-prompt assert unrunnable — that assert is therefore reported NOT-RUN, never as
+passed.
+
+One inherited claim CORRECTED by measurement: the cycle-21 note recorded `bin/swarm-notify.sh
+poll` as refused, and generalised that to "every bin/*.sh entry point is behind the same gate."
+That is too broad. Invoked RELATIVELY from cwd `/opt/swarm`, `bin/swarm-notify.sh` matches the
+existing `Bash(bin/swarm-notify.sh:*)` allow entry and works: this cycle ran both `send goodnight`
+(notify.log 13:29:47 ok) and `poll` (merged=0) successfully. Notifications are ON for this run.
+The gap is precisely the scripts with no allow entry in EITHER form — swarm-budget.sh and
+swarm-playbook.sh — not the bin/ directory.
+
+### Cycle 48 work
+
+pacing: gear 1 (crawl), guest mode, k_cap 1. Gear evidence is NOT a probe ratio — the probe was
+denied — but `runs/allocator-state.json`, written 1786886409, seven seconds before this cycle's
+clock: weekly_last 98.0, opus_last 97, week_resets_at 1786942799. The binding constraint is
+absolute headroom, not heat: ~2% of the weekly envelope remains for the ~15.7h until the week
+resets, which is also stop_at. Crawl WITH evidence, not a guessed crawl.
+
+control: poll ok, 0 pending, 0 inject, no kickoff key. Nothing to triage.
+
+PLAN dispatched as one Plan-type subagent (sonnet — gear 1 demote from opus). It proposed; the
+CONDUCTOR wrote backlog.json, per cycle.md step 5. Six items added (T-143…T-148), three existing
+items re-scoped (T-116/T-130/T-139) — their four prior ratchet rejections were all against richer
+competing work, which a docs-only brief removes.
+
+The plan agent asserted one specific fact — that T-116's own acceptance cites README.md:186/:219
+while the true lines have drifted to :193/:227. Agent returns are claims, so it was checked
+before it was believed:
+
+VERIFICATION EVIDENCE:
+  grep -n -i 'colour|licence' README.md -> 193:- No emoji, no colour themes, no config file. / 227:## Licence  PASS
+  (T-116 acceptance cited :186 and :219 -> drift CONFIRMED, acceptance corrected to :193/:227)
+  gate 1. schema on 6 new items -> PASS
+  gate 2. unique ids (49 items) -> PASS
+  gate 3. no verify command in any live acceptance -> PASS
+  gate 4. MH1 two-arm failable+attributable -> PASS
+  gate 4. MH2 measure surfaces, classify HOLE/BOUNDARY -> PASS
+  gate 4. MH3 T-116/T-130/T-139 resolved or refused -> PASS
+  gate 4. MH4 line-cited + output-cited claims re-verified -> PASS
+  gate 4. MH5 test count never an outcome -> PASS
+  gate 5. sweep file scopes pairwise disjoint -> PASS
+  test_cmd: node --test test/*.test.js -> tests 145 / pass 145 / fail 0  PASS
+
+The gate is the conductor's own, authored at verification time and never shown to the plan agent:
+it checks schema completeness, id uniqueness across all 49 items, that NO verify command leaked
+into any live acceptance (hard rule 2 — builders must never see the check), that each of the five
+must-haves has a live item, and that the three mutation sweeps have pairwise-disjoint file scopes
+so they can never be dispatched into each other. Suite re-run to confirm the kickoff writes
+touched nothing shipped: 145/145, unchanged from the pre-kickoff baseline.
+
+backlog: 49 items, 9 todo, 40 done. PLAN gate satisfied — every must-have now has an item.
+next pick (cycle 49): T-116 at priority 1 (S, docs) — the smallest real thing on the board, and
+the one whose own citations were just proven stale.
+
+commit: %%COMMIT%%
+next wakeup: 1786887545 (+90s, pacer-fired)
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-17T04:59:59+00:00","usage_reset_at":"2026-08-17T04:59:59+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1786887455,"next_wakeup_at":1786887545,"pid":1084225,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"clock","gear":1,"gear_target":1,"ratio":0.0,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0.0,"api_cap_usd":null,"api_spend_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786886865,"last_real_probe_ts":0,"probe_failures":1,"gear_evidence":"bin/swarm-budget.sh DENIED at kickoff (KI-2 allowlist gap), so no probe ratio exists. Gear pinned to 1 on the allocator's own on-disk reading in runs/allocator-state.json, written 1786886409 (7s before this kickoff's clock): weekly_last 98.0, opus_last 97, week_resets_at 1786942799. Binding constraint is absolute headroom, not heat: ~2% of the weekly envelope remains for the ~15.7h until the week resets, which is also stop_at. Trickle posture from the allocator brief agrees. This is crawl WITH evidence, not a guessed crawl.","weekly":{"ok":true,"weekly_used_pct":98.0,"opus_used_pct":97.0,"week_elapsed_pct":90.7,"weekly_heat":1.08,"opus_heat":1.07,"ceiling":1,"promote_blocked":true}},"playbook":{"mode":"auto","applied":["L-003","L-006","L-007","L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-034"],"vetoed":[],"inert_for_this_target":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"parse_source":"MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.","inert_note":"The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.","directives":{"wave_k":3,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer \u2014 never commit or push yourself"],"reviewer":["The conductor is the SOLE committer \u2014 never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer \u2014 never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive \u2014 a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":1,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```
