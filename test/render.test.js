@@ -226,6 +226,18 @@ test('renderLine: a thin crescent still shows a lit limb', () => {
   assert.equal(litness(disc(renderLine(state('new', 0, 0, true), 'north'))), 0);
 });
 
+test('renderLine: a hair-thin 0.65%-illuminated crescent still shows a hairline limb, not a dark disc', () => {
+  // Edge case narrower than the one above: at cycleFraction 0.025725 /
+  // illumination 0.006517 the outer cell's cover falls between 0.02 and
+  // 0.05. lineArt's dark/hairline boundary is meant to be `cover < 0.02`
+  // (src/render.js), so this cell must clear the LIMB_DARK branch and draw
+  // the sunward hairline. A mutant that widens the threshold to
+  // `cover < 0.05` swallows this cell into LIMB_DARK, and the whole disc
+  // reads '░░░░░' — a fully dark new moon — even though the moon is lit.
+  const hairThin = state('waxing crescent', 0.025725, 0.006517);
+  assert.equal(renderLine(hairThin, 'north'), '░░░░▕   1%  waxing crescent');
+});
+
 // ---------------------------------------------------------------------------
 // No emoji
 // ---------------------------------------------------------------------------

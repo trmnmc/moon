@@ -1,0 +1,1821 @@
+==============================================================================
+ARM A — FAILABLE: L1 mutation applied, new test present. Expect RED.
+==============================================================================
+TAP version 13
+# Subtest: no arguments: every flag off, hemisphere null
+ok 1 - no arguments: every flag off, hemisphere null
+  ---
+  duration_ms: 6.759812
+  type: 'test'
+  ...
+# Subtest: undefined argv is treated as no arguments
+ok 2 - undefined argv is treated as no arguments
+  ---
+  duration_ms: 0.594155
+  type: 'test'
+  ...
+# Subtest: --json
+ok 3 - --json
+  ---
+  duration_ms: 0.968147
+  type: 'test'
+  ...
+# Subtest: --block
+ok 4 - --block
+  ---
+  duration_ms: 0.339224
+  type: 'test'
+  ...
+# Subtest: --south
+ok 5 - --south
+  ---
+  duration_ms: 0.390332
+  type: 'test'
+  ...
+# Subtest: --north
+ok 6 - --north
+  ---
+  duration_ms: 0.348383
+  type: 'test'
+  ...
+# Subtest: --help
+ok 7 - --help
+  ---
+  duration_ms: 0.354763
+  type: 'test'
+  ...
+# Subtest: -h is an alias for --help
+ok 8 - -h is an alias for --help
+  ---
+  duration_ms: 0.787708
+  type: 'test'
+  ...
+# Subtest: the returned object has exactly the five contract keys
+ok 9 - the returned object has exactly the five contract keys
+  ---
+  duration_ms: 1.329162
+  type: 'test'
+  ...
+# Subtest: flag values are always real booleans, never undefined
+ok 10 - flag values are always real booleans, never undefined
+  ---
+  duration_ms: 0.782899
+  type: 'test'
+  ...
+# Subtest: flags combine in any order
+ok 11 - flags combine in any order
+  ---
+  duration_ms: 0.585609
+  type: 'test'
+  ...
+# Subtest: --json --block together (both requested, caller decides precedence)
+ok 12 - --json --block together (both requested, caller decides precedence)
+  ---
+  duration_ms: 0.320848
+  type: 'test'
+  ...
+# Subtest: --south --north together: the last flag on the line wins
+ok 13 - --south --north together: the last flag on the line wins
+  ---
+  duration_ms: 0.928491
+  type: 'test'
+  ...
+# Subtest: conflicting hemisphere flags never throw
+ok 14 - conflicting hemisphere flags never throw
+  ---
+  duration_ms: 0.325587
+  type: 'test'
+  ...
+# Subtest: repeating the same flag is harmless
+ok 15 - repeating the same flag is harmless
+  ---
+  duration_ms: 2.168741
+  type: 'test'
+  ...
+# Subtest: an unknown long option is a clear usage error, not a stack trace
+ok 16 - an unknown long option is a clear usage error, not a stack trace
+  ---
+  duration_ms: 1.470947
+  type: 'test'
+  ...
+# Subtest: an unknown short option is a clear usage error
+ok 17 - an unknown short option is a clear usage error
+  ---
+  duration_ms: 0.346157
+  type: 'test'
+  ...
+# Subtest: a near-miss typo of a real flag still errors rather than silently doing nothing
+ok 18 - a near-miss typo of a real flag still errors rather than silently doing nothing
+  ---
+  duration_ms: 0.44572
+  type: 'test'
+  ...
+# Subtest: an unknown flag mixed in with valid flags still errors
+ok 19 - an unknown flag mixed in with valid flags still errors
+  ---
+  duration_ms: 0.320348
+  type: 'test'
+  ...
+# Subtest: positional arguments are rejected with a clear message
+ok 20 - positional arguments are rejected with a clear message
+  ---
+  duration_ms: 0.405451
+  type: 'test'
+  ...
+# Subtest: an empty positional argument still names a token in the error, not a dangling sentence
+ok 21 - an empty positional argument still names a token in the error, not a dangling sentence
+  ---
+  duration_ms: 0.256145
+  type: 'test'
+  ...
+# Subtest: a token containing an apostrophe is named in full, not truncated at the apostrophe
+ok 22 - a token containing an apostrophe is named in full, not truncated at the apostrophe
+  ---
+  duration_ms: 0.211238
+  type: 'test'
+  ...
+# Subtest: a token wrapped in its own apostrophes is named with those apostrophes intact
+ok 23 - a token wrapped in its own apostrophes is named with those apostrophes intact
+  ---
+  duration_ms: 0.199064
+  type: 'test'
+  ...
+# Subtest: a token with an apostrophe in the middle is named in full
+ok 24 - a token with an apostrophe in the middle is named in full
+  ---
+  duration_ms: 0.250123
+  type: 'test'
+  ...
+# Subtest: a token that is a single lone apostrophe is named, not dropped
+ok 25 - a token that is a single lone apostrophe is named, not dropped
+  ---
+  duration_ms: 0.335568
+  type: 'test'
+  ...
+# Subtest: token recovery stays byte-identical for tokens with no apostrophes
+ok 26 - token recovery stays byte-identical for tokens with no apostrophes
+  ---
+  duration_ms: 1.614754
+  type: 'test'
+  ...
+# Subtest: node:util ERR_PARSE_ARGS_* messages contain exactly one quoted span (pins the assumption toUsageError relies on)
+ok 27 - node:util ERR_PARSE_ARGS_* messages contain exactly one quoted span (pins the assumption toUsageError relies on)
+  ---
+  duration_ms: 0.433526
+  type: 'test'
+  ...
+# Subtest: a token containing a newline is still recovered in full, matching pre-fix behavior
+ok 28 - a token containing a newline is still recovered in full, matching pre-fix behavior
+  ---
+  duration_ms: 0.209624
+  type: 'test'
+  ...
+# Subtest: passing a value to a boolean flag is rejected with a clear message
+ok 29 - passing a value to a boolean flag is rejected with a clear message
+  ---
+  duration_ms: 0.312332
+  type: 'test'
+  ...
+# Subtest: every usage error carries code EUSAGE and a one-line message
+ok 30 - every usage error carries code EUSAGE and a one-line message
+  ---
+  duration_ms: 0.46156
+  type: 'test'
+  ...
+# Subtest: argv is not mutated
+ok 31 - argv is not mutated
+  ---
+  duration_ms: 0.15503
+  type: 'test'
+  ...
+# Subtest: -- terminator with nothing after it parses cleanly
+ok 32 - -- terminator with nothing after it parses cleanly
+  ---
+  duration_ms: 0.183745
+  type: 'test'
+  ...
+# Subtest: PHASE_NAMES is the exact frozen contract array
+ok 33 - PHASE_NAMES is the exact frozen contract array
+  ---
+  duration_ms: 5.401654
+  type: 'test'
+  ...
+# Subtest: computeMoon rejects non-Dates and invalid Dates
+ok 34 - computeMoon rejects non-Dates and invalid Dates
+  ---
+  duration_ms: 0.765045
+  type: 'test'
+  ...
+# Subtest: julianDay: J2000.0 epoch 2000-01-01T12:00Z is JD 2451545.0
+ok 35 - julianDay: J2000.0 epoch 2000-01-01T12:00Z is JD 2451545.0
+  ---
+  duration_ms: 1.010268
+  type: 'test'
+  ...
+# Subtest: MoonState has the contract shape and value ranges
+ok 36 - MoonState has the contract shape and value ranges
+  ---
+  duration_ms: 0.759044
+  type: 'test'
+  ...
+# Subtest: anchor: true new moon 2000-01-06 18:14 UTC within 1 hour
+ok 37 - anchor: true new moon 2000-01-06 18:14 UTC within 1 hour
+  ---
+  duration_ms: 4.97973
+  type: 'test'
+  ...
+# Subtest: anchor: new moon at the 1999-08-11 total solar eclipse
+ok 38 - anchor: new moon at the 1999-08-11 total solar eclipse
+  ---
+  duration_ms: 3.231911
+  type: 'test'
+  ...
+# Subtest: anchor: new moon at the 2017-08-21 total solar eclipse
+ok 39 - anchor: new moon at the 2017-08-21 total solar eclipse
+  ---
+  duration_ms: 2.097193
+  type: 'test'
+  ...
+# Subtest: successive new moons are 29.53 +/- 0.5 days apart (2019-2024)
+ok 40 - successive new moons are 29.53 +/- 0.5 days apart (2019-2024)
+  ---
+  duration_ms: 57.850299
+  type: 'test'
+  ...
+# Subtest: illumination ~0 at computed new moons, ~1 at computed full moons
+ok 41 - illumination ~0 at computed new moons, ~1 at computed full moons
+  ---
+  duration_ms: 8.405394
+  type: 'test'
+  ...
+# Subtest: illumination is 0.5 at the quarters and names them
+ok 42 - illumination is 0.5 at the quarters and names them
+  ---
+  duration_ms: 3.742946
+  type: 'test'
+  ...
+# Subtest: illumination and phaseAngle agree across a full cycle
+ok 43 - illumination and phaseAngle agree across a full cycle
+  ---
+  duration_ms: 2.482556
+  type: 'test'
+  ...
+# Subtest: cycleFraction, age and phaseName stay consistent across a lunation
+ok 44 - cycleFraction, age and phaseName stay consistent across a lunation
+  ---
+  duration_ms: 4.400564
+  type: 'test'
+  ...
+# Subtest: instant-phase tolerance is +/- 12 hours around the instant
+ok 45 - instant-phase tolerance is +/- 12 hours around the instant
+  ---
+  duration_ms: 1.487368
+  type: 'test'
+  ...
+# Subtest: ranges hold across a 40-year daily sweep (1995-2035)
+ok 46 - ranges hold across a 40-year daily sweep (1995-2035)
+  ---
+  duration_ms: 218.008857
+  type: 'test'
+  ...
+# Subtest: nextFullMoon rejects non-Dates and invalid Dates
+ok 47 - nextFullMoon rejects non-Dates and invalid Dates
+  ---
+  duration_ms: 0.439988
+  type: 'test'
+  ...
+# Subtest: nextFullMoon throws TypeError (not a silent Invalid Date) when the result exceeds the Date range
+ok 48 - nextFullMoon throws TypeError (not a silent Invalid Date) when the result exceeds the Date range
+  ---
+  duration_ms: 15.296069
+  type: 'test'
+  ...
+# Subtest: nextFullMoon still succeeds for a valid Date just under the top of the range
+ok 49 - nextFullMoon still succeeds for a valid Date just under the top of the range
+  ---
+  duration_ms: 7.016127
+  type: 'test'
+  ...
+# Subtest: nextFullMoon is strictly after its input and closes round-trip
+ok 50 - nextFullMoon is strictly after its input and closes round-trip
+  ---
+  duration_ms: 0.756599
+  type: 'test'
+  ...
+# Subtest: nextFullMoon at a full-moon instant returns the NEXT one
+ok 51 - nextFullMoon at a full-moon instant returns the NEXT one
+  ---
+  duration_ms: 0.215835
+  type: 'test'
+  ...
+# Subtest: consecutive full moons are 29.53 +/- 0.5 days apart (chained)
+ok 52 - consecutive full moons are 29.53 +/- 0.5 days apart (chained)
+  ---
+  duration_ms: 0.920254
+  type: 'test'
+  ...
+# Subtest: anchor: full moon of the 2000-01-21 total lunar eclipse
+ok 53 - anchor: full moon of the 2000-01-21 total lunar eclipse
+  ---
+  duration_ms: 0.173475
+  type: 'test'
+  ...
+# Subtest: age reports true elapsed time and is never clamped to the mean lunation
+ok 54 - age reports true elapsed time and is never clamped to the mean lunation
+  ---
+  duration_ms: 0.163416
+  type: 'test'
+  ...
+# Subtest: age never exceeds the true maximum lunation length across 60 years
+ok 55 - age never exceeds the true maximum lunation length across 60 years
+  ---
+  duration_ms: 804.10819
+  type: 'test'
+  ...
+# Subtest: measured lunation length and new->full interval over 1990-2060 match the documented figures
+ok 56 - measured lunation length and new->full interval over 1990-2060 match the documented figures
+  ---
+  duration_ms: 979.280043
+  type: 'test'
+  ...
+# Subtest: KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)
+ok 57 - KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)
+  ---
+  duration_ms: 51.65211
+  type: 'test'
+  ...
+# Subtest: T-129: ch.49 correction-table characterization pins (new/Q1/full/Q3, one lunation near year 2150)
+ok 58 - T-129: ch.49 correction-table characterization pins (new/Q1/full/Q3, one lunation near year 2150)
+  ---
+  duration_ms: 3.37622
+  type: 'test'
+  ...
+# Subtest: default output is exactly two lines: the phase line and the next full moon
+ok 59 - default output is exactly two lines: the phase line and the next full moon
+  ---
+  duration_ms: 77.08927
+  type: 'test'
+  ...
+# Subtest: --compact collapses to exactly one line (the MOTD/prompt interface)
+ok 60 - --compact collapses to exactly one line (the MOTD/prompt interface)
+  ---
+  duration_ms: 73.065742
+  type: 'test'
+  ...
+# Subtest: the next-full-moon line is indented to the phase-name column
+ok 61 - the next-full-moon line is indented to the phase-name column
+  ---
+  duration_ms: 66.385152
+  type: 'test'
+  ...
+# Subtest: --south is the horizontal mirror of --north on the disc
+ok 62 - --south is the horizontal mirror of --north on the disc
+  ---
+  duration_ms: 92.913116
+  type: 'test'
+  ...
+# Subtest: --json is parseable, carries the documented fields, and is not a raw float dump
+ok 63 - --json is parseable, carries the documented fields, and is not a raw float dump
+  ---
+  duration_ms: 70.422919
+  type: 'test'
+  ...
+# Subtest: --json hemisphere follows the override flag
+ok 64 - --json hemisphere follows the override flag
+  ---
+  duration_ms: 112.622343
+  type: 'test'
+  ...
+# Subtest: hemisphere is inferred from the ambient timezone when not overridden
+ok 65 - hemisphere is inferred from the ambient timezone when not overridden
+  ---
+  duration_ms: 132.005362
+  type: 'test'
+  ...
+# Subtest: the three documented --json field lists parse to something non-empty
+ok 66 - the three documented --json field lists parse to something non-empty
+  ---
+  duration_ms: 0.908461
+  type: 'test'
+  ...
+# Subtest: --json payload keys, HELP fields, README table, and README example all agree
+ok 67 - --json payload keys, HELP fields, README table, and README example all agree
+  ---
+  duration_ms: 85.149799
+  type: 'test'
+  ...
+# Subtest: --block draws a closed frame
+ok 68 - --block draws a closed frame
+  ---
+  duration_ms: 74.349296
+  type: 'test'
+  ...
+# Subtest: the three documented flag-set sources parse to something non-empty
+ok 69 - the three documented flag-set sources parse to something non-empty
+  ---
+  duration_ms: 0.965542
+  type: 'test'
+  ...
+# Subtest: every name the source-side parse extracts is honoured by parseArgs, and a name it does not register is rejected
+ok 70 - every name the source-side parse extracts is honoured by parseArgs, and a name it does not register is rejected
+  ---
+  duration_ms: 2.283712
+  type: 'test'
+  ...
+# Subtest: OPTIONS, the HELP options block, and the README Options table agree on the accepted flag set
+ok 71 - OPTIONS, the HELP options block, and the README Options table agree on the accepted flag set
+  ---
+  duration_ms: 57.246224
+  type: 'test'
+  ...
+# Subtest: --help wins over --json regardless of flag order: help text, not the JSON payload
+ok 72 - --help wins over --json regardless of flag order: help text, not the JSON payload
+  ---
+  duration_ms: 157.988996
+  type: 'test'
+  ...
+# Subtest: an unknown flag exits 2 with a clean one-line message on stderr
+ok 73 - an unknown flag exits 2 with a clean one-line message on stderr
+  ---
+  duration_ms: 47.786647
+  type: 'test'
+  ...
+# Subtest: no emoji anywhere in any output mode
+ok 74 - no emoji anywhere in any output mode
+  ---
+  duration_ms: 321.758775
+  type: 'test'
+  ...
+# Subtest: every successful invocation mode writes nothing to stderr
+ok 75 - every successful invocation mode writes nothing to stderr
+  ---
+  duration_ms: 364.166944
+  type: 'test'
+  ...
+# Subtest: citation discovery finds at least as many citations as when this test was written
+ok 76 - citation discovery finds at least as many citations as when this test was written
+  ---
+  duration_ms: 1.543987
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation src/astro.js\#363-363 points at the construct it claims
+ok 77 - CONTRACTS.md citation src/astro.js\#363-363 points at the construct it claims
+  ---
+  duration_ms: 2.864192
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation src/args.js\#124-130 points at the construct it claims
+ok 78 - CONTRACTS.md citation src/args.js\#124-130 points at the construct it claims
+  ---
+  duration_ms: 2.916393
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation src/args.js\#13-23 points at the construct it claims
+ok 79 - CONTRACTS.md citation src/args.js\#13-23 points at the construct it claims
+  ---
+  duration_ms: 0.637941
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation test/args.test.js\#87-87 points at the construct it claims
+ok 80 - CONTRACTS.md citation test/args.test.js\#87-87 points at the construct it claims
+  ---
+  duration_ms: 0.662077
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation SELF\#33-33 points at the construct it claims
+ok 81 - CONTRACTS.md citation SELF\#33-33 points at the construct it claims
+  ---
+  duration_ms: 0.27526
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation SELF\#60-60 points at the construct it claims
+ok 82 - CONTRACTS.md citation SELF\#60-60 points at the construct it claims
+  ---
+  duration_ms: 0.489203
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation SELF\#67-67 points at the construct it claims
+ok 83 - CONTRACTS.md citation SELF\#67-67 points at the construct it claims
+  ---
+  duration_ms: 0.32682
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation src/args.js\#21-21 points at the construct it claims
+ok 84 - CONTRACTS.md citation src/args.js\#21-21 points at the construct it claims
+  ---
+  duration_ms: 0.397757
+  type: 'test'
+  ...
+# Subtest: northern zones across every continent
+ok 85 - northern zones across every continent
+  ---
+  duration_ms: 1.577902
+  type: 'test'
+  ...
+# Subtest: southern zones across every continent
+ok 86 - southern zones across every continent
+  ---
+  duration_ms: 0.303636
+  type: 'test'
+  ...
+# Subtest: every Australia/* zone is southern, including the legacy aliases
+ok 87 - every Australia/* zone is southern, including the legacy aliases
+  ---
+  duration_ms: 1.297181
+  type: 'test'
+  ...
+# Subtest: equator-adjacent zones: Africa straddles, so per-zone reasoning is required
+ok 88 - equator-adjacent zones: Africa straddles, so per-zone reasoning is required
+  ---
+  duration_ms: 0.200997
+  type: 'test'
+  ...
+# Subtest: equator-adjacent zones: South America and the Pacific straddle too
+ok 89 - equator-adjacent zones: South America and the Pacific straddle too
+  ---
+  duration_ms: 0.230384
+  type: 'test'
+  ...
+# Subtest: Indian/* is southern except the Maldives
+ok 90 - Indian/* is southern except the Maldives
+  ---
+  duration_ms: 0.306612
+  type: 'test'
+  ...
+# Subtest: legacy top-level aliases
+ok 91 - legacy top-level aliases
+  ---
+  duration_ms: 0.202831
+  type: 'test'
+  ...
+# Subtest: lookup is case-insensitive
+ok 92 - lookup is case-insensitive
+  ---
+  duration_ms: 0.259581
+  type: 'test'
+  ...
+# Subtest: unknown, malformed and absent zones default to north and never throw
+ok 93 - unknown, malformed and absent zones default to north and never throw
+  ---
+  duration_ms: 0.279999
+  type: 'test'
+  ...
+# Subtest: always returns exactly "north" or "south", never undefined
+ok 94 - always returns exactly "north" or "south", never undefined
+  ---
+  duration_ms: 21.422249
+  type: 'test'
+  ...
+# Subtest: default argument reads the host timezone: southern host
+ok 95 - default argument reads the host timezone: southern host
+  ---
+  duration_ms: 204.056237
+  type: 'test'
+  ...
+# Subtest: default argument reads the host timezone: northern host
+ok 96 - default argument reads the host timezone: northern host
+  ---
+  duration_ms: 229.808546
+  type: 'test'
+  ...
+# Subtest: the static table agrees with every zone in the host tz database
+ok 97 - the static table agrees with every zone in the host tz database
+  ---
+  duration_ms: 5.523659
+  type: 'test'
+  ...
+# Subtest: explicit argument always beats the host timezone
+ok 98 - explicit argument always beats the host timezone
+  ---
+  duration_ms: 44.427902
+  type: 'test'
+  ...
+# Subtest: bin.moon resolves to the exact file test/cli.test.js actually spawns
+ok 99 - bin.moon resolves to the exact file test/cli.test.js actually spawns
+  ---
+  duration_ms: 2.532252
+  type: 'test'
+  ...
+# Subtest: main resolves to the exact module test/astro.test.js actually requires
+ok 100 - main resolves to the exact module test/astro.test.js actually requires
+  ---
+  duration_ms: 0.955071
+  type: 'test'
+  ...
+# Subtest: declares zero runtime and zero dev dependencies
+ok 101 - declares zero runtime and zero dev dependencies
+  ---
+  duration_ms: 0.24898
+  type: 'test'
+  ...
+# Subtest: every files[] allowlist entry exists on disk
+ok 102 - every files[] allowlist entry exists on disk
+  ---
+  duration_ms: 0.468763
+  type: 'test'
+  ...
+# Subtest: every module reachable from bin.moon and main lives under a files[] entry
+ok 103 - every module reachable from bin.moon and main lives under a files[] entry
+  ---
+  duration_ms: 3.525056
+  type: 'test'
+  ...
+# Subtest: help does not mis-describe phaseAngle, and warns about the inverse
+ok 104 - help does not mis-describe phaseAngle, and warns about the inverse
+  ---
+  duration_ms: 63.35965
+  type: 'test'
+  ...
+# Subtest: applying the textbook formula to phaseAngle really does invert illumination
+ok 105 - applying the textbook formula to phaseAngle really does invert illumination
+  ---
+  duration_ms: 73.694505
+  type: 'test'
+  ...
+# Subtest: single-digit full-moon days keep their leading pad
+ok 106 - single-digit full-moon days keep their leading pad
+  ---
+  duration_ms: 69.933815
+  type: 'test'
+  ...
+# Subtest: block next-full-moon line aligns with the block label column
+ok 107 - block next-full-moon line aligns with the block label column
+  ---
+  duration_ms: 81.010319
+  type: 'test'
+  ...
+# Subtest: help stays within 80 columns
+ok 108 - help stays within 80 columns
+  ---
+  duration_ms: 47.608754
+  type: 'test'
+  ...
+# Subtest: next-full-moon date carries the year when it falls in a later calendar year
+ok 109 - next-full-moon date carries the year when it falls in a later calendar year
+  ---
+  duration_ms: 73.818555
+  type: 'test'
+  ...
+# Subtest: next-full-moon date omits the year when it falls in the current calendar year
+ok 110 - next-full-moon date omits the year when it falls in the current calendar year
+  ---
+  duration_ms: 82.202727
+  type: 'test'
+  ...
+# Subtest: README Install section leads with a command that actually runs
+ok 111 - README Install section leads with a command that actually runs
+  ---
+  duration_ms: 87.381403
+  type: 'test'
+  ...
+# Subtest: README Install section labels every surviving placeholder
+ok 112 - README Install section labels every surviving placeholder
+  ---
+  duration_ms: 0.696443
+  type: 'test'
+  ...
+# Subtest: README zshrc prompt snippet does not use the npx fetch-on-render form
+ok 113 - README zshrc prompt snippet does not use the npx fetch-on-render form
+  ---
+  duration_ms: 0.424809
+  type: 'test'
+  ...
+# Subtest: T-134 — README headline fence matches renderLine(moon, "north")
+ok 114 - T-134 — README headline fence matches renderLine(moon, "north")
+  ---
+  duration_ms: 2.641653
+  type: 'test'
+  ...
+# Subtest: T-134 — README `--block` fence (minus its next-full-moon line) matches renderBlock(moon, "north")
+ok 115 - T-134 — README `--block` fence (minus its next-full-moon line) matches renderBlock(moon, "north")
+  ---
+  duration_ms: 2.015446
+  type: 'test'
+  ...
+# Subtest: T-134 — README north/south sweep table rows are self-consistent and reproducible
+ok 116 - T-134 — README north/south sweep table rows are self-consistent and reproducible
+  ---
+  duration_ms: 29.977533
+  type: 'test'
+  ...
+# Subtest: T-135/T-136 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce
+ok 117 - T-135/T-136 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce
+  ---
+  duration_ms: 90.3269
+  type: 'test'
+  ...
+# Subtest: renderLine: exact output across the full cycle, northern hemisphere
+ok 118 - renderLine: exact output across the full cycle, northern hemisphere
+  ---
+  duration_ms: 8.525848
+  type: 'test'
+  ...
+# Subtest: renderLine: exact output across the full cycle, southern hemisphere
+ok 119 - renderLine: exact output across the full cycle, southern hemisphere
+  ---
+  duration_ms: 0.623011
+  type: 'test'
+  ...
+# Subtest: renderLine: the southern disc is the northern disc mirrored
+ok 120 - renderLine: the southern disc is the northern disc mirrored
+  ---
+  duration_ms: 4.010182
+  type: 'test'
+  ...
+# Subtest: renderBlock: every southern art row is the northern row mirrored
+ok 121 - renderBlock: every southern art row is the northern row mirrored
+  ---
+  duration_ms: 9.706744
+  type: 'test'
+  ...
+# Subtest: renderLine: a moon and its mirror image render the same disc in opposite hemispheres
+ok 122 - renderLine: a moon and its mirror image render the same disc in opposite hemispheres
+  ---
+  duration_ms: 0.275902
+  type: 'test'
+  ...
+# Subtest: renderLine: a waxing moon is lit on the right in the north, the left in the south
+ok 123 - renderLine: a waxing moon is lit on the right in the north, the left in the south
+  ---
+  duration_ms: 0.808338
+  type: 'test'
+  ...
+# Subtest: renderLine: a thin crescent still shows a lit limb
+ok 124 - renderLine: a thin crescent still shows a lit limb
+  ---
+  duration_ms: 0.22823
+  type: 'test'
+  ...
+# Subtest: renderLine: a hair-thin 0.65%-illuminated crescent still shows a hairline limb, not a dark disc
+not ok 125 - renderLine: a hair-thin 0.65%-illuminated crescent still shows a hairline limb, not a dark disc
+  ---
+  duration_ms: 1.350865
+  type: 'test'
+  location: '/opt/targets/moon/test/render.test.js:229:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + '░░░░░   1%  waxing crescent'
+    - '░░░░▕   1%  waxing crescent'
+           ^
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '░░░░▕   1%  waxing crescent'
+  actual: '░░░░░   1%  waxing crescent'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/opt/targets/moon/test/render.test.js:238:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1382:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+    Test.postRun (node:internal/test_runner/test:1522:19)
+    Test.run (node:internal/test_runner/test:1447:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+  ...
+# Subtest: no output anywhere contains an emoji codepoint
+ok 126 - no output anywhere contains an emoji codepoint
+  ---
+  duration_ms: 94.861623
+  type: 'test'
+  ...
+# Subtest: no output contains a moon emoji or a variation selector
+ok 127 - no output contains a moon emoji or a variation selector
+  ---
+  duration_ms: 2.79543
+  type: 'test'
+  ...
+# Subtest: renderLine emits only geometric block glyphs, digits, letters and spaces
+ok 128 - renderLine emits only geometric block glyphs, digits, letters and spaces
+  ---
+  duration_ms: 0.762871
+  type: 'test'
+  ...
+# Subtest: no exclamation marks anywhere — this is a readout, not a greeting
+ok 129 - no exclamation marks anywhere — this is a readout, not a greeting
+  ---
+  duration_ms: 1.414958
+  type: 'test'
+  ...
+# Subtest: renderLine is exactly one line with no trailing newline
+ok 130 - renderLine is exactly one line with no trailing newline
+  ---
+  duration_ms: 0.416143
+  type: 'test'
+  ...
+# Subtest: renderLine has no trailing whitespace — it goes in a prompt
+ok 131 - renderLine has no trailing whitespace — it goes in a prompt
+  ---
+  duration_ms: 0.588796
+  type: 'test'
+  ...
+# Subtest: renderBlock has no trailing newline and no trailing whitespace on any row
+ok 132 - renderBlock has no trailing newline and no trailing whitespace on any row
+  ---
+  duration_ms: 1.545289
+  type: 'test'
+  ...
+# Subtest: renderLine width is stable as illumination varies
+ok 133 - renderLine width is stable as illumination varies
+  ---
+  duration_ms: 3.771892
+  type: 'test'
+  ...
+# Subtest: renderLine disc is always exactly five cells
+ok 134 - renderLine disc is always exactly five cells
+  ---
+  duration_ms: 0.373479
+  type: 'test'
+  ...
+# Subtest: renderLine columns line up across every phase name
+ok 135 - renderLine columns line up across every phase name
+  ---
+  duration_ms: 0.232799
+  type: 'test'
+  ...
+# Subtest: renderBlock: exact output for a waxing crescent, both hemispheres
+ok 136 - renderBlock: exact output for a waxing crescent, both hemispheres
+  ---
+  duration_ms: 0.302303
+  type: 'test'
+  ...
+# Subtest: renderBlock: exact output for a waning gibbous, both hemispheres
+ok 137 - renderBlock: exact output for a waning gibbous, both hemispheres
+  ---
+  duration_ms: 0.252548
+  type: 'test'
+  ...
+# Subtest: renderBlock: exact output for new and full
+ok 138 - renderBlock: exact output for new and full
+  ---
+  duration_ms: 0.5549
+  type: 'test'
+  ...
+# Subtest: renderBlock: a hair-thin crescent stays continuous down the limb
+ok 139 - renderBlock: a hair-thin crescent stays continuous down the limb
+  ---
+  duration_ms: 0.292734
+  type: 'test'
+  ...
+# Subtest: renderBlock: every block is the same size, whatever the phase
+ok 140 - renderBlock: every block is the same size, whatever the phase
+  ---
+  duration_ms: 1.40566
+  type: 'test'
+  ...
+# Subtest: renderBlock: the frame is closed on all four sides
+ok 141 - renderBlock: the frame is closed on all four sides
+  ---
+  duration_ms: 0.286443
+  type: 'test'
+  ...
+# Subtest: renderBlock reports the same phase and illumination as renderLine
+ok 142 - renderBlock reports the same phase and illumination as renderLine
+  ---
+  duration_ms: 1.392675
+  type: 'test'
+  ...
+# Subtest: illumination is printed as a whole percent — no spurious decimals
+ok 143 - illumination is printed as a whole percent — no spurious decimals
+  ---
+  duration_ms: 0.226297
+  type: 'test'
+  ...
+# Subtest: an unknown hemisphere value renders as northern
+ok 144 - an unknown hemisphere value renders as northern
+  ---
+  duration_ms: 0.277845
+  type: 'test'
+  ...
+# Subtest: the whole cycle renders without throwing and never widens the disc
+ok 145 - the whole cycle renders without throwing and never widens the disc
+  ---
+  duration_ms: 8.077923
+  type: 'test'
+  ...
+# Subtest: KI-5 pin: disc glyph set matches the documented East Asian Width partition
+ok 146 - KI-5 pin: disc glyph set matches the documented East Asian Width partition
+  ---
+  duration_ms: 25.228117
+  type: 'test'
+  ...
+1..146
+# tests 146
+# suites 0
+# pass 145
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2298.691791
+
+--- Arm A summary ---
+exit status: 1 (nonzero = suite failed, as expected)
+failing test lines (1):
+  not ok 125 - renderLine: a hair-thin 0.65%-illuminated crescent still shows a hairline limb, not a dark disc
+
+==============================================================================
+ARM B — ATTRIBUTABLE: L1 mutation still applied, new assertion
+commented out. Expect GREEN (mutation survives again).
+==============================================================================
+TAP version 13
+# Subtest: no arguments: every flag off, hemisphere null
+ok 1 - no arguments: every flag off, hemisphere null
+  ---
+  duration_ms: 4.757132
+  type: 'test'
+  ...
+# Subtest: undefined argv is treated as no arguments
+ok 2 - undefined argv is treated as no arguments
+  ---
+  duration_ms: 0.738875
+  type: 'test'
+  ...
+# Subtest: --json
+ok 3 - --json
+  ---
+  duration_ms: 0.563355
+  type: 'test'
+  ...
+# Subtest: --block
+ok 4 - --block
+  ---
+  duration_ms: 0.299488
+  type: 'test'
+  ...
+# Subtest: --south
+ok 5 - --south
+  ---
+  duration_ms: 0.395864
+  type: 'test'
+  ...
+# Subtest: --north
+ok 6 - --north
+  ---
+  duration_ms: 0.339996
+  type: 'test'
+  ...
+# Subtest: --help
+ok 7 - --help
+  ---
+  duration_ms: 0.268768
+  type: 'test'
+  ...
+# Subtest: -h is an alias for --help
+ok 8 - -h is an alias for --help
+  ---
+  duration_ms: 0.567735
+  type: 'test'
+  ...
+# Subtest: the returned object has exactly the five contract keys
+ok 9 - the returned object has exactly the five contract keys
+  ---
+  duration_ms: 0.354744
+  type: 'test'
+  ...
+# Subtest: flag values are always real booleans, never undefined
+ok 10 - flag values are always real booleans, never undefined
+  ---
+  duration_ms: 0.723295
+  type: 'test'
+  ...
+# Subtest: flags combine in any order
+ok 11 - flags combine in any order
+  ---
+  duration_ms: 0.735978
+  type: 'test'
+  ...
+# Subtest: --json --block together (both requested, caller decides precedence)
+ok 12 - --json --block together (both requested, caller decides precedence)
+  ---
+  duration_ms: 0.198563
+  type: 'test'
+  ...
+# Subtest: --south --north together: the last flag on the line wins
+ok 13 - --south --north together: the last flag on the line wins
+  ---
+  duration_ms: 0.2542
+  type: 'test'
+  ...
+# Subtest: conflicting hemisphere flags never throw
+ok 14 - conflicting hemisphere flags never throw
+  ---
+  duration_ms: 0.296742
+  type: 'test'
+  ...
+# Subtest: repeating the same flag is harmless
+ok 15 - repeating the same flag is harmless
+  ---
+  duration_ms: 0.251675
+  type: 'test'
+  ...
+# Subtest: an unknown long option is a clear usage error, not a stack trace
+ok 16 - an unknown long option is a clear usage error, not a stack trace
+  ---
+  duration_ms: 1.120771
+  type: 'test'
+  ...
+# Subtest: an unknown short option is a clear usage error
+ok 17 - an unknown short option is a clear usage error
+  ---
+  duration_ms: 0.286523
+  type: 'test'
+  ...
+# Subtest: a near-miss typo of a real flag still errors rather than silently doing nothing
+ok 18 - a near-miss typo of a real flag still errors rather than silently doing nothing
+  ---
+  duration_ms: 0.375184
+  type: 'test'
+  ...
+# Subtest: an unknown flag mixed in with valid flags still errors
+ok 19 - an unknown flag mixed in with valid flags still errors
+  ---
+  duration_ms: 0.224904
+  type: 'test'
+  ...
+# Subtest: positional arguments are rejected with a clear message
+ok 20 - positional arguments are rejected with a clear message
+  ---
+  duration_ms: 0.308865
+  type: 'test'
+  ...
+# Subtest: an empty positional argument still names a token in the error, not a dangling sentence
+ok 21 - an empty positional argument still names a token in the error, not a dangling sentence
+  ---
+  duration_ms: 0.205115
+  type: 'test'
+  ...
+# Subtest: a token containing an apostrophe is named in full, not truncated at the apostrophe
+ok 22 - a token containing an apostrophe is named in full, not truncated at the apostrophe
+  ---
+  duration_ms: 0.182551
+  type: 'test'
+  ...
+# Subtest: a token wrapped in its own apostrophes is named with those apostrophes intact
+ok 23 - a token wrapped in its own apostrophes is named with those apostrophes intact
+  ---
+  duration_ms: 0.178665
+  type: 'test'
+  ...
+# Subtest: a token with an apostrophe in the middle is named in full
+ok 24 - a token with an apostrophe in the middle is named in full
+  ---
+  duration_ms: 0.162502
+  type: 'test'
+  ...
+# Subtest: a token that is a single lone apostrophe is named, not dropped
+ok 25 - a token that is a single lone apostrophe is named, not dropped
+  ---
+  duration_ms: 0.191539
+  type: 'test'
+  ...
+# Subtest: token recovery stays byte-identical for tokens with no apostrophes
+ok 26 - token recovery stays byte-identical for tokens with no apostrophes
+  ---
+  duration_ms: 1.356917
+  type: 'test'
+  ...
+# Subtest: node:util ERR_PARSE_ARGS_* messages contain exactly one quoted span (pins the assumption toUsageError relies on)
+ok 27 - node:util ERR_PARSE_ARGS_* messages contain exactly one quoted span (pins the assumption toUsageError relies on)
+  ---
+  duration_ms: 0.351297
+  type: 'test'
+  ...
+# Subtest: a token containing a newline is still recovered in full, matching pre-fix behavior
+ok 28 - a token containing a newline is still recovered in full, matching pre-fix behavior
+  ---
+  duration_ms: 0.173644
+  type: 'test'
+  ...
+# Subtest: passing a value to a boolean flag is rejected with a clear message
+ok 29 - passing a value to a boolean flag is rejected with a clear message
+  ---
+  duration_ms: 0.330568
+  type: 'test'
+  ...
+# Subtest: every usage error carries code EUSAGE and a one-line message
+ok 30 - every usage error carries code EUSAGE and a one-line message
+  ---
+  duration_ms: 0.359202
+  type: 'test'
+  ...
+# Subtest: argv is not mutated
+ok 31 - argv is not mutated
+  ---
+  duration_ms: 0.141442
+  type: 'test'
+  ...
+# Subtest: -- terminator with nothing after it parses cleanly
+ok 32 - -- terminator with nothing after it parses cleanly
+  ---
+  duration_ms: 0.128307
+  type: 'test'
+  ...
+# Subtest: PHASE_NAMES is the exact frozen contract array
+ok 33 - PHASE_NAMES is the exact frozen contract array
+  ---
+  duration_ms: 4.697937
+  type: 'test'
+  ...
+# Subtest: computeMoon rejects non-Dates and invalid Dates
+ok 34 - computeMoon rejects non-Dates and invalid Dates
+  ---
+  duration_ms: 0.745898
+  type: 'test'
+  ...
+# Subtest: julianDay: J2000.0 epoch 2000-01-01T12:00Z is JD 2451545.0
+ok 35 - julianDay: J2000.0 epoch 2000-01-01T12:00Z is JD 2451545.0
+  ---
+  duration_ms: 1.283355
+  type: 'test'
+  ...
+# Subtest: MoonState has the contract shape and value ranges
+ok 36 - MoonState has the contract shape and value ranges
+  ---
+  duration_ms: 0.671785
+  type: 'test'
+  ...
+# Subtest: anchor: true new moon 2000-01-06 18:14 UTC within 1 hour
+ok 37 - anchor: true new moon 2000-01-06 18:14 UTC within 1 hour
+  ---
+  duration_ms: 4.355026
+  type: 'test'
+  ...
+# Subtest: anchor: new moon at the 1999-08-11 total solar eclipse
+ok 38 - anchor: new moon at the 1999-08-11 total solar eclipse
+  ---
+  duration_ms: 4.639975
+  type: 'test'
+  ...
+# Subtest: anchor: new moon at the 2017-08-21 total solar eclipse
+ok 39 - anchor: new moon at the 2017-08-21 total solar eclipse
+  ---
+  duration_ms: 0.594385
+  type: 'test'
+  ...
+# Subtest: successive new moons are 29.53 +/- 0.5 days apart (2019-2024)
+ok 40 - successive new moons are 29.53 +/- 0.5 days apart (2019-2024)
+  ---
+  duration_ms: 52.006172
+  type: 'test'
+  ...
+# Subtest: illumination ~0 at computed new moons, ~1 at computed full moons
+ok 41 - illumination ~0 at computed new moons, ~1 at computed full moons
+  ---
+  duration_ms: 12.621492
+  type: 'test'
+  ...
+# Subtest: illumination is 0.5 at the quarters and names them
+ok 42 - illumination is 0.5 at the quarters and names them
+  ---
+  duration_ms: 4.958239
+  type: 'test'
+  ...
+# Subtest: illumination and phaseAngle agree across a full cycle
+ok 43 - illumination and phaseAngle agree across a full cycle
+  ---
+  duration_ms: 2.279895
+  type: 'test'
+  ...
+# Subtest: cycleFraction, age and phaseName stay consistent across a lunation
+ok 44 - cycleFraction, age and phaseName stay consistent across a lunation
+  ---
+  duration_ms: 2.702791
+  type: 'test'
+  ...
+# Subtest: instant-phase tolerance is +/- 12 hours around the instant
+ok 45 - instant-phase tolerance is +/- 12 hours around the instant
+  ---
+  duration_ms: 0.604626
+  type: 'test'
+  ...
+# Subtest: ranges hold across a 40-year daily sweep (1995-2035)
+ok 46 - ranges hold across a 40-year daily sweep (1995-2035)
+  ---
+  duration_ms: 159.434552
+  type: 'test'
+  ...
+# Subtest: nextFullMoon rejects non-Dates and invalid Dates
+ok 47 - nextFullMoon rejects non-Dates and invalid Dates
+  ---
+  duration_ms: 1.053852
+  type: 'test'
+  ...
+# Subtest: nextFullMoon throws TypeError (not a silent Invalid Date) when the result exceeds the Date range
+ok 48 - nextFullMoon throws TypeError (not a silent Invalid Date) when the result exceeds the Date range
+  ---
+  duration_ms: 11.792044
+  type: 'test'
+  ...
+# Subtest: nextFullMoon still succeeds for a valid Date just under the top of the range
+ok 49 - nextFullMoon still succeeds for a valid Date just under the top of the range
+  ---
+  duration_ms: 6.047198
+  type: 'test'
+  ...
+# Subtest: nextFullMoon is strictly after its input and closes round-trip
+ok 50 - nextFullMoon is strictly after its input and closes round-trip
+  ---
+  duration_ms: 0.602272
+  type: 'test'
+  ...
+# Subtest: nextFullMoon at a full-moon instant returns the NEXT one
+ok 51 - nextFullMoon at a full-moon instant returns the NEXT one
+  ---
+  duration_ms: 0.146843
+  type: 'test'
+  ...
+# Subtest: consecutive full moons are 29.53 +/- 0.5 days apart (chained)
+ok 52 - consecutive full moons are 29.53 +/- 0.5 days apart (chained)
+  ---
+  duration_ms: 0.449426
+  type: 'test'
+  ...
+# Subtest: anchor: full moon of the 2000-01-21 total lunar eclipse
+ok 53 - anchor: full moon of the 2000-01-21 total lunar eclipse
+  ---
+  duration_ms: 0.185567
+  type: 'test'
+  ...
+# Subtest: age reports true elapsed time and is never clamped to the mean lunation
+ok 54 - age reports true elapsed time and is never clamped to the mean lunation
+  ---
+  duration_ms: 0.150831
+  type: 'test'
+  ...
+# Subtest: age never exceeds the true maximum lunation length across 60 years
+ok 55 - age never exceeds the true maximum lunation length across 60 years
+  ---
+  duration_ms: 818.432827
+  type: 'test'
+  ...
+# Subtest: measured lunation length and new->full interval over 1990-2060 match the documented figures
+ok 56 - measured lunation length and new->full interval over 1990-2060 match the documented figures
+  ---
+  duration_ms: 955.095498
+  type: 'test'
+  ...
+# Subtest: KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)
+ok 57 - KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)
+  ---
+  duration_ms: 48.237877
+  type: 'test'
+  ...
+# Subtest: T-129: ch.49 correction-table characterization pins (new/Q1/full/Q3, one lunation near year 2150)
+ok 58 - T-129: ch.49 correction-table characterization pins (new/Q1/full/Q3, one lunation near year 2150)
+  ---
+  duration_ms: 3.370848
+  type: 'test'
+  ...
+# Subtest: default output is exactly two lines: the phase line and the next full moon
+ok 59 - default output is exactly two lines: the phase line and the next full moon
+  ---
+  duration_ms: 74.958512
+  type: 'test'
+  ...
+# Subtest: --compact collapses to exactly one line (the MOTD/prompt interface)
+ok 60 - --compact collapses to exactly one line (the MOTD/prompt interface)
+  ---
+  duration_ms: 76.184174
+  type: 'test'
+  ...
+# Subtest: the next-full-moon line is indented to the phase-name column
+ok 61 - the next-full-moon line is indented to the phase-name column
+  ---
+  duration_ms: 73.051816
+  type: 'test'
+  ...
+# Subtest: --south is the horizontal mirror of --north on the disc
+ok 62 - --south is the horizontal mirror of --north on the disc
+  ---
+  duration_ms: 95.690189
+  type: 'test'
+  ...
+# Subtest: --json is parseable, carries the documented fields, and is not a raw float dump
+ok 63 - --json is parseable, carries the documented fields, and is not a raw float dump
+  ---
+  duration_ms: 76.376736
+  type: 'test'
+  ...
+# Subtest: --json hemisphere follows the override flag
+ok 64 - --json hemisphere follows the override flag
+  ---
+  duration_ms: 98.996353
+  type: 'test'
+  ...
+# Subtest: hemisphere is inferred from the ambient timezone when not overridden
+ok 65 - hemisphere is inferred from the ambient timezone when not overridden
+  ---
+  duration_ms: 140.697629
+  type: 'test'
+  ...
+# Subtest: the three documented --json field lists parse to something non-empty
+ok 66 - the three documented --json field lists parse to something non-empty
+  ---
+  duration_ms: 1.116393
+  type: 'test'
+  ...
+# Subtest: --json payload keys, HELP fields, README table, and README example all agree
+ok 67 - --json payload keys, HELP fields, README table, and README example all agree
+  ---
+  duration_ms: 73.379307
+  type: 'test'
+  ...
+# Subtest: --block draws a closed frame
+ok 68 - --block draws a closed frame
+  ---
+  duration_ms: 71.922038
+  type: 'test'
+  ...
+# Subtest: the three documented flag-set sources parse to something non-empty
+ok 69 - the three documented flag-set sources parse to something non-empty
+  ---
+  duration_ms: 0.898762
+  type: 'test'
+  ...
+# Subtest: every name the source-side parse extracts is honoured by parseArgs, and a name it does not register is rejected
+ok 70 - every name the source-side parse extracts is honoured by parseArgs, and a name it does not register is rejected
+  ---
+  duration_ms: 2.65565
+  type: 'test'
+  ...
+# Subtest: OPTIONS, the HELP options block, and the README Options table agree on the accepted flag set
+ok 71 - OPTIONS, the HELP options block, and the README Options table agree on the accepted flag set
+  ---
+  duration_ms: 50.5684
+  type: 'test'
+  ...
+# Subtest: --help wins over --json regardless of flag order: help text, not the JSON payload
+ok 72 - --help wins over --json regardless of flag order: help text, not the JSON payload
+  ---
+  duration_ms: 142.271644
+  type: 'test'
+  ...
+# Subtest: an unknown flag exits 2 with a clean one-line message on stderr
+ok 73 - an unknown flag exits 2 with a clean one-line message on stderr
+  ---
+  duration_ms: 50.093535
+  type: 'test'
+  ...
+# Subtest: no emoji anywhere in any output mode
+ok 74 - no emoji anywhere in any output mode
+  ---
+  duration_ms: 371.90412
+  type: 'test'
+  ...
+# Subtest: every successful invocation mode writes nothing to stderr
+ok 75 - every successful invocation mode writes nothing to stderr
+  ---
+  duration_ms: 370.576791
+  type: 'test'
+  ...
+# Subtest: citation discovery finds at least as many citations as when this test was written
+ok 76 - citation discovery finds at least as many citations as when this test was written
+  ---
+  duration_ms: 1.331818
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation src/astro.js\#363-363 points at the construct it claims
+ok 77 - CONTRACTS.md citation src/astro.js\#363-363 points at the construct it claims
+  ---
+  duration_ms: 2.887197
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation src/args.js\#124-130 points at the construct it claims
+ok 78 - CONTRACTS.md citation src/args.js\#124-130 points at the construct it claims
+  ---
+  duration_ms: 2.322187
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation src/args.js\#13-23 points at the construct it claims
+ok 79 - CONTRACTS.md citation src/args.js\#13-23 points at the construct it claims
+  ---
+  duration_ms: 0.585449
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation test/args.test.js\#87-87 points at the construct it claims
+ok 80 - CONTRACTS.md citation test/args.test.js\#87-87 points at the construct it claims
+  ---
+  duration_ms: 0.586601
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation SELF\#33-33 points at the construct it claims
+ok 81 - CONTRACTS.md citation SELF\#33-33 points at the construct it claims
+  ---
+  duration_ms: 0.345296
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation SELF\#60-60 points at the construct it claims
+ok 82 - CONTRACTS.md citation SELF\#60-60 points at the construct it claims
+  ---
+  duration_ms: 0.465527
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation SELF\#67-67 points at the construct it claims
+ok 83 - CONTRACTS.md citation SELF\#67-67 points at the construct it claims
+  ---
+  duration_ms: 0.305478
+  type: 'test'
+  ...
+# Subtest: CONTRACTS.md citation src/args.js\#21-21 points at the construct it claims
+ok 84 - CONTRACTS.md citation src/args.js\#21-21 points at the construct it claims
+  ---
+  duration_ms: 0.335157
+  type: 'test'
+  ...
+# Subtest: northern zones across every continent
+ok 85 - northern zones across every continent
+  ---
+  duration_ms: 1.984516
+  type: 'test'
+  ...
+# Subtest: southern zones across every continent
+ok 86 - southern zones across every continent
+  ---
+  duration_ms: 0.383429
+  type: 'test'
+  ...
+# Subtest: every Australia/* zone is southern, including the legacy aliases
+ok 87 - every Australia/* zone is southern, including the legacy aliases
+  ---
+  duration_ms: 4.15497
+  type: 'test'
+  ...
+# Subtest: equator-adjacent zones: Africa straddles, so per-zone reasoning is required
+ok 88 - equator-adjacent zones: Africa straddles, so per-zone reasoning is required
+  ---
+  duration_ms: 0.281463
+  type: 'test'
+  ...
+# Subtest: equator-adjacent zones: South America and the Pacific straddle too
+ok 89 - equator-adjacent zones: South America and the Pacific straddle too
+  ---
+  duration_ms: 0.301129
+  type: 'test'
+  ...
+# Subtest: Indian/* is southern except the Maldives
+ok 90 - Indian/* is southern except the Maldives
+  ---
+  duration_ms: 0.328263
+  type: 'test'
+  ...
+# Subtest: legacy top-level aliases
+ok 91 - legacy top-level aliases
+  ---
+  duration_ms: 0.225545
+  type: 'test'
+  ...
+# Subtest: lookup is case-insensitive
+ok 92 - lookup is case-insensitive
+  ---
+  duration_ms: 0.221918
+  type: 'test'
+  ...
+# Subtest: unknown, malformed and absent zones default to north and never throw
+ok 93 - unknown, malformed and absent zones default to north and never throw
+  ---
+  duration_ms: 0.578695
+  type: 'test'
+  ...
+# Subtest: always returns exactly "north" or "south", never undefined
+ok 94 - always returns exactly "north" or "south", never undefined
+  ---
+  duration_ms: 22.611623
+  type: 'test'
+  ...
+# Subtest: default argument reads the host timezone: southern host
+ok 95 - default argument reads the host timezone: southern host
+  ---
+  duration_ms: 207.18491
+  type: 'test'
+  ...
+# Subtest: default argument reads the host timezone: northern host
+ok 96 - default argument reads the host timezone: northern host
+  ---
+  duration_ms: 201.540297
+  type: 'test'
+  ...
+# Subtest: the static table agrees with every zone in the host tz database
+ok 97 - the static table agrees with every zone in the host tz database
+  ---
+  duration_ms: 5.96508
+  type: 'test'
+  ...
+# Subtest: explicit argument always beats the host timezone
+ok 98 - explicit argument always beats the host timezone
+  ---
+  duration_ms: 47.370325
+  type: 'test'
+  ...
+# Subtest: bin.moon resolves to the exact file test/cli.test.js actually spawns
+ok 99 - bin.moon resolves to the exact file test/cli.test.js actually spawns
+  ---
+  duration_ms: 2.315625
+  type: 'test'
+  ...
+# Subtest: main resolves to the exact module test/astro.test.js actually requires
+ok 100 - main resolves to the exact module test/astro.test.js actually requires
+  ---
+  duration_ms: 0.780395
+  type: 'test'
+  ...
+# Subtest: declares zero runtime and zero dev dependencies
+ok 101 - declares zero runtime and zero dev dependencies
+  ---
+  duration_ms: 0.219183
+  type: 'test'
+  ...
+# Subtest: every files[] allowlist entry exists on disk
+ok 102 - every files[] allowlist entry exists on disk
+  ---
+  duration_ms: 0.281152
+  type: 'test'
+  ...
+# Subtest: every module reachable from bin.moon and main lives under a files[] entry
+ok 103 - every module reachable from bin.moon and main lives under a files[] entry
+  ---
+  duration_ms: 3.388042
+  type: 'test'
+  ...
+# Subtest: help does not mis-describe phaseAngle, and warns about the inverse
+ok 104 - help does not mis-describe phaseAngle, and warns about the inverse
+  ---
+  duration_ms: 52.31134
+  type: 'test'
+  ...
+# Subtest: applying the textbook formula to phaseAngle really does invert illumination
+ok 105 - applying the textbook formula to phaseAngle really does invert illumination
+  ---
+  duration_ms: 71.373672
+  type: 'test'
+  ...
+# Subtest: single-digit full-moon days keep their leading pad
+ok 106 - single-digit full-moon days keep their leading pad
+  ---
+  duration_ms: 75.038476
+  type: 'test'
+  ...
+# Subtest: block next-full-moon line aligns with the block label column
+ok 107 - block next-full-moon line aligns with the block label column
+  ---
+  duration_ms: 91.568334
+  type: 'test'
+  ...
+# Subtest: help stays within 80 columns
+ok 108 - help stays within 80 columns
+  ---
+  duration_ms: 58.246643
+  type: 'test'
+  ...
+# Subtest: next-full-moon date carries the year when it falls in a later calendar year
+ok 109 - next-full-moon date carries the year when it falls in a later calendar year
+  ---
+  duration_ms: 75.378661
+  type: 'test'
+  ...
+# Subtest: next-full-moon date omits the year when it falls in the current calendar year
+ok 110 - next-full-moon date omits the year when it falls in the current calendar year
+  ---
+  duration_ms: 95.634082
+  type: 'test'
+  ...
+# Subtest: README Install section leads with a command that actually runs
+ok 111 - README Install section leads with a command that actually runs
+  ---
+  duration_ms: 85.391946
+  type: 'test'
+  ...
+# Subtest: README Install section labels every surviving placeholder
+ok 112 - README Install section labels every surviving placeholder
+  ---
+  duration_ms: 1.320966
+  type: 'test'
+  ...
+# Subtest: README zshrc prompt snippet does not use the npx fetch-on-render form
+ok 113 - README zshrc prompt snippet does not use the npx fetch-on-render form
+  ---
+  duration_ms: 0.587783
+  type: 'test'
+  ...
+# Subtest: T-134 — README headline fence matches renderLine(moon, "north")
+ok 114 - T-134 — README headline fence matches renderLine(moon, "north")
+  ---
+  duration_ms: 1.280138
+  type: 'test'
+  ...
+# Subtest: T-134 — README `--block` fence (minus its next-full-moon line) matches renderBlock(moon, "north")
+ok 115 - T-134 — README `--block` fence (minus its next-full-moon line) matches renderBlock(moon, "north")
+  ---
+  duration_ms: 1.82048
+  type: 'test'
+  ...
+# Subtest: T-134 — README north/south sweep table rows are self-consistent and reproducible
+ok 116 - T-134 — README north/south sweep table rows are self-consistent and reproducible
+  ---
+  duration_ms: 25.246883
+  type: 'test'
+  ...
+# Subtest: T-135/T-136 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce
+ok 117 - T-135/T-136 — every sweep-table row is a (name, percent) pair the shipping renderer can actually produce
+  ---
+  duration_ms: 80.837376
+  type: 'test'
+  ...
+# Subtest: renderLine: exact output across the full cycle, northern hemisphere
+ok 118 - renderLine: exact output across the full cycle, northern hemisphere
+  ---
+  duration_ms: 6.14629
+  type: 'test'
+  ...
+# Subtest: renderLine: exact output across the full cycle, southern hemisphere
+ok 119 - renderLine: exact output across the full cycle, southern hemisphere
+  ---
+  duration_ms: 0.560962
+  type: 'test'
+  ...
+# Subtest: renderLine: the southern disc is the northern disc mirrored
+ok 120 - renderLine: the southern disc is the northern disc mirrored
+  ---
+  duration_ms: 1.502146
+  type: 'test'
+  ...
+# Subtest: renderBlock: every southern art row is the northern row mirrored
+ok 121 - renderBlock: every southern art row is the northern row mirrored
+  ---
+  duration_ms: 10.138185
+  type: 'test'
+  ...
+# Subtest: renderLine: a moon and its mirror image render the same disc in opposite hemispheres
+ok 122 - renderLine: a moon and its mirror image render the same disc in opposite hemispheres
+  ---
+  duration_ms: 0.480787
+  type: 'test'
+  ...
+# Subtest: renderLine: a waxing moon is lit on the right in the north, the left in the south
+ok 123 - renderLine: a waxing moon is lit on the right in the north, the left in the south
+  ---
+  duration_ms: 1.219421
+  type: 'test'
+  ...
+# Subtest: renderLine: a thin crescent still shows a lit limb
+ok 124 - renderLine: a thin crescent still shows a lit limb
+  ---
+  duration_ms: 0.23268
+  type: 'test'
+  ...
+# Subtest: renderLine: a hair-thin 0.65%-illuminated crescent still shows a hairline limb, not a dark disc
+ok 125 - renderLine: a hair-thin 0.65%-illuminated crescent still shows a hairline limb, not a dark disc
+  ---
+  duration_ms: 0.241735
+  type: 'test'
+  ...
+# Subtest: no output anywhere contains an emoji codepoint
+ok 126 - no output anywhere contains an emoji codepoint
+  ---
+  duration_ms: 83.892796
+  type: 'test'
+  ...
+# Subtest: no output contains a moon emoji or a variation selector
+ok 127 - no output contains a moon emoji or a variation selector
+  ---
+  duration_ms: 3.438699
+  type: 'test'
+  ...
+# Subtest: renderLine emits only geometric block glyphs, digits, letters and spaces
+ok 128 - renderLine emits only geometric block glyphs, digits, letters and spaces
+  ---
+  duration_ms: 0.894624
+  type: 'test'
+  ...
+# Subtest: no exclamation marks anywhere — this is a readout, not a greeting
+ok 129 - no exclamation marks anywhere — this is a readout, not a greeting
+  ---
+  duration_ms: 1.709786
+  type: 'test'
+  ...
+# Subtest: renderLine is exactly one line with no trailing newline
+ok 130 - renderLine is exactly one line with no trailing newline
+  ---
+  duration_ms: 0.445971
+  type: 'test'
+  ...
+# Subtest: renderLine has no trailing whitespace — it goes in a prompt
+ok 131 - renderLine has no trailing whitespace — it goes in a prompt
+  ---
+  duration_ms: 1.495803
+  type: 'test'
+  ...
+# Subtest: renderBlock has no trailing newline and no trailing whitespace on any row
+ok 132 - renderBlock has no trailing newline and no trailing whitespace on any row
+  ---
+  duration_ms: 1.512756
+  type: 'test'
+  ...
+# Subtest: renderLine width is stable as illumination varies
+ok 133 - renderLine width is stable as illumination varies
+  ---
+  duration_ms: 4.117989
+  type: 'test'
+  ...
+# Subtest: renderLine disc is always exactly five cells
+ok 134 - renderLine disc is always exactly five cells
+  ---
+  duration_ms: 0.348972
+  type: 'test'
+  ...
+# Subtest: renderLine columns line up across every phase name
+ok 135 - renderLine columns line up across every phase name
+  ---
+  duration_ms: 0.20259
+  type: 'test'
+  ...
+# Subtest: renderBlock: exact output for a waxing crescent, both hemispheres
+ok 136 - renderBlock: exact output for a waxing crescent, both hemispheres
+  ---
+  duration_ms: 0.299919
+  type: 'test'
+  ...
+# Subtest: renderBlock: exact output for a waning gibbous, both hemispheres
+ok 137 - renderBlock: exact output for a waning gibbous, both hemispheres
+  ---
+  duration_ms: 0.257547
+  type: 'test'
+  ...
+# Subtest: renderBlock: exact output for new and full
+ok 138 - renderBlock: exact output for new and full
+  ---
+  duration_ms: 0.238881
+  type: 'test'
+  ...
+# Subtest: renderBlock: a hair-thin crescent stays continuous down the limb
+ok 139 - renderBlock: a hair-thin crescent stays continuous down the limb
+  ---
+  duration_ms: 0.272745
+  type: 'test'
+  ...
+# Subtest: renderBlock: every block is the same size, whatever the phase
+ok 140 - renderBlock: every block is the same size, whatever the phase
+  ---
+  duration_ms: 1.655662
+  type: 'test'
+  ...
+# Subtest: renderBlock: the frame is closed on all four sides
+ok 141 - renderBlock: the frame is closed on all four sides
+  ---
+  duration_ms: 0.288246
+  type: 'test'
+  ...
+# Subtest: renderBlock reports the same phase and illumination as renderLine
+ok 142 - renderBlock reports the same phase and illumination as renderLine
+  ---
+  duration_ms: 1.575317
+  type: 'test'
+  ...
+# Subtest: illumination is printed as a whole percent — no spurious decimals
+ok 143 - illumination is printed as a whole percent — no spurious decimals
+  ---
+  duration_ms: 0.257527
+  type: 'test'
+  ...
+# Subtest: an unknown hemisphere value renders as northern
+ok 144 - an unknown hemisphere value renders as northern
+  ---
+  duration_ms: 0.313905
+  type: 'test'
+  ...
+# Subtest: the whole cycle renders without throwing and never widens the disc
+ok 145 - the whole cycle renders without throwing and never widens the disc
+  ---
+  duration_ms: 8.628174
+  type: 'test'
+  ...
+# Subtest: KI-5 pin: disc glyph set matches the documented East Asian Width partition
+ok 146 - KI-5 pin: disc glyph set matches the documented East Asian Width partition
+  ---
+  duration_ms: 20.717952
+  type: 'test'
+  ...
+1..146
+# tests 146
+# suites 0
+# pass 146
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2216.614637
+
+--- Arm B summary ---
+exit status: 0 (zero = suite passed, as expected)
+failing test lines (0):
+
+==============================================================================
+VERDICT
+==============================================================================
+Arm A killed the mutant: true
+Arm B (assertion removed) is green again: true
+Attribution confirmed (Arm A red + Arm B green): true
+
+(restored src/render.js and test/render.test.js to original contents)

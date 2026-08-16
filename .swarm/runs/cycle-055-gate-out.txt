@@ -1,0 +1,41 @@
+=== GATE 0: tree shape ===
+git diff --stat (tracked):
+ test/render.test.js | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+L1 site occurrences in src/render.js: 1
+
+=== GATE 1: witness re-derivation on the pristine tree ===
+truth  renderLine(f=0.025725, k=0.006517, north) = "░░░░▕   1%  waxing crescent"
+fixture consistency: k=(1-cos 2pi f)/2 = 0.006517256 vs fixture 0.006517 (delta 2.56e-7)
+
+=== GATE 2: L1 mutant diverges on the witness ===
+mutant renderLine(same input)             = "░░░░░   1%  waxing crescent"
+DIVERGES: true
+  truth  chars: 2591 2591 2591 2591 2595
+  mutant chars: 2591 2591 2591 2591 2591
+
+=== GATE 3 (ARM A): mutation + new test => must be RED, with names ===
+exit=1 tests=146 pass=145 fail=1
+failing tests (1):
+  not ok 125 - renderLine: a hair-thin 0.65%-illuminated crescent still shows a hairline limb, not a dark disc
+
+=== GATE 4 (ARM B): mutation + HEAD suite (new test absent) => must be GREEN ===
+exit=0 tests=145 pass=145 fail=0
+failing tests (0): (none — L1 survives without the new test)
+
+=== GATE 5: clean tree, unmutated suite ===
+exit=0 tests=146 pass=146 fail=0
+git diff --stat after all gates:
+ test/render.test.js | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+=== VERDICT ===
+  PASS  witness diverges under L1
+  PASS  test asserts the TRUTH string
+  PASS  ARM A red
+  PASS  ARM A attributed to exactly the new test
+  PASS  ARM B green (mutation survives pre-existing suite)
+  PASS  ARM B ran the pre-existing 145 tests
+  PASS  clean suite green at 146
+  PASS  src/render.js unmodified at exit
+T-146 GATE: PASS
