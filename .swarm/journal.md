@@ -7679,7 +7679,7 @@ pick-up for a run 3 is T-155, which needs a posture above trickle or a deliberat
 S-effort pieces; the human items are KI-8 (LICENSE needs a copyright holder), KI-5 (look at
 it in a real terminal), and the paired allowlist-plus-playbook-cull fix.
 
-commit: {COMMIT} "cycle 66: WRAP_UP -- moon improvement run 2 ENDED on the weekly usage cap"
+commit: 2703815 "cycle 66: WRAP_UP -- moon improvement run 2 ENDED on the weekly usage cap"
 next wakeup: none (run complete, wrap_up_complete=true)
 runfile-mirror:
 ```json
