@@ -1207,13 +1207,13 @@
    "status": "todo",
    "deps": [],
    "packages": [],
-   "attempts": 0,
+   "attempts": 1,
    "files_hint": [
     "REPORT.md"
    ],
    "acceptance": "Every citation instance found by the item's own enumeration of REPORT.md points at the exact line currently holding the cited content; the pasted capture is regenerated with documented inputs; the test-count comment in the how-to-run block matches a live suite run. Stale citations are corrected. This item also owns any REPORT.md known-issues row edit that T-162's evidence requires, so T-162 never touches REPORT.md.",
    "model": "sonnet",
-   "notes": "COUNT DISCREPANCY ON RECORD, not resolved in the item's favour: the PLAN seat claimed 15 citation instances; the conductor's own grep measured 13 extension-bearing instances (REPORT.md:173, :174 x2, :183 x2, :238 x3, :239 x3, :240 x2) plus whatever bare `:NNN` shorthand sits on :183, which the conductor's regex could not count. The acceptance clause is therefore written against the item's OWN enumeration rather than against either number \u2014 a disputed count must not become the gate. Traces to failed-doc-claim."
+   "notes": "COUNT DISCREPANCY ON RECORD, not resolved in the item's favour: the PLAN seat claimed 15 citation instances; the conductor's own grep measured 13 extension-bearing instances (REPORT.md:173, :174 x2, :183 x2, :238 x3, :239 x3, :240 x2) plus whatever bare `:NNN` shorthand sits on :183, which the conductor's regex could not count. The acceptance clause is therefore written against the item's OWN enumeration rather than against either number \u2014 a disputed count must not become the gate. Traces to failed-doc-claim. || ATTEMPT 1 FAILED THE GATE, cycle 71 (evidence: .swarm/runs/cycle-071-verify-T160.txt); REPORT.md reverted to HEAD in full, tree clean, 155/155 green. Three of four sub-goals were independently confirmed CORRECT and are recorded in that file so attempt 2 reproduces them fast: (1) the conductor s own enumeration also found 15 citation instances (13 named + 2 bare `:NNN`), settling the count dispute in the PLAN seat s favour -- the earlier grep s 13 missed exactly the two bare shorthands -- and all 15 hold, with the single correction README:184 -> README:194 independently confirmed genuine; (2) the regenerated capture was byte-identical to the binary under cat -A, no T-159-class indent drift; (3) 148 -> 155 matches a live suite run. IT FAILED ON THE KI-2 ROW: the rewrite re-asserted that run 2 sent ZERO pushes and the :374 stats row invented a cause for that zero (\"run 2 s invocations used forms that did not match that entry (e.g. absolute paths)\"). Both false. Run 2 s archived notify log (runs/notify.log.1786947423, archived 06:17:03Z = run 2 s wrap-up exactly) shows FOUR successful sends inside its first 31 minutes: auto-kickoff 13:20:10, goodnight 13:29:47, phase-change 13:38:01, phase-change 13:50:41 -- then silence for ~16h including no wrap-up push. ATTEMPT 2 MUST write \"sent 4, then stopped\", never a zero, and must NOT assert why it stopped: no evidence on hand establishes that, in either direction. This is the run s second genuine failed doc claim (T-159 found the first)."
   },
   {
    "id": "T-161",
@@ -1241,14 +1241,15 @@
    "priority": 5,
    "value": "M",
    "effort": "S",
-   "status": "todo",
+   "status": "done",
    "deps": [],
    "packages": [],
    "attempts": 0,
    "files_hint": [],
    "acceptance": "The journal carries a verbatim transcript of one live invocation of each degraded path (budget probe, notify send, playbook append) from this run's environment: either the exact refusal as currently emitted, or the successful output proving the gap closed. No repo file is edited by this item; any REPORT.md known-issues row change rides in T-160's scope.",
    "model": "sonnet",
-   "notes": "CONDUCTOR-EXECUTED INLINE \u2014 no agent dispatch: the item is a permission-boundary measurement, and an agent cannot measure the conductor's own tool surface. Three of the required invocations were ALREADY made at this run's kickoff and refused (playbook parse, budget probe, and the sanctioned settings.json edit); the notify SEND path succeeded in the relative form (runs/notify.log 16:12:17 `send goodnight ok`), which is new information versus run 2's report. The item exists to complete the set and to state plainly that routing around the denial via python3/node \u2014 both allowlisted \u2014 was considered and refused. Traces to failed-doc-claim (REPORT.md's KI-2 row asserts a current status only a live invocation can re-verify)."
+   "notes": "CONDUCTOR-EXECUTED INLINE \u2014 no agent dispatch: the item is a permission-boundary measurement, and an agent cannot measure the conductor's own tool surface. Three of the required invocations were ALREADY made at this run's kickoff and refused (playbook parse, budget probe, and the sanctioned settings.json edit); the notify SEND path succeeded in the relative form (runs/notify.log 16:12:17 `send goodnight ok`), which is new information versus run 2's report. The item exists to complete the set and to state plainly that routing around the denial via python3/node \u2014 both allowlisted \u2014 was considered and refused. Traces to failed-doc-claim (REPORT.md's KI-2 row asserts a current status only a live invocation can re-verify). DONE cycle 71: conductor-executed inline. Full verbatim transcript in .swarm/runs/cycle-071-verify-T162.txt. Budget probe DENIED in 3 forms (env-prefixed absolute, bare absolute, bare relative) -- 5th consecutive refusal. Playbook DENIED for parse AND for the literal WRAP_UP append form; the refusal lands on the command token before any argument, so it is argument-independent. Notify is NOT degraded: bin/swarm-notify.sh poll ran live at 17:56:34 and this run has two successful sends on record (goodnight 16:12:17, posture 16:34:47). NEW MEASUREMENT no prior run had -- a 2x2 on one script isolating the two confounded causes: a `bash ` prefix breaks the match (no Bash(bash:*) entry) AND the only absolute entry is a macOS path. Exact handoff patch written; routing around the denial via allowlisted python3/node was considered and REFUSED, and that refusal is on the record rather than silent.",
+   "verified_cycle": 71
   },
   {
    "id": "T-163",

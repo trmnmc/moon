@@ -3,7 +3,7 @@
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
  "phase": "BUILD",
- "cycle": 70,
+ "cycle": 71,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -648,6 +648,10 @@
    "what": "wave assembly must test for TEST-scope collision, not just files_hint collision",
    "why": "The cycle-70 gate's first run returned two spurious FAILs. T-158 (test/cli.test.js) and T-159 (README.md) had pairwise-disjoint files_hint - exactly what cycle.md step 4 requires - yet were not independent: test/regressions.test.js's T-134 tests READ README.md and compare it to live renderLine/renderBlock output, so a mid-edit README made pre-existing tests fail inside another item's verification arms and destroyed kill-attribution. Fixed by pinning README.md to HEAD in every gate scratch tree. The general rule: before composing a wave, check whether any test in the suite reads a file another item in the same wave writes.",
    "evidence": ".swarm/runs/cycle-070-verify-T158.txt (both the discarded contaminated run and the final isolated run are recorded)"
+  },
+  {
+   "cycle": 71,
+   "what": "A doc-truth item that replaces a wrong claim with a wrong claim PLUS a fabricated cause fails the gate whole, with no partial credit for its correct parts. T-160 got 3 of 4 sub-goals independently confirmed right, then re-asserted a false \"run 2 sent zero pushes\" and invented a mechanism to explain the zero. Committing the good 3 would have shipped the fabrication alongside them inside the one document whose premise is the VERIFIED-vs-CLAIMED distinction. Reverted in full; the confirmed sub-results are preserved as evidence text so attempt 2 costs minutes, not a cycle."
   }
  ],
  "known_issues": [
@@ -659,7 +663,9 @@
    "recurred_cycle": 21,
    "root_cause_cycle": 35,
    "remeasured_cycle": 66,
-   "sanctioned_repair_denied_runs": 3
+   "sanctioned_repair_denied_runs": 3,
+   "status": "open, re-measured cycle 71",
+   "what": "SWARM allowlist gap, root cause now MEASURED not inferred: the allowlist matches the literal leading command token. swarm-budget.sh and swarm-playbook.sh have no entry at any path (denied in every form tried). swarm-notify.sh works ONLY as the bare relative form -- a `bash ` prefix breaks it (no Bash(bash:*) entry) and the sole absolute entry is a macOS path. Notify is therefore NOT degraded on this host; budget and playbook are. Exact handoff patch in .swarm/runs/cycle-071-verify-T162.txt; a human must apply it (hard rule 5)."
   },
   {
    "id": "KI-4",
@@ -697,20 +703,20 @@
   "last_look_cycle": 1,
   "last_taste_cycle": 1,
   "last_review_fix_cycle": 23,
-  "last_build_wave_cycle": 70
+  "last_build_wave_cycle": 71
  },
  "counters": {
   "consecutive_no_value": 0,
   "consecutive_failures": 0,
-  "k_current": 4,
-  "wave_streak": 1,
+  "k_current": 3,
+  "wave_streak": 0,
   "window_tokens_attributed": 0
  },
  "last_cycle": {
-  "cycle": 70,
-  "work": "build-wave k=3 (T-158, T-159, T-161)",
-  "outcome": "3 verified",
-  "ts": 1786988896
+  "n": 71,
+  "work": "T-162 KI-2 live re-measurement (conductor inline) + T-160 REPORT.md doc re-verification (1 haiku builder)",
+  "outcome": "1 verified, 1 FAILED the gate and reverted",
+  "ts": 1786990049
  },
  "run_label": "improve-3",
  "resolved_issues": [

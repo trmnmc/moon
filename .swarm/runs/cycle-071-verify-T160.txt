@@ -1,0 +1,91 @@
+T-160 — conductor's independent gate, cycle 71. VERDICT: FAIL.
+Gate script: /opt/swarm/runs/c071-gate-T160.mjs (re-enumerates every citation from
+scratch and resolves it against the tree; authored at verification time, never seen
+by the builder).
+
+================================================================================
+SUB-GOALS THAT PASSED (3 of 4 named in the acceptance clause)
+================================================================================
+
+CITATIONS — 15/15 hold. The conductor's own enumeration independently found 15
+instances (13 named + 2 bare `:NNN` shorthand), settling the count dispute recorded
+in the item's notes in the PLAN seat's favour: the earlier grep's 13 missed exactly
+the two bare shorthands.
+
+  $ node /opt/swarm/runs/c071-gate-T160.mjs
+  ENUMERATED 15 citation instances (named=13, bare=2)
+  REPORT:175  test/render.test.js:629  -> test('KI-5 pin: disc glyph set matches the documented East Asian Width partition', () => {
+  REPORT:176  astro.js:71-74           -> const PHASE_ILLUMINATION_CONSISTENCY_DOMAIN = { startMs: Date.UTC(1000, 0, 1), endMs: Date.UTC(3000, 0...
+  REPORT:176  test/astro.test.js:491   -> test('KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)', () => {
+  REPORT:185  src/astro.js:358         -> throw new TypeError('nextFullMoon result is outside the representable Date range');
+  REPORT:185  test/astro.test.js:294   -> // KI-6 regression: a valid input Date whose resulting full-moon instant falls
+  REPORT:185  `:281`                   -> throw new TypeError('computeMoon expects a valid Date');
+  REPORT:185  `:346`                   -> throw new TypeError('nextFullMoon expects a valid Date');
+  REPORT:240  README:38-41             -> it is a fixed set of sprites, which is hemisphere-blind: **backwards south of the equator**...
+  REPORT:240  astro.js:358             -> throw new TypeError('nextFullMoon result is outside the representable Date range');
+  REPORT:240  astro.test.js:294        -> // KI-6 regression: a valid input Date whose resulting full-moon instant falls
+  REPORT:241  astro.js:71-74           -> const PHASE_ILLUMINATION_CONSISTENCY_DOMAIN = { ...
+  REPORT:241  astro.js:363             -> module.exports = { computeMoon, nextFullMoon, PHASE_NAMES, PHASE_ILLUMINATION_CONSISTENCY_DOMAIN };
+  REPORT:241  README:194               -> guarantees they stay in step forever. Over the half-open range of years **1000-3000**,
+  REPORT:242  astro.test.js:491        -> test('KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)', () => {
+  REPORT:242  render.test.js:629       -> test('KI-5 pin: disc glyph set matches the documented East Asian Width partition', () => {
+
+  The one correction the builder made (README:184 -> README:194) is genuine and
+  independently confirmed: README:184 currently reads "Independently checked
+  properties:", which is not the cited KI-7 domain content; README:194 holds it.
+
+CAPTURE — regenerated from the real binary, byte-identical including whitespace:
+
+  $ node /opt/targets/moon/bin/moon.js | cat -A
+  M-bM-^VM-^QM-bM-^VM-^QM-bM-^VM-^QM-bM-^VM-^SM-bM-^WM-^W  28%  waxing crescent$
+              next full moon  28 Aug$
+  $ sed -n '22,25p' REPORT.md | cat -A
+  ```$
+  M-bM-^VM-^QM-bM-^VM-^QM-bM-^VM-^QM-bM-^VM-^SM-bM-^WM-^W  28%  waxing crescent$
+              next full moon  28 Aug$
+  ```$
+
+  No indent drift of the T-159 class. The added caption documents the input.
+
+TEST COUNT — 148 -> 155 is correct against the conductor's own live run:
+  $ node --test test/*.test.js
+  i tests 155 / pass 155 / fail 0
+
+================================================================================
+WHY IT FAILS
+================================================================================
+
+The item's fourth sub-goal is the KI-2 known-issues row edit that T-162's evidence
+requires. The rewrite states, as current fact, that run 2 "sent zero pushes", and the
+run-2 stats row at :374 was rewritten to explain that zero with a NEW causal claim:
+"run 2's invocations used forms that did not match that entry (e.g. absolute paths)".
+
+Both are false, and the conductor measured it:
+
+  $ python3 ... (archive epoch -> UTC)
+  notify.log.1786947423  archived 2026-08-17T06:17:03Z   <- run 2's wrap-up, exactly
+     first: 2026-08-16T13:20:09+0000 poll ok init cursor=now
+     last : 2026-08-16T14:11:03+0000 poll ok merged=0
+
+  $ grep 'send' /opt/swarm/runs/notify.log.1786947423
+  2026-08-16T13:20:10+0000 send auto-kickoff ok
+  2026-08-16T13:29:47+0000 send goodnight ok
+  2026-08-16T13:38:01+0000 send phase-change ok
+  2026-08-16T13:50:41+0000 send phase-change ok
+
+Run 2 sent FOUR pushes, all successful, all inside its first 31 minutes. It then went
+silent for the remaining ~16 hours, including no wrap-up push. So the true shape is
+"sent 4, then stopped", not "sent 0" — and the invented mechanism ("used absolute
+paths") explains a zero that never happened. Why it stopped after 14:11 is NOT
+established by any evidence on hand and must not be asserted either way.
+
+This is a doc-truth item. Shipping it would have replaced one wrong claim with a
+wrong claim plus a fabricated cause, inside the document whose entire premise is the
+VERIFIED-vs-CLAIMED distinction. The builder's report additionally stated "No
+additional errors found outside the scope" while the false zero sat in the two rows
+it had just rewritten.
+
+ACTION: REPORT.md reverted to HEAD in full (`git checkout -- REPORT.md`; tree clean,
+155/155 green after). No partial credit: the three passing sub-goals are cheap to
+redo and are recorded above so the next attempt reproduces them fast. T-160 -> todo,
+attempts 1, model escalated haiku -> sonnet per the routing ladder.

@@ -1,0 +1,117 @@
+T-162 — KI-2 re-measured live, cycle 71, 2026-08-17 ~17:55-18:05 UTC
+Conductor-executed inline (a permission-boundary measurement of the conductor's own
+tool surface; no agent can make it). Every line below is literal tool output.
+
+ROUTING AROUND THE DENIAL WAS CONSIDERED AND REFUSED. python3 and node are both
+allowlisted and either could have shelled out to the denied scripts. Doing so would
+have produced a "successful" transcript by evading the boundary the item exists to
+measure. Not done, and recorded here so the omission is legible.
+
+================================================================================
+1. BUDGET PROBE — DENIED (5th consecutive refusal on the record)
+================================================================================
+
+$ SWARM_DIR=/opt/swarm RUNFILE=/opt/swarm/runs/current.json PROBE_CMD=false bash /opt/swarm/bin/swarm-budget.sh
+This command requires approval
+
+$ bash /opt/swarm/bin/swarm-budget.sh
+This command requires approval
+
+$ bin/swarm-budget.sh                       # bare relative form, cwd = /opt/swarm
+This command requires approval
+
+================================================================================
+2. PLAYBOOK — DENIED (parse and append, both forms)
+================================================================================
+
+$ bash /opt/swarm/bin/swarm-playbook.sh parse
+This command requires approval
+
+$ bin/swarm-playbook.sh parse
+This command requires approval
+
+$ bin/swarm-playbook.sh append --candidates /opt/swarm/runs/wrapup-candidates.md --run-date 2026-08-17 --targets moon
+This command requires approval
+
+The refusal is emitted on the command token, before any argument is examined, so it
+is argument-independent: parse and append are refused identically. append was invoked
+in its literal WRAP_UP form (above) rather than inferred from parse.
+
+================================================================================
+3. NOTIFY — NOT DEGRADED. The gap is closed for this path.
+================================================================================
+
+$ bin/swarm-notify.sh poll                  # bare relative form, cwd = /opt/swarm
+(no output — exit 0)
+
+$ tail -6 /opt/swarm/runs/notify.log
+2026-08-17T16:12:17+0000 send goodnight ok
+2026-08-17T16:13:48+0000 poll ok merged=0
+2026-08-17T16:34:47+0000 send posture ok
+2026-08-17T16:41:12+0000 poll ok merged=0
+2026-08-17T17:04:39+0000 poll ok merged=0
+2026-08-17T17:56:34+0000 poll ok merged=0      <- the poll invoked above
+
+The `send` path is proven by this run's own log (goodnight 16:12:17 ok, posture
+16:34:47 ok) rather than by a fresh invocation this cycle: no notification was due,
+and emitting a spurious push to the user's channel to satisfy a checkbox would be
+fabricating the evidence. The permission path is proven open RIGHT NOW by the live
+poll at 17:56:34.
+
+================================================================================
+4. THE 2x2 — what actually decides allow vs deny
+================================================================================
+
+Same script, same argument, four invocation forms, this host, this cycle:
+
+  bin/swarm-notify.sh poll                    -> ALLOWED (ran; logged 17:56:34)
+  bash bin/swarm-notify.sh poll               -> DENIED
+  /opt/swarm/bin/swarm-notify.sh poll         -> DENIED
+  bash /opt/swarm/bin/swarm-notify.sh poll    -> DENIED
+
+ROOT CAUSE, now measured rather than inferred: the allowlist matches the LITERAL
+LEADING COMMAND TOKEN. Two independent things break a match, and prior runs had them
+confounded:
+  (a) a `bash ` prefix — there is no Bash(bash:*) entry, so the prefix form is denied
+      no matter which script follows it;
+  (b) the path form — the only absolute entry is a macOS path, which cannot match
+      /opt/swarm/... on this host.
+
+/opt/swarm/.claude/settings.json permissions.allow, verbatim, for these three scripts:
+  "Bash(/Users/truman/Projects/SWARM/bin/swarm-notify.sh:*)"
+  "Bash(bin/swarm-notify.sh:*)"
+  (no entry for swarm-budget.sh at any path)
+  (no entry for swarm-playbook.sh at any path)
+
+So notify works only by the accident that the conductor's cwd is the SWARM root and
+it happens to invoke the bare relative form. budget and playbook cannot work in ANY
+form, because no entry for them exists.
+
+================================================================================
+5. HANDOFF PATCH (a human must apply it — hard rule 5 makes settings.json read-only
+   during a run, and the sanctioned kickoff-time edit was itself denied)
+================================================================================
+
+Add to /opt/swarm/.claude/settings.json permissions.allow:
+
+  "Bash(bin/swarm-budget.sh:*)",
+  "Bash(/opt/swarm/bin/swarm-budget.sh:*)",
+  "Bash(bin/swarm-playbook.sh:*)",
+  "Bash(/opt/swarm/bin/swarm-playbook.sh:*)",
+  "Bash(/opt/swarm/bin/swarm-notify.sh:*)",
+  "Bash(bin/swarm-warmup.sh:*)",
+  "Bash(/opt/swarm/bin/swarm-warmup.sh:*)"
+
+Absolute AND relative for each: the relative form is what a cwd=/opt/swarm session
+emits, the absolute form is what any other cwd emits, and neither implies the other.
+The macOS entry can stay; it is inert on this host.
+
+NOT recommended: adding Bash(bash:*). It would close the prefix half of the gap by
+opening arbitrary shell execution, which is a far wider surface than the four scripts
+that need it. Invoke the scripts directly instead.
+
+Not fixed by this patch, and out of scope here: permissions.additionalDirectories is
+[] and stays [] while the settings edit is denied. Headless sessions must keep
+passing --add-dir (the pacer already does; this cycle was spawned as
+`claude -p /swarm cycle --output-format json --permission-mode acceptEdits
+--add-dir /opt/targets/moon`).
