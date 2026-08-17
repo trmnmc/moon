@@ -9664,3 +9664,11 @@ runfile-mirror:
  "watchdog":{"mode":"normal","plist_loaded":true},"caffeinate_pid":0,
  "wrap_up_complete":false,"cycles_since_recycle":9}
 ```
+
+addendum (cycle 75, post-commit): `SWARM/verifier-scratch/` holds ~3.5 MB of untracked
+debris — claim1/2/4/4b.js, moon.tar, moonv/, mut/ — timestamped 19:11-19:13, i.e. cycle 73's
+review-fix verifiers. It sits in the SWARM root, OUTSIDE the runs/ and playbook/ paths the
+self-modification fence (hard rule 5) allows a running conductor to write. So it is recorded
+here and for the morning report rather than cleaned up mid-run: an agent wrote outside the
+fence, and the fence is exactly what stops the conductor from tidying it. Harmless to the
+target; it is SWARM-side only.
