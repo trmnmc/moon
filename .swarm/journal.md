@@ -10390,6 +10390,15 @@ runfile-mirror:
 
 ## cycle 79 | 2026-08-17T22:46:00+00:00 | moon | BUILD
 
+work: build-wave k=2 — T-167 (the `--block` hairline guard breaking a thin crescent into
+  three disconnected specks; attempt 2, route_class=core -> fable) and T-164 (REPORT.md's
+  run-summary block dating improvement run 2 to 13:37 against a measured 13:20:10Z kickoff).
+outcome: BOTH VERIFIED, 0 reverted, suite 161/161 conductor-run. T-167 takes broken-arc
+  renders 116 -> 0 across a 40000-render lunation sweep with the disc never widening and
+  every ordinary illumination byte-identical; T-164's re-derivation found two MORE wrong
+  times in the same block. Both gates needed instrument repairs before they could be
+  trusted — one was vacuous in the PASS direction, the dangerous kind.
+
 build-wave k=2 (gear cap 2 binds; `k_current` is 4). Picked **T-167** (the only
 product-behaviour item left, attempt 2 of 2, flagged `route_class: "core"` -> fable) and
 **T-164** (sonnet). Both verified, zero reverts. `consecutive_no_value` -> 0.
