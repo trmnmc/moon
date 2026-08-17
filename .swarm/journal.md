@@ -7553,3 +7553,135 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-17T04:59:59+00:00","usage_reset_at":"2026-08-17T04:59:59+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1786910430,"next_wakeup_at":1786910520,"pid":1323571,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"clock","gear":1,"gear_target":1,"ratio":0,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786910430,"last_real_probe_ts":1786906571,"probe_failures":8,"gear_evidence":"cycle 65: a real probe WAS due (now 1786909965 - last_real_probe_ts 1786906571 = 3394 s >= 1800) and was ATTEMPTED -- RUNFILE=... bin/swarm-budget.sh was DENIED by the Bash allowlist (KI-2, unchanged since cycle 35), as was bin/swarm-notify.sh poll. A denial is not a probe failure: the script never reached the shell and emitted no probe_ok, so probe_failures holds at 8 and last_real_probe_ts is unchanged; only last_probe_ts moves. Gear 1 held on fresh disk evidence read straight from runs/allocator.json: posture trickle, weekly_used_pct 100.0, opus_used_pct 97, week_elapsed_pct 94.57 (94.16 last cycle, so the file is live), allow_overall_pct 0, allow_premium_pct 0, reserve_overall_pct 16.24, dial 0.30, source probe. week_resets_at 1786942800 == stop_at, so there is no later, richer window worth saving for. Guest clamps 1-3; gear 1 caps the effective wave at 1, which is what ran. Burn rate and projected depletion remain UNAVAILABLE -- no probe has produced burn evidence since the allowlist gap opened, and this cycle does not pretend otherwise. runs/control.json read directly: pending [], applied [], no inject array -- nothing to apply or triage.","weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":97,"week_elapsed_pct":94.57,"weekly_heat":1.064,"opus_heat":1.032,"ceiling":null,"promote_blocked":true,"note":"ceiling stays null because bin/swarm-budget.sh still cannot run (KI-2), so no governor ceiling was emitted this cycle either. Gear 1 rests on the allocator posture, not on the weekly governor."}},"playbook":{"mode":"auto","applied":["L-003","L-006","L-007","L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-034"],"vetoed":[],"inert_for_this_target":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"parse_source":"MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.","inert_note":"The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.","directives":{"wave_k":3,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer — never commit or push yourself"],"reviewer":["The conductor is the SOLE committer — never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer — never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive — a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":17,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+
+## cycle 66 | 2026-08-17T06:17:03+00:00 | moon | WRAP_UP (run END)
+
+work: WRAP_UP, not a work cycle. cycle.md step 1 routes any cycle at now >= stop_at - 900
+here, and now (1786947423) is 4624 s PAST stop_at (1786942799). No item was picked, no
+agent was dispatched, no new code was written.
+
+why this is the first wrap-up attempt at 78 minutes past the stop: the five conductor
+sessions the pacer spawned between 20:08 and 04:15 each died at HTTP 429 in under a second,
+before making a single Agent call. This session (pacer spawn 06:16:57, PID 1350929) is the
+first one past the 05:00 UTC weekly reset, and therefore the first that could run at all.
+
+HOW THE RUN ACTUALLY ENDED (the finding of this cycle, established from disk):
+  runs/pacer.log + runs/cycle-*.json, read directly:
+    2026-08-16T20:02:55  cycle-failed  cycle-1786909959.json  api_error 429  cost $4.3815
+       -> this WAS cycle 65. Its work survived: commit f45f2d6 and its journal block both
+          landed; the session died before step 9. 62 turns, 4.57M cache-read tokens.
+    2026-08-16T20:08:20  cycle-1786910898.json  429  cost $0  num_turns 1
+    2026-08-16T22:10:09  cycle-1786918209.json  429  cost $0
+    2026-08-17T00:11:37  cycle-1786925497.json  429  cost $0
+    2026-08-17T02:13:18  cycle-1786932798.json  429  cost $0
+    2026-08-17T04:15:10  cycle-1786940110.json  429  cost $0
+  every one of the five: result = "You've hit your weekly limit - resets 5am (UTC)",
+  terminal_reason api_error, modelUsage {}, permission_denials [] -- they died BEFORE
+  their first turn, not during one.
+  Lost window: 20:08 -> 05:00 = 8 h 52 m of a 15 h 20 m run budget (58%).
+
+WHY NOTHING NOTICED, stated as a mechanism and not as an excuse: limp mode is entered by
+the tier probe (SKILL.md Limp mode step 1), which is four small Agent calls and therefore
+needs a session alive enough to make them. These sessions never got a turn. So
+heartbeat.limp read false for nine hours while the run was completely dead, and the runfile's
+last word on pacing stayed cycle 65's. The only component that observed all six failures was
+the pacer, and the pacer does not write that flag. heartbeat.limp is NOT being corrected
+retroactively: the field records what the run observed, and it observed nothing. Filed as
+playbook L-037. The adjacent scheduling defect -- stop_at 04:59:59 was set EQUAL to
+week_resets_at 1786942800, so the run spent its whole tail waiting for a reset it was by
+construction not allowed to use -- is filed as L-038.
+
+orient: tree CLEAN at f45f2d6 (git status --porcelain empty), no salvage needed, no stale
+index.lock. runs/control.json read directly: pending [], applied [], no inject array --
+nothing to apply or triage. bin/swarm-notify.sh poll NOT run: still denied by the Bash
+allowlist (KI-2), re-confirmed this cycle, so the file read is the only channel.
+
+VERIFICATION EVIDENCE (conductor-run, this cycle, against the tree as it stands):
+  test_cmd, from /opt/targets/moon:
+    node --test test/*.test.js
+    -> "tests 148 / suites 0 / pass 148 / fail 0 / cancelled 0 / skipped 0 / todo 0"   GREEN
+  definition-of-done checks, authored NOW rather than copied from the backlog:
+    every source file swept?  ls src bin -> bin/moon.js, src/args.js, src/astro.js,
+      src/hemisphere.js, src/render.js = 5 files; swept at cycles 54, 53, 54, 53, 52
+      and 64 respectively. COMPLETE.
+    no dependencies key?  node -e require(./package.json) -> hasOwnProperty(dependencies)
+      = false; devDependencies undefined; license "MIT".   PASS
+    never below the 145 baseline?  148 >= 145.   PASS
+    run_cmd works?  node bin/moon.js -> "___%s  23%  waxing crescent / next full moon  28 Aug"   PASS
+  definition-of-done items NOT met, recorded as not-met rather than waved through:
+    "every HOLE closed by a test proven failable AND attributable" -- THREE measured HOLEs
+    remain open: T-153 (S), T-155 (M), T-156 (S). T-155 is the most severe finding of the
+    whole run (no test compares any --json numeric field against an exact value, so round()'s
+    scale factor is provably invisible to the suite) and was never dispatchable: M-effort,
+    and gear 1 admits S-effort only. It did not lose a priority contest; there was no cycle
+    it could legally run in.
+
+WRAP_UP actions, in cycle.md order:
+  1. commit verified work only: nothing in flight, tree already clean. 5 stale item/wave
+     branches from earlier runs remain unmerged and are listed here rather than tidied:
+     T-105, T-117, cycle-38-T-134, cycle-39-T-135, cycle-40-T-136, cycle-41-T-136,
+     item/T-106, item/T-110, item/T-114, item/T-115, wave-1786742853-T-107.
+  2a. RETRO written to .swarm/RETRO.md. The previous run's retro was NOT overwritten --
+      archived byte-intact to .swarm/RETRO-improve-2026-08-14.md, matching the existing
+      SPEC-improve-2026-08-14.md convention.
+  2b. DISTILL: 5 candidates drafted to SWARM/runs/wrapup-candidates.md with nearest-neighbour
+      dedupe notes. bin/swarm-playbook.sh append DENIED by the allowlist (KI-2) -- the
+      documented manual fallback ran instead: L-037..L-041 appended by hand in v2 grammar,
+      each self-checked against the validator's own regex and text bans (no brackets, no
+      paths, no urls, no target name in <text>), next_id 37 -> 42, byte-exact archive at
+      playbook/learnings.md.pre-wrapup-2026-08-17. The applied.log ledger line for this run
+      -- denied at kickoff, never written -- was appended by hand at the same time.
+      NEW FINDING on the pre-existing cap breach, established by READING bin/swarm-playbook.sh
+      (it has still never been executed on this host): cmd_append validates the EXISTING file
+      at line 186 and exits 2 BEFORE reaching the overflow-drop logic at line 216+. So the
+      documented "drop the oldest non-high-confidence lesson on overflow" rule can never
+      repair an over-cap file; it only ever runs on a file that is already compliant. And the
+      allowlist gap is currently MASKING that deadlock -- because parse is denied, the last two
+      conductors staged directives by hand and bypassed the validator, which is the only reason
+      this run applied 15 lessons at all. Fixing the allowlist ALONE therefore makes the
+      playbook inert on the very next kickoff. Both written into
+      playbook/HANDOFF-cap-2026-08-15.md as a dated addendum. The cull (now 36 -> 20) is still
+      NOT performed: it is a judgement call about the swarm's operating memory and belongs to
+      a human, exactly as the previous conductor argued.
+  3. REPORT.md UPDATED, not regenerated from the template. Regenerating would have destroyed
+     the regenerated command captures that T-147/T-148/T-150 verified this run, which L-036
+     exists to protect. No pasted capture was touched. Added: run-2 header, the sweep table,
+     "Why run 2 stopped", run-2 operational findings, run-2 stats, and two new hand-off items.
+     The one edited annotation is the how-to-run test count 147 -> 148, backed by this cycle's
+     own suite run above.
+  4. git tag v0.1-improve2 (annotated). v0.1-overnight and v0.1.0 already exist and were left
+     untouched -- reusing v0.1-overnight would have silently moved the previous run's marker.
+  5. final dashboard rendered to SWARM/runs/dashboard.html from the template, final mode.
+     Verified after write: 0 unsubstituted placeholders in the body, 0 external refs
+     (artifact CSP), 23 timeline ticks -- 18 cycles plus 5 tick-fail cells for the dead
+     spawns, which are SHOWN rather than omitted -- 18 burn-up bars, 4 evidence lines.
+     Artifact publish skipped: the tool is absent in a headless pacer session, which is not a
+     publish failure, so publish_failures stays 0.
+  6. runfile: wrap_up_complete = true, targets[0].status = done, next_wakeup_at = 0.
+     state.json phase = WRAP_UP, NOT DONE -- the enum has no honest value for "the run ended
+     but the product has open measured holes", and DONE is the label run 1 earned by an empty
+     VALUE_LOOP scan. Using it here would make an interruption and a decision look identical
+     in the record.
+  7. watchdog: systemctl disable --now swarm-watchdog.timer (Linux equivalent of the plist
+     bootout). swarm-pacer.timer disabled too -- it is the component that would otherwise keep
+     spawning cycles against a finished run.
+  8. caffeinate: none to kill. caffeinate_pid is 0 (Linux/VPS; servers do not sleep).
+  9. wrap-up push NOT sent -- bin/swarm-notify.sh is not allowlisted (KI-2), the same gap that
+     sent zero notifications all run. Recorded as not-sent, never as sent. control.json and
+     notify.log archived with an epoch suffix so the next run lazy-inits clean.
+
+outcome: run ENDED. 18 cycles (48-65), 14 items verified, 3 measured HOLEs open, 145 -> 148
+tests, 0 reverts, 0 blocked, 0 items at the attempt cap. ~$103 across the 17 cycles carrying
+a cost line in pacer.log.
+next: NO further wakeups. next_wakeup_at = 0 and both timers are disabled. The highest-value
+pick-up for a run 3 is T-155, which needs a posture above trickle or a deliberate split into
+S-effort pieces; the human items are KI-8 (LICENSE needs a copyright holder), KI-5 (look at
+it in a real terminal), and the paired allowlist-plus-playbook-cull fix.
+
+commit: {COMMIT} "cycle 66: WRAP_UP -- moon improvement run 2 ENDED on the weekly usage cap"
+next wakeup: none (run complete, wrap_up_complete=true)
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"done","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-17T04:59:59+00:00","usage_reset_at":"2026-08-17T04:59:59+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1786948059,"next_wakeup_at":0,"pid":1350929,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"clock","gear":1,"gear_target":1,"ratio":0,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786948059,"last_real_probe_ts":1786906571,"probe_failures":8,"gear_evidence":"cycle 66 WRAP_UP: no probe attempted -- bin/swarm-budget.sh is still denied by the Bash allowlist (KI-2), so probe_failures holds at 8 and last_real_probe_ts is unchanged. The run did not end on a gear decision: it ended on the weekly cap. Cycle 65 took a 429 mid-turn at 20:02 UTC after $4.38 and 62 turns (its commit f45f2d6 and journal block both landed), and the five pacer spawns after it (20:08, 22:10, 00:11, 02:13, 04:15) each died at 429 in under a second with total_cost_usd 0, before any Agent call -- records in runs/cycle-1786910898.json and four siblings. heartbeat.limp stayed false throughout because limp is entered by the tier probe, which needs a session alive enough to make four Agent calls; these sessions never got a turn. Not corrected retroactively: the flag records what the run observed, and it observed nothing. runs/allocator.json now reads weekly_used_pct 0 / source none -- the week reset at 05:00, which is stop_at, so the fresh window belongs to the next run, not this one.","weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":97,"week_elapsed_pct":94.57,"weekly_heat":1.064,"opus_heat":1.032,"ceiling":null,"promote_blocked":true,"note":"ceiling stays null because bin/swarm-budget.sh still cannot run (KI-2), so no governor ceiling was emitted this cycle either. Gear 1 rests on the allocator posture, not on the weekly governor."}},"playbook":{"mode":"auto","applied":["L-003","L-006","L-007","L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-034"],"vetoed":[],"inert_for_this_target":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"parse_source":"MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.","inert_note":"The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.","directives":{"wave_k":3,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer \u2014 never commit or push yourself"],"reviewer":["The conductor is the SOLE committer \u2014 never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer \u2014 never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive \u2014 a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":true,"cycles_since_recycle":17,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

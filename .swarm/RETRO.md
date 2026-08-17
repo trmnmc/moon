@@ -1,182 +1,167 @@
-# moon — run retro (improvement run)
+# moon — run retro (improvement run 2)
 
 <!-- Written by /swarm WRAP_UP. Evidence rules apply exactly as in the verification gate:
      every entry cites cycle numbers from .swarm/journal.md. No cycle number, no entry. -->
 
-Run: 2026-08-14 15:32 → 2026-08-15 09:00 UTC (improvement run on shipped v0.1.0) |
-cycles run: 0 (kickoff) → 47 | stop reason: **DONE — VALUE_LOOP candidate scan came back
-empty at cycle 47**, with ~6.5 h of the 15:32 stop budget deliberately unspent.
+Run: 2026-08-16 13:37 → 2026-08-17 06:17 UTC (second improvement run on shipped v0.1.0) |
+cycles run: 48 (kickoff) → 65 | stop reason: **STOPPED SHORT — the weekly usage cap was
+exhausted mid-cycle-65 at 20:02 UTC and every pacer spawn after it died at HTTP 429 until
+the 05:00 UTC weekly reset.** `stop_at` was 04:59:59 UTC, so the run's entire remaining
+window — 20:08 → 05:00, about 8h 50m of a 15h 20m budget — was unreachable. Wrap-up ran
+at 06:17 on the first spawn that got an API turn.
 
-This is a housekeeping run's retro. The product was already shipped; the job was to make
-its claims checkable. Read it as a report on the *verification machinery*, because that is
-where nearly all of this run's real work and all of its real mistakes were.
+This is the second housekeeping retro on a product that was already shipped and already
+housekept. Its subject is measurement: what the suite can and cannot discriminate. Read it
+as a report on the instrument.
 
 ## What worked
 
-- **The gate caught what the builders claimed.** Three build waves were REVERTED on the
-  conductor's own check, never on a builder's report: T-132 (cycle 34), T-134 (cycle 37),
-  T-136 (cycle 40). Each was re-dispatched and passed on the second attempt (cycles 35, 38,
-  41). Authoring the verify check at verification time — after the diff exists, never from
-  the backlog's `acceptance` — is what made those three catchable.
+- **Mutation-measurement found the work; reading the suite never did.** Four sweeps covered
+  every source file in the repo: `src/render.js` (cycle 52, 26 mutants / 19 killed / 7
+  survived), `src/args.js` + `src/hemisphere.js` (cycle 53, 24 / 21 / 3), the `src/astro.js`
+  behaviors outside the T-129 battery (cycle 54, 16 / 8 / 8), and `bin/moon.js` (cycle 64,
+  the last unswept file). Every survivor was classified HOLE or BOUNDARY before anything was
+  hardened, per L-033. The classification carried real weight rather than rubber-stamping:
+  all 8 astro.js survivors were judged BOUNDARY and **no test was written for any of them**
+  (cycle 54), while the three render.js HOLEs (L1/L3/O3, the limb-glyph threshold cascade at
+  thin crescents) became the run's highest-value items. A sweep that produces zero tests is
+  the mechanism working, not failing.
 
-- **Every single failed item recovered; nothing ended blocked.** Nine items carry
-  `attempts: 1` (T-101, T-103b, T-108, T-109, T-124, T-132, T-134, T-136, T-140) and all
-  nine are `done`. Zero items reached `attempts ≥ 2`, so zero items became `blocked` and no
-  `known_issues` entry was opened by the attempt cap all run. One gate failure plus one
-  re-dispatch with the failure's specifics was sufficient every time it was tried.
+- **The two-arm proof is now routine and it is what keeps this run from being churn.** Every
+  test added this run was shown FAILABLE (mutation applied, test present, suite red) *and*
+  ATTRIBUTABLE (same mutation, test removed, suite green): T-149 (cycle 56, Arm B mutant
+  survives 146/146), T-146 (cycle 55), T-154 (cycle 65, run against two independent mutant
+  variants, with the single distinct failing test asserted by name in both A-arms). Three
+  tests were added all run — 145 → 148. The reportable numbers are the ~66 mutants measured
+  and the survivors classified, exactly as the spec demanded, and the count stayed small
+  because most survivors were correctly refused.
 
-- **The attribution discriminator is the strongest verification shape this run produced**
-  (cycle 47). Proving a new test kills a mutant is not enough — it only shows the *suite*
-  fails. The gate ran a second copy, identical mutant, new test removed, and showed the
-  suite go green again. That distinguishes "this test does the work" from "something in the
-  suite happens to be sensitive". It also independently reproduced cycle 46's separate
-  measurement instead of taking it on trust. Cheap: one extra scratch copy.
+- **The gate refuted builders instead of confirming them, and it worked on prose.** Cycle 62
+  is the cleanest case: a haiku builder proposed a README self-check based on top-right vs
+  bottom-right corner alignment, and the gate disproved the observable itself — all six frame
+  glyphs are EAW Ambiguous, so both borders scale together and the corners stay aligned at
+  col 66 of 68; the ragged edge is on the content rows at cols 34–37. The change was
+  discarded rather than patched. L-034's refutation brief earned its keep on a docs item,
+  which is not where it was learned.
 
-- **Filing findings at the gate instead of conductor-patching them.** Standing rule since
-  cycle 7, exercised at cycles 20 (T-116), 32 (T-130), 42 (T-139), 44, 46 (T-142). A
-  conductor who edits the artifact leaves nothing independent checking the conductor's own
-  wording. The cost is a backlog with cosmetic residue in it; the benefit is that every
-  wording claim in the repo was checked by something other than its author.
+- **Every gate failure recovered on one retry, at one rung up.** Two items failed (T-148 at
+  cycle 58 on 1 of 11 regenerated figures; T-151 at cycle 62) and both passed on their sonnet
+  retry (cycles 59, 63). Zero items reached `attempts ≥ 2`, zero became `blocked`, zero
+  `known_issues` were opened by the attempt cap. Two runs in a row now, one failure plus one
+  re-dispatch carrying the failure's specifics has been sufficient every single time.
 
-- **Conductor-inline QA beat dispatching an agent, for this product shape** (cycle 46).
-  For a stdout CLI, the conductor running the real binary is both cheaper and stronger
-  evidence than a subagent's report of having run it. That cycle spent zero agent tiers and
-  produced 28 end-to-end checks — the only reason an M-effort item was affordable at gear 1.
+- **The conductor's own instrument was debugged in the open rather than around.** Cycle 65's
+  gate went through four harness versions before it produced a trustworthy answer — v1 called
+  a non-existent method, v2 silently ran a 134-test subset because the file list was
+  hand-enumerated instead of globbed, v3 parsed only the TAP `not ok` form while this Node
+  emits the spec reporter's `x name` and returned "(none parsed)" as if that were a result.
+  Each fix was to the harness; no claim, test, or assertion of the item under gate was touched.
+  v3's fix is the transferable one: the parser now THROWS when the failure count is positive
+  but no name parsed, so an unrecognized reporter fails loudly instead of reading as
+  "no attribution". Cycle 57 owns two similar conductor repairs (a true citation
+  `astro.js:363` deleted as "malformed" and restored; a stale ratchet-rejection argument left
+  standing by a swapped todo list).
 
-- **Measuring coverage instead of counting tests.** Cycle 46 ran ten mutants against the
-  shipping suite to find which documented behaviors were actually unprotected; nine were
-  killed, one was not, and that one became T-142 (cycle 47). The item existed because a
-  surface was measured bare, not because someone thought more tests would be good. This is
-  the mechanism that let the run honor "test count is not an outcome" while still adding
-  tests.
+- **k=1 waves under gear 1 merged clean 14 times out of 14 dispatches.** Zero merge
+  conflicts, zero reverted merges all run. A single-item wave has no cross-item file
+  contention to get wrong, and at trickle posture it was the only affordable shape anyway.
 
 ## What thrashed
 
-- **My own instruments were narrower than the thing they measured — six times**
-  (cycles 37, 42, 44, 45, 46, 47). The cycle-47 instance is the clearest: the gate staged
-  its scratch copy from an enumerated file list (bin/ + src/ + test/ + package.json +
-  README.md), but `contracts.test.js` resolves paths against the repo root and reads
-  CONTRACTS.md, so it aborted as a whole file in *both* the mutant and control arms
-  (137/135/2 and 136/135/1) and the gate printed `VERDICT: FAIL` on correct work.
-  — why: an enumerated copy is a *guess at* the repo, and the guess silently omits whatever
-  the enumerator didn't think of. A scratch copy has to BE the repo. Six instances of the
-  same shape is not six accidents; it is the dominant failure mode of this run, and it
-  always presents as the artifact being wrong when the measurement is wrong.
+- **The run lost 58% of its wall-clock budget to the weekly cap, and no in-run mechanism
+  noticed.** Cycle 65 hit 429 at 20:02 UTC after $4.38 and 62 turns; its journal block and
+  commit `f45f2d6` landed, but the turn died before step 9. The pacer then spawned five more
+  conductors (20:08, 22:10, 00:11, 02:13, 04:15) and every one died at 429 in under a second,
+  `total_cost_usd: 0`, before its first Agent call — records in
+  `SWARM/runs/cycle-{1786910898,1786918209,1786925497,1786932798,1786940110}.json`.
+  Why the machinery was blind: limp mode is entered by the **tier probe** (SKILL.md Limp
+  mode), which requires a conductor session that lives long enough to make four Agent calls.
+  These sessions never got a turn, so `heartbeat.limp` stayed `false` for nine hours and the
+  runfile's last word on pacing is still cycle 65's. The gap is structural — the only
+  component that observed all six failures was the pacer, and the pacer does not write
+  `limp`. (cycles 65 → wrap-up)
 
-- **Trend claims from two data points, twice** (cycles 45, 46, 47). Cycle 45 recorded that
-  two cycles of widening margin "confirm the cycle-43 rise was a fluctuation". Cycle 46
-  measured the margin narrowing to tighter than cycle 43 and retracted it. Cycle 47 saw it
-  widen again (1.0641 → 1.0737 → 1.0706) and deliberately did *not* reinstate the
-  conclusion. — why: two readings of a noisy series is not a direction, and the pull to
-  write a tidy narrative into a log is strongest exactly when the numbers are boring.
+- **The budget probe has not produced a real reading since cycle 35 and the gear was never
+  actually measured.** `probe_failures` sat at 8 with `last_real_probe_ts` frozen at
+  1786906571; gear 1 was held for all 18 cycles on `runs/allocator.json` posture read straight
+  off disk, never on burn evidence. Cycle 65's `gear_evidence` states this plainly rather than
+  dressing a clock-cruise as a measurement, which is the right behavior — but it means the run
+  had no idea how close it was to the wall it then hit. Why: KI-2, unchanged since cycle 35 —
+  `SWARM/.claude/settings.json` allows `Bash(bin/swarm-notify.sh:*)` (relative) and
+  `Bash(/Users/truman/Projects/SWARM/bin/swarm-notify.sh:*)` (the macOS path), and neither
+  matches `/opt/swarm/bin/…` on this VPS; `swarm-playbook.sh` and `swarm-budget.sh` have no
+  entry at any path. Hard rule 5 forbids the conductor from fixing it mid-run, so it has now
+  degraded three consecutive artifacts: the budget probe, the notification channel, and this
+  wrap-up's playbook append. (cycles 35 → 65)
 
-- **A naive mutation generator produced false survivors** (cycle 42 → T-139). The generator
-  treated every adjacent phase-name retype as a lie, but at the 0% and 100% endpoints the
-  disc and percentage are identical across adjacent names, so three "survivors" were the
-  check correctly accepting reachable output. — why: the generator didn't model endpoint
-  indiscriminability, so it could not tell a hole from a boundary. The hazard it leaves
-  behind is concrete: the next person to mutation-test that check reads three correct
-  passes as three holes and "hardens" it into false-rejecting honest output.
+- **A gate failure and a budget posture gave contradictory orders on docs items, and the
+  collision recurred.** The routing ladder escalates haiku→sonnet after a failed attempt while
+  gear-1 demotion pushes docs items sonnet→haiku; applied in sequence they return the item to
+  the tier that just failed. Ruled at cycle 2 (evidence beats posture) and exercised again at
+  cycle 62→63 for T-151. Why it thrashes: both rules are correct in isolation and neither
+  text mentions the other, so it is re-derived from scratch each time it fires.
 
-- **Cosmetic residue accumulated in the backlog and never cleared** (T-116 from cycle 20,
-  T-130 from cycle 32, T-139 from cycle 42). Each was correctly ratchet-rejected at filing
-  and re-rejected at cycles 21, 22 and 47. — why: the file-don't-patch rule has no disposal
-  path for a finding that is real, true, and not worth building. Three items sat todo for
-  27 cycles, and each VALUE_LOOP scan paid to re-adjudicate them. Not a defect, but the
-  ratchet should be able to say "correct and declined" once, not every cycle.
+- **One no-value cycle, honestly counted.** Cycle 60's inline PLAN filed two candidates and
+  verified nothing, so `consecutive_no_value` went 0 → 1 (reset at cycle 61). It also closed
+  the CI nice-to-have on live evidence — five green Actions runs, checked by querying the
+  runs rather than by reading the workflow file into a conclusion.
+
+- **The known-issues surface is now the run's largest untouched liability, by design.** Three
+  measured HOLEs are still open (T-153 `--block` + `--compact` interaction, T-155 the M25
+  family where the illumination precision guard is provably blind forever to a scale-factor
+  mutation, T-156 the unpinned `moon: ` stderr prefix). T-155 is the most severe finding of
+  the entire sweep and is M-effort, which gear 1 never admitted. Why: not thrash but a
+  posture consequence — at trickle with `allow_premium_pct: 0`, an M-effort item had no cycle
+  it could be dispatched in, and the gear never rose because the window never refilled.
 
 ## Pacing honesty
 
-- Governor clamps: **0 cycles**. `weekly_heat` never reached the 1.1 threshold — measured
-  1.065 (c41), 1.060 (c42), 1.0641 (c44), 1.0737 (c46), 1.0706 (c47) — so the governor was
-  disengaged throughout and `ceiling: 5` was never the binding constraint.
-- Ceilings hit: **none**. Full-mode overrides: **0** (mode was `guest` all run).
-- Promote-rung promotions: **0**. `opus_heat` sat at 1.30–1.33 against a 1.2 threshold, so
-  `promote_blocked` was true every cycle the gear was computed.
-- **What actually bound the run was the allocator's `trickle` posture plus the guest 1–3
-  clamp**, which pinned gear 1 / k_cap 1 for the entire observed tail. `week_resets_at`
-  (1786942799) falls after `stop_at` (1786807947), so gear 1 was *structural* — no amount
-  of cooling could have lifted it before the run ended. Every "the heat moved" note in the
-  journal is therefore an observation, not a decision input.
-- Underused windows: **none to report, and the honest framing is the opposite** — the run
-  ended with `weekly_used_pct` 79.0 against `week_elapsed_pct` 73.79, i.e. the weekly was
-  running slightly hot, not cold. What went unspent was ~6.5 h of *wall clock*, released by
-  the cycle-47 DONE call rather than by any budget signal.
-- The budget probe was **never invoked, all 47 cycles** (KI-2). `probe_failures` correctly
-  stayed at 34 rather than incrementing, on the rule that an attempt not made is not a
-  failure. Gear came from `runs/allocator.json`, whose freshness was re-checked against
-  `week_elapsed_pct` movement every cycle rather than assumed.
+- Governor clamps: **0** cycles (ceilings hit: none — `weekly.ceiling` stayed `null` all run
+  because `swarm-budget.sh` never executed; the gear rested on allocator posture, not on the
+  governor). Full-mode overrides: **0** (mode `guest`, dial 0.30, gears clamped 1–3).
+  Promote-rung promotions: **0** (`promote: false` throughout; `promote_blocked: true`).
+  Demotions were in force every cycle (`demote: true`), which is why no item this run ran on
+  fable despite L-026 — the routing recommendation was affordable in exactly zero cycles.
+- Underused windows: **none — the opposite failure.** The weekly window reached
+  `weekly_used_pct: 100` / `opus_used_pct: 97` at the last reading (cycle 65) and then hard-
+  stopped the run. Utilization was not the problem; landing the exhaustion 9 hours before
+  `stop_at` was. Effective wave size was 1 in all 18 cycles (gear cap 1 vs `k_current` 5).
 
 ## Config recommendations
 
-- [qa] A new test is not protection until it is shown both FAILABLE and ATTRIBUTABLE: run
-  the mutant with the test present *and* with it removed, and require the suite to go green
-  in the second arm [apply: prompt qa "When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive — a kill you cannot attribute is not evidence."] [confidence: high]
-  (evidence: cycle 47 gate, arms A and B)
-
-- [process] Build a verification scratch copy by copying the whole repo minus .git, never
-  by enumerating the files the test "needs" — path-resolving tests abort in every arm at
-  once and the gate reports a false FAIL on correct work [confidence: high]
-  (evidence: cycle 47 first gate run, 137/135/2 vs 136/135/1; same shape at cycles 37, 42,
-  44, 45, 46)
-
-- [process] Do not record a trend from two readings. Write the reading; write the
-  structural fact that does not depend on the trend; leave the direction unstated until a
-  third point agrees [confidence: med] (evidence: cycles 45 → 46 retraction → 47 non-reinstatement)
-
-- [qa] Before adding tests to a suite believed thin, MEASURE which documented behaviors are
-  unprotected by mutating each one against the existing suite; build only the unkilled ones
-  [apply: prompt qa "Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps."] [confidence: high]
-  (evidence: cycle 46 measured 10 mutants, 9 killed → exactly one item filed, T-142, closed cycle 47)
-
-- [process] When a mutation generator's survivors are reviewed, classify each as hole or
-  BOUNDARY before hardening anything — a survivor at a point where the observable is
-  genuinely indiscriminable is the check being correct [confidence: med]
-  (evidence: cycle 42, three endpoint survivors → T-139)
+- [process] A pacer spawn that dies at HTTP 429 before its first turn is invisible to limp mode — the tier probe needs a session that lives, so the SPAWNER must write `heartbeat.limp` on a usage-shaped launch failure instead of retrying on the same schedule [confidence: high] [source: 2026-08-16 moon] (evidence: cycles 65→wrap-up; five zero-cost 429 spawns, `SWARM/runs/cycle-1786918209.json` and four siblings, `heartbeat.limp` still false at wrap-up)
+- [process] Set a run's `stop_at` strictly INSIDE the weekly reset boundary, never equal to it — a `stop_at` on the boundary spends the whole tail of the run in the emptiest part of the window and cannot benefit from the reset it is waiting for [confidence: med] [source: 2026-08-16 moon] (evidence: `stop_at` 04:59:59 == `week_resets_at` 1786942800; cap hit 20:02, reset 05:00, wrap-up 06:17)
+- [process] Allowlist helper scripts by ABSOLUTE path for the host they run on — a relative `Bash(bin/x.sh:*)` entry silently fails a headless session whose cwd is not the repo root, and the denial reads as a tool failure rather than as a config gap [confidence: high] [source: 2026-08-16 moon] (evidence: KI-2 open since cycle 35, degraded probe + notify + playbook append across two runs)
+- [routing] When a ladder escalation from a FAILED gate meets a gear demotion on the same item, escalation wins — evidence about this item outranks a budget posture, and applying both returns the item to the tier that just failed [confidence: high] [source: 2026-08-16 moon] (evidence: ruled cycle 2, exercised cycle 62→63 for T-151, which then passed)
+- [qa] A conductor verification harness must THROW when it detects failures but parses no failure names — a reporter-format mismatch otherwise returns "no attribution" that reads exactly like a real negative result [confidence: high] [source: 2026-08-16 moon] (evidence: cycle 65 harness v3, spec-reporter `x name` vs TAP `not ok`)
 
 ## House-rules proposals
 
-- [review] A finding that is real, true, and correctly declined should be dispositioned
-  once ("correct and declined") rather than re-adjudicated by every subsequent VALUE_LOOP
-  scan.
-- [docs] A comment that documents why a check ACCEPTS something is worth as much as one
-  documenting why it rejects — it is the only thing standing between the next editor and a
-  false-rejecting "hardening".
+- [docs] A limitation note must give the reader a self-check they can run in their own terminal, and the check's observable must be verified to actually differ under the failure mode — not merely to sound observable (cycle 62).
+- [review] Regenerate captured command output; never hand-edit it, not even to fix an inconsistency you are certain about — file the inconsistency as an item instead (cycle 57, REPORT.md:142 left stale on purpose and pinned into T-148).
 
 ## Applied lessons check
 
-- **L-003** (qa: hand-computed expected outputs): **re-observed** — cycle 46's end-to-end
-  harness derived its hemisphere expectations by parsing README's own north|south table
-  rather than from the renderer, which is the same principle one level up.
-- **L-008** (prompt: conductor is sole committer): **re-observed** — spliced into the
-  cycle-47 builder prompt; verified by `git status` showing an uncommitted ` M
-  test/cli.test.js` and no agent-authored commit, on every wave this run.
-- **L-016** (prompt: pairwise-disjoint fixer file scopes): **not-exercised** — gear 1
-  capped every wave at k=1 from cycle ~34 onward, and no multi-fixer review-fix wave ran
-  after cycle 23. The lesson was staged into reviewer prompts but never had two fixers to
-  separate.
-- **L-023-moon** (qa: brief reviewers to REFUTE): **re-observed** — the cycle-47 builder was
-  explicitly told that reporting "the surface was already pinned" would be doing the job
-  correctly. It confirmed the premise instead, which is a meaningful signal precisely
-  because the opposite was made safe to say.
-- **L-024-moon** (qa: verify with a discriminator, not a remembered reference):
-  **re-observed, and strengthened** — cycle 47's B arm is exactly a discriminator: an
-  observable (mutant survives without the new test) that a degenerate or self-agreeing test
-  could not produce. This run's recommendation above is the next rung of the same idea.
-- **L-026-repo-atlas** (routing: core-logic → fable): **not-exercised** — `promote_blocked`
-  was true every cycle (opus_heat 1.30–1.33 > 1.2), and rewriting the astronomy core was an
-  explicit non-goal, so no core-logic item was ever routed. The directive was staged and
-  never had a candidate.
+- L-003 (qa, hand-computed expectations): re-observed (cycles 50, 61 — the T-150 gate parsed the count out of REPORT.md and matched it against a fresh suite run rather than eyeballing).
+- L-006, L-007, L-011, L-018, L-020, L-021, L-022: **not-exercised** — staged as applied under `apply_mode: auto` but deliberately kept out of `prompt_lines`. All seven instruct browser/React behavior; moon is a zero-dependency terminal CLI with no browser surface.
+- L-008 (conductor is sole committer): re-observed (all 18 cycles — no builder or fixer branch carried a commit the conductor did not make).
+- L-016 (disjoint fixer file scopes): not-exercised — no review-fix pass ran this run; the last was cycle 23, now 42 cycles back.
+- L-024 (verify with a discriminator): re-observed (cycles 56, 61, 65).
+- L-026 (route the correctness core to fable): not-exercised — `demote: true` held every cycle and `allow_premium_pct` was 0; nothing ran on fable. The recommendation is neither confirmed nor contradicted by this run, only unaffordable in it.
+- L-029 (failable AND attributable, two arms): re-observed, three times, and it is the load-bearing rule of the run (cycles 55, 56, 65).
+- L-031 (find surfaces by mutation-measurement): re-observed (cycles 52, 53, 54, 64).
+- L-034 (brief reviewers to REFUTE): re-observed (cycle 62 — the gate disproved the builder's proposed observable instead of checking it).
 
-## Telemetry
+## Telemetry (squeeze slice, 2026-08-14)
 
-- Weekly utilization at wrap-up: **79.0% overall / 96% premium**, against 73.79% of the
-  week elapsed. Premium is the constraint heading into the next run, not overall.
-- Allocator: posture `trickle`, `allow_overall_pct` 0 and `allow_premium_pct` 0 for the
-  entire observed tail — the allowance granted was zero and the run correctly spent only
-  what gear 1 permits (one sonnet S-effort builder per cycle, several cycles at zero agent
-  tiers).
-- Auto-kickoffs: this run was itself an allocator auto-kickoff (`runs/kickoff-hints.json`,
-  `source: allocator`, improvement brief). No 3-strike queue drops observed.
-- Final-hours floor release: **did not fire** — the run reached DONE at 09:00 UTC, ~6.5 h
-  before `stop_at`, so the release window was never entered.
+- Weekly utilization achieved at reset: **100% overall / 97% premium** (last real reading,
+  cycle 65 `weekly` block). The window was fully consumed; it emptied 8h 50m early.
+- Allocator: allowance granted vs burned — posture `trickle` all run, `allow_overall_pct: 0`
+  and `allow_premium_pct: 0` at cycle 65, `reserve_overall_pct: 16.24`, dial 0.30. Burn
+  actually attributed: **unavailable** — no probe produced burn evidence after cycle 35
+  (KI-2). Per-cycle cost is recoverable from `SWARM/runs/pacer.log` `cycle-done cost=` lines:
+  cycles 48–65 ranged $2.32 (cycle 61) to $12.12 (cycle 64), with cycle 65 cut off at $4.38.
+- Auto-kickoffs this run/week: **1** — this run was itself an allocator auto-kickoff under
+  `trickle`. No 3-strike queue drops recorded.
+- Final-hours floor release: **did not fire.** There were no final hours to release into;
+  the cap ended the run at the 20:02 mark.
