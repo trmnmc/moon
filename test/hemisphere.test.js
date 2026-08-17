@@ -209,9 +209,6 @@ test('equator-adjacent zones: South America and the Pacific straddle too', () =>
 });
 
 test('Indian/* is southern except the Maldives', () => {
-  for (const zone of ['Indian/Mahe', 'Indian/Maldives', 'Indian/Comoro', 'Indian/Mayotte', 'Indian/Christmas']) {
-    assert.ok(['north', 'south'].includes(detectHemisphere(zone)));
-  }
   // Male is 4 deg 10' NORTH even though the Maldives chain crosses the equator.
   assert.strictEqual(detectHemisphere('Indian/Maldives'), 'north');
   assert.strictEqual(detectHemisphere('Indian/Mahe'), 'south');

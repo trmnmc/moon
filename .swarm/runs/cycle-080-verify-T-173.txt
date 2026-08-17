@@ -1,0 +1,34 @@
+C1 product-scope files touched: ["test/hemisphere.test.js"]
+ok   C1: only test/hemisphere.test.js changed
+ok   C0: file changed (13705 -> 13519 bytes)
+C2 suite tail:
+ℹ tests 161
+ℹ suites 0
+ℹ pass 161
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3116.867748
+ok   C2: tests 161 / pass 161 / fail 0 — count invariant held
+C3 test() declarations: before=14 after=14
+ok   C3: declaration count unchanged (14)
+C4 extractor self-test on HEAD: pairs=43 missing-known=[]
+ok   C4-self: extractor validated on known-good input (43 pairs found in HEAD)
+C4 pairs: before=43 after=43 lost=[]
+ok   C4: no zone lost its equality check
+ok   C4b: all five Indian/* expectations still asserted by strictEqual
+   [CONTROL unmutated] detectHemisphere('Australia/Sydney')|('Indian/Mahe') = south|south
+   [CONTROL mutated M1] detectHemisphere('Australia/Sydney')|('Indian/Mahe') = north|north
+ok   C5-setup: M1 is PROVEN applied behaviourally: south|south -> north|north
+   [A: HEAD tests + M1] tests=14 pass=4 fail=10 failing=["southern zones across every continent","every Australia/* zone is southern, including the legacy aliases","equator-adjacent zones: Africa straddles, so per-zone reasoning is required","equator-adjacent zones: South America and the Pacific straddle too","Indian/* is southern except the Maldives","legacy top-level aliases","lookup is case-insensitive","default argument reads the host timezone: southern host","the static table agrees with every zone in the host tz database","explicit argument always beats the host timezone"]
+   [B: NEW tests + M1] tests=14 pass=4 fail=10 failing=["southern zones across every continent","every Australia/* zone is southern, including the legacy aliases","equator-adjacent zones: Africa straddles, so per-zone reasoning is required","equator-adjacent zones: South America and the Pacific straddle too","Indian/* is southern except the Maldives","legacy top-level aliases","lookup is case-insensitive","default argument reads the host timezone: southern host","the static table agrees with every zone in the host tz database","explicit argument always beats the host timezone"]
+   [C: extracted loop ONLY + M1] tests=1 pass=1 fail=0 failing=[]
+ok   C5: the removed loop is DECORATION: it PASSES (1/1) against a constant-returning detectHemisphere
+C6 kills lost against M1: []
+ok   C6: M1 still dies (A=10, B=10 failing) and no test stopped catching it
+ok   C6b: the Indian/* test itself still kills the constant-return mutant
+   [CTRL: NEW tests + UNMUTATED src] tests=14 pass=14 fail=0 failing=[]
+ok   C7: control green (14 passing) — the harness is not failing for an unrelated reason
+
+GATE T-173 v2: PASS
