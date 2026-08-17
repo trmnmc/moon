@@ -476,11 +476,11 @@ test('renderBlock: a hair-thin crescent stays continuous down the limb', () => {
   const moon = state('waxing crescent', 0.05, 0.02447);
   const rows = renderBlock(moon, 'north').split('\n').slice(1, 6);
   assert.deepEqual(rows, [
-    '│            ░░░░░░░▕            │',
-    '│           ░░░░░░░░░▕           │',
+    '│            ░░░░░░░░▕           │',
+    '│           ░░░░░░░░░░▕          │',
     '│          ░░░░░░░░░░░▒          │',
-    '│           ░░░░░░░░░▕           │',
-    '│            ░░░░░░░▕            │',
+    '│           ░░░░░░░░░░▕          │',
+    '│            ░░░░░░░░▕           │',
   ]);
   for (const row of rows) {
     const art = row.slice(1, -1).trim();
@@ -488,6 +488,45 @@ test('renderBlock: a hair-thin crescent stays continuous down the limb', () => {
     // The sunlit edge is the last glyph of the row, i.e. the right limb.
     assert.ok(LIT_WEIGHT.get(art[art.length - 1]) > 0, 'the lit limb is not on the right');
     assert.equal(LIT_WEIGHT.get(art[0]), 0, 'the left limb should be dark while waxing');
+  }
+});
+
+// T-167: the limb hairline guard picked its candidate cell by scanning the
+// already-rendered row for the first non-blank glyph, so an outer cell whose
+// disc *presence* fell under 50% was skipped even when it was the true
+// sunward edge and carried real light — sometimes more than the cell the
+// scan landed on instead. At illuminations where that edge cell alternates
+// between rows (it depends on exactly how each row's disc width samples
+// against the column grid), the guard fired on some rows and not others,
+// so the crescent broke into disconnected specks instead of a continuous
+// arc down the limb.
+test('renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks', () => {
+  // Reproduces the conductor's confirmed repro (computeMoon 2026-08-11T18:00Z,
+  // illum=0.0140, waning crescent): row0/2/4 used to show a hairline while
+  // row1/3 stayed fully dark, splitting the limb into three specks.
+  const k = 0.014;
+  const f = 1 - Math.acos(1 - 2 * k) / (2 * Math.PI); // waning: second crossing of this k
+  const moon = state('waning crescent', f, k);
+  const rows = renderBlock(moon, 'north').split('\n').slice(1, 6);
+
+  assert.deepEqual(rows, [
+    '│           ▏░░░░░░░░            │',
+    '│          ▏░░░░░░░░░░           │',
+    '│          ▒░░░░░░░░░░░          │',
+    '│          ▏░░░░░░░░░░           │',
+    '│           ▏░░░░░░░░            │',
+  ]);
+
+  // The acceptance property, stated directly: every row is lit (no fully
+  // dark row breaks the arc), so scanning down the limb never finds a dark
+  // row sandwiched between two lit ones.
+  const litPerRow = rows.map((row) => litness(row.slice(1, -1)) > 0);
+  assert.ok(litPerRow.every(Boolean), `a hairline crescent row went fully dark: ${JSON.stringify(rows)}`);
+  for (let i = 1; i < litPerRow.length - 1; i++) {
+    assert.ok(
+      !(litPerRow[i - 1] && !litPerRow[i] && litPerRow[i + 1]),
+      `row ${i} is a dark gap between two lit rows, breaking the arc: ${JSON.stringify(rows)}`,
+    );
   }
 });
 

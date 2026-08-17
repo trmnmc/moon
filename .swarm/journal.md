@@ -9410,3 +9410,257 @@ runfile-mirror:
  "watchdog":{"mode":"normal","plist_loaded":true},"caffeinate_pid":0,
  "wrap_up_complete":false,"cycles_since_recycle":8}
 ```
+
+## cycle 75 | 2026-08-17T20:28:10+00:00 | moon | BUILD (build-wave, review-fix findings)
+
+work: build-wave k=2 — T-167 (the `--block` hairline guard drawing a thin crescent as
+  three disconnected specks) and T-172 (a false universal in the `parseArgs` doc comment).
+  T-172 VERIFIED. **T-167 FAILED its gate on its own acceptance clause** — attempt 1,
+  partial, work KEPT in tree (see disposition below).
+why: T-167 was the last product-BEHAVIOUR defect in the backlog — the only remaining item
+  a user could see — and cycle 73's review-fix reproduced it at a real instant with a
+  ~20 h-per-lunation reachability figure. T-172 was picked as its wave partner because it
+  is the only other todo whose files_hint is disjoint from `test/render.test.js`; the four
+  doc items (T-164/168/169) and the two test-quality items (T-170/171) either collide on
+  that file or are the polish/docs class gear 2 puts last.
+models: both sonnet (routing table: kind fix, effort S -> sonnet). Gear 2's demote rung
+  does not apply — build/fix items never drop below sonnet. No judgment seats, so the
+  fable guard never came up. T-167 now escalates to opus for attempt 2 (attempts>=1, one
+  rung).
+dispatch: DIRECT Agent calls, not the Workflow tool — headless `-p` session spawned by
+  bin/swarm-pacer.sh (PID walk: bash -> `claude -p /swarm cycle` 1921052), where Workflow
+  is review-gated (documented SKILL.md fallback).
+  PARALLEL this cycle, unlike cycle 74's deliberate sequencing. RECORDED AS A RISK I TOOK,
+  not as a practice that was validated: cycle 70's lesson is that files_hint disjointness
+  is not TEST disjointness, because builders self-run `node --test test/*.test.js` and see
+  each other's half-written edits. It did not bite here (T-172 touches only a comment in
+  `src/args.js`, so it can perturb no assertion), and the two builders' self-reported suite
+  tails are visibly from different trees — 158 tests for T-172, 159 for T-167. Those
+  numbers are exactly why a builder's suite claim is not evidence. The suite run that
+  counts is the conductor's own, below, taken after both agents finished.
+craft pack: `node bin/swarm-craft.mjs` ran clean, `degraded: []`. Neither item is
+  craft:"ui" (moon is a terminal CLI with no browser surface), so no splice was made.
+post-merge checks: collision-scan and the qa-verify look pass are BROWSER-target checks
+  (classic non-module scripts sharing a global namespace; user-visible html/css/asset
+  files). moon is a CommonJS terminal CLI with no browser surface and no merged
+  user-visible asset, so neither applies. Recorded rather than silently skipped.
+
+budget: NO probe possible, eighth consecutive cycle. The real probe was DUE this cycle
+  (`last_real_probe_ts` was 2380 s old, past the 1800 s re-probe window), so an attempt was
+  genuinely made and genuinely refused: `bin/swarm-budget.sh` is denied by the KI-2
+  allowlist gap, as is the `PROBE_CMD=false` clock-only fallback (same script). Attempt
+  made and failed -> `probe_failures` 6 -> 7, and `last_real_probe_ts` IS stamped this
+  cycle because the attempt was real.
+  Gear computed by hand from `runs/allocator.json` (ok=true, source=probe, pacer-refreshed)
+  applying bin/swarm-budget.sh lines 125-140 literally: weekly_used 13.0 pct at
+  week_elapsed 8.973 pct -> weekly_heat 1.449; opus_used 6 pct -> opus_heat 0.669.
+  weekly_heat > 1.3 -> ceiling 2, promote BLOCKED. Window rho remains UNMEASURED (it needs
+  the denied ccusage probe), so the evidence rule lands the target at cruise 3 and the
+  governor ceiling clamps it to 2. Applied gear 2, unchanged from cycle 74 — but the heat
+  is still climbing: 1.224 (c73) -> 1.39 (c74) -> 1.449 (c75), against a week only 9 pct
+  elapsed. gear cap k=2 is what bound this wave, not `k_current`.
+control: `bin/swarm-notify.sh poll` is denied by the same KI-2 gap, so the channel was read
+  from the file only: `runs/control.json` has `pending: []`, `applied: []`, and no `inject`
+  array. Nothing to apply, nothing to triage, no ack to send.
+orient/salvage: tree carried one uncommitted change at open — the `verified_cycle: 74`
+  stamps on T-165/T-166, written after cycle 74's commit. Coherent partial, folded into
+  this cycle's commit rather than reset.
+re-anchor (cycle 75, a multiple of 5 -> full SPEC re-read + backlog hygiene): re-read
+  `.swarm/SPEC.md` end to end. Hygiene found nothing to do: 7 live items against a ~30 cap,
+  no duplicates, no stale entries, and every live item still traces to one of the three
+  sources the taste note permits (a recorded survivor, a failed doc re-verification, or the
+  flag-interaction axis). Nothing dropped, nothing reprioritized.
+
+### VERIFICATION EVIDENCE — T-172 (PASS)
+
+The claim is a doc-comment claim, so the gate has exactly two jobs: prove no executable
+byte moved, and prove the new sentence is TRUE. Both halves of the sentence were tested,
+not just the one the item is named for.
+
+```
+=== H1 — is the change really comment-only? (strip comments, compare code) ===
+  [PASS] executable source is byte-identical to HEAD once comments are stripped :: 1882 bytes both sides
+  [PASS] line count unchanged (CONTRACTS.md line citations cannot drift) :: HEAD 134 -> WT 134
+
+=== H2 — is the new sentence TRUE of the shipped binary? ===
+  argv ['a\nb'] -> exit 2
+    stderr (JSON): "moon: unexpected argument 'a\nb' - moon takes no positional arguments; ..."
+    stderr physical lines: 2
+  [PASS] newline-bearing token really does produce a MULTI-line message — the new sentence is true
+  argv ["--nope"] -> exit 2, 1 stderr line(s)     argv ["-x"] -> exit 2, 1 stderr line(s)
+  argv ["stray"] -> exit 2, 1 stderr line(s)      argv ["--json=1"] -> exit 2, 1 stderr line(s)
+  argv ["--south","extra"] -> exit 2, 1 stderr line(s)
+  [PASS] every newline-FREE malformed input is still exit 2 + a single line
+  [PASS] the false universal ("on any malformed input") is gone
+GATE T-172: PASS (0 failures)
+```
+
+The comment-stripper is the load-bearing check: "I only edited a comment" is precisely the
+claim a builder cannot be trusted on, and a diff that LOOKS comment-shaped still has to be
+proven not to have moved code. Stripping comments from both sides and comparing bytes
+settles it without reading the diff at all. Full output:
+`runs/cycle-075-verify-T-172.txt`.
+
+### VERIFICATION EVIDENCE — T-167 (FAIL — acceptance not met)
+
+Acceptance, verbatim: "the `--block` disc's lit rows form a CONTIGUOUS arc down the limb —
+no fully dark row between two lit rows". I authored the gate at verification time against
+that sentence. Four sections; the builder's return does not settle any of them.
+
+**A — the cited real instant, through the shipped astronomy core. PASS.**
+
+```
+  computeMoon 2026-08-11T18:00:00Z -> illum=0.0140 phase=waning crescent frac=0.96230
+  HEAD:                                    WORKING TREE:
+    |            ▏░░░░░░░            | Y     |           ▏░░░░░░░░            | Y
+    |           ░░░░░░░░░░           | n     |          ▏░░░░░░░░░░           | Y
+    |          ▒░░░░░░░░░░░          | Y     |          ▒░░░░░░░░░░░          | Y
+    |           ░░░░░░░░░░           | n     |          ▏░░░░░░░░░░           | Y
+    |            ▏░░░░░░░            | Y     |           ▏░░░░░░░░            | Y
+  [PASS] HEAD reproduces the broken arc (the defect is real)
+  [PASS] working tree renders a contiguous arc
+```
+
+**B — the same property swept across the whole cycle, not just the pinned point. FAIL.**
+
+```
+  HEAD broken-arc renders: 1240 / 40000
+  WT   broken-arc renders:   84 / 40000
+  [FAIL] working tree: ZERO broken arcs anywhere in the cycle :: first at f=0.0129 k=0.001641501905062237
+```
+
+This is the whole verdict. The fix is a real 15x improvement and it does not close the
+property the acceptance names. The pinned point is fixed; the property is not.
+
+**C — does the fix widen the block disc (acceptance forbids it)? PASS.** Worth its own
+section because nothing in the suite gates it: `the whole cycle renders without throwing
+and never widens the disc` covers `renderLine` ONLY, so `renderBlock`'s silhouette had no
+check at all before this one.
+
+```
+  renders whose overall bounding box GREW: 0
+  renders whose overall bounding box was unchanged or narrower: 40000
+```
+
+**D — byte-identity at ordinary illuminations. PASS.**
+
+```
+  sampled 200000 cycle points x 2 hemispheres x {renderLine, renderBlock}
+  points differing from HEAD: 24052
+  HIGHEST illumination at which ANY difference appears: k=0.051111 (5.111%)
+  renderLine differences: 0
+```
+
+**Classification of the 84 survivors — HOLE, not BOUNDARY.** The SPEC's must-have (L-033)
+requires this call be made and reasoned BEFORE any further hardening, so it is made here
+rather than left to attempt 2. From the module's OWN cell numbers at the first survivor
+(k=0.0016415, waxing, `runs/cycle-075-verify-T-167-instrument.txt`):
+
+```
+  row 0: cells with cover>0.02: 1 at [10]; best cover = 0.02500 at col 10 (presence 0.156)
+  row 1: cells with cover>0.02: 0;         best cover = 0.01739 at col 11 (presence 0.449)
+  row 2: cells with cover>0.02: 1 at [11]; best cover = 0.02439 at col 11 (presence 0.961)
+  row 3: cells with cover>0.02: 0;         best cover = 0.01739 at col 11 (presence 0.449)
+  row 4: cells with cover>0.02: 1 at [10]; best cover = 0.02500 at col 10 (presence 0.156)
+```
+
+The attempt fixed the guard's CELL-SELECTION half (it no longer skips a true edge cell
+whose presence rounds it to blank) and left the THRESHOLD half untouched: `cover > 0.02` is
+a fixed cut applied to a row-dependent quantity, and rows 1/3 land 0.0026 under it while
+rows 0/2/4 land 0.0044 over. HOLE rather than BOUNDARY because a continuous crescent admits
+no honest reading in which row 1 is dark between two lit rows — the observable is
+discriminable, so this is the check being wrong, not the check being correct.
+
+**Secondary finding, recorded because it constrains attempt 2.** `sampleCell` samples at
+SUB=16 per axis. Near k~0.002 the lit sliver is thinner than one sub-sample, so these cover
+values are quantization artifacts, not geometry: an independent 400x20 sampler written for
+this gate ranks the rows the OTHER way round (rows 1/3 = 0.128 cover, rows 0/4 = 0.095,
+row 2 = 0.059 — i.e. the dark rows hold the MOST light). Retuning the 0.02 constant
+therefore cannot make contiguity safe; it only moves the band where it breaks. Attempt 2
+needs a relative, per-row eligibility rule (or finer sampling where the crescent is thin).
+
+**Attribution arms — conductor-authored, and they are the reason the fixture edit is not a
+weakening.** The attempt modified a PRE-EXISTING test's expected fixture
+(`renderBlock: a hair-thin crescent stays continuous down the limb`), which is exactly the
+shape of a test being bent to fit the code. The builder's own arm B reverted BOTH the new
+test AND that fixture, which cannot isolate either. Arm A' below does:
+
+```
+--- ARM A   HEAD render.js + working-tree test file ---
+    tests 159  pass 157  fail 2
+    ✖ renderBlock: a hair-thin crescent stays continuous down the limb
+    ✖ renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks
+--- ARM A'  HEAD render.js + HEAD test file + ONLY the new test ---
+    tests 159  pass 158  fail 1
+    ✖ renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks
+--- ARM B   HEAD render.js + HEAD test file (control) ---
+    tests 158  pass 158  fail 0
+  [PASS] ARM A': the new test fails ALONE — the kill is attributable to it and nothing else
+  [PASS] ARM B: HEAD was entirely blind to the defect — suite green
+```
+
+Adjudication of the fixture edit: NOT a weakening. Its three semantic assertions (row is
+lit, lit limb on the right, left limb dark) are byte-identical to HEAD; only the deepEqual
+glyph positions moved, by one column outward, which is the direct consequence of the guard
+now finding the true edge. And the modified test still FAILS against the old guard (arm A),
+so it remains non-vacuous. The claim set is unchanged; the expected values were re-derived
+from corrected behaviour, not relaxed.
+
+### suite (conductor's own run, after both agents finished)
+
+```
+$ cd /opt/targets/moon && node --test test/*.test.js
+ℹ tests 159
+ℹ pass 159
+ℹ fail 0
+```
+
+158 at HEAD -> 159. Above the SPEC's 148 floor. Test count is not an outcome and the SPEC
+says so; the number is here because the floor is a stated constraint.
+
+### disposition of the failed item
+
+T-167's code is KEPT in the tree and committed, and the ITEM is NOT done. Those are
+separate calls and both are deliberate:
+
+- Keeping it: cycle.md step 6.4 prescribes todo + attempts+1 for a failed gate; it
+  prescribes REVERT only for a merge that breaks `test_cmd` (hard rule 4), and the suite is
+  green. The change is measured as strictly better on every axis I checked — 1240 -> 84
+  broken arcs, zero silhouette growth, `renderLine` untouched, nothing above 5.1 pct
+  illumination altered. Reverting would restore 1240 broken renders to buy nothing.
+- Not done: the acceptance clause says no fully dark row between two lit rows, and 84
+  renders still have one. Calling that "pass with a follow-up item" would be opening the
+  gate by re-labelling the failure, which hard rule 2 forbids. The honest record is a
+  failed gate on a partial improvement.
+
+T-167 -> todo, attempts 1, model sonnet -> opus (escalation ladder), priority 2 held. The
+residual band, the module's own cell numbers, the HOLE classification and the "extend the
+test past its single pinned k" instruction are all written into the item's notes, so
+attempt 2 starts from measurement rather than rediscovery.
+
+wave autotune: 0 reverts, 1 failed verify. That is neither the downshift branch (a revert
+OR >=2 failed verifies) nor the clean-wave branch (zero and zero), so it is the third:
+`wave_streak` -> 0, `k_current` unchanged at 3. The gear cap of 2 binds regardless.
+churn breaker: `consecutive_no_value` -> 0. T-172 is verified value, and T-167 produced
+measured, recorded value even though its gate failed.
+backlog: 7 todo — T-164, T-167, T-168, T-169, T-170, T-171, T-173. T-167 is again the only
+product-behaviour item; the rest are doc corrections and test-quality work.
+gate-4 status, for whoever picks next: review-fix ran at cycle 73, but this run has still
+had NO full QA pass (`last_full_qa_cycle` 46, from run 2) and NO taste pass. Both are
+outstanding before POLISH. Named here because run 2 died on the weekly cap with work
+measured and never dispatched, and the weekly heat is climbing again.
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],
+ "rotation_cursor":0,"rotation_schedule":[0],
+ "stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00",
+ "model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3",
+ "pacing":{"mode":"thermostat","dial":0.5},
+ "budget":{"gear":2,"gear_target":2,"k_cap":2,"promote":false,"demote":true,
+   "probe_failures":7,"weekly":{"ok":true,"weekly_used_pct":13.0,"opus_used_pct":6,
+   "week_elapsed_pct":8.973,"weekly_heat":1.449,"opus_heat":0.669,"ceiling":2,
+   "promote_blocked":true}},
+ "watchdog":{"mode":"normal","plist_loaded":true},"caffeinate_pid":0,
+ "wrap_up_complete":false,"cycles_since_recycle":9}
+```

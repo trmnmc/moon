@@ -205,9 +205,26 @@ function blockArt(k, waxing) {
     // which would break the crescent into disconnected rows. Where that
     // happens on the disc's sunlit edge, keep it as a hairline instead: the
     // moon really is lit there, and this row would otherwise read as new.
-    const limb = waxing ? lastDrawn(row) : firstDrawn(row);
-    if (limb >= 0 && row[limb] === SHADE[0] && cells[limb].cover > 0.02) {
-      row[limb] = HAIRLINE[sunward];
+    //
+    // Only rows that would otherwise read as fully dark are eligible — a row
+    // that already has a visibly lit cell (SHADE[1] or brighter) is left
+    // alone, so an ordinary thick disc's blank off-disc fringe never grows a
+    // spurious hairline (that fringe legitimately has near-zero cover at low
+    // k, but can have plenty of cover at high k, e.g. a full moon, where the
+    // row is already correctly lit elsewhere).
+    //
+    // Within such a row, the limb cell has to be found by *cover*, not by
+    // which cells rounded to a visible glyph. A cell whose presence on the
+    // disc is under half is rendered blank above, and a "first/last
+    // non-blank" scan then skips right over it — even when it is the true
+    // sunward edge of the disc and is carrying real light, sometimes more
+    // than the cell the scan would otherwise land on. Scanning `cells` by
+    // cover from the sunward edge finds the actual edge regardless of how
+    // thin its presence made it render.
+    const allDark = row.every((ch) => ch === ' ' || ch === SHADE[0]);
+    if (allDark) {
+      const limb = waxing ? lastLit(cells) : firstLit(cells);
+      if (limb >= 0) row[limb] = HAIRLINE[sunward];
     }
 
     rows.push(row.join(''));
@@ -215,14 +232,20 @@ function blockArt(k, waxing) {
   return rows;
 }
 
-/** Index of the first non-blank cell in a rendered row, or -1. */
-function firstDrawn(row) {
-  return row.findIndex((ch) => ch !== ' ');
+/**
+ * Index of the first cell (from the left) carrying real light, or -1.
+ * Looks at cover directly rather than at how the cell rounded to a glyph,
+ * so a cell too thin to reach 50% presence — and therefore rendered blank —
+ * still counts if it truly has sunlight on it.
+ * @param {{cover:number,presence:number}[]} cells
+ */
+function firstLit(cells) {
+  return cells.findIndex((cell) => cell.cover > 0.02);
 }
 
-/** Index of the last non-blank cell in a rendered row, or -1. */
-function lastDrawn(row) {
-  for (let i = row.length - 1; i >= 0; i--) if (row[i] !== ' ') return i;
+/** Index of the last cell (from the right) carrying real light, or -1. */
+function lastLit(cells) {
+  for (let i = cells.length - 1; i >= 0; i--) if (cells[i].cover > 0.02) return i;
   return -1;
 }
 

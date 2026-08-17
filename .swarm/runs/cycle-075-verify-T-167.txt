@@ -1,0 +1,39 @@
+=== A — the cited real instant: 2026-08-11T18:00:00Z, from the SHIPPED astro core ===
+  computeMoon -> illum=0.0140 phase=waning crescent frac=0.96230
+  HEAD:
+    |            ▏░░░░░░░            |  lit=Y
+    |           ░░░░░░░░░░           |  lit=n
+    |          ▒░░░░░░░░░░░          |  lit=Y
+    |           ░░░░░░░░░░           |  lit=n
+    |            ▏░░░░░░░            |  lit=Y
+  WORKING TREE:
+    |           ▏░░░░░░░░            |  lit=Y
+    |          ▏░░░░░░░░░░           |  lit=Y
+    |          ▒░░░░░░░░░░░          |  lit=Y
+    |          ▏░░░░░░░░░░           |  lit=Y
+    |           ▏░░░░░░░░            |  lit=Y
+  [PASS] HEAD reproduces the broken arc (the defect is real)
+  [PASS] working tree renders a contiguous arc
+  [PASS] working tree: every row of the crescent is lit
+
+=== B — contiguity SWEEP, not just the pinned point (40000 steps x 2 hemispheres) ===
+  HEAD broken-arc renders: 1240 / 40000
+  WT   broken-arc renders: 84 / 40000
+  [PASS] HEAD is broken across a measurable band, not at one lucky point
+  [FAIL] working tree: ZERO broken arcs anywhere in the cycle :: first at f=0.0129 k=0.001641501905062237
+
+=== C — silhouette: does the fix WIDEN the block disc? (acceptance forbids it) ===
+  renders whose overall bounding box GREW: 0
+  renders whose overall bounding box was unchanged or narrower: 40000
+  [PASS] the block disc silhouette never grows beyond HEAD in any render
+
+=== D — where does output differ from HEAD at all? (byte-identity claim) ===
+  sampled 200000 cycle points x 2 hemispheres x {renderLine, renderBlock}
+  points differing from HEAD: 24052
+  HIGHEST illumination at which ANY difference appears: k=0.051111 (5.111%)
+  [PASS] all divergence is confined to the thin-crescent band the guard owns
+  [PASS] the fix actually changes something (not a no-op)
+  renderLine differences (the fix must not reach the one-line render): 0
+  [PASS] renderLine is byte-identical to HEAD everywhere
+
+GATE A-D: 1 FAILURE(S)

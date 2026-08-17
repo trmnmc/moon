@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "BUILD",
-  "cycle": 74,
+  "cycle": 75,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -693,6 +693,12 @@
     {
       "cycle": 74,
       "what": "Wave dispatched SEQUENTIALLY rather than in parallel despite pairwise-disjoint files_hint (T-165: bin/moon.js + test/regressions.test.js; T-166: test/cli.test.js). Cycle 70's recorded finding is that files_hint disjointness is NOT test-run disjointness - both builders self-run `node --test test/*.js`, so a half-written edit by one shows up as a spurious failure for the other. Headless -p session has no worktree isolation available, so sequence was the only real isolation."
+    },
+    {
+      "cycle": 75,
+      "kind": "verification",
+      "title": "T-167's residual broken-arc band is a HOLE, not a BOUNDARY",
+      "detail": "The cycle-75 attempt cut broken-arc renders 1240 -> 84/40000 but did not close the acceptance property. The survivors sit in k = 0.001642..0.001906, where the guard's fixed `cover > 0.02` cut lands between rows: 0.02500/0.02439 in rows 0/2/4 vs 0.01739 in rows 1/3. Classified HOLE because a continuous crescent admits no honest reading in which row 1 is dark between two lit rows -- the observable is discriminable, so this is the check being wrong, not the check being correct. Recorded per the SPEC's HOLE-vs-BOUNDARY must-have (L-033) BEFORE any further hardening. Secondary finding, recorded because it constrains attempt 2: at these illuminations sampleCell's SUB=16 grid is coarser than the lit sliver, so its cover values are quantization artifacts -- a 400x20 sampler ranks the rows in the opposite order. A fixed absolute threshold on that quantity cannot be made contiguity-safe by retuning the constant."
     }
   ],
   "known_issues": [
@@ -744,7 +750,7 @@
     "last_look_cycle": 1,
     "last_taste_cycle": 1,
     "last_review_fix_cycle": 73,
-    "last_build_wave_cycle": 74
+    "last_build_wave_cycle": 75
   },
   "counters": {
     "consecutive_no_value": 0,
@@ -754,10 +760,9 @@
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "n": 74,
-    "work": "build-wave k=2, dispatched SEQUENTIALLY (T-165 closed-pipe guard, T-166 date-dependent next-full-moon assertion)",
-    "outcome": "2 verified; T-165 needed 2 attempts after its attempt-1 guard was caught regressing a documented exit code; 0 reverts",
-    "ts": 1786996553
+    "cycle": 75,
+    "work": "build-wave k=2 (T-167, T-172)",
+    "outcome": "1 verified, 1 gate-failed (kept, not reverted), 0 reverted"
   },
   "run_label": "improve-3",
   "resolved_issues": [

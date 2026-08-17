@@ -92,9 +92,9 @@ function toUsageError(err) {
  * ambiguity about intent when the flags are ordered. `--south --north` is "north";
  * `--north --south` is "south". Repeats of the same flag are harmless.
  *
- * Throws an Error with `code === 'EUSAGE'` and a single-line message on any malformed
- * input (unknown option, positional argument, value passed to a flag). It never emits a
- * stack trace's worth of noise.
+ * Throws an Error with `code === 'EUSAGE'` and a single-line message on malformed input
+ * (unknown option, positional argument, value passed to a flag) - unless the token itself
+ * contains a newline, which is embedded raw, spanning multiple lines. Never a stack trace.
  */
 function parseArgs(argv) {
   const args = argv === undefined ? [] : argv;

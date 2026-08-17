@@ -1,0 +1,20 @@
+SUB (sub-samples per axis) = 16
+BLOCK_ROWS=5 BLOCK_COLS=12
+
+k=0.001641501905062237 waxing=true  (a surviving broken-arc render, north)
+
+row 0: on-disc cells 1..10
+   MODULE's own numbers -> cells with cover>0.02: 1 at cols [10]; best cover = 0.02500 at col 10 (presence 0.156)
+   sunward-most on-disc cells: col8{cover=0.00000,presence=0.766} col9{cover=0.00746,presence=0.523} col10{cover=0.02500,presence=0.156}
+row 1: on-disc cells 0..11
+   MODULE's own numbers -> cells with cover>0.02: 0; best cover = 0.01739 at col 11 (presence 0.449)
+   sunward-most on-disc cells: col9{cover=0.00000,presence=1.000} col10{cover=0.00395,presence=0.988} col11{cover=0.01739,presence=0.449}
+row 2: on-disc cells 0..11
+   MODULE's own numbers -> cells with cover>0.02: 1 at cols [11]; best cover = 0.02439 at col 11 (presence 0.961)
+   sunward-most on-disc cells: col9{cover=0.00000,presence=1.000} col10{cover=0.00000,presence=1.000} col11{cover=0.02439,presence=0.961}
+row 3: on-disc cells 0..11
+   MODULE's own numbers -> cells with cover>0.02: 0; best cover = 0.01739 at col 11 (presence 0.449)
+   sunward-most on-disc cells: col9{cover=0.00000,presence=1.000} col10{cover=0.00395,presence=0.988} col11{cover=0.01739,presence=0.449}
+row 4: on-disc cells 1..10
+   MODULE's own numbers -> cells with cover>0.02: 1 at cols [10]; best cover = 0.02500 at col 10 (presence 0.156)
+   sunward-most on-disc cells: col8{cover=0.00000,presence=0.766} col9{cover=0.00746,presence=0.523} col10{cover=0.02500,presence=0.156}

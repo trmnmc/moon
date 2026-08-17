@@ -1,0 +1,41 @@
+surviving broken-arc renders: 84
+illumination band: k = 0.001642 .. 0.001906
+gap rows seen: 1
+hemispheres: north, south
+
+--- k=0.001642 f=0.01290 north gap at row 1 ---
+    |            ░░░░░░░░▕           |  lit=Y
+    |           ░░░░░░░░░░           |  lit=n
+    |          ░░░░░░░░░░░▕          |  lit=Y
+    |           ░░░░░░░░░░           |  lit=n
+    |            ░░░░░░░░▕           |  lit=Y
+    row 0: independent geometry -> max cover over on-disc cells = 0.09505, cells with cover>0.02 = 2
+    row 1: independent geometry -> max cover over on-disc cells = 0.12785, cells with cover>0.02 = 2
+    row 2: independent geometry -> max cover over on-disc cells = 0.05851, cells with cover>0.02 = 1
+    row 3: independent geometry -> max cover over on-disc cells = 0.12785, cells with cover>0.02 = 2
+    row 4: independent geometry -> max cover over on-disc cells = 0.09505, cells with cover>0.02 = 2
+
+--- k=0.001906 f=0.98610 north gap at row 1 ---
+    |           ▏░░░░░░░░            |  lit=Y
+    |           ░░░░░░░░░░           |  lit=n
+    |          ▏░░░░░░░░░░░          |  lit=Y
+    |           ░░░░░░░░░░           |  lit=n
+    |           ▏░░░░░░░░            |  lit=Y
+    row 0: independent geometry -> max cover over on-disc cells = 0.11287, cells with cover>0.02 = 2
+    row 1: independent geometry -> max cover over on-disc cells = 0.14886, cells with cover>0.02 = 2
+    row 2: independent geometry -> max cover over on-disc cells = 0.06775, cells with cover>0.02 = 1
+    row 3: independent geometry -> max cover over on-disc cells = 0.14886, cells with cover>0.02 = 2
+    row 4: independent geometry -> max cover over on-disc cells = 0.11287, cells with cover>0.02 = 2
+
+--- k=0.001642 f=0.98710 south gap at row 1 ---
+    |            ░░░░░░░░▕           |  lit=Y
+    |           ░░░░░░░░░░           |  lit=n
+    |          ░░░░░░░░░░░▕          |  lit=Y
+    |           ░░░░░░░░░░           |  lit=n
+    |            ░░░░░░░░▕           |  lit=Y
+    row 0: independent geometry -> max cover over on-disc cells = 0.09505, cells with cover>0.02 = 2
+    row 1: independent geometry -> max cover over on-disc cells = 0.12785, cells with cover>0.02 = 2
+    row 2: independent geometry -> max cover over on-disc cells = 0.05851, cells with cover>0.02 = 1
+    row 3: independent geometry -> max cover over on-disc cells = 0.12785, cells with cover>0.02 = 2
+    row 4: independent geometry -> max cover over on-disc cells = 0.09505, cells with cover>0.02 = 2
+

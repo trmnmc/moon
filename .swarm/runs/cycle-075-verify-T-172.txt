@@ -1,0 +1,31 @@
+=== H1 — is the change really comment-only? (strip comments, compare code) ===
+  [PASS] executable source is byte-identical to HEAD once comments are stripped :: 1882 bytes both sides
+  [PASS] line count unchanged (CONTRACTS.md line citations cannot drift) :: HEAD 134 -> WT 134
+
+=== H2 — is the new sentence TRUE of the shipped binary? ===
+  argv ['a\nb'] -> exit 2
+    stderr (JSON): "moon: unexpected argument 'a\nb' - moon takes no positional arguments; run 'moon --help' to see the available options\n"
+    stderr physical lines: 2
+  [PASS] newline-bearing token still exits 2 (behaviour unchanged)
+  [PASS] newline-bearing token really does produce a MULTI-line message — the new sentence is true
+
+  argv ["--nope"] -> exit 2, 1 stderr line(s)
+  argv ["-x"] -> exit 2, 1 stderr line(s)
+  argv ["stray"] -> exit 2, 1 stderr line(s)
+  argv ["--json=1"] -> exit 2, 1 stderr line(s)
+  argv ["--south","extra"] -> exit 2, 1 stderr line(s)
+  [PASS] every newline-FREE malformed input is still exit 2 + a single line — the "single-line message" half of the sentence still holds
+
+  the comment as it now stands:
+     * error would break the only ergonomic way to override an alias, and there is no
+     * ambiguity about intent when the flags are ordered. `--south --north` is "north";
+     * `--north --south` is "south". Repeats of the same flag are harmless.
+     *
+     * Throws an Error with `code === 'EUSAGE'` and a single-line message on malformed input
+     * (unknown option, positional argument, value passed to a flag) - unless the token itself
+     * contains a newline, which is embedded raw, spanning multiple lines. Never a stack trace.
+     */
+  [PASS] the comment now names the newline case that args.test.js pins
+  [PASS] the false universal ("on any malformed input") is gone
+
+GATE T-172: PASS (0 failures)

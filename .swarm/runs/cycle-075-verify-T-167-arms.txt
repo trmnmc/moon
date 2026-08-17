@@ -1,0 +1,22 @@
+=== T-167 attribution arms (conductor-authored) ===
+
+--- ARM A   HEAD render.js + working-tree test file ---
+    tests 159  pass 157  fail 2
+    ✖ renderBlock: a hair-thin crescent stays continuous down the limb
+    ✖ renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks
+  [PASS] ARM A: suite goes RED against the old guard
+  [PASS] ARM A: the NEW test is among the failures, BY NAME
+
+--- ARM A'  HEAD render.js + HEAD test file + ONLY the new test ---
+    tests 159  pass 158  fail 1
+    ✖ renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks
+  [PASS] ARM A': the new test fails ALONE — the kill is attributable to it and nothing else :: failures: ["renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks"]
+
+--- ARM B   HEAD render.js + HEAD test file (control) ---
+    tests 158  pass 158  fail 0
+    (no failures)
+  [PASS] ARM B: HEAD was entirely blind to the defect — suite green
+
+(working tree restored)
+
+ARMS: PASS (0 failures)
