@@ -7944,3 +7944,152 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00","usage_reset_at_note":"ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed","model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3","heartbeat":{"ts":1786983791,"next_wakeup_at":1786984691,"pid":1766091,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"thermostat","dial":0.5},"budget":{"source":"clock","gear":3,"gear_target":3,"ratio":0.0,"mode":"thermostat","k_cap":3,"promote":false,"demote":false,"window_tokens":0,"window_cost_usd":0.0,"api_cap_usd":null,"api_spend_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786982988,"last_real_probe_ts":0,"probe_failures":1,"gear_evidence":"bin/swarm-budget.sh DENIED at kickoff (KI-2, third run running). Gear 3 is the fresh-run cruise default, NOT a measurement. Posture context from runs/allocator.json: posture=normal, weekly_used_pct=6.0, opus_used_pct=0, week_elapsed_pct=6.573, allow_premium_pct=15.13, dial=0.50 -- a fresh weekly window, which is the material difference from run 2 (it died at 100%/97%).","weekly":{"ok":true,"weekly_used_pct":6.0,"opus_used_pct":0,"week_elapsed_pct":6.573,"weekly_heat":0.91,"opus_heat":0.0,"ceiling":5,"promote_blocked":false,"source":"runs/allocator.json (probe denied)"}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":1,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043"],"vetoed":[],"source":"learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)","not_wired":{"ids":["L-011","L-018","L-020","L-021","L-022"],"why":"all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."},"ledger_line_blocked":"record-applied could not run (KI-2) -- third consecutive run","directives":{"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"reviewer":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
 ```
+
+## cycle 68 | 2026-08-17T16:53:02+00:00 | moon | BUILD
+work: build-wave, effective k=3 — T-155 (fable) + T-153 (sonnet) + T-156 (sonnet), the three
+  holes run 2 MEASURED and never dispatched. All three are the run's whole reason to exist.
+why: step-4 phase gate 3 — must-have items remain todo, and cycle 67's PLAN pass cleared the
+  gate 7/7 and left these three as the highest-value unblocked set. They are pairwise
+  file-disjoint by construction (contracts / regressions / cli), which is what made a k=3 wave
+  legal at all; run 2 had all three pointed at cli.test.js and had to serialize them, which is
+  how they went undispatched.
+models: T-155 -> fable (route_class core; L-026 sends correctness core to the judgment tier,
+  and the expected value had to be DERIVED rather than observed). T-153, T-156 -> sonnet.
+  Gear 3 cruise: routing table as-is, no promote, no demote.
+dispatch: DIRECT Agent calls, not the Workflow tool. This is a headless -p session spawned by
+  bin/swarm-pacer.sh, where Workflow is review-gated — the documented SKILL.md fallback. No
+  worktrees are available on that path, so the disjoint-file-scope rule is what kept three
+  concurrent builders from colliding, and each prompt forbade touching bin/moon.js at all.
+playbook prompt lines: the 2 all-role lines (L-008 sole committer, L-042 sealed gate) appended
+  to every builder prompt.
+
+CLOCK + BUDGET: date +%s = 1786984814 at open (16:40:14 UTC). stop_at 2026-08-18T16:02:34Z is
+  ~23h out, so admission control is not binding on any work type.
+  bin/swarm-budget.sh DENIED AGAIN — KI-2, now on its third consecutive run. Both refusal
+  forms recorded verbatim this cycle, which is what backlog item T-162 asks for:
+    $ bin/swarm-budget.sh 2>&1 | head -30
+      "This Bash command contains multiple operations. The following part requires approval:
+       bin/swarm-budget.sh 2>&1"
+    $ bin/swarm-budget.sh
+      "This command requires approval"
+  So the gap is NOT the pipe or the redirect — the bare invocation is denied too, which is
+  sharper than the run-2 note that guessed it might be the compound form. probe_failures 1 -> 2.
+  runs/allocator.json is ALSO unmeasured this tick: ok=false, source=none, every pct field 0,
+  week_resets_at 0 — its posture flipped normal -> trickle between 16:29 and 16:34 with no
+  underlying measurement behind it. So its dial=0.33 and its "trickle" carry NO burn evidence
+  and were NOT used to crawl. Gear held at 3 CRUISE under cycle.md's evidence rule: probe
+  failure or missing burn data lands cruise, never crawl and never overdrive without evidence.
+  weekly.ok set false with every pct nulled rather than carrying the kickoff's stale 6.0%
+  forward as if it were fresh.
+
+CONTROL: bin/swarm-notify.sh poll ran clean (relative form, cwd=/opt/swarm — the allowlist
+  gap that kills swarm-budget.sh does not extend to swarm-notify.sh). pending[] empty, no
+  inject[] key, nothing to triage. Tree clean at orient.
+
+BASELINE before dispatch: $ node --test test/*.test.js -> tests 148 / pass 148 / fail 0.
+
+VERIFICATION GATE — the whole point of this cycle, and the reason it took two rounds.
+  Full output: .swarm/runs/cycle-068-verify-wave.txt (fingerprinted by this cycle's commit).
+  Method: every mutant applied to bin/moon.js inside an isolated FULL copy of the repo (.git
+  and .swarm included — contracts.test.js verifies doc citations against those very files, so
+  a trimmed copy is not the product under test), measured in two arms. A: post-wave tests,
+  expect the target test to fail BY NAME. B: that item's test file reverted to HEAD, expect the
+  mutant to SURVIVE. A kill I cannot attribute by name is not evidence; a kill that also
+  happens in arm B was done by a pre-existing test, not by the new one.
+
+  ROUND 1 — the mutants the acceptance clauses named:
+    M1 T-155  10 ** places -> 10 ** (places - 1)   A: fail=1, sole failure is the new test by
+                                                      name; B: fail=0, survives   -> PROVEN
+    M2 T-155  Math.round -> Math.trunc             A: fail=1 same;  B: fail=0     -> PROVEN
+    M3 T-153  delete the !opts.compact guard @:130 A: fail=1 "…closing frame, with no extra
+                                                      line appended" (12 != 11); B: 0 -> PROVEN
+    M4 T-156  drop the 'moon: ' prefix @:96        A: fail=1;  B: fail=0          -> PROVEN
+    M5 T-156  ALTER the prefix -> 'Moon: '         A: fail=1;  B: fail=0          -> PROVEN
+  M5 is mine, not from any builder note: the acceptance says "dropping OR ALTERING", and a
+  test that only caught deletion would have been half a check passed as a whole one.
+
+  ROUND 2 — INDEPENDENT variants at the same sites, named by no acceptance clause. Cycle 67
+  committed the gate to this round in writing, precisely because T-155's acceptance names its
+  two mutation SITES and a builder could overfit to them. Running only round 1 would have been
+  grading the work against the answer key the worker was handed.
+    V1 T-155  10 ** (places + 1)   killed by the new test AND by a pre-existing test
+    V2 T-155  Math.round -> ceil   SURVIVES THE ENTIRE SUITE   <-- real residual, see below
+    V3 T-155  Math.round -> floor  killed by the new test alone
+    V4 T-153  INVERT the guard     killed by the new test AND a pre-existing alignment test
+    V5 T-153  indent 3 -> 0        killed by the pre-existing alignment test only — correct,
+                                   indent is not this item's surface
+    V6 T-156  'moon: ' -> 'moon '  killed by the new assertion alone
+    V7 T-156  'moon: ' -> ' moon: ' killed by the new assertion alone
+  V6 and V7 are the strongest evidence in the cycle: the anchored assertion catches a dropped
+  colon and a one-space position shift, neither of which anyone named to the builder, so it is
+  anchoring on structure and position rather than on a memorized mutant.
+
+  INDEPENDENT RE-DERIVATION of T-155's pinned value. Killing both named arms proves the test
+  DISCRIMINATES, but not that it pins the SPEC — a value back-fit from the code would kill them
+  both just as well and would silently pin whatever the implementation happens to do. So I
+  re-evaluated Meeus ch.47/48 plus the Espenak-Meeus DeltaT polynomial from scratch, without
+  calling computeMoon and without reading src/astro.js:
+    $ python3 .c68-derive.py
+      JD (UT)            : 2461046.2916666665
+      DeltaT             : 75.083 s
+      T (Julian cent TT) : 0.260131212476
+      D  : 205.723630    M : 2.005699    M' : 69.283984
+      i (phase angle)    : 31.750731 deg
+      k = (1+cos i)/2    : 0.9251727571
+      k * 10^4 = 9251.7276 -> round 0.9252 | trunc 0.9251 | scale-1 0.9250
+      test pins 0.9252   VERDICT: MATCH
+  Every intermediate matches the builder's stated derivation to the digit. The pin is the
+  domain rules, not the implementation.
+
+  RESIDUAL, MEASURED NOT ASSUMED: V2 (Math.ceil) survives 150/150. Cause is arithmetic, not
+  mystery — at the pinned instant the scaled value is 9251.7276, fractional part .7276 > .5,
+  so ceil and round agree exactly there. T-155 PASSES: its acceptance named arms A and B, and
+  both are proven. But the round() rule is only half-pinned, and that is filed as T-163 rather
+  than left in a paragraph nobody reads. Reported here as a hole I found in my own gate's
+  second round, not as a builder failure.
+
+  test_cmd, real repo, no mutation present:
+    $ node --test test/*.test.js                      -> tests 150 / pass 150 / fail 0
+    $ TZ=Pacific/Kiritimati node --test test/*.test.js -> pass 150 / fail 0   (GMT+14)
+    $ TZ=Pacific/Niue node --test test/*.test.js       -> pass 150 / fail 0   (GMT-11)
+  The two TZ runs are mine, not asked for by any acceptance clause: T-153 asserts on rendered
+  line structure and T-155 shadows global.Date, and run 2's cycle 65 already found one
+  genuine TZ-crossing bug in this exact area, so a new test that is green only in UTC would be
+  a trap laid for a future contributor.
+  collision-scan and the qa-verify look pass were NOT run and are reported as not-run: both
+  gate browser-served surfaces, and moon is a zero-dependency terminal CLI with no HTML, CSS,
+  or client JS. Nothing in this wave changed a user-visible browser asset.
+
+RESULT: 3 of 3 items VERIFIED. T-153, T-155, T-156 -> done. Zero reverts, zero failed verifies,
+  zero merge conflicts — the disjoint-file-scope discipline held with three concurrent builders
+  in one tree. Wave autotune: CLEAN wave -> wave_streak 0 -> 1; k_current stays 3 (the bump
+  needs a streak of 2). counters.consecutive_no_value 1 -> 0.
+
+ITEM FILED: T-163 (pri 2, S, fix, sonnet, test/contracts.test.js) — a second exact --json pin
+  at an instant whose scaled fractional part is BELOW .5, so Math.ceil is discriminated too.
+  Traces to a survivor on record (V2, measured above), which is the SPEC's bar for filing
+  anything this run. Not scope creep, not a feature.
+
+BUILDER DEVIATION, disclosed by all three unprompted and worth recording: the prompts told
+  them to mutate in a scratch copy under /tmp, and /tmp turned out to be blocked by the
+  session sandbox. Each of them used a scratch copy under /opt/swarm instead, said so plainly
+  rather than quietly skipping the measurement, and deleted it afterwards. Confirmed: no
+  scratch directory survives, git status is clean in both repos, and bin/moon.js in the real
+  tree was never modified — git diff --stat shows the three test files and nothing else. The
+  honest disclosure is the point; a builder that had silently dropped the two-arm measurement
+  would have handed me an unfalsifiable claim. Note for the run: /tmp is not writable by
+  subagents here, so future prompts should name an /opt/swarm scratch path directly.
+
+OUTCOME: 3 items verified, 150/150 green, +2 tests and +1 assertion, all four run-3 primary
+  holes now closed except the flag-interaction axis. Test COUNT is deliberately not the
+  outcome here — the outcome is that five named mutants that previously survived now die, and
+  a sixth was found and filed.
+
+next: cycle 69 — T-157, the flag-interaction matrix (fable, qa work type, measurement and
+  classification only, no repo file changes). It is the last uncovered measurement axis and
+  T-158 is blocked behind it by design (L-033: classify HOLE vs BOUNDARY before hardening).
+next wakeup: 1786985672 (+90s, base delay for a verified-value cycle; the pacer fires it)
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00","usage_reset_at_note":"ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed","model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3","heartbeat":{"ts":1786985582,"next_wakeup_at":1786985672,"pid":1768434,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"thermostat","dial":0.5},"budget":{"source":"clock","gear":3,"gear_target":3,"ratio":0.0,"mode":"thermostat","k_cap":3,"promote":false,"demote":false,"window_tokens":0,"window_cost_usd":0.0,"api_cap_usd":null,"api_spend_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786984814,"last_real_probe_ts":0,"probe_failures":2,"gear_evidence":"cycle 68: bin/swarm-budget.sh DENIED again (KI-2). Exact refusals recorded this cycle -- piped form: 'This Bash command contains multiple operations. The following part requires approval: bin/swarm-budget.sh 2>&1'; bare form: 'This command requires approval'. runs/allocator.json is itself unmeasured this tick (ok=false, source=none, every pct field 0, week_resets_at=0) so its posture=trickle / dial=0.33 carries NO burn evidence. Evidence rule (cycle.md Gear pacing): probe failure or missing limit/burn data lands CRUISE, never crawl without evidence. gear 3, k_cap 3.","weekly":{"ok":false,"weekly_used_pct":null,"opus_used_pct":null,"week_elapsed_pct":null,"weekly_heat":null,"opus_heat":null,"ceiling":5,"promote_blocked":true,"source":"runs/allocator.json ok=false source=none -- no evidence this tick"}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":2,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043"],"vetoed":[],"source":"learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)","not_wired":{"ids":["L-011","L-018","L-020","L-021","L-022"],"why":"all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."},"ledger_line_blocked":"record-applied could not run (KI-2) -- third consecutive run","directives":{"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"reviewer":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
+```

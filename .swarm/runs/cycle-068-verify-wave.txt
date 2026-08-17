@@ -1,0 +1,97 @@
+cycle 68 VERIFICATION GATE — conductor-authored, conductor-run.
+Target: /opt/targets/moon   Items: T-155, T-153, T-156
+Method: each mutant applied to bin/moon.js in an isolated full copy of the repo,
+then measured in two arms — A: post-wave test files; B: the item's test file
+reverted to HEAD. A kill counts only if it is attributable to a NAMED test in A
+AND the mutant survives in B. Builders never saw any of this.
+
+==============================================================================
+ROUND 1 — the mutants the acceptance clauses named
+==============================================================================
+M1  T-155  round() scale factor 10**places -> 10**(places-1)  [bin/moon.js:87]
+   A (mutant + new test)        fail=1  ['--json illumination at 2026-01-05T19:00Z equals the hand-derived Meeus value 0.9252 exactly']
+   B (mutant + test/contracts.test.js@HEAD)  fail=0  []
+   -> PROVEN
+M2  T-155  round() rule Math.round -> Math.trunc  [bin/moon.js:88]
+   A (mutant + new test)        fail=1  ['--json illumination at 2026-01-05T19:00Z equals the hand-derived Meeus value 0.9252 exactly']
+   B (mutant + test/contracts.test.js@HEAD)  fail=0  []
+   -> PROVEN
+M3  T-153  delete the !opts.compact guard on the BLOCK branch  [bin/moon.js:130]
+   A (mutant + new test)        fail=1  ["--block --compact ends in the block's own closing frame, with no extra line appended"]
+   B (mutant + test/regressions.test.js@HEAD)  fail=0  []
+   -> PROVEN
+M4  T-156  drop the 'moon: ' stderr prefix  [bin/moon.js:96]
+   A (mutant + new test)        fail=1  ['an unknown flag exits 2 with a clean one-line message on stderr']
+   B (mutant + test/cli.test.js@HEAD)  fail=0  []
+   -> PROVEN
+M5  T-156  ALTER the stderr prefix 'moon: ' -> 'Moon: '  [bin/moon.js:96]
+   A (mutant + new test)        fail=1  ['an unknown flag exits 2 with a clean one-line message on stderr']
+   B (mutant + test/cli.test.js@HEAD)  fail=0  []
+   -> PROVEN
+
+==============================================================================
+ROUND 2 — INDEPENDENT variants at the same sites, named by no acceptance clause
+(cycle 67 committed the gate to this round precisely so an overfit test is caught)
+==============================================================================
+V1  T-155  site :87 -- scale factor 10**places -> 10**(places+1)  (OVER-precision, the opposite direction from the named arm A)
+   A (variant + new test)       fail=2  ['--json illumination at 2026-01-05T19:00Z equals the hand-derived Meeus value 0.9252 exactly', '--json is parseable, carries the documented fields, and is not a raw float dump']
+   B (variant + testfile@HEAD)  fail=1  ['--json is parseable, carries the documented fields, and is not a raw float dump']
+   -> killed, but by a PRE-EXISTING test (not attributable to this item)
+V2  T-155  site :88 -- Math.round -> Math.ceil  (a rounding rule the acceptance never named)
+   A (variant + new test)       fail=0  []
+   B (variant + testfile@HEAD)  fail=0  []
+   -> SURVIVES -- indiscriminable by the whole suite
+V3  T-155  site :88 -- Math.round -> Math.floor  (ditto)
+   A (variant + new test)       fail=1  ['--json illumination at 2026-01-05T19:00Z equals the hand-derived Meeus value 0.9252 exactly']
+   B (variant + testfile@HEAD)  fail=0  []
+   -> KILLED BY THE NEW TEST
+V4  T-153  site :130 -- INVERT the guard (if (opts.compact)) rather than delete it
+   A (variant + new test)       fail=2  ["--block --compact ends in the block's own closing frame, with no extra line appended", 'block next-full-moon line aligns with the block label column']
+   B (variant + testfile@HEAD)  fail=1  ['block next-full-moon line aligns with the block label column']
+   -> killed, but by a PRE-EXISTING test (not attributable to this item)
+V5  T-153  site :130 -- keep the guard, change the INDENT 3 -> 0 (does the test overfit to line count while ignoring the frame's own last line?)
+   A (variant + new test)       fail=1  ['block next-full-moon line aligns with the block label column']
+   B (variant + testfile@HEAD)  fail=1  ['block next-full-moon line aligns with the block label column']
+   -> killed, but by a PRE-EXISTING test (not attributable to this item)
+V6  T-156  site :96 -- drop only the COLON: 'moon: ' -> 'moon '
+   A (variant + new test)       fail=1  ['an unknown flag exits 2 with a clean one-line message on stderr']
+   B (variant + testfile@HEAD)  fail=0  []
+   -> KILLED BY THE NEW TEST
+V7  T-156  site :96 -- shift the prefix off position 0: 'moon: ' -> ' moon: '
+   A (variant + new test)       fail=1  ['an unknown flag exits 2 with a clean one-line message on stderr']
+   B (variant + testfile@HEAD)  fail=0  []
+   -> KILLED BY THE NEW TEST
+
+==============================================================================
+INDEPENDENT RE-DERIVATION of T-155's pinned value
+(the point: a value back-fit from the code would still kill both named mutants,
+so killing them proves discrimination but NOT that the test pins the spec.
+This evaluates Meeus ch.47/48 + the Espenak-Meeus DeltaT polynomial from scratch,
+without calling the repo's computeMoon.)
+==============================================================================
+pinned instant     : 2026-01-05T19:00:00+00:00
+JD (UT)            : 2461046.2916666665
+years since 2000   : 26.013119
+DeltaT             : 75.083 s  (0.000869012 d)
+T (Julian cent TT) : 0.260131212476
+D                  : 205.723630
+M                  : 2.005699
+M' (Mprime)        : 69.283984
+i (phase angle)    : -31.750731 deg
+k = (1+cos i)/2    : 0.9251727571
+
+k * 10^4           : 9251.7276
+round to 4 places  : 0.9252   <-- correct implementation
+trunc to 4 places  : 0.9251   <-- arm B mutant
+round to 3 places  : 0.9250   <-- arm A mutant (10**(places-1))
+
+test pins          : 0.9252
+VERDICT            : MATCH
+frac of last digit : 0.7276  (margin to the .5 round boundary: 0.2276; DeltaT worth ~0.00000 of a last-digit unit)
+
+==============================================================================
+FULL SUITE, real repo, no mutation present:
+  $ node --test test/*.test.js                    -> tests 150 / pass 150 / fail 0
+  $ TZ=Pacific/Kiritimati node --test test/*.test.js -> pass 150 / fail 0   (GMT+14)
+  $ TZ=Pacific/Niue node --test test/*.test.js       -> pass 150 / fail 0   (GMT-11)
+  baseline before the wave was 148/148; +2 tests, +1 assertion on an existing test.

@@ -303,6 +303,7 @@ test('an unknown flag exits 2 with a clean one-line message on stderr', () => {
   const { status, stderr, stdout } = runFailing(['--bogus'])
   assert.equal(status, 2)
   assert.equal(stdout, '')
+  assert.match(stderr, /^moon: /, "stderr must be anchored with the 'moon: ' prefix at position 0")
   assert.match(stderr, /unknown option '--bogus'/)
   assert.equal(stderr.trim().split('\n').length, 1, 'must not be a stack trace')
 })

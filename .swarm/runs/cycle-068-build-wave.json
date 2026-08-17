@@ -1,0 +1,30 @@
+{
+ "cycle": 68,
+ "timestamp": "2026-08-17T16:53:02+00:00",
+ "work_type": "build-wave",
+ "dispatch": "DIRECT Agent calls (headless -p session: the Workflow tool is review-gated, per the documented SKILL.md fallback). No worktrees: the three builders were given strictly disjoint single-file scopes instead.",
+ "effective_k": 3,
+ "k_derivation": "min(counters.k_current 3, gear-3 cap 3, hard max 5) = 3",
+ "items": [
+  {
+   "id": "T-155",
+   "model": "fable",
+   "scope": "test/contracts.test.js",
+   "claim": "added one test pinning --json illumination to a hand-derived 0.9252 at 2026-01-05T19:00Z; claims both named arms killed and surviving-without."
+  },
+  {
+   "id": "T-153",
+   "model": "sonnet",
+   "scope": "test/regressions.test.js",
+   "claim": "added one test asserting --block --compact ends in the block's own closing border with exactly the frame's line count and one trailing newline."
+  },
+  {
+   "id": "T-156",
+   "model": "sonnet",
+   "scope": "test/cli.test.js",
+   "claim": "added an /^moon: / anchored assertion to the existing unknown-flag test; left the pre-existing prose regex untouched."
+  }
+ ],
+ "note": "These are CLAIMS. The conductor re-measured every one of them independently; the verdicts live in cycle-068-verify-wave.txt, not here.",
+ "builder_disclosed_deviation": "All three builders reported the sandbox blocked /tmp, so each used a scratch copy under /opt/swarm instead of the /tmp path the prompt specified. Each disclosed it unprompted and deleted the copy; the conductor confirmed no scratch directory survives and that git status in both repos is clean of them."
+}

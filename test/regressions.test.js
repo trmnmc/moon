@@ -180,6 +180,60 @@ test('next-full-moon date prints the reader\'s local day, not the UTC day', () =
     JSON.stringify(dateLine))
 })
 
+// T-153 — bin/moon.js's block branch guards the next-full-moon line with
+// `if (!opts.compact) lines.push(nextFullLine(now, 3))` (bin/moon.js:130). The
+// line-branch twin at :133 is pinned by the "--compact collapses to exactly one line"
+// test in cli.test.js, but nothing pinned the block-branch guard: deleting it so the
+// next-full-moon line is pushed unconditionally is a mutant no existing test kills,
+// because renderBlock's own frame already ends in a closing border line, so a loose
+// "does the output contain the words next full moon" check is the only thing that
+// would normally catch this, and no test asserted even that for --block --compact.
+//
+// This asserts two structural facts a reader of the raw byte stream can state exactly,
+// neither of which depends on matching prose:
+//   1. Line count. renderBlock's frame has a fixed height regardless of the moon's
+//      phase (BLOCK_INNER/VALUE_WIDTH are constants, not sized to the phase name), so
+//      the framed block alone always emits the same number of lines. That count is
+//      computed here by calling the real renderBlock (already imported above) rather
+//      than hardcoding "11" as a magic number, so this test tracks the renderer's own
+//      shape instead of a duplicated literal. --compact must produce exactly that many
+//      lines and nothing more; the mutant appends one extra line, which this catches
+//      without ever inspecting what that extra line says.
+//   2. Last-line shape. The block's own closing border is the one line in the whole
+//      output that is built entirely from box-drawing characters — BOX.bl + BOX.h...
+//      + BOX.br. Under the mutant, the appended next-full-moon line becomes the new
+//      last line instead, and it cannot match that shape (it starts with an indent and
+//      the word "next"). So asserting the last line is exactly a closing-frame border
+//      is a structural check on what the stream's final bytes ARE, not a substring
+//      hunt for the suppressed line's wording.
+// Together, a suite that had only the line-count check could in principle still pass a
+// mutant that swapped which line got dropped elsewhere; only the last-line-shape check
+// pins that the frame's own border, specifically, is what stdout ends on. Both are kept.
+test('--block --compact ends in the block\'s own closing frame, with no extra line appended', () => {
+  const out = run(['--block', '--compact'])
+
+  assert.equal(out.slice(-1), '\n', 'output must end in a newline')
+  assert.notEqual(out.slice(-2, -1), '\n',
+    `output must end in exactly one newline, not more: ${JSON.stringify(out.slice(-5))}`)
+
+  const lines = out.slice(0, -1).split('\n')
+
+  // Fixed frame height, read from the real renderer rather than hardcoded — the
+  // phaseName fed in here is irrelevant to the height, only to satisfy renderBlock's
+  // signature.
+  const frameLineCount = renderBlock(
+    { phaseName: 'full', illumination: 1, cycleFraction: 0.5 }, 'north'
+  ).split('\n').length
+
+  assert.equal(lines.length, frameLineCount,
+    `--block --compact must be exactly the ${frameLineCount}-line framed block and ` +
+    `nothing else, got ${lines.length} lines: ${JSON.stringify(out)}`)
+
+  assert.match(lines[lines.length - 1], /^└─+┘$/,
+    'the last line of --block --compact must be the block\'s own closing border, not ' +
+    `a suppressed line leaking through: ${JSON.stringify(lines[lines.length - 1])}`)
+})
+
 // T-131 — every command in README's Install section carried an unresolved `YOUR_USER`
 // placeholder (npx github:YOUR_USER/moon, and the git-clone equivalent), so the very
 // first command a reader saw was not runnable as written. `gh api repos/YOUR_USER/moon`

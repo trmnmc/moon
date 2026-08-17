@@ -422,3 +422,89 @@ for (const citation of citations.values()) {
     checkCitation(citation);
   });
 }
+
+// ---------------------------------------------------------------------------
+// T-155: exact-value contract for a --json numeric field.
+//
+// Before this test, no test compared any --json numeric field against an exact
+// expected value: cli.test.js only bounds decimals(illumination) <= 4, which is
+// blind in both directions - a wrong scale factor in bin/moon.js round() (fewer
+// decimals) and a wrong rounding rule (trunc instead of round) both still
+// satisfy it. This test pins one field, illumination, to a value derived BY
+// HAND from the spec's Domain rules at a pinned instant - it was NOT read back
+// out of computeMoon or the CLI and frozen.
+//
+// Pinned instant: 2026-01-05T19:00:00.000Z  (ms = 1767639600000)
+//
+// Derivation (Domain rules: k = (1 + cos i) / 2, i the Meeus ch. 48 phase
+// angle; i from eq. (48.4) with the ch. 47 mean elements, TT via the
+// Espenak-Meeus DeltaT polynomial - every formula published, evaluated
+// independently with a calculator, not by running this repo's code):
+//
+//   JD(UT) = 1767639600000 / 86400000 + 2440587.5 = 2461046.2916666665
+//   t      = (JD - 2451545) / 365.25 = 26.013 yr -> DeltaT = 62.92
+//            + 0.32217 t + 0.005589 t^2 = 75.083 s = 0.000869 d
+//   T      = (JD + DeltaT - 2451545) / 36525 = 0.260131212476
+//   D  (47.2) = 297.8501921 + 445267.1114034 T - 0.0018819 T^2
+//               + T^3/545868 - T^4/113065000          = 205.723630 (mod 360)
+//   M  (47.3) = 357.5291092 + 35999.0502909 T
+//               - 0.0001536 T^2 + T^3/24490000        =   2.005699 (mod 360)
+//   M' (47.4) = 134.9633964 + 477198.8675055 T + 0.0087414 T^2
+//               + T^3/69699 - T^4/14712000            =  69.283984 (mod 360)
+//   elongation = D + 6.289 sin M'   (+5.882386)
+//                  - 2.100 sin M    (-0.073498)
+//                  + 1.274 sin(2D - M') (-0.390233)
+//                  + 0.658 sin 2D   (+0.514579)
+//                  + 0.214 sin 2M'  (+0.141610)
+//                  + 0.110 sin D    (-0.047743)       = 211.750731 (mod 360)
+//   i = |180 - 211.750731| = 31.750731 deg
+//   k = (1 + cos 31.750731) / 2 = (1 + 0.85034551) / 2 = 0.92517276
+//   rounded to the 4 decimal places bin/moon.js emits: k * 10^4 = 9251.7276,
+//   nearest integer 9252  ->  0.9252
+//
+// The instant is chosen deliberately so the three candidate outputs occupy
+// three different values: correct round-to-4 gives 0.9252; a scale factor of
+// 10^(places-1) gives 0.925; trunc-to-4 gives 0.9251 (the fractional part
+// 0.7276 is far from both the .5 rounding boundary and a digit boundary, so
+// the derivation has ~0.2 of a last-digit unit of margin on every side).
+//
+// The CLI has no date flag, so the instant is pinned by shadowing global.Date
+// for the duration of one synchronous in-process main() call (node:test runs
+// each test file in its own process, and tests in this file run sequentially,
+// so the shadow cannot leak into another file's tests; the finally block
+// restores it before anything else in this process runs).
+// ---------------------------------------------------------------------------
+
+test('--json illumination at 2026-01-05T19:00Z equals the hand-derived Meeus value 0.9252 exactly', () => {
+  const { main } = require('../bin/moon.js');
+  const PINNED_MS = 1767639600000; // 2026-01-05T19:00:00.000Z, inside the 1000-3000 consistency domain
+  const RealDate = Date;
+  class PinnedDate extends RealDate {
+    constructor(...args) {
+      if (args.length === 0) super(PINNED_MS);
+      else super(...args);
+    }
+    static now() { return PINNED_MS; }
+  }
+  const realWrite = process.stdout.write;
+  let captured = '';
+  let exitCode;
+  global.Date = PinnedDate;
+  process.stdout.write = (chunk) => { captured += chunk; return true; };
+  try {
+    // --north skips hemisphere detection so the run is fully deterministic.
+    exitCode = main(['--json', '--north']);
+  } finally {
+    global.Date = RealDate;
+    process.stdout.write = realWrite;
+  }
+  assert.strictEqual(exitCode, 0, `--json exited ${exitCode}, output: ${captured}`);
+  const payload = JSON.parse(captured);
+  assert.strictEqual(
+    payload.illumination,
+    0.9252,
+    'illumination at the pinned instant must equal the hand-derived 0.9252 exactly: ' +
+      '0.925 means round() scaled by 10^(places-1), 0.9251 means it truncated instead of rounding, ' +
+      `got ${payload.illumination}`,
+  );
+});
