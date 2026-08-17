@@ -7813,3 +7813,134 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00","usage_reset_at_note":"ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed","model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3","heartbeat":{"ts":1786982988,"next_wakeup_at":1786983588,"pid":0,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"thermostat","dial":0.5},"budget":{"source":"clock","gear":3,"gear_target":3,"ratio":0.0,"mode":"thermostat","k_cap":3,"promote":false,"demote":false,"window_tokens":0,"window_cost_usd":0.0,"api_cap_usd":null,"api_spend_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786982988,"last_real_probe_ts":0,"probe_failures":1,"gear_evidence":"bin/swarm-budget.sh DENIED at kickoff (KI-2, third run running). Gear 3 is the fresh-run cruise default, NOT a measurement. Posture context from runs/allocator.json: posture=normal, weekly_used_pct=6.0, opus_used_pct=0, week_elapsed_pct=6.573, allow_premium_pct=15.13, dial=0.50 -- a fresh weekly window, which is the material difference from run 2 (it died at 100%/97%).","weekly":{"ok":true,"weekly_used_pct":6.0,"opus_used_pct":0,"week_elapsed_pct":6.573,"weekly_heat":0.91,"opus_heat":0.0,"ceiling":5,"promote_blocked":false,"source":"runs/allocator.json (probe denied)"}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":0,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043"],"vetoed":[],"source":"learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)","not_wired":{"ids":["L-011","L-018","L-020","L-021","L-022"],"why":"all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."},"ledger_line_blocked":"record-applied could not run (KI-2) -- third consecutive run","directives":{"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"reviewer":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
 ```
+
+## cycle 67 | 2026-08-17T16:23:11+00:00 | moon | PLAN -> BUILD
+work: inline PLAN (fable Plan seat) — convert the run-3 must-haves into backlog items
+why: step-4 phase gate 2. The DESIGN gate was already satisfied (113 prior decisions on
+  record), but the PLAN gate holds until the backlog covers every must-have in SPEC.md, and the
+  run-3 spec introduced four must-haves no existing item touched.
+models: PLAN seat = fable. Judgment seat, and the flag-matrix enumeration + doc-citation
+  counting are exactly the arithmetic-and-reading work L-026 recommends routing to fable.
+  Gear 3 cruise = routing table as-is, no demotion applied.
+playbook prompt lines: the 2 all-role lines (L-008 sole committer, L-042 sealed gate) plus the
+  6 qa measurement lines (L-034 refute, L-024 discriminator, L-029 two-arm, L-031
+  mutation-measure, L-033 HOLE/BOUNDARY, L-043 no-prose-regex) were appended to the PLAN
+  prompt. cycle.md scopes prompt_lines to build-wave/review-fix/QA roles, so this is a
+  deliberate extension, journaled rather than silent: the planning work IS measurement framing,
+  and L-033 in particular had to reach the seat or it would have proposed hardening before
+  classification.
+
+CONTROL: bin/swarm-notify.sh poll ran clean (relative form, cwd=/opt/swarm). pending[] empty,
+  no inject[] key. Nothing to triage. Tree clean at orient (git status --porcelain silent).
+
+PLAN RETURN — VERIFIED, NOT TRUSTED. The seat returned a structured proposal; every
+  load-bearing claim in it was spot-checked by the conductor against the tree before any of it
+  entered backlog.json. Evidence:
+
+  CONFIRMED — the four flag-interaction branch points exist exactly as cited:
+  $ Read bin/moon.js:80-139
+    :87   const f = 10 ** places                      <- T-155 arm A mutation site
+    :88   return Math.round(value * f) / f            <- T-155 arm B mutation site
+    :96   process.stderr.write(`moon: ${...}\n`)      <- T-156 unpinned prefix
+    :100  if (opts.help)                              <- help gate, precedes everything
+    :109  if (opts.json)                              <- json gate, swallows block/compact
+    :116  hemisphere,                                 <- hemisphere in the json payload
+    :126  if (opts.block) ... :130 if (!opts.compact) <- T-153 surface (block branch)
+    :133  if (!opts.compact)                          <- the line-branch twin           PASS
+
+  CONFIRMED — src/args.js last-one-wins walk, cited by the seat as 117-122, actually 116-121:
+  $ grep -n 'south|north' src/args.js
+    :88  * CONFLICT POLICY - `--south --north` given together: LAST ONE WINS, no error.
+    :116 // Walk the tokens in order; the final north/south token decides.
+    :120 if (token.name === 'south') hemisphere = 'south';
+    :121 else if (token.name === 'north') hemisphere = 'north';
+  One-line-off citation, corrected in the backlog note rather than copied.            PASS
+
+  CONFIRMED — T-155's surface is a REAL hole, and I checked the blindness myself rather than
+  accepting the seat's word for it:
+  $ Read test/cli.test.js:81-85
+    :82  const decimals = (n) => (String(n).split('.')[1] || '').length
+    :83  assert.ok(decimals(payload.illumination) <= 4,
+  A `10 ** (places - 1)` scale factor emits 3 decimals, which still satisfies `<= 4`; a
+  Math.round -> Math.trunc swap also emits <= 4 decimals. So the existing guard is provably
+  blind to BOTH mutation arms. This is the strongest item in the run and it is now evidenced
+  from the source, not inherited from run 2's report.                                  PASS
+
+  CONFIRMED — T-156's surface is exactly as recorded:
+  $ grep -n 'unknown option' test/cli.test.js
+    :306 assert.match(stderr, /unknown option '--bogus'/)
+  Genuinely unanchored — the `moon: ` prefix is unpinned. L-043 applies: the fix must anchor
+  on a structural property, not tighten the prose regex.                               PASS
+
+  DISCREPANCY FOUND, and NOT resolved in the seat's favour — REPORT.md citation count:
+  $ grep -oE '[A-Za-z0-9_.-]+(\.js|\.md|\.json)?:[0-9]+(-[0-9]+)?' REPORT.md
+    13 extension-bearing instances (:173, :174 x2, :183 x2, :238 x3, :239 x3, :240 x2)
+  The seat claimed 15 (13 explicit + 2 bare `:281`/`:346` shorthand my regex cannot count).
+  Rather than pick a number, T-160's acceptance clause is written against the item's OWN
+  enumeration — a disputed count must never become the gate. Discrepancy recorded in the item
+  note so the gate can settle it with a real enumeration.                          PARTIAL
+  $ grep -c citations README.md -> 0 extension-bearing citations, 18 fence markers (9 blocks)
+  $ CONTRACTS.md -> exactly 4 citations                                                PASS
+
+CONDUCTOR-CAUGHT DEFECT IN INHERITED STATE (not something the seat raised): T-155 carried
+  deps=["T-153"] and T-156 carried deps=["T-155"] from run 2, when all three were headed for
+  test/cli.test.js and genuinely needed serializing. Run 3 re-points them at disjoint files
+  (contracts / regressions / cli), so the chain was obsolete AND actively harmful — it blocked
+  the priority-1 item behind two lower-priority ones, which is how a run silently fails to do
+  its most valuable work. Both dep lists cleared, with the reason written into the item notes.
+
+VERIFICATION GATE (PLAN cycle — the gate is the phase gate, authored now, run by the
+  conductor, output pasted):
+  $ python3 -c "<coverage check: every SPEC must-have checkbox -> covering item ids>"
+    SPEC must-have checkboxes found: 7
+      PASS | T-155 resolved or refused with evidence.               -> T-155
+      PASS | T-153 resolved or refused with evidence.               -> T-153
+      PASS | T-156 resolved or refused with evidence.               -> T-156
+      PASS | The flag-interaction matrix is enumerated and measured -> T-157,T-158
+      PASS | Every test added or changed is proven FAILABLE and ATT -> T-153,T-155,T-156,T-158
+      PASS | Every line-cited and output-cited doc claim re-verifie -> T-159,T-160,T-161
+      PASS | Test count is never reported as an outcome.            -> constraint (no item)
+    count-as-outcome scan over acceptance clauses: clean - no acceptance clause names a count
+    pairwise file-scope collisions among todo items:
+      COLLIDE test/cli.test.js ['T-156', 'T-158']
+  PLAN GATE CLEARED 7/7. The one collision is known and already handled: T-158 depends on
+  T-157 by design (L-033 forbids hardening before classification), so it cannot co-schedule
+  with T-156 anyway, and both item notes carry the never-same-wave rule.
+
+  Two must-haves are covered by a CONSTRAINT rather than an item, and that is a judgment call
+  worth stating: (5) the failable-and-attributable proof is the CONDUCTOR's verification
+  method, so it belongs in my gate at dispatch time, not in a builder-visible acceptance
+  clause — a standalone item for it would be unactionable. (7) "test count is never an
+  outcome" constrains phrasing, and I checked it mechanically above rather than asserting it.
+
+  Note on L-042 and T-155's acceptance: the clause names the two mutation SITES
+  (bin/moon.js:87, :88). That names the surface, which is the goal — but it does mean a
+  builder could overfit to those two mutants. My gate will therefore use INDEPENDENT mutant
+  variants at the same sites (run 2's cycle-65 method), not the two named ones, so an overfit
+  test is caught rather than rewarded.
+
+ITEMS FILED: T-157 (flag-matrix enumeration + HOLE/BOUNDARY classification, fable, M),
+  T-158 (harden HOLEs only, deps T-157), T-159 (README captures), T-160 (REPORT citations),
+  T-161 (CONTRACTS appendix citations), T-162 (KI-2 live re-measurement, conductor-inline).
+  REVISED: T-153 pri 4->2, T-155 pri 3->1 + route_class core + fable, T-156 pri 7->3.
+  REFUSED BY THE SEAT and endorsed: no fourth broad sweep; no T-155 decomposition; no
+  unbounded interaction item (bounded to 15 pairs / 7 classes / <=12 mutants with the
+  triple-redundancy argument on record); no items for the three SPEC nice-to-haves (gated
+  behind must-haves); no StrykerJS; no pre-classification hardening of any pair.
+
+OUTCOME: 0 items verified — this cycle filed and gated work rather than shipping it, so
+  counters.consecutive_no_value goes 0 -> 1, counted honestly and not argued away (run 2's
+  cycle 60 set the same precedent for an inline PLAN). The churn breaker's forced-switch
+  threshold is 2, so the next cycle owes verified value: a build wave on T-155 + T-153 +
+  T-157, which are pairwise file-disjoint and fit k=3.
+
+next: cycle 68 — build wave, effective k = min(k_current 3, gear-3 cap 3, hard max 5) = 3,
+  dispatched as DIRECT Agent calls (headless -p session: Workflow is review-gated, per the
+  documented fallback) with strictly disjoint file scopes.
+next wakeup: 1786984691 (+900s — the low end of the 900-1800s no-value band; the band exists to
+  slow churn, and this cycle cleared a phase gate rather than churning, so the minimum is the
+  honest read while still respecting the rule)
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00","usage_reset_at_note":"ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed","model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3","heartbeat":{"ts":1786983791,"next_wakeup_at":1786984691,"pid":1766091,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"thermostat","dial":0.5},"budget":{"source":"clock","gear":3,"gear_target":3,"ratio":0.0,"mode":"thermostat","k_cap":3,"promote":false,"demote":false,"window_tokens":0,"window_cost_usd":0.0,"api_cap_usd":null,"api_spend_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786982988,"last_real_probe_ts":0,"probe_failures":1,"gear_evidence":"bin/swarm-budget.sh DENIED at kickoff (KI-2, third run running). Gear 3 is the fresh-run cruise default, NOT a measurement. Posture context from runs/allocator.json: posture=normal, weekly_used_pct=6.0, opus_used_pct=0, week_elapsed_pct=6.573, allow_premium_pct=15.13, dial=0.50 -- a fresh weekly window, which is the material difference from run 2 (it died at 100%/97%).","weekly":{"ok":true,"weekly_used_pct":6.0,"opus_used_pct":0,"week_elapsed_pct":6.573,"weekly_heat":0.91,"opus_heat":0.0,"ceiling":5,"promote_blocked":false,"source":"runs/allocator.json (probe denied)"}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":1,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043"],"vetoed":[],"source":"learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)","not_wired":{"ids":["L-011","L-018","L-020","L-021","L-022"],"why":"all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."},"ledger_line_blocked":"record-applied could not run (KI-2) -- third consecutive run","directives":{"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"reviewer":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
+```

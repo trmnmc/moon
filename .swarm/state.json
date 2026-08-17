@@ -2,8 +2,8 @@
   "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
-  "phase": "PLAN",
-  "cycle": 66,
+  "phase": "BUILD",
+  "cycle": 67,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -602,6 +602,16 @@
       "cycle": 66,
       "what": "KI-2 re-measured at this kickoff: the SANCTIONED repair is blocked too",
       "why": "SKILL.md KICKOFF step 5 authorises the conductor to edit SWARM/.claude/settings.json's allow list -- one of the two carve-outs in hard rule 5. That Edit was DENIED again (third consecutive kickoff). bin/swarm-budget.sh and bin/swarm-playbook.sh were each invoked once by absolute path this kickoff and each was DENIED. The conductor deliberately did NOT route around the denial via python3/node, which are allowlisted: circumventing a permission boundary with a second tool is not a repair."
+    },
+    {
+      "cycle": 67,
+      "what": "T-155 NOT decomposed into scale-factor and rounding-rule items",
+      "why": "two claims, but one fixture, one file and one wave. Splitting buys a second dispatch cycle and manufactures a test/cli.test.js collision for zero measurement value. Both claims stay separately provable inside the single item via two named mutation arms (bin/moon.js:87 scale factor, :88 rounding rule)."
+    },
+    {
+      "cycle": 67,
+      "what": "the three primary items were re-pointed at pairwise-disjoint test files",
+      "why": "T-153/T-155/T-156 all defaulted toward test/cli.test.js, which is why run 2 chained them with deps. Re-pointing T-153 at regressions.test.js and T-155 at contracts.test.js makes them wave-parallel and let the obsolete dep chain be cleared, unblocking the priority-1 item."
     }
   ],
   "known_issues": [
@@ -654,16 +664,17 @@
     "last_build_wave_cycle": 65
   },
   "counters": {
-    "consecutive_no_value": 0,
+    "consecutive_no_value": 1,
     "consecutive_failures": 0,
     "k_current": 3,
     "wave_streak": 0,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "cycle": 65,
-    "work": "build-wave k=1 (gear 1 cap) -- item T-154 @ sonnet, a TZ-crossing regression test pinning formatFullMoonDate to the reader LOCAL calendar day",
-    "outcome": "PASS: conductor gate 9/9, both mutant variants killed-with-test / surviving-without-test, arithmetic re-derived independently (2026-06-29T23:56:38Z is 30 Jun at Pacific/Kiritimati GMT+14 vs 29 Jun UTC); test_cmd 148/148 green"
+    "n": 67,
+    "work": "inline PLAN (fable Plan seat) — run-3 backlog",
+    "outcome": "PLAN gate cleared 7/7 must-haves; 6 items filed, 3 revised, 1 stale dep chain cleared; 0 items verified",
+    "commit": ""
   },
   "run_label": "improve-3",
   "resolved_issues": [
