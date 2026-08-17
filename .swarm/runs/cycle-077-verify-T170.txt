@@ -1,0 +1,32 @@
+cycle 77 verification gate -- T170
+gate script: /opt/swarm/runs/c077-gate-T170.mjs
+sha256 seal (written BEFORE dispatch, verified at capture time):
+/opt/swarm/runs/c077-gate-T168.mjs: OK
+/opt/swarm/runs/c077-gate-T170.mjs: OK
+exit code: 0
+==============================================================================
+== T-170 gate ==
+  [PASS] src/render.js is byte-identical to HEAD (test-only item, no production change)
+  [PASS] the 0.88 round-limb threshold exists at exactly one site :: 1 site(s)
+  [PASS] README still states the 0.88 behaviour affirmatively (the promise being gated)
+    new test(s) in test/render.test.js: ["T-170: round-limb threshold — outer cell switches HALF -> ROUND_LIMB exactly at cover 0.88, not before or after"]
+  [PASS] at least one genuinely new test was added :: 1 new
+    baseline: tests=160 pass=160 fail=0
+  [PASS] baseline suite figures all parsed (a null figure FAILS, never passes as undefined)
+  [PASS] baseline suite is green :: fail=0
+  [PASS] no test was lost :: tests=160
+    two-arm mutation over the recorded survivor band:
+      value | ARM A (new test present)      | ARM B (new test reverted to HEAD)
+      0.78  | RED fail=1                   | survives   <- attributed to the new test
+      0.8   | RED fail=1                   | survives   <- attributed to the new test
+      0.84  | RED fail=1                   | survives   <- attributed to the new test
+      0.92  | RED fail=1                   | survives   <- attributed to the new test
+      0.95  | RED fail=1                   | survives   <- attributed to the new test
+      0.99  | RED fail=1                   | survives   <- attributed to the new test
+  [PASS] ARM A: every recorded survivor is now KILLED -- the band is CLOSED, not narrowed :: residual: none
+  [PASS] ARM A: every kill is ATTRIBUTABLE to the new test BY NAME (L-029) :: all attributed
+  [PASS] ARM B: with the new test reverted to HEAD the same mutants SURVIVE (the control holds) :: all survive
+  [PASS] the pin fails in BOTH directions -- below 0.88 :: 0.78, 0.8, 0.84
+  [PASS] the pin fails in BOTH directions -- above 0.88 :: 0.92, 0.95, 0.99
+
+GATE T-170: PASS (0 failed check(s))

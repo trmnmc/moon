@@ -157,7 +157,8 @@ emitting seventeen significant digits would be precision theatre.
 
 **Caution on `cycleFraction`.** It is angular, not temporal: `phaseAngle / 360`, the
 Moon–Sun elongation as a fraction of the full circle — not elapsed time through the
-synodic month. Mid-cycle it can lead or lag true elapsed time by up to about 21 hours,
+synodic month. Mid-cycle it can lead or lag true elapsed time by up to 23.03 hours,
+measured over 1990–2060 by the script at `.swarm/runs/T-168-cyclefraction-bound.js`,
 so computing elapsed days as `cycleFraction * 29.53` is wrong by up to most of a day.
 Use the `age` field for elapsed time. The endpoints do hold: at a true new moon
 `cycleFraction` is `0`, and at a true full moon it is `0.5`, each to within about 45

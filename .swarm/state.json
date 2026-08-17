@@ -2,8 +2,8 @@
   "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
-  "phase": "QA",
-  "cycle": 76,
+  "phase": "BUILD",
+  "cycle": 77,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -729,6 +729,21 @@
       "cycle": 76,
       "what": "Gate check G3 failed on its first run and the failure was MY instrument -- fifth instance this run -- so the file list is now derived by glob and the repair is paid for with two strictly stronger assertions.",
       "why": "I hand-typed six test filenames and silently missed contracts.test.js and manifest.test.js, reading 143 where the suite has 159, and my summary regex matched only the TAP '# pass' form so it reported fail=undefined while still rendering a verdict. Both are the same family as cycle 8's .trim() defect, cycle 9's sentence-scope defect, cycle 19's line-wrap defect and cycle 29's @returns defect: the instrument narrower than the thing it measures. Per that standing precedent the widening is not allowed to be free. The file list is now read from the directory so it cannot be mistyped; a null in ANY of the three summary figures now FAILS the gate rather than passing silently as undefined; and the aggregate count is cross-checked against an independently-summed per-file run (159 == 159), which means the exact defect I just committed -- a silently omitted test file -- can no longer survive this gate."
+    },
+    {
+      "cycle": 77,
+      "what": "Deferred the TASTE gate -- the last outstanding gate before POLISH -- and spent the cycle on a k=2 build wave instead, against cycle 76's explicit handoff recommending taste.",
+      "why": "qa-verify mode taste files boredom_findings as feature/polish items. This run's SPEC forbids new features, new flags and a glyph-set redesign outright, and its taste note admits an item ONLY if it traces to (1) a recorded survivor, (2) a failed doc re-verification, or (3) the flag-interaction axis. Taste findings trace to none of the three, so the pass would have spent the perishable premium allowance to file items I had pre-committed not to build -- the T-175 outcome, by construction. The weekly governor also REHEATED this cycle (1.396 -> 1.45, ceiling pinned 2, promote blocked), so the fable seat is dearer than it was at cycle 76 when the recommendation was written. Recorded as a deliberate override of the prior cycle's handoff, not an oversight; the gate remains outstanding and the morning report must say so."
+    },
+    {
+      "cycle": 77,
+      "what": "T-167 was NOT dispatched, though it is the only remaining product-behaviour defect and was the named alternative. The routing rules compose to a repeat of the configuration that already failed.",
+      "why": "Table model for T-167 (kind fix, effort S) is sonnet; attempts=1 escalates ONE rung to opus; gear 2's demote rung then drops opus->sonnet. Net: attempt 2 would run on the SAME model that failed attempt 1 at cycle 75, and a second failure sets attempts>=2 -> blocked + known_issues, spending the item's last attempt for nothing. The escalation ladder exists precisely because the previous rung failed; composing it with the demote rung satisfies neither rule's purpose. Deferred to a cycle whose gear admits opus (gear 3 needs weekly_heat <= 1.3). If the gear never rises before stop_at, dispatch it anyway at gear 2 with this conflict recorded -- run 2 died with its best findings undispatched, and that is the worse failure. Cycle 75 already wrote the design direction (relative per-row eligibility) into the item's notes, so nothing about it decays by waiting."
+    },
+    {
+      "cycle": 77,
+      "what": "Both sealed gates were smoke-run against HEAD BEFORE dispatch, and that smoke caught four defects in my own instruments -- two of which were FALSE PASSES.",
+      "why": "(1) /\\b(?:about|~)\\s*21\\s*hours?\\b/ can never match `~21` -- there is no word boundary between whitespace and `~` -- so the T-168 gate PASSED 'bin/moon.js no longer states a ~21 hour bound' against a completely unfixed help text. (2) The same bug silently passed the --help emission check. (3) Both gates parsed for TAP `# fail` while node's default reporter here is `spec`, yielding null figures. (4) The T-170 harness copied only src/bin/test/package.json, so its baseline was RED (128 tests, 10 failures -- the suite also reads README.md and .swarm/CONTRACTS.md), which made every mutant read as KILLED and reported the band CLOSED when nothing had been written yet. Defect 4 is the sharpest: the tests the narrow copy dropped are T-134's README sweep-table tests, which ARE the incidental killers this very item is about. Sixth instrument failure this run (cycles 8, 9, 19, 29, 76 precede it), and the first where a smoke run against HEAD -- not the gate's own logic -- is what caught it. Per the standing precedent the repair is not free: prose regexes replaced by one structural extractor run against HEAD as a non-vacuity control, TAP forced explicitly, a null figure now throws in EVERY arm rather than only the baseline, and the copy is the whole repo."
     }
   ],
   "known_issues": [
@@ -780,19 +795,20 @@
     "last_look_cycle": 76,
     "last_taste_cycle": 1,
     "last_review_fix_cycle": 73,
-    "last_build_wave_cycle": 75
+    "last_build_wave_cycle": 77
   },
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 3,
-    "wave_streak": 0,
+    "wave_streak": 1,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "cycle": 76,
-    "work": "QA full pass (gate 4, second of three) - spec-only author -> executor -> live-look, direct Agent calls",
-    "outcome": "5/5 scenarios PASS (2 re-run by the conductor); 5 look findings -> 2 filed (T-174, T-175), 1 folded into T-168 as a scope extension, 2 refuted"
+    "cycle": 77,
+    "ts": "2026-08-17T21:42:39+00:00",
+    "work": "build-wave k=2 (T-168, T-170)",
+    "outcome": "2 verified, 0 reverted"
   },
   "run_label": "improve-3",
   "resolved_issues": [

@@ -9903,3 +9903,218 @@ wakeup: `next_wakeup_at` = cycle open + 90 s per cycle.md step 9 (base delay; th
 verified-value cycle, so neither the 900-1800 s no-value delay nor limp's 3600 s applies).
 No ScheduleWakeup call: on the VPS `bin/swarm-pacer.sh` is the firing mechanism and reads
 `next_wakeup_at` directly. Clamp satisfied with ~18.8 h of margin (wakeup + 900 << stop_at).
+
+## cycle 77 | 2026-08-17T21:41:56+00:00 | moon | QA -> BUILD
+
+work: build-wave k=2 — T-168 (the stale "~21 hours" cycleFraction divergence bound, stated
+  at BOTH README.md:160 and bin/moon.js:38, the shipped `--help` text) and T-170 (the
+  README-documented round-limb threshold 0.88, unpinned across ~0.76-0.99). BOTH VERIFIED
+  against sealed gates. 0 reverted.
+why: gear 2's work-choice rule puts must-haves before polish/docs, and both items are
+  must-haves: T-168 is a doc claim that FAILED re-verification (must-have 6) and T-170
+  closes a survivor ALREADY ON RECORD from cycle 73's sweep (SPEC taste-note source 1).
+  Their files_hint sets are pairwise disjoint (README.md + bin/moon.js vs
+  test/render.test.js) — and the doc items T-164/T-169/T-174 all collide with each other on
+  REPORT.md/README.md, while T-171 collides with T-170 on test/render.test.js, so this is
+  also the pair that strands the fewest successors.
+  TWO items were deliberately NOT picked; both are recorded as decisions in state.json
+  rather than left as silent omissions:
+  - the TASTE gate, which cycle 76 explicitly handed forward as the last gate before
+    POLISH. Its findings land as feature/polish items, and this run's SPEC forbids new
+    features and a glyph redesign outright while its taste note admits an item only if it
+    traces to a recorded survivor, a failed doc re-verification, or the flag-interaction
+    axis. Taste findings trace to none of the three, so the pass would have spent the
+    perishable premium allowance to file items already pre-committed as unbuildable — the
+    T-175 outcome by construction. The gate REMAINS OUTSTANDING and the morning report
+    must say so.
+  - T-167, the only remaining product-behaviour defect. See the routing conflict below.
+models: both sonnet (routing table: kind fix, effort S -> sonnet). Gear 2's demote rung did
+  not bite — build/fix items never drop below sonnet. No judgment seats, so the fable guard
+  never came up, and no premium allowance was spent this cycle.
+  ROUTING CONFLICT, recorded for whoever picks T-167 next: its table model is sonnet;
+  attempts=1 escalates ONE rung to opus; gear 2's demote rung then drops opus->sonnet.
+  The rules compose to a REPEAT of the configuration that already failed at cycle 75, and a
+  second failure sets attempts>=2 -> blocked + known_issues, spending the item's last
+  attempt for nothing. Deferred to a cycle whose gear admits opus (gear 3 needs
+  weekly_heat <= 1.3). If the gear never rises before stop_at, dispatch it ANYWAY at gear 2
+  with this conflict recorded — run 2 died with its best findings undispatched and that is
+  the worse failure.
+dispatch: DIRECT Agent calls, not the Workflow tool — headless `-p` session spawned by
+  bin/swarm-pacer.sh (PID walk: bash -> `claude -p /swarm cycle` 1940623), where Workflow is
+  review-gated (documented SKILL.md fallback). SEQUENTIAL, not parallel: cycle 75 took the
+  parallel risk and recorded it as a risk rather than a validated practice, and it applies
+  sharply here — files_hint disjointness is not TEST disjointness, T-168 edits bin/moon.js
+  (exercised by test/cli.test.js) while T-170's whole method is running the suite. The two
+  builders' self-reported suite figures (159 for T-168, 160 for T-170) differ exactly as
+  sequencing predicts. `prompt_lines.builder` (2 playbook lines) were spliced into both
+  briefs, and BOTH are true statements as spliced — see the seal note below.
+craft pack: `node bin/swarm-craft.mjs` ran clean, `degraded: []`. Neither item is
+  craft:"ui" by the flagging rule (no .html/.css/.jsx/.tsx/.vue/.svelte in files_hint, no UI
+  surface named; moon is a terminal CLI), so no splice was made. Recorded, not skipped.
+post-merge checks: NO MERGE OCCURRED — direct-Agent dispatch with strictly disjoint file
+  scopes writes into the working tree, so there are no builder branches to merge
+  sequentially and nothing to revert. collision-scan and the qa-verify look pass are
+  BROWSER-target checks (classic non-module scripts sharing a global namespace,
+  user-visible html/css/assets); moon is a CommonJS terminal CLI with no browser surface, so
+  neither applies. Recorded rather than silently skipped.
+
+budget: the real probe WAS due (`last_real_probe_ts` 2856 s old, past the 1800 s window), so
+  an attempt was genuinely made and genuinely refused:
+  `RUNFILE=/opt/swarm/runs/current.json /opt/swarm/bin/swarm-budget.sh`
+  -> `This command requires approval`. KI-2, ninth consecutive cycle. `probe_failures`
+  7 -> 8; `last_real_probe_ts` IS restamped because the attempt was real.
+  Gear computed by hand from `runs/allocator.json` (ok=true, source=probe, pacer-refreshed)
+  applying bin/swarm-budget.sh lines 125-140 literally: weekly_used 14.0 pct at week_elapsed
+  9.679 pct -> weekly_heat 1.45; opus_used 8 pct -> opus_heat 0.83. weekly_heat > 1.3 ->
+  ceiling 2, promote BLOCKED. Window rho remains UNMEASURED (it needs the denied ccusage
+  probe), so the evidence rule lands the target at cruise 3 and the governor clamps it to 2.
+  Applied gear 2, unchanged — hysteresis did not bind.
+  The heat REHEATED after a single cycle of cooling: 1.224 (c73) -> 1.39 (c74) -> 1.449
+  (c75) -> 1.396 (c76) -> 1.45 (c77), against a week only 9.7 pct elapsed. Cycle 76 read the
+  one-cycle dip as cooling; it was not.
+control: `bin/swarm-notify.sh poll` is denied by the same KI-2 gap, so the channel was read
+  from the file only: `runs/control.json` has `pending: []`, `applied: []`, no `inject`
+  array. Nothing to apply, nothing to triage, no ack to send. Ninth consecutive cycle.
+  A phase change DID occur this cycle (QA -> BUILD) so the step-8 `phase-change` push was
+  due, but it was NOT re-attempted: cycle 76 already measured that exact invocation and put
+  both refusal texts on the record, which is what the SPEC's fourth must-have asked for.
+  Re-measuring an unchanged refusal every cycle adds nothing.
+orient/salvage: tree CLEAN at open (`git status --porcelain` empty). No salvage needed.
+re-anchor: cycle 77 is not a multiple of 5, so the light restatement only — close the
+  measured holes, re-verify every doc claim, no new features, no new deps, astronomy core
+  untouched.
+
+### gate seal
+
+Both gates were authored and sha256-SEALED BEFORE either builder was dispatched, and live
+outside the target repo where builders (who receive target paths only) cannot reach them.
+The seal was re-verified immediately before each run and again at evidence capture:
+
+```
+74a857bede751d45cf86f8d3665ed600cd4bf80973f7dc15207228c38481a6d9  c077-gate-T168.mjs
+5338ce5ed027488e3e2032e90dba368cb2971ee541f376c415b8a603a000070e  c077-gate-T170.mjs
+```
+
+This is what makes the builder prompt line "the conductor seals its verification gate by
+hash before dispatch" a true statement rather than a deterrent I merely assert.
+
+### instrument repair — SIXTH this run, and the first caught by a pre-dispatch smoke run
+
+I smoke-ran both gates against unmodified HEAD before dispatching anything. A gate that
+cannot fail before the work exists is measuring nothing. That smoke caught FOUR defects in
+my own instruments, two of them FALSE PASSES:
+
+1. `/\b(?:about|~)\s*21\s*hours?\b/` can NEVER match `~21` — there is no word boundary
+   between whitespace and `~`. The T-168 gate therefore PASSED "bin/moon.js no longer states
+   a ~21 hour bound" against a completely unfixed help text.
+2. The same bug silently passed the `--help` emission check, reporting the STALE figure as
+   "the corrected figure".
+3. Both gates parsed for TAP (`# fail`) while node's default reporter here is `spec`
+   (`i tests 159`), so every suite figure read null. In the T-170 harness `null > 0` is
+   false, so every mutant would have scored "survives".
+4. The T-170 harness copied only src/bin/test/package.json. Measured: that copy runs
+   **128 tests with 10 failures**, against 159/159 green for a full copy — the suite also
+   reads README.md, `.swarm/CONTRACTS.md` and package.json's `files[]`. A red baseline makes
+   EVERY mutant read as killed, and the gate reported the band CLOSED before a single line
+   had been written. Sharpest of the four: the tests the narrow copy dropped are T-134's
+   README sweep-table tests, which ARE the incidental sub-0.76 killers this item is about.
+
+Defect 1 is the L-043 family exactly (never assert against prose matched by regex). Prior
+instrument failures this run: cycles 8, 9, 19, 29, 76. Per that standing precedent the
+repair is not free — the widened gate is strictly stronger than the one that failed:
+prose regexes replaced by ONE structural extractor that is also run against HEAD as a
+non-vacuity control (so an extractor aimed at the wrong sentence fails loudly instead of
+passing silently); TAP forced explicitly; a null figure now THROWS in every arm rather than
+only the baseline; and the copy is the whole repo minus .git/.swarm/runs.
+
+### VERIFICATION EVIDENCE — T-168 (gate exit 0; full: `.swarm/runs/cycle-077-verify-T168.txt`)
+
+```
+  [PASS] control: the extractor finds the stale 21 h bound in HEAD README.md :: 21
+  [PASS] control: the extractor finds the stale 21 h bound in HEAD bin/moon.js :: 21
+  [PASS] README.md no longer states the stale 21 h bound :: 23.03 h
+  [PASS] bin/moon.js no longer states the stale 21 h bound :: 23.03 h
+  [PASS] the two sites agree on the figure :: 23.03 vs 23.03
+  [PASS] `moon --help` really EMITS the corrected figure to the user :: help says 23.03 h
+  [PASS] README.md minute figures are unchanged from HEAD :: ["45"] vs HEAD ["45"]
+  [PASS] bin/moon.js minute figures are unchanged from HEAD :: ["45"] vs HEAD ["45"]
+    conductor sweep: n=1227216 worst=-23.026 h at 2036-12-29T05:30:00.000Z
+  [PASS] the sweep reproduces the 23.03 h on record (third independent method) :: 23.026 h
+  [PASS] the STATED bound is TRUE -- it does not understate :: 23.03 >= 23.026
+  [REPORT] slack above the measured worst case: 0.004 h
+    suite: tests=160 pass=160 fail=0
+GATE T-168: PASS (0 failed check(s))
+```
+
+The bound is checked for TRUTH by my own sweep (30-min grid over 1990-2060, n=1,227,216),
+not by trusting the builder's citation — a FOURTH independent method now agrees to the
+second decimal. The `--help` check reads the process's real stdout, so a source-only edit
+could not have passed it. One check my gate did NOT cover, run by hand afterwards because a
+doc fix that introduces a dangling citation is a new doc falsity: the README's new citation
+`.swarm/runs/T-168-cyclefraction-bound.js` EXISTS, runs, and reproduces the figure at the
+same instant my gate found —
+`samples: 1227217 / worst divergence: -23.026 h at 2036-12-29T05:30:00.000Z`.
+
+### VERIFICATION EVIDENCE — T-170 (gate exit 0; full: `.swarm/runs/cycle-077-verify-T170.txt`)
+
+```
+  [PASS] src/render.js is byte-identical to HEAD (test-only item, no production change)
+    new test(s): ["T-170: round-limb threshold — outer cell switches HALF -> ROUND_LIMB
+                  exactly at cover 0.88, not before or after"]
+    baseline: tests=160 pass=160 fail=0
+      value | ARM A (new test present)      | ARM B (new test reverted to HEAD)
+      0.78  | RED fail=1                   | survives   <- attributed to the new test
+      0.8   | RED fail=1                   | survives   <- attributed to the new test
+      0.84  | RED fail=1                   | survives   <- attributed to the new test
+      0.92  | RED fail=1                   | survives   <- attributed to the new test
+      0.95  | RED fail=1                   | survives   <- attributed to the new test
+      0.99  | RED fail=1                   | survives   <- attributed to the new test
+  [PASS] ARM A: every recorded survivor is now KILLED -- band CLOSED, not narrowed
+  [PASS] ARM A: every kill is ATTRIBUTABLE to the new test BY NAME (L-029)
+  [PASS] ARM B: with the new test reverted the same mutants SURVIVE (control holds)
+  [PASS] the pin fails in BOTH directions -- below 0.88 :: 0.78, 0.8, 0.84
+  [PASS] the pin fails in BOTH directions -- above 0.88 :: 0.92, 0.95, 0.99
+GATE T-170: PASS (0 failed check(s))
+```
+
+Every one of the six recorded survivors now dies with exactly ONE failing test, and that
+test is the new one BY NAME; with it reverted to HEAD all six survive. That is both arms of
+L-029 run by the conductor over the whole band, not a builder's self-report. My own
+pre-dispatch smoke had independently reproduced cycle 73's survivor set (all six surviving
+at HEAD), so the before/after contrast is measured at both ends.
+RESIDUAL BAND, accepted as BOUNDARY not HOLE: `(62/71, 63/71] ~= (0.873239, 0.887324]`. The
+builder disclosed it unprompted and its reasoning checks out — `sampleCell` quantizes the
+outer cell's cover to multiples of 1/71 (71 of 256 subsamples fall inside the unit disc), so
+two constants strictly inside that interval produce byte-identical output for every input
+and NO test against this code's output can distinguish them. Closing it would require
+changing SUB or the cell geometry in src/render.js, which this test-only item forbids. This
+is the L-033 distinction working as intended: hardening an indiscriminable point would
+produce a check that false-rejects honest output.
+
+churn breaker: `consecutive_no_value` -> 0. Two must-have items verified with conductor-run
+  evidence.
+wave autotune: the wave was CLEAN — zero reverts, zero failed verifies -> `wave_streak`
+  0 -> 1. `k_current` holds at 3 (it rises only at streak 2). Effective wave size was
+  min(k_current 3, gear cap 2) = 2, so the gear bound this wave, not k_current.
+backlog: 7 todo — T-164, T-167, T-169, T-171, T-173, T-174, T-175. T-167 is still the only
+  product-behaviour item; T-175 remains filed-but-not-buildable by the SPEC's taste rule.
+gate-4 status, for whoever picks next: review-fix ran c73, full QA ran c76, and the TASTE
+  pass is STILL the last outstanding gate before POLISH — deferred this cycle by the
+  reasoning above, not forgotten. The cheap certain work left is T-174 then T-164 (both
+  REPORT.md, so they cannot share a wave), T-169 (README+REPORT, collides with both), T-171
+  (test/render.test.js, vacuous-assertion cleanup) and T-173 (polish).
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],
+ "rotation_cursor":0,"rotation_schedule":[0],
+ "stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00",
+ "model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3",
+ "pacing":{"mode":"thermostat","dial":0.5},
+ "budget":{"gear":2,"gear_target":2,"k_cap":2,"promote":false,"demote":true,
+   "probe_failures":8,"weekly":{"ok":true,"weekly_used_pct":14.0,"opus_used_pct":8,
+   "week_elapsed_pct":9.679,"weekly_heat":1.45,"opus_heat":0.83,"ceiling":2,
+   "promote_blocked":true}},
+ "watchdog":{"mode":"normal","plist_loaded":true},"caffeinate_pid":0,
+ "wrap_up_complete":false,"cycles_since_recycle":11}
+```

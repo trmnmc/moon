@@ -713,3 +713,60 @@ test('KI-5 pin: disc glyph set matches the documented East Asian Width partition
     `undocumented disc glyphs changed: observed ${JSON.stringify(hex(observedOther))}, expected ${JSON.stringify(hex([...UNDOCUMENTED_DISC_GLYPHS]))}`,
   );
 });
+
+// ---------------------------------------------------------------------------
+// T-170 pin — the round-limb threshold constant itself (README.md ~line 239)
+//
+// README.md states, by number, that round-limb glyphs (◗ ◖) are drawn "once
+// the outer cell's lit fraction reaches 0.88, not only when it is fully
+// lit." That was a HOLE, not a BOUNDARY: nothing tied a test to the number
+// 0.88 in src/render.js's `else if (cover < 0.88) ... else ROUND_LIMB`, so
+// moving the constant anywhere in roughly 0.76-0.99 survived the suite
+// untouched. The only prior kills (below ~0.76) were incidental — hits from
+// T-134's README sweep-table reproduction noticing some unrelated rendered
+// row had changed, not a test that knows this threshold exists.
+//
+// This test pins the transition directly by finding the two illuminations
+// where the *outer* line-art cell's `cover` (see sampleCell/lineArt in
+// src/render.js) sits on the two grid values that straddle 0.88. For the
+// LINE_CELLS=5, SUB=16 outer cell, cover is always a multiple of 1/71 (71 of
+// the cell's 256 subsamples fall inside the unit disc); the two grid values
+// bracketing 0.88 are 62/71 ~= 0.873239 (just under) and 63/71 ~= 0.887324
+// (just at/over). Because cover can never land strictly between those two
+// values, (62/71, 63/71] is the tightest bracket any test can put on this
+// constant — a mutant threshold anywhere in that half-open interval is not
+// just hard to catch, it is unobservable in rendered output, indistinguishable
+// from 0.88 itself. Every value outside that interval (in particular the
+// whole measured survivor band 0.78/0.80/0.84/0.92/0.95/0.99) sits on the far
+// side of one of these two asserts and is caught by it.
+//
+// illumination=0.1575 and illumination=0.1611 were picked by direct
+// numerical search over sampleCell (see run notes) to land deep inside the
+// respective cover-62/71 and cover-63/71 plateaus (~0.0017-0.0019 of
+// illumination clear on both sides of each plateau boundary), so the pin
+// itself is not balanced on a knife's edge.
+// ---------------------------------------------------------------------------
+
+test('T-170: round-limb threshold — outer cell switches HALF -> ROUND_LIMB exactly at cover 0.88, not before or after', () => {
+  // Both waxing (f < 0.5), so the sunward outer cell is the disc's rightmost
+  // (index 4) and the glyphs in play are HALF.right '▐' vs ROUND_LIMB.right '◗'.
+
+  // cover = 62/71 ~= 0.873239, the largest grid value strictly below 0.88.
+  const justBelow = state('waxing crescent', 0.12990109125282726, 0.1575);
+  // cover = 63/71 ~= 0.887324, the smallest grid value at-or-above 0.88.
+  const justAtOrAbove = state('waxing crescent', 0.13146676231813922, 0.1611);
+
+  const lineBelow = disc(renderLine(justBelow, 'north'));
+  const lineAtOrAbove = disc(renderLine(justAtOrAbove, 'north'));
+
+  assert.equal(
+    lineBelow,
+    '░░░░▐',
+    `cover 62/71 (< 0.88) must still draw the HALF glyph, got ${JSON.stringify(lineBelow)}`,
+  );
+  assert.equal(
+    lineAtOrAbove,
+    '░░░░◗',
+    `cover 63/71 (>= 0.88) must draw the ROUND_LIMB glyph, got ${JSON.stringify(lineAtOrAbove)}`,
+  );
+});

@@ -1,0 +1,31 @@
+cycle 77 verification gate -- T168
+gate script: /opt/swarm/runs/c077-gate-T168.mjs
+sha256 seal (written BEFORE dispatch, verified at capture time):
+/opt/swarm/runs/c077-gate-T168.mjs: OK
+/opt/swarm/runs/c077-gate-T170.mjs: OK
+exit code: 0
+==============================================================================
+== T-168 gate ==
+    HEAD baseline: README=21 h  bin/moon.js=21 h
+  [PASS] control: the extractor finds the stale 21 h bound in HEAD README.md :: 21
+  [PASS] control: the extractor finds the stale 21 h bound in HEAD bin/moon.js :: 21
+  [PASS] README.md still states a lead/lag bound figure :: 23.03 h
+  [PASS] bin/moon.js still states a lead/lag bound figure :: 23.03 h
+  [PASS] README.md no longer states the stale 21 h bound :: 23.03 h
+  [PASS] bin/moon.js no longer states the stale 21 h bound :: 23.03 h
+  [PASS] the two sites agree on the figure :: 23.03 vs 23.03
+  [PASS] `moon --help` runs :: 42 lines
+  [PASS] `moon --help` really EMITS the corrected figure to the user :: help says 23.03 h
+  [PASS] `moon --help` no longer emits the stale 21 h bound :: 23.03 h
+  [PASS] README.md minute figures are unchanged from HEAD :: ["45"] vs HEAD ["45"]
+  [PASS] bin/moon.js minute figures are unchanged from HEAD :: ["45"] vs HEAD ["45"]
+    conductor sweep: n=1227216 worst=-23.026 h at 2036-12-29T05:30:00.000Z
+  [PASS] the sweep reproduces the 23.03 h on record (third independent method) :: 23.026 h
+  [PASS] the STATED bound is TRUE -- it does not understate the measured worst case :: stated 23.03 h >= measured 23.026 h
+  [REPORT] slack above the measured worst case: 0.004 h
+    suite: tests=160 pass=160 fail=0
+  [PASS] suite figures all parsed (a null figure FAILS, never passes as undefined)
+  [PASS] suite is green :: fail=0
+  [PASS] no test was lost :: tests=160 (159 at HEAD)
+
+GATE T-168: PASS (0 failed check(s))

@@ -35,7 +35,7 @@ where you are, pass --south or --north.
   cycleFraction 0..1 through the synodic month (0 = new, 0.5 = full)
                 CAUTION: this is angular (elongation / 360), not elapsed
                 time. Mid-cycle it can lead/lag true elapsed time by up to
-                ~21 hours, so multiplying it by 29.53 to get days is wrong.
+                ~23.03 hours, so multiplying it by 29.53 to get days is wrong.
                 Use the age field for elapsed time. The endpoints do hold:
                 at a true new/full moon this is 0 / 0.5 to within ~45 min.
   phaseAngle    elongation in degrees, 0..360: 0 = new, 180 = full

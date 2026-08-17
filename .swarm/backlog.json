@@ -1362,10 +1362,11 @@
       "model": "haiku",
       "acceptance": "The stated bound is true for the range the sentence claims, with the figure computed IN-REPO and its derivation shown or cited (the no-unsourced-numbers rule this run has applied since cycle 2). If the sentence is rescoped rather than renumbered, the new scope must be the one actually measured. No magnitude may appear that is not reproducible from a committed script.",
       "notes": "REVIEW-FIX cycle 73, reviewer A finding 1, verifier REPRODUCED (23.03 h over both 1990-2060 and 1900-2100). Conductor's own sweep, 2026-2040 hourly, independent wrap handling:\n  n=122712 worst=-23.03 h at 2036-12-29T05:00:00Z\n  samples exceeding the documented 21 h: 1503 (1.22%)\n  at extremum: age=11.5595 d  cycleFraction*SY=10.6001 d\nThe paragraph's ADVICE (use age; expect errors up to most of a day) is unaffected \u2014 only the number is understated. Evidence: runs/c073-gate.mjs, section A1.\n\nSCOPE EXTENDED AT CYCLE 76 (QA look pass, conductor-verified G4). The item was filed against README.md ALONE; the same stale figure is emitted to every user by `moon --help` from bin/moon.js:38 (\"~21 hours\"). Verified two ways: the literal is in the source at exactly one site, and `--help` really prints it (a source comment would not have been enough). The cycle-76 look agent measured 23.03 h INDEPENDENTLY of cycle 73's sweep (different method, 6-hour grid over 1990-2060 refined at 5-minute resolution vs cycle 73's hourly 2026-2040 sweep) and the two agree to the second decimal, so the replacement figure is now double-sourced. The look pass also checked the OTHER number in the same CAUTION paragraph -- \"endpoints hold to within ~45 min\" -- and it stands (measured 43.8 min at full, 42.1 min at new). Fix both sites in one item; do NOT touch the 45-min figure. NOTE FOR THE BUILDER: bin/moon.js's help text is product output, so check whether any test pins it before editing.",
-      "status": "todo",
+      "status": "done",
       "deps": [],
       "packages": [],
-      "attempts": 0
+      "attempts": 0,
+      "verified_cycle": 77
     },
     {
       "id": "T-169",
@@ -1399,10 +1400,11 @@
       "model": "sonnet",
       "acceptance": "A test names and pins the round-limb threshold so that moving it in EITHER direction fails the suite, proven two-arm: the new test fails against a specific mutant of the constant BY NAME, and that same mutant survives with the new test reverted to HEAD. The band measured below must be closed, not merely narrowed \u2014 state the residual band if any survives.",
       "notes": "REVIEW-FIX cycle 73, reviewer B finding 6. THE CONDUCTOR'S OWN MEASUREMENT CORRECTS BOTH AGENTS: the reviewer (0.95) and the verifier (0.80) each ran ONE mutant, both survived, and both concluded the constant is pinned by nothing. A third value killed it, so the hole is one-sided and bounded, not total. Full sweep, whole suite per value (runs/c073-gate-b6b.mjs):\n  0.60 KILLED | 0.70 KILLED | 0.75 KILLED  (all by T-134's README sweep-table reproduction)\n  0.80 SURVIVES | 0.84 SURVIVES | 0.92 SURVIVES | 0.95 SURVIVES | 0.99 SURVIVES\nSo: unpinned across ~0.76-0.99, and the sub-0.76 kill is incidental (a README table whose rows happen to change), not a test that knows the threshold exists. Mutant output is visible: 86/1000 renders differ at 0.70, e.g. at 95% illumination |#|##<| -> |<|##<|. HOLE, not BOUNDARY: README:239-241 states the 0.88 behaviour affirmatively, so it is a documented promise with no gate.",
-      "status": "todo",
+      "status": "done",
       "deps": [],
       "packages": [],
-      "attempts": 0
+      "attempts": 0,
+      "verified_cycle": 77
     },
     {
       "id": "T-171",
