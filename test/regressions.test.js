@@ -6,7 +6,7 @@
 
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { execFileSync } = require('node:child_process')
+const { execFileSync, spawn } = require('node:child_process')
 const fs = require('node:fs')
 const path = require('node:path')
 const { renderLine, renderBlock } = require('../src/render.js')
@@ -682,5 +682,116 @@ test('T-135/T-136 — every sweep-table row is a (name, percent) pair the shippi
       `escalated window is simply too narrow to find — re-run ` +
       '.swarm/runs/c41-measure.js with a wider span/finer step to check before assuming ' +
       `(1): ${JSON.stringify(row)}`)
+  }
+})
+
+// T-165 — bin/moon.js had no 'error' handler on process.stdout. If the reader on the
+// other end of the pipe closes before a single byte is read (e.g. `moon | head -1`
+// once head has already exited, or any consumer that disappears early), the write call
+// itself returns successfully; the broken pipe only shows up afterwards, asynchronously,
+// as an 'error' event on the stream. With no listener, Node's default behaviour is to
+// throw that as an uncaught exception: a Node stack trace on stderr and exit 1, even
+// though nothing about the computation failed. README:171 promises "Errors go to
+// stderr and exit 2; normal output goes to stdout. Safe to pipe" — {0, 2} are the only
+// documented codes, and a downstream reader closing the pipe is not this program's
+// error, so the closed-pipe path must exit 0 with nothing but silence on stderr.
+//
+// Reproduced with a real child process, not the in-process Date-faking idiom used
+// elsewhere in this file: that idiom calls require(BIN).main([]) inside the TEST
+// process, so it writes to the test runner's own stdout, which is never closed. This
+// needs an actual pipe whose read end is destroyed before any byte crosses it — the
+// same shape as `node bin/moon.js | true`.
+function runWithClosedStdout (args) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [BIN, ...args], {
+      env: { ...process.env, TZ: 'UTC' }
+    })
+    let stderr = ''
+    child.stderr.on('data', (chunk) => { stderr += chunk })
+    child.on('error', reject)
+    child.on('close', (code, signal) => resolve({ code, signal, stderr }))
+    // Destroy the read end of the child's stdout pipe before a single byte is read.
+    child.stdout.destroy()
+  })
+}
+
+test('a reader that closes stdout before reading any byte gets exit 0 and no Node stack trace on stderr, in every output mode', async () => {
+  for (const args of [[], ['--compact'], ['--block'], ['--json']]) {
+    const label = args.length ? args.join(' ') : '(default)'
+    const { code, signal, stderr } = await runWithClosedStdout(args)
+
+    assert.equal(signal, null, `moon ${label} was killed by a signal (${signal}) instead of exiting`)
+    assert.equal(code, 0,
+      `moon ${label} with stdout closed before any read must exit 0 — README:171's only ` +
+      'documented codes are {0, 2}, and a closed downstream reader is not this ' +
+      `program's error — got exit code ${code}. stderr was: ${JSON.stringify(stderr)}`)
+    assert.doesNotMatch(stderr, /at .*(?:\(.*:\d+:\d+\)|:\d+:\d+)/,
+      `moon ${label} with stdout closed must print no Node stack trace on stderr, got: ` +
+      JSON.stringify(stderr))
+    assert.doesNotMatch(stderr, /Error(?:: |\[)|uncaught/i,
+      `moon ${label} with stdout closed must print no uncaught-exception banner on ` +
+      `stderr, got: ${JSON.stringify(stderr)}`)
+  }
+})
+
+// T-165 — the companion to the test above, and the one that pins its blast radius. The
+// closed-pipe handler runs on BOTH standard streams, so it also fires for the usage-error
+// path, whose message goes to stderr. `2>&1 | ...` is an ordinary shell idiom
+// (`moon --nope 2>&1 | head`, `... 2>&1 | grep -q`), and it hands the program a single
+// dead pipe on fd 1 AND fd 2. A handler that "helpfully" forces process.exitCode = 0 on
+// EPIPE then rewrites the exit 2 that README:171 documents into a silent 0, so a caller's
+// `if ! moon ...` check passes on a run that actually failed.
+//
+// Nothing in the handler needs to touch process.exitCode: pipes are asynchronous on
+// POSIX, so the 'error' event is delivered from the event loop, strictly after the
+// synchronous `process.exitCode = main(...)` in bin/moon.js has already recorded main's
+// verdict. Swallowing the event preserves it; assigning to it destroys it.
+//
+// Both read ends are destroyed before the child writes a byte, which is exactly what the
+// program under test sees for `2>&1 | true`: whether fd 1 and fd 2 name one pipe or two,
+// each write returns EPIPE. stderr is deliberately not captured here — it is inside the
+// closed pipe, which is the whole point — so the exit code carries the assertion. That is
+// sufficient to catch a crash too: an unhandled EPIPE exits 1, not 2.
+function runWithClosedStdoutAndStderr (args) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [BIN, ...args], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: { ...process.env, TZ: 'UTC' }
+    })
+    child.on('error', reject)
+    child.on('close', (code, signal) => resolve({ code, signal }))
+    child.stdout.destroy()
+    child.stderr.destroy()
+  })
+}
+
+test('T-165 — a usage error still exits 2 when the dead pipe swallows stderr too (`moon --nope 2>&1 | true`)', async () => {
+  // One of each shape parseArgs rejects: unknown option, positional, value on a flag.
+  // (`--south --north` is NOT in this list: src/args.js documents last-one-wins for it.)
+  for (const args of [['--nope'], ['tonight'], ['--json=yes']]) {
+    const label = args.join(' ')
+
+    // 1. stderr merged into the closed pipe: the documented code must not move.
+    const merged = await runWithClosedStdoutAndStderr(args)
+    assert.equal(merged.signal, null,
+      `moon ${label} 2>&1 | (closed) was killed by a signal (${merged.signal}) instead of exiting`)
+    assert.equal(merged.code, 2,
+      `moon ${label} 2>&1 | (closed) must still exit 2 — README:171 documents 2 for a ` +
+      'usage error, and a documented exit code must not depend on whether the reader is ' +
+      `still alive — got exit code ${merged.code}`)
+
+    // 2. Only stdout closed: same code, and the message still reaches a live stderr as a
+    //    single line, with no stack trace riding along behind it.
+    const { code, signal, stderr } = await runWithClosedStdout(args)
+    assert.equal(signal, null,
+      `moon ${label} | (closed) was killed by a signal (${signal}) instead of exiting`)
+    assert.equal(code, 2,
+      `moon ${label} with stdout closed must still exit 2, got ${code}. ` +
+      `stderr was: ${JSON.stringify(stderr)}`)
+    assert.match(stderr, /^moon: .+\n$/,
+      `moon ${label} must report the usage error as one "moon: ..." line on stderr, got: ` +
+      JSON.stringify(stderr))
+    assert.doesNotMatch(stderr, /at .*(?:\(.*:\d+:\d+\)|:\d+:\d+)/,
+      `moon ${label} must print no Node stack trace on stderr, got: ${JSON.stringify(stderr)}`)
   }
 })

@@ -39,11 +39,75 @@ function runFailing (args, tz = 'UTC') {
   }
 }
 
+// Spawns the real binary with Date pinned to a fixed instant, so a rendered line
+// can be produced for a "now" chosen to land the next full moon on a specific kind
+// of day (single- vs double-digit), rather than depending on whatever day it is
+// when the suite happens to run. Same in-process date-faking idiom as
+// test/regressions.test.js (subclass Date so `new Date()`/`Date.now()` return a
+// fixed instant), reimplemented here rather than importing it, since that file is
+// off limits to edit this cycle.
+function runAtFixedInstant (iso, args = []) {
+  const script = [
+    `const R = Date; const f = new R(${JSON.stringify(iso)});`,
+    'class D extends R { constructor(...a){ a.length ? super(...a) : super(f.getTime()) }',
+    '  static now(){ return f.getTime() } }',
+    'global.Date = D;',
+    'require(' + JSON.stringify(BIN) + ').main(' + JSON.stringify(args) + ');'
+  ].join('\n')
+  return execFileSync(process.execPath, ['-e', script],
+    { encoding: 'utf8', env: { ...process.env, TZ: 'UTC' } })
+}
+
 test('default output is exactly two lines: the phase line and the next full moon', () => {
   const out = run()
   const lines = out.replace(/\n$/, '').split('\n')
   assert.equal(lines.length, 2)
-  assert.match(lines[1], /^ +next full moon {2}\d{1,2} [A-Z][a-z]{2}/)
+  // The day is padStart(2, ' '): a single-digit day prints as " N" (three spaces
+  // after "moon" total), a double-digit day as "NN" (two spaces). Both are the
+  // correct rendering; only these two shapes are legal, so accept exactly them
+  // rather than loosening to \s+ (which would also accept a broken width).
+  assert.match(lines[1], /^ +next full moon(?: {3}\d| {2}\d{2}) [A-Z][a-z]{2}/)
+})
+
+// The regex above only exercises whatever day-of-month happens to be "today" when
+// the suite runs, so it alone cannot prove the single-digit and double-digit
+// shapes are actually the SAME column-aligned rendering rather than two
+// independently-plausible-looking spellings. Pin "now" to two dates whose next
+// full moon lands on a single-digit day (2026-01-03) and a double-digit day
+// (2026-06-29) respectively -- picked by calling the repo's own nextFullMoon(now)
+// and confirmed below by asserting the produced day actually has the expected
+// digit count -- then assert the property the padding exists for: the day's last
+// digit lands in the same column on both lines. That is what "right-aligned"
+// means, and it is what breaks if padStart(2, ' ') is removed, independent of any
+// particular whitespace count.
+test('the next-full-moon day right-aligns to the same column for 1- and 2-digit days', () => {
+  const singleDigitOut = runAtFixedInstant('2026-01-01T00:00:00Z')
+  const doubleDigitOut = runAtFixedInstant('2026-06-01T00:00:00Z')
+  const singleLine = singleDigitOut.split('\n').find((l) => l.includes('next full moon'))
+  const doubleLine = doubleDigitOut.split('\n').find((l) => l.includes('next full moon'))
+  assert.ok(singleLine, 'no next-full-moon line in single-digit-day render')
+  assert.ok(doubleLine, 'no next-full-moon line in double-digit-day render')
+
+  const lineRe = /^( +next full moon +)(\d{1,2}) ([A-Z][a-z]{2})/
+  const singleMatch = singleLine.match(lineRe)
+  const doubleMatch = doubleLine.match(lineRe)
+  assert.ok(singleMatch, `unexpected shape: ${JSON.stringify(singleLine)}`)
+  assert.ok(doubleMatch, `unexpected shape: ${JSON.stringify(doubleLine)}`)
+  assert.equal(singleMatch[2].length, 1,
+    `test fixture expected a single-digit day, got: ${JSON.stringify(singleLine)}`)
+  assert.equal(doubleMatch[2].length, 2,
+    `test fixture expected a double-digit day, got: ${JSON.stringify(doubleLine)}`)
+
+  // Column of the day field's last character = length of everything before the
+  // digits (indent + "next full moon" + all the spaces, mandatory and padded)
+  // plus the digit count itself. padStart(2, ' ') makes this constant regardless
+  // of digit count; without it, the single-digit line would land one column short.
+  const singleDayEndCol = singleMatch[1].length + singleMatch[2].length
+  const doubleDayEndCol = doubleMatch[1].length + doubleMatch[2].length
+  assert.equal(singleDayEndCol, doubleDayEndCol,
+    'the day\'s last digit must land in the same column whether the day is 1 or 2 digits ' +
+    `(single-digit render: ${JSON.stringify(singleLine)}, ` +
+    `double-digit render: ${JSON.stringify(doubleLine)})`)
 })
 
 test('--compact collapses to exactly one line (the MOTD/prompt interface)', () => {

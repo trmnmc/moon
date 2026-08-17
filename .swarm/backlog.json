@@ -1301,13 +1301,13 @@
         "bin/moon.js",
         "test/regressions.test.js"
       ],
-      "model": "sonnet",
+      "model": "opus",
       "acceptance": "Running the CLI with its stdout reader gone before any byte is read exits with a documented code and prints NO Node stack trace on stderr, in every output mode (default, --compact, --block, --json). Ordinary piping still exits 0 with byte-identical stdout. The behaviour is pinned by a test that FAILS against the current unguarded code and passes after the fix, and the test must name the condition it closes. Whatever exit code is chosen is the one the docs state; if README:171's \"Safe to pipe\" is kept, it must be true as written.",
       "notes": "REVIEW-FIX cycle 73, reviewer B finding 1, verifier REPRODUCED, conductor re-ran it independently by a third route (node spawn with stdio pipe, c.stdout.destroy() before any read) across three modes:\n  argv=(default)  exit=1  stderr=STACK+EPIPE\n  argv=--block    exit=1  stderr=STACK+EPIPE\n  argv=--json     exit=1  stderr=STACK+EPIPE\n  ordinary \"| head -1\": EXIT=0  stderr_len=0\nSEVERITY IS THE CONDUCTOR'S, NOT THE REVIEWER'S: reviewer said high, the verifier downgraded to low on the ground that ordinary piping is unaffected (the whole output is one small buffered write). Landed at MEDIUM: the crash needs a reader that exits without reading (head -0, | true, quitting a pager early), which is uncommon but not exotic, and when it happens the user sees a raw Node stack trace from a product whose README promises the opposite. Exit 1 is also outside the documented {0,2}. Evidence: runs/c073-gate.mjs, section B1.",
-      "status": "todo",
+      "status": "done",
       "deps": [],
       "packages": [],
-      "attempts": 0
+      "attempts": 1
     },
     {
       "id": "T-166",
@@ -1322,7 +1322,7 @@
       "model": "sonnet",
       "acceptance": "The next-full-moon line assertion passes for BOTH a single-digit and a double-digit day of month, and the fix is proven date-independent by exercising the assertion against a rendered line of each shape rather than by loosening the regex until it stops mattering. The right-alignment the source calls load-bearing (bin/moon.js:64) must still be asserted \u2014 a fix that stops checking the padding entirely trades a time bomb for a blind spot and does not pass.",
       "notes": "REVIEW-FIX cycle 73, reviewer B finding 2, verifier REPRODUCED, conductor re-measured independently (no Date mocking \u2014 counted single-digit next-full-moon days directly off the shipped nextFullMoon):\n  two-space (day 28): regex=true\n  three-space (day 9): regex=false\n  single-digit next-full-moon days in next 730: 157 (21.5%)\n  first offending calendar day: 2028-03-12 -> full 2028-04-09\nThe render is CORRECT; the test is wrong. Reviewer called it high, verifier medium on the ground that the first failure is 19 months out. Conductor concurs with MEDIUM: latent, deterministic, and it will fire on a machine nobody is watching. Evidence: runs/c073-gate.mjs, section B2.",
-      "status": "todo",
+      "status": "done",
       "deps": [],
       "packages": [],
       "attempts": 0

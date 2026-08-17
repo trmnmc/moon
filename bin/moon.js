@@ -137,6 +137,35 @@ function main (argv) {
 }
 
 if (require.main === module) {
+  // T-165 — a downstream reader that closes its end of the pipe before reading any
+  // byte (e.g. `moon | head -1` once head has already exited) makes
+  // process.stdout.write() return successfully; the broken pipe only surfaces
+  // afterwards, asynchronously, as an 'error' event on the stream. With no listener,
+  // Node's default is to throw that as an uncaught exception: a stack trace on stderr
+  // and exit 1, for a condition that is not this program's error. README:171 documents
+  // exactly two exit codes, {0, 2} — a closed downstream reader must not invent a third
+  // code, nor overwrite one the run already earned.
+  // This must be installed before main() runs, so it is in place before the first write.
+  //
+  // Swallow only — the handler deliberately does NOT touch process.exitCode. Pipes are
+  // asynchronous on POSIX, so this fires from the event loop, strictly AFTER the
+  // synchronous `process.exitCode = main(...)` below has already stored main's verdict:
+  // 0 for a successful render, 2 for a usage error. Silencing the event therefore keeps
+  // exactly that verdict. Forcing 0 here would be a no-op on the success path it was
+  // written for, and would silently rewrite a documented exit 2 into 0 whenever stderr
+  // shares the dead pipe (`moon --nope 2>&1 | head`) — a documented exit code must not
+  // depend on whether the reader is still alive.
+  const silenceClosedPipe = (stream) => {
+    stream.on('error', (err) => {
+      if (err && err.code === 'EPIPE') return
+      // Anything else is a genuine stream fault, not a closed reader: let it surface
+      // exactly as it would with no listener installed at all.
+      throw err
+    })
+  }
+  silenceClosedPipe(process.stdout)
+  silenceClosedPipe(process.stderr)
+
   process.exitCode = main(process.argv.slice(2))
 }
 

@@ -1,0 +1,26 @@
+=== T-166 G1 — the two pinned instants really do produce the two day shapes ===
+  [PASS] SINGLE 2028-03-12T12:00:00Z :: "            next full moon   9 Apr"
+  [PASS] DOUBLE 2026-08-17T12:00:00Z :: "            next full moon  28 Aug"
+=== T-166 G2 — the working-tree cli.test.js passes at BOTH day shapes ===
+  [PASS] single-digit day :: suite file green
+  [PASS] two-digit day :: suite file green
+=== T-166 G3 — NON-VACUITY: HEAD cli.test.js FAILS at the single-digit shape ===
+  [PASS] HEAD assertion vs single-digit day :: ✖ default output is exactly two lines: the phase line and the next full moon (84.016667ms) | ✔ --compact collapses to exactly one line (the MOTD/prompt interfac
+  [PASS] HEAD assertion vs two-digit day (control: must still pass) :: green
+=== T-166 G4 — the padding is STILL asserted BY cli.test.js itself ===
+  [PASS] working-tree cli.test.js kills the no-pad mutant :: killed
+  [PASS] attribution control: HEAD cli.test.js was blind to it :: HEAD survived the mutant, so the kill belongs to the new assertion
+=== T-166 G5 — bin/moon.js untouched by this item ===
+  [FAIL] render left alone (the test was wrong, not the render) :: changed: bin/moon.js test/cli.test.js test/regressions.test.js
+
+T-166 GATE: FAIL (1)
+  [KILLED  ] M1 wrong width: padStart(3)
+               by: default output is exactly two lines: the phase line and the next full moon
+  [KILLED  ] M2 wrong side: padEnd(2)
+               by: the next-full-moon day right-aligns to the same column for 1- and 2-digit days
+  [KILLED  ] M3 wrong filler: padStart(2, '0')
+               by: the next-full-moon day right-aligns to the same column for 1- and 2-digit days
+  [KILLED  ] M4 removed entirely (builder's own case, as control)
+               by: the next-full-moon day right-aligns to the same column for 1- and 2-digit days
+
+0 survivor(s) of 4. Survivors are not automatically holes — judge HOLE vs BOUNDARY before hardening (L-033).

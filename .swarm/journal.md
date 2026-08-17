@@ -9156,3 +9156,257 @@ next: cycle 74 = fixers for the three medium items (T-165, T-166, T-167) as a bu
   items, then QA full and TASTE — the two gate-4 passes still owed.
 
 runfile-mirror: {"version": 1, "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-18T16:02:34+00:00", "usage_reset_at": "2026-08-17T21:00:00+00:00", "usage_reset_at_note": "ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed", "model_policy": "value-routing", "auth_mode": "subscription", "run_label": "moon-improve-3", "heartbeat": {"ts": 1786994695, "next_wakeup_at": 1786994785, "pid": 1845659, "limp": false, "degraded_tiers": []}, "pacing": {"mode": "thermostat", "dial": 0.5}, "budget": {"source": "clock+allocator", "gear": 3, "gear_target": 3, "ratio": 0.0, "mode": "thermostat", "k_cap": 3, "promote": false, "demote": false, "window_tokens": 0, "window_cost_usd": 0.0, "api_cap_usd": null, "api_spend_usd": 0.0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786994695, "last_real_probe_ts": 1786994695, "probe_failures": 6, "gear_evidence": "cycle 73: probe ATTEMPTED and REFUSED. now-last_real_probe_ts was 2067s at cycle open, past the 1800s re-probe window, so cycle.md step 1 required the invocation; `bash bin/swarm-budget.sh` was run and the harness refused it (\"part requires approval\"). The allowlist carries Bash(bin/swarm-notify.sh:*) and no entry for swarm-budget.sh at all -- KI-2 exactly as re-measured at cycle 71. probe_failures 5 -> 6 and last_real_probe_ts stamped, because an attempt was genuinely made this time rather than skipped by rule. Gear computed by hand from runs/allocator.json (ok=true, source=probe, pacer-refreshed): weekly_used 10.0 pct at week_elapsed 8.172 pct -> weekly_heat 1.224 (cooling from 1.26 at cycle 72 as the week elapses against flat usage); opus_used 4 pct -> opus_heat 0.49. Applying swarm-budget.sh lines 129-140 by hand: heat >1.1 but <1.3, so ceiling stays 3 and promote stays unblocked; opus_heat well under 1.2. Window rho remains UNMEASURED (needs the denied ccusage probe), so the evidence rule lands cruise. Gear 3, k_cap 3, demote false -- unchanged.", "weekly": {"ok": true, "weekly_used_pct": 10.0, "opus_used_pct": 4, "week_elapsed_pct": 8.172, "weekly_heat": 1.224, "opus_heat": 0.49, "ceiling": 3, "promote_blocked": false, "source": "runs/allocator.json ok=true source=probe (pacer-refreshed); heat + ceiling computed by hand from its fields because bin/swarm-budget.sh is denied (KI-2)"}}, "watchdog": {"mode": "normal", "plist_loaded": true, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "caffeinate_pid": 0, "wrap_up_complete": false, "cycles_since_recycle": 7, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}, "playbook": {"mode": "auto", "applied": ["L-008", "L-011", "L-016", "L-018", "L-020", "L-021", "L-022", "L-024", "L-026", "L-029", "L-031", "L-033", "L-034", "L-042", "L-043"], "vetoed": [], "source": "learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)", "not_wired": {"ids": ["L-011", "L-018", "L-020", "L-021", "L-022"], "why": "all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."}, "ledger_line_blocked": "record-applied could not run (KI-2) -- third consecutive run", "directives": {"routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer -- never commit or push yourself", "The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"], "reviewer": ["The conductor is the SOLE committer -- never commit or push yourself", "The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer -- never commit or push yourself", "The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.", "When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.", "Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.", "Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test", "Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
+
+## cycle 74 | 2026-08-17T20:30:00+00:00 | moon | BUILD (build-wave, review-fix findings)
+
+work: build-wave k=2 — T-165 (closed-pipe/EPIPE guard in the entry point) and T-166 (the
+  date-dependent next-full-moon assertion). Both VERIFIED. T-165 took two attempts.
+why: cycle 73's review-fix filed 9 reproduced findings as T-165..T-173 and fixed none of
+  them — "0 product files touched". Leaving 9 reproduced defects sitting in the backlog
+  while the run moves on to the next gate-4 pass would have been the churn the SPEC's
+  taste note warns about, inverted: measurement with no follow-through. Took the two
+  priority-1 items, both of which trace to a recorded reproduction.
+models: T-165 attempt 1 sonnet (routing table: fix/S -> sonnet), attempt 2 opus
+  (attempts>=1 escalates one rung). T-166 sonnet. No judgment seats this cycle, so the
+  fable guard never came up; gear 2's demote rung does not apply to build/fix items, which
+  never drop below sonnet.
+dispatch: DIRECT Agent calls, not the Workflow tool — headless `-p` session spawned by
+  bin/swarm-pacer.sh (PID walk: bash -> `claude -p /swarm cycle` 1890071), where Workflow
+  is review-gated (documented SKILL.md fallback).
+  SEQUENTIAL, NOT PARALLEL, deliberately. The two items have pairwise-disjoint files_hint
+  (bin/moon.js + test/regressions.test.js vs test/cli.test.js), which is what the wave
+  assembly rule asks for — and cycle 70 recorded that this is NOT sufficient: builders
+  self-run `node --test test/*.test.js`, so a half-written edit by one surfaces as a
+  spurious failure in the other's suite run. Cycle 70 lost a gate round to exactly that.
+  With no worktree isolation available headless, sequence was the only real isolation.
+craft pack: `node bin/swarm-craft.mjs` ran clean, `degraded: []`. Neither item is
+  craft:"ui" (moon is a terminal CLI with no browser surface), so no splice was made.
+post-merge checks: collision-scan and the qa-verify look pass are BROWSER-target checks
+  (classic non-module scripts sharing a global namespace; user-visible html/css/asset
+  files). moon is a CommonJS terminal CLI with no browser surface and no merged
+  user-visible asset, so neither applies. Recorded rather than silently skipped.
+
+budget: NO probe possible, seventh consecutive cycle. probe_failures is 6, past the
+  threshold at which cycle.md step 1 says to stop invoking the real probe and run
+  `PROBE_CMD=false bin/swarm-budget.sh` instead — but that invocation is denied by the
+  same allowlist gap (KI-2: the allowlist matches the leading command token and carries no
+  entry for swarm-budget.sh in any form). last_real_probe_ts was 418s old at cycle open,
+  well inside the 1800s re-probe window, so no attempt was due and none was made;
+  probe_failures stays 6.
+  Gear computed by hand from runs/allocator.json (ok=true, source=probe, pacer-refreshed),
+  applying bin/swarm-budget.sh lines 125-140 literally:
+    weekly_used 12.0 pct / week_elapsed 8.649 pct -> weekly_heat 1.39
+    opus_used    6.0 pct / week_elapsed 8.649 pct -> opus_heat   0.69
+  weekly_heat crossed 1.3 this cycle (it was 1.224 at cycle 73), which trips the script's
+  FIRST branch, not the second: WCEIL 2 and WPBLOCK true. Window rho is still UNMEASURED,
+  so the evidence rule lands the target at cruise (3); the governor ceiling then clamps it
+  to 2, and hysteresis moves the applied gear one step, 3 -> 2.
+  GEAR 2: k_cap 2, promote false, demote true. This is the run's first downshift. It is
+  the governor doing its job on a real number, not a guess — the week is 8.6% elapsed
+  against 12.0% of the weekly allowance spent.
+  Effective wave size = min(k_current 3, gear cap 2, hard max 5) = 2, which is why this
+  wave was two items and not three.
+
+gate seal (L-042): both gate scripts and the fake-clock preload were authored, validated
+  against HEAD, and sha256-sealed BEFORE either builder was dispatched; the pre-dispatch
+  baseline output was hashed too. Re-hashed after each builder returned — all five digests
+  byte-identical, so the checks provably predated the work and the plaintext never moved:
+    003c7d21f40f2c63548496310553e42edbcb8468bade90274612f21d4884b492  c074-gate-T165.mjs
+    f8ecbd481ba92ec26909624b6bf7ba062a59435923b61b3ce2af3730645e6dd8  c074-gate-T166.mjs
+    760618dfba2c67d1ad298e99b909a8be6ed0acdbd889a4098b9e4efae2d92e24  c074-fakeclock.cjs
+    f684fc3a54f961c80b0ad7d22d4a73dedb3ab816b331bd6377def5ca79fd09c0  c074-baseline-T165.txt
+    5d596b94e2a2cd8f74cd691f7afe2cb62dc2d61d248b75ea9c48013b3537c9b4  c074-baseline-T166.txt
+  Both gates were non-vacuous at HEAD before dispatch: T-165 8 FAIL / 9 PASS (the 8 being
+  the defect in 4 modes by 2 independent routes, the 9 being controls), T-166 2 FAIL.
+  One gate DEFECT was found and repaired pre-dispatch, before sealing: G4's byte-identity
+  check compared two unpinned `--json` runs, whose payload carries a millisecond timestamp,
+  so it could never have passed for reasons having nothing to do with the pipe. Repaired by
+  pinning the clock. Recorded because a gate that fails for its own reasons is as useless
+  as one that passes for them.
+
+---
+
+### T-165 — the gate FAILED attempt 1, and not on its own acceptance
+
+The sealed gate PASSED attempt 1: all five sections, 21/21 checks, against a baseline of
+8 FAIL. The suite was 156/156. The two-arm proof was clean and attributable by name.
+
+It was still wrong. Reading the delivered diff — not running the sealed gate — showed the
+handler doing `process.exitCode = 0` on EPIPE from EITHER stream. A conductor probe
+written after the fact measured the consequence:
+
+```
+  stderr merged into a dead pipe: `moon --nope 2>&1 | true`
+    exit=0 (documented: 2)          <-- REGRESSION
+  stdout dead, stderr live: `moon --nope | true`
+    exit=2 (documented: 2)
+  control, no pipe at all: `moon --nope`
+    exit=2 (documented: 2)
+```
+
+`2>&1 | ...` is an everyday shell idiom, and the effect is a caller's error check silently
+passing. Item -> todo, attempts 1, escalated sonnet -> opus per the routing ladder, and
+re-dispatched in-cycle with the measurement attached.
+
+The general lesson, recorded as a decision: a sealed gate proves the check PREDATED the
+work. It does not prove the check ANTICIPATED the work. Reading the diff for what the gate
+could not have known to ask is still the conductor's job, and the seal must not become a
+reason to stop doing it.
+
+Attempt 2 (opus) removed the assignment rather than special-casing it, and argued the
+ordering in the comment: the EPIPE event is delivered from the event loop, strictly after
+the synchronous `process.exitCode = main(...)`, so swallowing the event preserves whatever
+verdict main already reached — 0 for a render, 2 for a usage error. The assignment was a
+no-op on the path it was written for and damage on every other.
+
+VERIFICATION EVIDENCE — T-165 (full output: .swarm/runs/cycle-074-verify-T-165.txt)
+  Sealed gate, re-hashed identical, run by the conductor against attempt 2:
+
+```
+=== T-165 G1 — reader gone before any byte is read (spawn + stdout.destroy) ===
+  [PASS] argv=(default) :: exit=0 sig=null stderr=""
+  [PASS] argv=--compact :: exit=0 sig=null stderr=""
+  [PASS] argv=--block :: exit=0 sig=null stderr=""
+  [PASS] argv=--json :: exit=0 sig=null stderr=""
+=== T-165 G2 — real shell pipeline, reader exits without reading (| true) ===
+  [PASS] argv=(default) | true :: producer_exit=0 stderr=clean(0B)
+  [PASS] argv=--json | true :: producer_exit=0 stderr=clean(0B)
+=== T-165 G4 — ordinary piping unchanged: byte-identical stdout, exit 0 ===
+  [PASS] argv=--json :: direct_exit=0 piped_exit=0 identical=true bytes=228
+=== T-165 G5 — the documented error path is untouched: bad flag -> exit 2 ===
+  [PASS] bad flag :: exit=2 stderr="moon: unknown option '--nope' ...\n"
+T-165 GATE: PASS        (pre-dispatch baseline on the same script: FAIL, 8 of 21)
+```
+
+  Conductor mutant, authored after reading the diff: restore ONLY the deleted
+  `process.exitCode = 0` and ask whether the delivered suite notices.
+
+```
+=== mutant is live: `moon --nope 2>&1 | true` exits 0 (fixed tree: 2) ===
+=== M1 — does the delivered suite KILL the broken-guard mutant? ===
+  ok=false pass=156 fail=1
+    - T-165 — a usage error still exits 2 when the dead pipe swallows stderr too
+  VERDICT: KILLED
+=== M2 — attribution: with regressions.test.js at HEAD, does it SURVIVE? ===
+  ok=true pass=155 fail=0 failing=[]
+  VERDICT: SURVIVED without the new tests — kill is attributable to them
+```
+
+  Two-arm proof re-run by the conductor (the builder's own arms were not taken on trust;
+  the first run of this script reported "0 failing tests" against fail=1 — a defect in the
+  conductor's own parser, which read `not ok` lines from node's spec reporter, which does
+  not emit them. Repaired to force `--test-reporter tap`. Recorded because an evidence
+  script that silently under-reports is worse than one that crashes):
+
+```
+=== ARM A — new test present, bin/moon.js reverted to HEAD ===
+  suite ok=false pass=155 fail=2
+    - a reader that closes stdout before reading any byte gets exit 0 and no Node stack
+      trace on stderr, in every output mode
+    - T-165 — a usage error still exits 2 when the dead pipe swallows stderr too
+=== ARM B — new tests removed, bin/moon.js reverted to HEAD (mutant must SURVIVE) ===
+  suite ok=true pass=155 fail=0 -> the kill belongs to the new tests alone
+```
+
+  Both ARM A failures are this item's own two new tests, named. That is clean attribution
+  for the item even though it is not the "exactly one" the script's crude verdict line
+  looks for — the verdict string is advisory, the named list is the evidence.
+
+### T-166 — the trap was the fix, and it was avoided
+
+The lazy fix is `\s+` or `{2,3}`, which makes the suite green and blind: the padding the
+assertion existed to guard stops being checked. The delivered fix accepts exactly the two
+legal renderings (`{3}\d` or `{2}\d{2}`) and adds a second test asserting the PROPERTY
+rather than a whitespace spelling — that the day's last digit lands in the same column at
+a pinned single-digit date and a pinned double-digit date, which is what `padStart(2, ' ')`
+actually buys.
+
+VERIFICATION EVIDENCE — T-166 (full output: .swarm/runs/cycle-074-verify-T-166.txt)
+  Sealed gate. Its route is one the builder never saw: the shipped binary driven at pinned
+  calendar dates through a Date-patching preload that reaches the test process AND the
+  processes it spawns, so the real assertion is exercised against both day shapes instead
+  of being reasoned about.
+
+```
+=== G1 — the two pinned instants really do produce the two day shapes ===
+  [PASS] SINGLE 2028-03-12T12:00:00Z :: "            next full moon   9 Apr"
+  [PASS] DOUBLE 2026-08-17T12:00:00Z :: "            next full moon  28 Aug"
+=== G2 — the working-tree cli.test.js passes at BOTH day shapes ===
+  [PASS] single-digit day :: suite file green
+  [PASS] two-digit day :: suite file green
+=== G3 — NON-VACUITY: HEAD cli.test.js FAILS at the single-digit shape ===
+  [PASS] HEAD assertion vs single-digit day :: ✖ default output is exactly two lines...
+  [PASS] HEAD assertion vs two-digit day (control: must still pass) :: green
+=== G4 — the padding is STILL asserted BY cli.test.js itself ===
+  [PASS] working-tree cli.test.js kills the no-pad mutant :: killed
+  [PASS] attribution control: HEAD cli.test.js was blind to it
+```
+
+  G5 ("bin/moon.js untouched by this item") FIRED, and was adjudicated rather than waved
+  through: T-165 legitimately edited that file in the same cycle, so the file-level flag
+  could not distinguish the two items. G5's real question is narrower and stricter — did
+  T-166 fix the TEST by quietly moving the RENDER? Answered with a separate check:
+
+```
+  [PASS] formatFullMoonDate() byte-identical to HEAD
+  [PASS] NAME_COLUMN + nextFullLine() byte-identical to HEAD
+  [PASS] main() render branch byte-identical to HEAD
+  [PASS] the load-bearing padStart(2, ' ') is present and unchanged
+  [PASS] bin/moon.js diff REMOVES nothing (0 deletions)
+  [PASS] every added line belongs to the T-165 pipe guard (0 stray)
+  G5 ADJUDICATED: PASS — T-166 changed no rendering; the file-level flag is T-165 only
+```
+
+  Conductor mutant sweep. The builder proved its assertion against the ONE mutation it was
+  told about (drop the pad). These are three it was not — a guard that only catches its own
+  worked example will miss the next regression:
+
+```
+  [KILLED  ] M1 wrong width: padStart(3)      by: default output is exactly two lines...
+  [KILLED  ] M2 wrong side: padEnd(2)         by: ...right-aligns to the same column...
+  [KILLED  ] M3 wrong filler: padStart(2,'0') by: ...right-aligns to the same column...
+  [KILLED  ] M4 removed entirely (control)    by: ...right-aligns to the same column...
+  0 survivor(s) of 4.
+```
+
+  The kills split across BOTH assertions — the regex catches width, the alignment property
+  catches side, filler and removal. That split is the reason to prefer the property test:
+  neither assertion alone covers the four.
+
+### suite
+
+```
+$ cd /opt/targets/moon && node --test test/*.test.js
+ℹ tests 158
+ℹ pass 158
+ℹ fail 0
+```
+
+155 at HEAD -> 158: two new tests from T-165 (closed reader; usage-error exit code under a
+dead stderr) and one from T-166 (column alignment across day shapes). Test COUNT is not an
+outcome and the SPEC says so; the three are recorded here because each traces to a named
+reproduction, not because there are three of them.
+
+wave autotune: 0 reverts, but 1 failed verify (T-165 attempt 1). That is neither the
+"reverted OR >=2 failed verifies" downshift nor the "zero reverts, zero failed verifies"
+clean wave, so it is the third branch: wave_streak -> 0, k_current unchanged at 3. The
+binding constraint next cycle is the gear cap of 2 regardless.
+
+backlog: 8 todo remain — T-164, T-167..T-173. T-167 (--block draws a hair-thin crescent as
+three disconnected specks) is the only product-behaviour defect left in the list; the rest
+are doc corrections and test-quality items.
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],
+ "rotation_cursor":0,"rotation_schedule":[0],
+ "stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00",
+ "model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3",
+ "pacing":{"mode":"thermostat","dial":0.5},
+ "budget":{"gear":2,"gear_target":2,"k_cap":2,"promote":false,"demote":true,
+   "probe_failures":6,"weekly":{"ok":true,"weekly_used_pct":12.0,"opus_used_pct":6,
+   "week_elapsed_pct":8.649,"weekly_heat":1.39,"opus_heat":0.69,"ceiling":2,
+   "promote_blocked":true}},
+ "watchdog":{"mode":"normal","plist_loaded":true},"caffeinate_pid":0,
+ "wrap_up_complete":false,"cycles_since_recycle":8}
+```

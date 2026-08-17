@@ -1,0 +1,32 @@
+=== T-165 G1 — reader gone before any byte is read (spawn + stdout.destroy) ===
+  [PASS] argv=(default) :: exit=0 sig=null stderr=""
+  [PASS] argv=--compact :: exit=0 sig=null stderr=""
+  [PASS] argv=--block :: exit=0 sig=null stderr=""
+  [PASS] argv=--json :: exit=0 sig=null stderr=""
+=== T-165 G2 — real shell pipeline, reader exits without reading (| true) ===
+  [PASS] argv=(default) | true :: producer_exit=0 stderr=clean(0B)
+  [PASS] argv=--compact | true :: producer_exit=0 stderr=clean(0B)
+  [PASS] argv=--block | true :: producer_exit=0 stderr=clean(0B)
+  [PASS] argv=--json | true :: producer_exit=0 stderr=clean(0B)
+=== T-165 G3 — `| head -1`: partial reader, one line consumed ===
+  [PASS] argv=(default) | head -1 :: producer_exit=0 stderr=clean
+  [PASS] argv=--compact | head -1 :: producer_exit=0 stderr=clean
+  [PASS] argv=--block | head -1 :: producer_exit=0 stderr=clean
+  [PASS] argv=--json | head -1 :: producer_exit=0 stderr=clean
+=== T-165 G4 — ordinary piping unchanged: byte-identical stdout, exit 0 ===
+  [PASS] argv=(default) :: direct_exit=0 piped_exit=0 identical=true bytes=63
+  [PASS] argv=--compact :: direct_exit=0 piped_exit=0 identical=true bytes=28
+  [PASS] argv=--block :: direct_exit=0 piped_exit=0 identical=true bytes=411
+  [PASS] argv=--json :: direct_exit=0 piped_exit=0 identical=true bytes=228
+=== T-165 G5 — the documented error path is untouched: bad flag -> exit 2 ===
+  [PASS] bad flag :: exit=2 stderr="moon: unknown option '--nope' - run 'moon --help' to see the available options\n"
+
+T-165 GATE: PASS
+=== mutant is live: `moon --nope 2>&1 | true` exits 0 (fixed tree: 2) ===
+=== M1 — does the delivered suite KILL the broken-guard mutant? ===
+  ok=false pass=157 fail=1
+    - T-165 — a usage error still exits 2 when the dead pipe swallows stderr too (`moon --nope 2>&1 | true`)
+  VERDICT: KILLED
+=== M2 — attribution: with regressions.test.js at HEAD, does it SURVIVE? ===
+  ok=true pass=156 fail=0 failing=[]
+  VERDICT: SURVIVED without the new tests — kill is attributable to them

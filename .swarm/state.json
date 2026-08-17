@@ -2,8 +2,8 @@
   "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
-  "phase": "QA",
-  "cycle": 73,
+  "phase": "BUILD",
+  "cycle": 74,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -677,6 +677,22 @@
       "cycle": 73,
       "what": "reviewer A's finding 4 (the '45 minutes' endpoint claim allegedly failing inside years 1000-3000) is DISCARDED, and the verifier's refutation is upheld after the conductor re-ran it",
       "why": "the reviewer converted an ANGULAR deviation at the mean synodic rate, where the true elongation rate at those lunations is ~15% faster. Conductor's own check at the cited 1202-10-10 extremum: mean-rate conversion -51.9 min, actual time to the cycleFraction=0.5 crossing 45.1 min. The doc sentence is about time, so 'about 45 minutes' holds. Recorded because a refuted finding that is quietly dropped looks identical to one that was never found, and this one cost a reviewer real work."
+    },
+    {
+      "cycle": 74,
+      "what": "OWNERSHIP LIFT, in writing: bin/moon.js line 7 reads 'Conductor-owned file; builders do not edit it.' Lifted for T-165, scoped to installing the stream guard in the `require.main === module` block only - not main(), not HELP, not the render or astronomy calls. The alternative (conductor patches product code itself) breaks the standing cycle-7 rule that the conductor verifies rather than builds. The lift was gated, not trusted: c074-g5-adjudicate.mjs proves formatFullMoonDate(), NAME_COLUMN/nextFullLine() and main()'s render branch are all byte-identical to HEAD and the diff removes nothing."
+    },
+    {
+      "cycle": 74,
+      "what": "EXIT-CODE RULING for T-165: a closed downstream reader exits 0, silently. README:171 documents exactly {0,2} and says 'Safe to pipe'; a reader that hung up is not this program's error. Ruling made by the conductor BEFORE dispatch precisely so the builder could not settle a documentation-visible contract on its own, and so the fix stayed inside its file scope (any other code would have required editing README.md, which was out of scope)."
+    },
+    {
+      "cycle": 74,
+      "what": "T-165 attempt 1 FAILED the gate on a regression it introduced, not on its own acceptance: the guard did `process.exitCode = 0` on EPIPE from EITHER stream, so `moon --nope 2>&1 | true` exited 0 where README documents 2. The sealed gate PASSED it (5/5 sections); the failure was found by a conductor probe written after reading the delivered diff. Recorded because it is the general lesson: a sealed gate proves the check predated the work, it does not prove the check anticipated the work. Reading the diff for what the gate could not have known to ask is still the conductor's job."
+    },
+    {
+      "cycle": 74,
+      "what": "Wave dispatched SEQUENTIALLY rather than in parallel despite pairwise-disjoint files_hint (T-165: bin/moon.js + test/regressions.test.js; T-166: test/cli.test.js). Cycle 70's recorded finding is that files_hint disjointness is NOT test-run disjointness - both builders self-run `node --test test/*.js`, so a half-written edit by one shows up as a spurious failure for the other. Headless -p session has no worktree isolation available, so sequence was the only real isolation."
     }
   ],
   "known_issues": [
@@ -728,20 +744,20 @@
     "last_look_cycle": 1,
     "last_taste_cycle": 1,
     "last_review_fix_cycle": 73,
-    "last_build_wave_cycle": 72
+    "last_build_wave_cycle": 74
   },
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 3,
-    "wave_streak": 1,
+    "wave_streak": 0,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "n": 72,
-    "work": "T-160 attempt 2 (one sonnet builder) \u2014 REPORT.md doc re-verification, the run-3 backlog's last todo",
-    "outcome": "1 verified (two-arm proven); 1 new pre-existing doc error found and filed as T-164",
-    "ts": 1786991602
+    "n": 74,
+    "work": "build-wave k=2, dispatched SEQUENTIALLY (T-165 closed-pipe guard, T-166 date-dependent next-full-moon assertion)",
+    "outcome": "2 verified; T-165 needed 2 attempts after its attempt-1 guard was caught regressing a documented exit code; 0 reverts",
+    "ts": 1786996553
   },
   "run_label": "improve-3",
   "resolved_issues": [
