@@ -1,0 +1,42 @@
+  [REPORT] re-derived ch.49 instant : 2000-01-06T18:13:43.349Z  -> rounds to 18:14
+  [REPORT] re-derived ch.48 wrap    : 2000-01-06T18:15:22.785Z  -> rounds to 18:15
+  [PASS] the ch.49 instant really does round to the published 18:14 :: 18:14
+  [PASS] the ch.48 wrap really is the 18:15 the docs quote :: 18:15
+  [PASS] the two series really do differ by more than a minute :: 99.4 s
+  [PASS] control: the extractor locates the 2000-01-06 block in HEAD README.md :: 1 block(s)
+  [PASS] control: the extractor finds the STALE 18:15 in HEAD README.md :: ["14:20","18:14","18:15"]
+  [PASS] control: HEAD README.md does NOT already carry the ch.49 figure (nothing to pass vacuously)
+  [PASS] control: the extractor locates the 2000-01-06 block in HEAD REPORT.md :: 3 block(s)
+  [PASS] control: the extractor finds the STALE 18:15 in HEAD REPORT.md :: ["14:20","18:14","18:15"]
+  [PASS] control: HEAD REPORT.md does NOT already carry the ch.49 figure (nothing to pass vacuously)
+
+  [REPORT] README.md: 1 anchor block(s), 1 CLAIM block(s), times quoted: ["14:20","18:13:43","18:14","18:15"]
+  [PASS] README.md: a claim block carrying the implementation figure still exists
+  [PASS] README.md: every quoted time is one this gate re-derived or the published anchor :: ["14:20","18:13:43","18:14","18:15"]
+  [PASS] README.md claim block 1/1: quotes the ch.49 instant at second resolution (18:13:43) — a figure the published 18:14 anchor cannot supply
+  [PASS] README.md claim block 1/1: names ch. 49 alongside the ch.49 number
+  [PASS] README.md claim block 1/1: 18:15 is kept only WITH an explicit ch. 48 attribution in the same block
+  [PASS] README.md claim block 1/1: the published 18:14 anchor is still stated
+  [REPORT] README.md claim block 1/1: no in-repo path cited
+  [PASS] README.md: the mean-formula 14:20 contrast is still stated
+
+  [REPORT] REPORT.md: 3 anchor block(s), 2 CLAIM block(s), times quoted: ["14:20","18:13:43","18:14","18:15"]
+  [PASS] REPORT.md: a claim block carrying the implementation figure still exists
+  [PASS] REPORT.md: every quoted time is one this gate re-derived or the published anchor :: ["14:20","18:13:43","18:14","18:15"]
+  [PASS] REPORT.md claim block 1/2: quotes the ch.49 instant at second resolution (18:13:43) — a figure the published 18:14 anchor cannot supply
+  [PASS] REPORT.md claim block 1/2: names ch. 49 alongside the ch.49 number
+  [PASS] REPORT.md claim block 1/2: 18:15 is kept only WITH an explicit ch. 48 attribution in the same block
+  [PASS] REPORT.md claim block 1/2: the published 18:14 anchor is still stated
+  [REPORT] REPORT.md claim block 1/2: no in-repo path cited
+  [PASS] REPORT.md claim block 2/2: quotes the ch.49 instant at second resolution (18:13:43) — a figure the published 18:14 anchor cannot supply
+  [PASS] REPORT.md claim block 2/2: names ch. 49 alongside the ch.49 number
+  [PASS] REPORT.md claim block 2/2: 18:15 is kept only WITH an explicit ch. 48 attribution in the same block
+  [PASS] REPORT.md claim block 2/2: the published 18:14 anchor is still stated
+  [REPORT] REPORT.md claim block 2/2: no in-repo path cited
+  [PASS] REPORT.md: the mean-formula 14:20 contrast is still stated
+
+  [PASS] README.md and REPORT.md quote the SAME set of times for this anchor :: ["14:20","18:13:43","18:14","18:15"] vs ["14:20","18:13:43","18:14","18:15"]
+  [REPORT] working-tree files changed vs HEAD: ["README.md","REPORT.md","test/render.test.js"]
+  [PASS] doc-only item: no production file touched
+
+GATE T-169: PASS (0 failed check(s))

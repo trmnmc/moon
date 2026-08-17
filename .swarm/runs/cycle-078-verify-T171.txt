@@ -1,0 +1,26 @@
+  [REPORT] working-tree files changed vs HEAD: ["README.md","REPORT.md","test/render.test.js"]
+  [PASS] C1: no production file touched (test-only item)
+  [PASS] C1b: nothing outside the wave's declared file scope was touched :: ["README.md","REPORT.md","test/render.test.js"]
+  [PASS] C1c: the test-side DISC_CELLS constant was NOT moved to manufacture a pass
+  [PASS] C1d: no test was skipped or narrowed with .only
+  [REPORT] baseline: tests=160 pass=160 fail=0
+  [PASS] C2: baseline suite is GREEN on the real tree
+  [PASS] C2b: test count did not fall below the 160 measured at cycle 77 :: 160
+  [PASS] guard: the test "renderLine disc is always exactly five cells" still exists by that name in ARM A
+  [PASS] guard: the test "renderLine columns line up across every phase name" still exists by that name in ARM A
+
+      mutant           | ARM A (working tree)      | ARM B (test file at HEAD)
+      widen_surgical   | renderLine disc is always exactly five cells: KILLED | survives
+                       | renderLine columns line up across every phase name: KILLED | KILLED
+      narrow_surgical  | renderLine disc is always exactly five cells: KILLED | KILLED
+                       | renderLine columns line up across every phase name: KILLED | KILLED
+
+  [PASS] ARM B control: at HEAD, "renderLine disc is always exactly five cells" SURVIVES the surgical widen — the hole is real and reproduced
+  [PASS] ARM A: "renderLine disc is always exactly five cells" now FAILS on a widened disc — the widen side is CLOSED
+  [PASS] L-029 attribution: the ARM A kill is ATTRIBUTABLE to the changed assertion BY NAME
+  [PASS] no regression: "renderLine disc is always exactly five cells" still fails on a narrowed disc
+  [PASS] control: the narrow-side kill was already present at HEAD
+  [PASS] "renderLine columns line up across every phase name" still catches BOTH directions after the cleanup
+  [REPORT] at HEAD, "renderLine columns line up across every phase name" was already killed in both directions by its non-vacuous phase-name assertion — so removing the vacuous prefixes.size assertion is the acceptance's "removed with the surviving assertions shown to cover the case" branch
+
+GATE T-171: PASS (0 failed check(s))

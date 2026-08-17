@@ -1,0 +1,32 @@
+{
+ "dispatch": "direct Agent calls (Workflow review-gated in headless -p session)",
+ "sequential": true,
+ "timestamp": 1787004766,
+ "wave": [
+  {
+   "itemId": "T-169",
+   "model": "sonnet",
+   "status": "done",
+   "files_changed_claimed": [
+    "README.md",
+    "REPORT.md"
+   ],
+   "self_test_output_claimed": "tests 160 / pass 160 / fail 0",
+   "claim": "ch.49 instant 2000-01-06T18:13:43.349Z (rounds to 18:14, exact match vs published); ch.48 elongation wrap 18:15:22.785Z; 99.436 s apart. Both files corrected and each number attributed to its own series.",
+   "out_of_fence_scratch": "/opt/swarm/t169-derive.js (created then deleted)"
+  },
+  {
+   "itemId": "T-171",
+   "model": "sonnet",
+   "status": "done",
+   "files_changed_claimed": [
+    "test/render.test.js"
+   ],
+   "self_test_output_claimed": "tests 160 / pass 160 / fail 0",
+   "claim": "assertion 1 replaced with cells[DISC_CELLS] === separator (catches the widen side); assertion 2 prefixes-Set machinery removed, its coverage shown by mutation to be carried by the surviving phase-name assertion.",
+   "out_of_fence_scratch": "/opt/swarm/verifier-scratch/* (created then deleted; builder reported /tmp unreachable in its sandbox)"
+  }
+ ],
+ "dead_items": [],
+ "conductor_verdict": "both PASS against sealed gates; see cycle-078-verify-T169.txt, cycle-078-verify-T171.txt, cycle-078-verify-suite.txt"
+}

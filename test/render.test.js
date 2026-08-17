@@ -359,21 +359,32 @@ test('renderLine disc is always exactly five cells', () => {
   for (const moon of CYCLE) {
     for (const hemisphere of ['north', 'south']) {
       const cells = chars(renderLine(moon, hemisphere));
-      assert.equal(cells.slice(0, DISC_CELLS).length, DISC_CELLS);
+      // Cell DISC_CELLS (the 6th cell) must be the literal disc/percent
+      // separator, not a 6th disc glyph — the direct statement of "exactly
+      // five", not just "at least five" (which slice().length can never
+      // disprove).
+      assert.equal(
+        cells[DISC_CELLS],
+        ' ',
+        `disc is wider than ${DISC_CELLS} cells: cell ${DISC_CELLS} is ${JSON.stringify(cells[DISC_CELLS])}, not the disc/percent separator`,
+      );
       for (const ch of cells.slice(0, DISC_CELLS)) assert.ok(ALLOWED_DISC.has(ch));
     }
   }
 });
 
 test('renderLine columns line up across every phase name', () => {
-  const prefixes = new Set();
   for (const moon of CYCLE) {
     const line = renderLine(moon, 'north');
-    prefixes.add(chars(line).slice(DISC_CELLS, DISC_CELLS + 7).join('').length);
-    // The name starts at the same column every time.
+    // The name starts at the same column every time: slicing at a fixed
+    // offset (DISC_CELLS + 7) must land exactly on the name, for every
+    // phase in the cycle. If the disc (or any field ahead of the name) is
+    // narrower or wider than the layout says, this slice lands short or
+    // long of the name and the equality fails — that IS the "columns line
+    // up" property; a separate count of distinct prefix lengths added
+    // nothing beyond it.
     assert.equal(chars(line).slice(DISC_CELLS + 7).join(''), moon.phaseName);
   }
-  assert.equal(prefixes.size, 1);
 });
 
 // ---------------------------------------------------------------------------

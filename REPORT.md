@@ -48,7 +48,7 @@ verification time; no builder saw the check that would judge it.
 | Claim | Evidence |
 |---|---|
 | Phase math is real Meeus, not a synodic modulo | Lunation lengths span **29.274–29.826 days** across 864 lunations, 1990–2060 (13.3h spread; a measured lower bound over that window, not the physical range). A mean-formula implementation is flat at 29.530589 by construction. |
-| Accuracy is within the ~1h target | True new moon of 2000-01-06 computed **18:15 UTC** vs published 18:14. The mean formula lands at 14:20 — nearly 4h off. |
+| Accuracy is within the ~1h target | Ch. 49 true phase-instant machinery for 2000-01-06 computed **18:13:43 UTC** (rounds to 18:14, exact match vs published 18:14). The ch. 48 elongation-wrap instant (drives illumination, not phase instant) computes separately at **18:15 UTC**, ~1.5 min later — not the same series. The mean formula lands at 14:20 — nearly 4h off. |
 | Correction tables are correctly transcribed | Independent audit reproduced Meeus **worked examples 49.a and 49.b to 0.23s and 0.34s**, exercising the mean formula, E, both 25-term tables, W, and A1–A14. |
 | Illumination is true elongation, not faked from age | At Meeus example 48.a the module gives **0.6801** (book: 0.6786); an age-derived fake gives 0.6475. Conclusive discriminator. |
 | new→full interval tracks the theoretical half-synodic | new→full interval spans **13.906–15.613 days** across 865 intervals measured over 1990–2060 (mean **14.765** vs theoretical 14.765) — a lower bound from that window, not the physical range. |

@@ -10118,3 +10118,272 @@ runfile-mirror:
  "watchdog":{"mode":"normal","plist_loaded":true},"caffeinate_pid":0,
  "wrap_up_complete":false,"cycles_since_recycle":11}
 ```
+
+## cycle 78 | 2026-08-17T22:15:41+00:00 | moon | BUILD
+
+work: build-wave k=2 — T-169 (README.md:181 / REPORT.md:51 credit the ch.49 phase-instant
+  machinery with 18:15 UTC, which is the ch.48 elongation crossing) and T-171
+  (test/render.test.js:362 and :376, two assertions structurally incapable of failing, in
+  the test named for the disc-width contract). BOTH VERIFIED against sealed gates.
+  0 reverted.
+why: gear 2's work-choice rule puts must-haves before polish/docs, and both items are
+  must-haves. T-169 is SPEC source (2) — a doc claim that FAILED re-verification — and
+  covers must-have 6 ("every line-cited and output-cited doc claim re-verified"). T-171
+  covers must-have 5 ("every test added or changed is proven FAILABLE"), read the only way
+  it can be read against a test that was never failable to begin with. Their files_hint
+  sets are pairwise disjoint (README.md + REPORT.md vs test/render.test.js). This is also
+  the only disjoint pair available among the cheap-certain items: T-164 and T-174 both
+  touch REPORT.md and therefore collide with T-169 and with each other, T-167 collides
+  with T-171 on test/render.test.js, and T-173 is polish (deprioritised under gear 2).
+  TWO items were again deliberately NOT picked, both recorded as decisions in state.json
+  rather than left as silent omissions — see `deferral` entries at cycle 78:
+  - T-167, the only remaining product-behaviour defect, on the routing conflict cycle 77
+    recorded. It is now carrying a HARD DEADLINE (dispatch by 2026-08-18T06:00Z regardless
+    of gear) precisely so a second deferral does not become a habit. Also recorded there:
+    the route NOT taken — flagging T-167 `route_class: "core"` would reach fable through
+    the fable guard and dodge the weekly governor entirely. That governor exists because
+    run 2 died on the weekly cap. Routing around it is gaming the mechanism, not using it.
+  - the TASTE gate, still the last outstanding gate before POLISH.
+models: both sonnet (routing table: kind fix, effort S -> sonnet). Gear 2's demote rung did
+  not bite — build/fix items never drop below sonnet. No judgment seats were bought, so the
+  fable guard never came up and no premium allowance was spent this cycle.
+dispatch: DIRECT Agent calls, not the Workflow tool — headless `-p` session spawned by
+  bin/swarm-pacer.sh (`claude -p /swarm cycle`, PID 1980194), where Workflow is
+  review-gated (documented SKILL.md fallback). SEQUENTIAL, not parallel, and the reason is
+  sharper here than at cycle 77: files_hint disjointness is not TEST disjointness, and in
+  this pair the coupling runs the other way — README.md is READ BY THE SUITE
+  (test/render.test.js carries T-134 tests that parse README's own headline fence and
+  north/south sweep table), so T-169's edits are inputs to the very file T-171 rewrites.
+  `prompt_lines.builder` (2 playbook lines) were spliced into both briefs, and both are
+  true statements as spliced — see the seal note.
+craft pack: `node bin/swarm-craft.mjs` ran clean, `degraded: []`. Neither item is
+  craft:"ui" by the flagging rule (no .html/.css/.jsx/.tsx/.vue/.svelte in files_hint, no
+  UI surface named; moon is a terminal CLI). Recorded, not skipped.
+post-merge checks: NO MERGE OCCURRED — direct-Agent dispatch with disjoint file scopes
+  writes into the working tree, so there are no builder branches to merge and nothing to
+  revert. collision-scan and the qa-verify look pass are BROWSER-target checks; moon is a
+  CommonJS terminal CLI with no browser surface. Recorded rather than silently skipped.
+
+budget: the real probe was NOT due (`last_real_probe_ts` 531 s old, inside the 1800 s
+  window), so the `probe_failures >= 3` rule prescribed the zero-cost clock-fallback form
+  `PROBE_CMD=false RUNFILE=/opt/swarm/runs/current.json /opt/swarm/bin/swarm-budget.sh`
+  -> `This Bash command contains multiple operations. The following part requires
+  approval: ...`. KI-2, TENTH consecutive cycle: even the form that costs nothing and
+  calls no npx is unreachable. `probe_failures` 8 -> 9; `last_real_probe_ts` NOT restamped,
+  because this was not a real probe attempt.
+  Gear computed by hand from `runs/allocator.json` (ok=true, source=probe, refreshed by the
+  pacer at 21:51:24Z — 6 s before this cycle's clock read) applying bin/swarm-budget.sh
+  lines 125-140 literally: weekly_used 15.0 pct at week_elapsed 10.03 pct -> weekly_heat
+  1.4955; opus_used 8 pct -> opus_heat 0.798. weekly_heat > 1.3 -> ceiling 2, promote
+  BLOCKED. Window rho remains UNMEASURED (it needs the denied ccusage probe), so the
+  evidence rule lands cruise 3 and the governor clamps to 2. Applied gear 2 — unchanged,
+  hysteresis did not bind.
+  THE HEAT IS NOT COOLING. 1.224 (c73) -> 1.39 (c74) -> 1.449 (c75) -> 1.396 (c76) ->
+  1.4465 (c77) -> 1.4955 (c78), against a week only 10.03 pct elapsed. Two of the last
+  three cycles moved it UP. The gear-3 threshold (<= 1.3) is roughly 3.3 pct of week-clock
+  away at the current marginal burn — about five to six hours — which is what the T-167
+  deadline above is calibrated against.
+orient/salvage: tree CLEAN at open (`git status --porcelain` empty). No salvage needed.
+control channel: `bin/swarm-notify.sh poll` DENIED (KI-2, same allowlist gap). Fell back to
+  the file-sourced read as the failure rule allows: `runs/control.json` has
+  `pending: []` and `applied: []`, and no `inject` array. Nothing to apply, nothing to
+  triage. Non-fatal, one line, cycle continued.
+re-anchor: cycle 78 is not a multiple of 5, so the light restatement only — close the
+  measured holes, re-verify every doc claim, no new features, no new deps, astronomy core
+  untouched.
+
+### gate seal
+
+Both gates and the shared mutation harness were authored and sha256-SEALED BEFORE either
+builder was dispatched, and live outside the target repo where builders (who receive target
+paths only) cannot reach them. Re-verified immediately before each run and again at
+evidence capture:
+
+```
+a2d838a77fb9dad531024c70f60460ed94965e3e9d3b93f4b838a61911f98bbf  c078-gate-T169.mjs
+c86a406a126907f6b0b24367ae5a6f06ebf2d47ce9743478350549ad933d8d5d  c078-gate-T171.mjs
+7274eed92a370fba8a1f0760b13c0a865999577e55f3d77a0ad0df8f743b69af  c078-mutharness.mjs
+```
+
+### instrument repair — SEVENTH this run, and the second caught by a pre-dispatch smoke run
+
+Both gates were smoke-run against unmodified HEAD before anything was dispatched. Both
+FAILED, as they must — but the T-169 gate failed for only two of the right reasons and
+PASSED two checks it had no business passing. Two FALSE PASSES, both repaired strictly
+stronger before the seal:
+
+1. **The discriminator that cannot discriminate.** The check "the block now quotes the
+   ch.49 figure" accepted the minute-resolution `18:14` — which is *also the published
+   anchor already sitting in the sentence*. It therefore passed against a completely
+   unfixed document. Repaired: the gate now requires `18:13:43`, a second-resolution
+   figure that exists nowhere in HEAD and that only the ch.49 route produces. This is the
+   L-043 family again in a new costume — not a prose regex this time, but an assertion
+   whose expected value was reachable without the fix.
+2. **Attribution satisfied by an unrelated paragraph.** REPORT.md has THREE blocks
+   mentioning the 2000-01-06 anchor; the gate scored their union, so the word "elongation"
+   in one paragraph satisfied the ch.48 attribution requirement for a different one, and
+   "49" from a third satisfied the ch.49 one. Repaired: the gate now isolates CLAIM BLOCKS
+   (those actually carrying the implementation figure) and scores each independently on
+   its own text, with `ch. 49` / `ch. 48` required as bounded tokens rather than a bare
+   digit pair.
+
+A third repair happened at verification time rather than before the seal, and it is
+recorded as such: the T-171 gate's scope check `C1b` asserted the changed-file set was
+EXACTLY `test/render.test.js`, which was written assuming a single-item tree and would have
+FALSE-FAILED T-171 for T-169's two doc files. This is a false FAIL — the safe direction —
+but it was still wrong, and the repair was made strictly stronger rather than merely
+looser: the union is bounded to the wave's declared scope, and two new checks were added
+that did not exist before (C1c: the test-side `DISC_CELLS` constant was not moved to
+manufacture a pass; C1d: no test skipped or narrowed with `.only`). Never open a gate by
+weakening it.
+Prior instrument failures this run: cycles 8, 9, 19, 29, 76, 77.
+
+### the measurement that made T-171 scoreable at all
+
+The obvious mutant for a disc-width contract is `LINE_CELLS` 5 -> 6 / 5 -> 4. It is
+USELESS here, and the conductor measured that before trusting it: changing `LINE_CELLS`
+re-samples the whole scanline, so the surviving glyphs change too and **17 tests fail in
+BOTH directions**. It cannot separate a width failure from a glyph failure, so it cannot
+tell whether a width assertion is doing any work. The cycle-73 verifier's surgical mutation
+(append a sixth cell after `lineArt` returns, leaving cells 0..4 byte-identical) separates
+them cleanly, and against HEAD it reproduced the item's claim exactly:
+
+```
+MUTANT widen_surgical vs HEAD tests:  tests=160 pass=145 fail=15
+  "renderLine disc is always exactly five cells"       -> SURVIVES   <- the hole
+  "renderLine columns line up across every phase name" -> KILLED
+MUTANT narrow_surgical vs HEAD tests: tests=160 pass=141 fail=19
+  "renderLine disc is always exactly five cells"       -> KILLED
+  "renderLine columns line up across every phase name" -> KILLED
+```
+
+That negative result is why the gate scores the surgical pair and not the coarse one, and
+it is also what let the gate accept the removal of the SECOND vacuous assertion honestly:
+`columns line up` was already killed in both directions at HEAD by its non-vacuous
+phase-name assertion, so deleting the `prefixes.size` bookkeeping is the acceptance's
+"removed with the surviving assertions shown to cover the case" branch, demonstrated by
+mutation rather than asserted.
+
+### VERIFICATION EVIDENCE — T-169 (gate exit 0; full: `.swarm/runs/cycle-078-verify-T169.txt`)
+
+```
+  [REPORT] re-derived ch.49 instant : 2000-01-06T18:13:43.349Z  -> rounds to 18:14
+  [REPORT] re-derived ch.48 wrap    : 2000-01-06T18:15:22.785Z  -> rounds to 18:15
+  [PASS] the ch.49 instant really does round to the published 18:14 :: 18:14
+  [PASS] the ch.48 wrap really is the 18:15 the docs quote :: 18:15
+  [PASS] the two series really do differ by more than a minute :: 99.4 s
+  [PASS] control: the extractor finds the STALE 18:15 in HEAD README.md
+  [PASS] control: HEAD README.md does NOT already carry the ch.49 figure
+  [PASS] README.md claim block 1/1: quotes the ch.49 instant at second resolution (18:13:43)
+  [PASS] README.md claim block 1/1: names ch. 49 alongside the ch.49 number
+  [PASS] README.md claim block 1/1: 18:15 is kept only WITH an explicit ch. 48 attribution
+  [PASS] REPORT.md claim block 1/2: quotes the ch.49 instant at second resolution (18:13:43)
+  [PASS] REPORT.md claim block 2/2: names ch. 49 alongside the ch.49 number
+  [PASS] README.md and REPORT.md quote the SAME set of times :: ["14:20","18:13:43","18:14","18:15"]
+GATE T-169: PASS (0 failed check(s))
+```
+
+The gate re-derives BOTH instants itself, from the shipped module's public API, by
+bisecting each series' own discontinuity on the Date axis — no Julian-day inverse, no
+re-implemented ΔT, and nothing taken from the builder's citation or from cycle 73's
+recorded figures. It agrees with cycle 73's independent computation to the millisecond on
+the ch.49 route (18:13:43.349 vs 18:13:43.348) and to 66 ms on the ch.48 route
+(18:15:22.785 vs 18:15:22.851, a bisection-granularity difference; both round to 18:15).
+That is a THIRD independent method landing on the same pair of numbers.
+The correction is also the honest direction: the docs had been understating the
+implementation's own accuracy by ~99 s, and the new text says the ch.49 instant matches the
+published anchor exactly at the minute while keeping the ch.48 number, attributed, rather
+than quietly deleting the less flattering one.
+
+### VERIFICATION EVIDENCE — T-171 (gate exit 0; full: `.swarm/runs/cycle-078-verify-T171.txt`)
+
+```
+  [PASS] C1: no production file touched (test-only item)
+  [PASS] C1c: the test-side DISC_CELLS constant was NOT moved to manufacture a pass
+  [PASS] C1d: no test was skipped or narrowed with .only
+  [REPORT] baseline: tests=160 pass=160 fail=0
+      mutant           | ARM A (working tree)      | ARM B (test file at HEAD)
+      widen_surgical   | disc is always exactly five cells: KILLED | survives
+                       | columns line up across every phase name: KILLED | KILLED
+      narrow_surgical  | disc is always exactly five cells: KILLED | KILLED
+                       | columns line up across every phase name: KILLED | KILLED
+  [PASS] ARM B control: at HEAD, "disc is always exactly five cells" SURVIVES the surgical
+         widen — the hole is real and reproduced
+  [PASS] ARM A: "disc is always exactly five cells" now FAILS on a widened disc
+  [PASS] L-029 attribution: the ARM A kill is ATTRIBUTABLE to the changed assertion BY NAME
+  [PASS] no regression: still fails on a narrowed disc
+  [PASS] control: the narrow-side kill was already present at HEAD
+GATE T-171: PASS (0 failed check(s))
+```
+
+Both arms of L-029, run by the conductor over both directions, with the ARM B control
+proving the hole was real rather than assumed. The single cell that changed hands — ARM A
+widen going from `survives` to `KILLED` while ARM B stays `survives` — IS the item, and it
+is measured, not claimed. The narrow-side kill is confirmed pre-existing in ARM B, so the
+gate cannot be satisfied by re-proving it (which the acceptance names as the failure mode).
+
+### VERIFICATION EVIDENCE — full suite, conductor-run on the real tree
+
+```
+$ node --test /opt/targets/moon/test/*.test.js
+ℹ tests 160
+ℹ suites 0
+ℹ pass 160
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2943.85157
+```
+
+160/160 green, count unchanged — per the SPEC, test COUNT is never reported as an outcome;
+it is here only as the no-tests-were-lost control. No `dependencies` key, no
+`package-lock.json`, no `node_modules` (checked, all three).
+
+### FENCE FINDING — builder scratch lands in the SWARM root, and it explains cycle 75's debris
+
+Both builders wrote scratch OUTSIDE the target and INSIDE the SWARM root: T-169's builder
+created `/opt/swarm/t169-derive.js`, and T-171's builder created its throwaway repo copies
+under `/opt/swarm/verifier-scratch/`, reporting explicitly that "`/tmp` was not reachable
+in this sandbox" — both briefs had told it to use /tmp. Builders receive TARGET paths only
+(hard rule 5, and both briefs named only `/opt/targets/moon`), so this is the sandbox
+routing their scratch into a fenced directory, not an agent ignoring its scope.
+
+This RESOLVES the untracked `verifier-scratch/` debris that cycles 75 and 76 journaled as
+unexplained out-of-fence residue in the SWARM root: it was builder scratch all along, not
+conductor scratch. Both builders cleaned up after themselves this cycle and `/opt/swarm`
+is now clean of both (verified: neither path exists). No live edit was made to fix this —
+tool findings go to the journal and the morning report, never to a mid-run edit of the
+fenced tree (hard rule 5). For the morning report: builder briefs should name a scratch
+directory that is actually writable and unfenced, because "use /tmp" is currently advice
+the sandbox cannot honour.
+
+churn breaker: `consecutive_no_value` -> 0. Two must-have items verified with
+  conductor-run evidence.
+wave autotune: the wave was CLEAN — zero reverts, zero failed verifies -> `wave_streak`
+  1 -> 2, which reaches the promote threshold: `k_current` 3 -> 4, `wave_streak` reset to
+  0. NOTE for the next picker: this raises k_current only. Effective wave size stays
+  min(k_current 4, gear cap 2) = 2 while the governor holds the gear at 2, so nothing
+  about the next wave's size actually changes until the heat cools.
+backlog: 5 todo — T-164, T-167, T-173, T-174, T-175. T-167 is still the only
+  product-behaviour item and now carries a 06:00Z dispatch deadline. T-175 remains
+  filed-but-not-buildable by the SPEC's taste rule.
+gate-4 status, for whoever picks next: review-fix ran c73, full QA ran c76, TASTE STILL
+  OUTSTANDING (deferred twice now, on the record, with reasons — not forgotten). The cheap
+  certain work left is T-174 then T-164 (both REPORT.md, so they cannot share a wave), and
+  T-173 (polish, deprioritised under gear 2).
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],
+ "rotation_cursor":0,"rotation_schedule":[0],
+ "stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00",
+ "model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3",
+ "pacing":{"mode":"thermostat","dial":0.5},
+ "budget":{"gear":2,"gear_target":2,"k_cap":2,"promote":false,"demote":true,
+   "probe_failures":9,"weekly":{"ok":true,"weekly_used_pct":15.0,"opus_used_pct":8,
+   "week_elapsed_pct":10.03,"weekly_heat":1.4955,"opus_heat":0.7976,"ceiling":2,
+   "promote_blocked":true}},
+ "watchdog":{"mode":"normal","plist_loaded":true},"caffeinate_pid":0,
+ "wrap_up_complete":false,"cycles_since_recycle":12}
+```

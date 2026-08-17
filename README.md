@@ -178,9 +178,14 @@ formula **plus** the full periodic correction tables and the A1–A14 additional
 corrections, with TT→UT via the Espenak–Meeus ΔT polynomial. Illumination is the true
 Moon−Sun elongation per ch. 48, not a cosine of the moon's age.
 
-Verified against the published new moon of 2000-01-06 18:14 UTC: this implementation
-computes **18:15 UTC**. A mean-formula-only implementation lands at 14:20 UTC, nearly
-four hours off.
+Verified against the published new moon of 2000-01-06 18:14 UTC: the ch. 49 phase-instant
+machinery — the series `age` and `phaseName` are built on — computes **18:13:43 UTC**,
+which rounds to 18:14 UTC, an exact match against the published anchor (seconds are given
+here because the anchor itself is only known to the minute). The ch. 48 elongation series
+that drives `illumination`/`cycleFraction` crosses its own zero point separately, at
+**18:15 UTC**, about a minute and a half later — a different series answering a different
+question (illuminated fraction, not phase instant), not the number this paragraph is
+about. A mean-formula-only implementation lands at 14:20 UTC, nearly four hours off.
 
 Independently checked properties:
 
