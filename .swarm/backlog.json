@@ -1354,13 +1354,14 @@
       "priority": 3,
       "value": "S",
       "effort": "S",
-      "title": "README:160 states the mid-cycle cycleFraction divergence bound as \"about 21 hours\"; the measured worst case is 23.03 h and 1.2% of instants exceed 21 h",
+      "title": "README:160 AND bin/moon.js:38 (the shipped --help text) both state the mid-cycle cycleFraction divergence bound as \"about 21 hours\"; the measured worst case is 23.03 h",
       "files_hint": [
-        "README.md"
+        "README.md",
+        "bin/moon.js"
       ],
       "model": "haiku",
       "acceptance": "The stated bound is true for the range the sentence claims, with the figure computed IN-REPO and its derivation shown or cited (the no-unsourced-numbers rule this run has applied since cycle 2). If the sentence is rescoped rather than renumbered, the new scope must be the one actually measured. No magnitude may appear that is not reproducible from a committed script.",
-      "notes": "REVIEW-FIX cycle 73, reviewer A finding 1, verifier REPRODUCED (23.03 h over both 1990-2060 and 1900-2100). Conductor's own sweep, 2026-2040 hourly, independent wrap handling:\n  n=122712 worst=-23.03 h at 2036-12-29T05:00:00Z\n  samples exceeding the documented 21 h: 1503 (1.22%)\n  at extremum: age=11.5595 d  cycleFraction*SY=10.6001 d\nThe paragraph's ADVICE (use age; expect errors up to most of a day) is unaffected \u2014 only the number is understated. Evidence: runs/c073-gate.mjs, section A1.",
+      "notes": "REVIEW-FIX cycle 73, reviewer A finding 1, verifier REPRODUCED (23.03 h over both 1990-2060 and 1900-2100). Conductor's own sweep, 2026-2040 hourly, independent wrap handling:\n  n=122712 worst=-23.03 h at 2036-12-29T05:00:00Z\n  samples exceeding the documented 21 h: 1503 (1.22%)\n  at extremum: age=11.5595 d  cycleFraction*SY=10.6001 d\nThe paragraph's ADVICE (use age; expect errors up to most of a day) is unaffected \u2014 only the number is understated. Evidence: runs/c073-gate.mjs, section A1.\n\nSCOPE EXTENDED AT CYCLE 76 (QA look pass, conductor-verified G4). The item was filed against README.md ALONE; the same stale figure is emitted to every user by `moon --help` from bin/moon.js:38 (\"~21 hours\"). Verified two ways: the literal is in the source at exactly one site, and `--help` really prints it (a source comment would not have been enough). The cycle-76 look agent measured 23.03 h INDEPENDENTLY of cycle 73's sweep (different method, 6-hour grid over 1990-2060 refined at 5-minute resolution vs cycle 73's hourly 2026-2040 sweep) and the two agree to the second decimal, so the replacement figure is now double-sourced. The look pass also checked the OTHER number in the same CAUTION paragraph -- \"endpoints hold to within ~45 min\" -- and it stands (measured 43.8 min at full, 42.1 min at new). Fix both sites in one item; do NOT touch the 45-min figure. NOTE FOR THE BUILDER: bin/moon.js's help text is product output, so check whether any test pins it before editing.",
       "status": "todo",
       "deps": [],
       "packages": [],
@@ -1457,6 +1458,41 @@
       "deps": [],
       "packages": [],
       "attempts": 0
+    },
+    {
+      "id": "T-174",
+      "title": "REPORT.md:362's how-to-run block annotates the test command \"# 155 tests\" -- a live output-cited claim matching neither the tree (159) nor the document's own run-2 figure (148)",
+      "kind": "fix",
+      "status": "todo",
+      "priority": 3,
+      "effort": "S",
+      "model": "haiku",
+      "attempts": 0,
+      "deps": [],
+      "packages": [],
+      "files_hint": [
+        "REPORT.md"
+      ],
+      "acceptance": "REPORT.md:362's annotation states a test count that is reproduced by running the documented command against the current tree, with the figure regenerated from a real run and never hand-edited (L-036). The two HISTORICAL run-2 figures (line 8 \"148/148 tests green\", line 377 \"145 -> 148\") are correctly scoped to cycles 48-65 and MUST be left byte-identical -- this item does not touch them.",
+      "notes": "FOUND AT CYCLE 76 by the QA look pass; conductor-verified in gate check G3. THE CONDUCTOR CORRECTS THE AGENT'S FRAMING: the look agent reported this as \"REPORT.md disagrees with itself about how many tests exist\" and treated all three figures (148 at line 8, 155 at line 362, 148 at line 377) as equally stale against the tree's 159. That is wrong about two of the three. Lines 8 and 377 are explicitly scoped to run 2 (\"cycles 48-65\", \"145 -> **148**\") and are correct AS HISTORY -- rewriting them would falsify the record of what run 2 measured, which is the mirror of the defect. The genuine defect is line 362 alone: it sits in a HOW-TO-RUN block, so it is a live instruction to the reader, and its \"# 155 tests\" matches nothing in either frame -- not the tree (159, measured this cycle) and not the document's own run-2 figure (148). It was therefore already inconsistent with its own document on the day it was written. Traces to SPEC source (2), a doc claim that failed re-verification, and to the must-have \"every line-cited and output-cited doc claim is re-verified against the current tree\". Gate evidence: .swarm/runs/cycle-076-verify-qa.txt section G3, which derives the file list by glob and cross-checks the aggregate count against a per-file sum (159 == 159)."
+    },
+    {
+      "id": "T-175",
+      "title": "detectHemisphere('US/Samoa') returns north for a 14 S location -- the one southern legacy alias missing from src/hemisphere.js's defensive alias layer",
+      "kind": "fix",
+      "status": "todo",
+      "priority": 9,
+      "effort": "S",
+      "model": "sonnet",
+      "attempts": 0,
+      "deps": [],
+      "packages": [],
+      "files_hint": [
+        "src/hemisphere.js",
+        "test/hemisphere.test.js"
+      ],
+      "acceptance": "detectHemisphere('US/Samoa') returns 'south', with a test proven failable and attributable BY NAME in two arms (L-029). NOT buildable on this run -- see the traceability verdict in notes.",
+      "notes": "FOUND AT CYCLE 76 by the QA look pass (full-tzdb sweep: exactly 1 mismatch across every canonical zone in zone1970.tab and every Link in tzdata.zi). Conductor reproduced it at the unit level in gate check G6: detectHemisphere('US/Samoa') -> north, while Pago Pago is 14.28 S. The omission is one ROW, not a missing layer -- the sibling legacy aliases NZ, Brazil/East, Chile/Continental and Pacific/Samoa (the SAME islands, the other alias) all correctly return south.\n\nNOT USER-OBSERVABLE ON THIS HOST: with TZ=US/Samoa, ICU canonicalises to Pacific/Pago_Pago before detection ever runs, and the live binary prints hemisphere 'south'. It would only surface on a runtime whose Intl reports the raw legacy name.\n\nCONDUCTOR CORRECTION TO MY OWN FIRST FRAMING, recorded because I had drafted the wrong version: I first filed this as a FAILED DOC RE-VERIFICATION against REPORT.md:55 (\"validated against all 418 zones in the host IANA database\"), reasoning that a zone the table gets wrong falsifies the claim. Measuring settled it the other way. Intl.supportedValuesOf('timeZone').length is EXACTLY 418 on this host -- that is unambiguously where the figure came from -- and that set contains NO legacy aliases at all: not US/Samoa, not Pacific/Samoa, not NZ. So REPORT.md:55 is TRUE AS SCOPED, and the alias layer exists precisely for names outside the 418. The doc is fine; the table has a gap.\n\nTRACEABILITY VERDICT -- DO NOT BUILD THIS RUN. With the doc-falsity framing withdrawn, this traces to NONE of the three sources SPEC.md's taste note permits: it is not a survivor already on record from a prior sweep, not a doc claim that failed re-verification, and not on the flag-interaction axis. The taste note's rule is explicit -- \"an item that traces to none of those three does not get built, however tidy it would be\" -- and the run's named risk is diminishing-return churn. Filed rather than dropped so a future run inherits the measurement instead of re-deriving it; same disposition shape as T-116."
     }
   ]
 }

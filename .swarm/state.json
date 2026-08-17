@@ -2,8 +2,8 @@
   "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
-  "phase": "BUILD",
-  "cycle": 75,
+  "phase": "QA",
+  "cycle": 76,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -699,6 +699,36 @@
       "kind": "verification",
       "title": "T-167's residual broken-arc band is a HOLE, not a BOUNDARY",
       "detail": "The cycle-75 attempt cut broken-arc renders 1240 -> 84/40000 but did not close the acceptance property. The survivors sit in k = 0.001642..0.001906, where the guard's fixed `cover > 0.02` cut lands between rows: 0.02500/0.02439 in rows 0/2/4 vs 0.01739 in rows 1/3. Classified HOLE because a continuous crescent admits no honest reading in which row 1 is dark between two lit rows -- the observable is discriminable, so this is the check being wrong, not the check being correct. Recorded per the SPEC's HOLE-vs-BOUNDARY must-have (L-033) BEFORE any further hardening. Secondary finding, recorded because it constrains attempt 2: at these illuminations sampleCell's SUB=16 grid is coarser than the lit sliver, so its cover values are quantization artifacts -- a 400x20 sampler ranks the rows in the opposite order. A fixed absolute threshold on that quantity cannot be made contiguity-safe by retuning the constant."
+    },
+    {
+      "cycle": 76,
+      "what": "Ran the run's ONE full QA pass this cycle rather than T-167 attempt 2, the only remaining product-behaviour defect.",
+      "why": "Both were eligible and the tiebreak was RESOURCE-CONDITIONING, not value. The allocator posture flipped trickle -> NORMAL this cycle (allow_premium_pct 0 -> 11.26 against swarm_premium_pct 2), which is the first time on this run the two fable judgment seats qa-verify full mode requires -- the spec-only scenario author and the live-look agent -- have been affordable at all. That allowance is not durable: weekly_heat is 1.396 against a week 9.3 pct elapsed, the governor ceiling is pinned at 2 with promote blocked, and run 2 died on the weekly cap with its three most valuable findings measured and never dispatched. T-167 is sonnet/opus build work that stays dispatchable in any posture, and cycle 75 wrote its residual band, its module cell numbers and its HOLE classification into the item's notes, so nothing about it decays by waiting. The QA gate had never run on this run (last_full_qa_cycle 46, from run 2) and cycle 75 handed it forward by name. Spend the perishable allowance on the perishable work."
+    },
+    {
+      "cycle": 76,
+      "what": "The spec-only author's independence is EVIDENCED, not asserted: it returned with tool_uses = 0.",
+      "why": "The whole value of that seat is that its answer key cannot inherit the code's bugs, and the usual proof is the prompt telling it not to look -- which is an instruction, not a measurement. The agent harness reports tool calls, and the author made zero: it never opened a file, never ran a command, never saw the repository. So every expectation it produced is derived from the Domain rules and the tool's own documented contract alone. Recorded because it converts the pass's central premise from a claim into an observable, and because a future cycle can check the same field cheaply."
+    },
+    {
+      "cycle": 76,
+      "what": "The look agent's 18:15-vs-18:13:43 finding was REFUTED at the gate, and it is the SECOND time this exact trap has been walked into on this run -- cycle 29 recorded the conductor doing it.",
+      "why": "The agent reported README:180-181 as stating a number \"the binary does not produce\", having derived the new-moon instant off the `age` field (ch.49 true-phase instant tables) and gotten 18:13:43. Gate check G5 computed BOTH routes: ch.49 via julianDay-age gives 2000-01-06T18:13:43.348Z, and ch.48 via bisecting the cycleFraction wrap gives 18:15:22.785Z -- a 99.4 s gap that reproduces cycle 29's measured 99.4 s to the decimal. The docs' number IS produced by the shipped code, through the other series. This is exactly the failure cycle 29 generalised into a rule: a 'the docs are wrong' finding must be measured by the method the doc's own evidence uses AND by one method independent of it, because a single derivation off a different series is indistinguishable from a real defect. That the rule was recorded 47 cycles ago and a fresh fable agent still fell into it is the point -- it is a property of the artifact, not of the agent. The narrower true finding (the docs ATTRIBUTE 18:15 to the ch.49 machinery when it is the ch.48 crossing) is already on the backlog as T-169, so nothing was filed and nothing was lost."
+    },
+    {
+      "cycle": 76,
+      "what": "I filed the US/Samoa finding as a failed doc re-verification against REPORT.md:55's \"all 418 zones\", then measured and withdrew my own framing; the item survives at priority 9 as explicitly NOT-BUILDABLE this run.",
+      "why": "The framing decided everything downstream, so it was worth one command. Intl.supportedValuesOf('timeZone') returns EXACTLY 418 entries on this host -- unambiguously the source of the figure -- and that set contains no legacy aliases whatsoever (no US/Samoa, no Pacific/Samoa, no NZ). REPORT.md:55 is therefore true as scoped, and the alias layer exists precisely for names outside the 418. With the doc-falsity gone, the item traces to none of the three sources SPEC.md's taste note permits, and that note's rule is explicit that such an item does not get built however tidy it would be. Filed rather than dropped so the measurement is inherited rather than re-derived. The general shape is worth carrying: a finding's SOURCE CLASSIFICATION is itself a claim that needs measuring, because on a run with a traceability rule it is the classification, not the severity, that decides whether anything happens."
+    },
+    {
+      "cycle": 76,
+      "what": "The nextFullMoon millisecond-precision finding was REJECTED as churn rather than filed, on the look agent's own analysis.",
+      "why": "The agent showed `\"nextFullMoon\":\"2026-08-28T04:18:25.225Z\"` against the help text's claim that numeric fields are rounded to earned precision, and then honestly conceded in the same breath that the claim scopes itself to \"numeric fields\" while this is a string -- so the claim is not false. What is left is an aesthetic tension, and closing it would mean truncating a field of the documented, explicitly-stable --json contract: a behaviour change, which the non-goals forbid, to fix nothing that is untrue. Same disposition and same reasoning as cycle 29's rejection of the --compact unit test: a real observation that closes no named defect is precisely the diminishing-return churn the SPEC's taste note names as this run's chief risk."
+    },
+    {
+      "cycle": 76,
+      "what": "Gate check G3 failed on its first run and the failure was MY instrument -- fifth instance this run -- so the file list is now derived by glob and the repair is paid for with two strictly stronger assertions.",
+      "why": "I hand-typed six test filenames and silently missed contracts.test.js and manifest.test.js, reading 143 where the suite has 159, and my summary regex matched only the TAP '# pass' form so it reported fail=undefined while still rendering a verdict. Both are the same family as cycle 8's .trim() defect, cycle 9's sentence-scope defect, cycle 19's line-wrap defect and cycle 29's @returns defect: the instrument narrower than the thing it measures. Per that standing precedent the widening is not allowed to be free. The file list is now read from the directory so it cannot be mistyped; a null in ANY of the three summary figures now FAILS the gate rather than passing silently as undefined; and the aggregate count is cross-checked against an independently-summed per-file run (159 == 159), which means the exact defect I just committed -- a silently omitted test file -- can no longer survive this gate."
     }
   ],
   "known_issues": [
@@ -746,8 +776,8 @@
     }
   ],
   "qa": {
-    "last_full_qa_cycle": 46,
-    "last_look_cycle": 1,
+    "last_full_qa_cycle": 76,
+    "last_look_cycle": 76,
     "last_taste_cycle": 1,
     "last_review_fix_cycle": 73,
     "last_build_wave_cycle": 75
@@ -760,9 +790,9 @@
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "cycle": 75,
-    "work": "build-wave k=2 (T-167, T-172)",
-    "outcome": "1 verified, 1 gate-failed (kept, not reverted), 0 reverted"
+    "cycle": 76,
+    "work": "QA full pass (gate 4, second of three) - spec-only author -> executor -> live-look, direct Agent calls",
+    "outcome": "5/5 scenarios PASS (2 re-run by the conductor); 5 look findings -> 2 filed (T-174, T-175), 1 folded into T-168 as a scope extension, 2 refuted"
   },
   "run_label": "improve-3",
   "resolved_issues": [

@@ -9672,3 +9672,197 @@ self-modification fence (hard rule 5) allows a running conductor to write. So it
 here and for the morning report rather than cleaned up mid-run: an agent wrote outside the
 fence, and the fence is exactly what stops the conductor from tidying it. Harmless to the
 target; it is SWARM-side only.
+
+## cycle 76 | 2026-08-17T21:05:00+00:00 | moon | QA (qa-verify full, gate 4 second of three)
+
+work: the run's ONE full QA pass -- spec-only scenario author -> executor -> live-look.
+  5/5 scenarios PASS. 5 look findings: 2 filed (T-174, T-175), 1 folded into T-168 as a
+  scope extension, 2 refuted at the gate. Raw return: `runs/cycle-076-qa-verify.json`.
+why: this gate had NEVER run on this run (`last_full_qa_cycle` 46, from run 2) and cycle 75
+  handed it forward by name. The tiebreak against T-167 attempt 2 -- the only remaining
+  product-behaviour defect -- was RESOURCE-CONDITIONING, not value: the allocator posture
+  flipped trickle -> NORMAL this cycle (allow_premium_pct 0 -> 11.26), the first time on
+  this run that qa-verify's two fable judgment seats have been affordable at all. That
+  allowance is not durable (weekly_heat 1.396 at week 9.3 pct elapsed, ceiling pinned 2,
+  promote blocked) and run 2 died on the weekly cap with its best findings never
+  dispatched. T-167 stays dispatchable in any posture and cycle 75 wrote its residual band
+  and HOLE classification into its notes, so nothing about it decays by waiting.
+models: author fable, executor sonnet, look fable. Both fable seats are JUDGMENT seats and
+  the fable guard exempts them from gear 2's demote rung; the executor is neither docs nor
+  polish so sonnet->haiku does not apply to it either. No item was routed, so the
+  escalation ladder never came up.
+dispatch: DIRECT Agent calls, not the Workflow tool -- headless `-p` session spawned by
+  bin/swarm-pacer.sh (PID walk: bash -> `claude -p /swarm cycle` 1935373), where Workflow is
+  review-gated (documented SKILL.md fallback). SEQUENTIAL, which is the qa-verify contract's
+  own requirement for full mode rather than a choice I made.
+  `prompt_lines.qa` (8 playbook lines) were spliced into the executor and look briefs and
+  DELIBERATELY WITHHELD from the author -- the contract excludes the spec-only seat, and
+  those lines reference the repository the author must not know about.
+author independence, EVIDENCED: the author returned `tool_uses: 0`. It never opened a file,
+  never ran a command, never saw the repo. The usual proof of that seat is the instruction
+  telling it not to look, which is a claim; the harness's tool counter is a measurement.
+post-merge checks: no merge occurred (QA is a read-only work type), and collision-scan plus
+  the qa-verify look pass are browser-target checks that moon -- a CommonJS terminal CLI --
+  has no surface for. Recorded rather than silently skipped.
+
+budget: NO probe attempt was DUE -- `last_real_probe_ts` was 634 s old at cycle open, inside
+  the 1800 s re-probe window, so `probe_failures` stays 7 and `last_real_probe_ts` is NOT
+  restamped. Gear computed by hand from `runs/allocator.json` applying bin/swarm-budget.sh
+  lines 125-140: weekly_used 13.0 pct at week_elapsed 9.312 pct -> weekly_heat 1.396;
+  opus_used 6 pct -> opus_heat 0.644. weekly_heat > 1.3 -> ceiling 2, promote BLOCKED.
+  Window rho remains UNMEASURED (it needs the denied ccusage probe), so the evidence rule
+  lands cruise 3 and the governor clamps to 2. Applied gear 2, unchanged -- hysteresis did
+  not bind. The heat COOLED for the first time this run: 1.224 (c73) -> 1.39 (c74) ->
+  1.449 (c75) -> 1.396 (c76).
+  POSTURE CHANGE, and it is what shaped this cycle: allocator posture trickle -> NORMAL,
+  allow_premium_pct 0 -> 11.26 against swarm_premium_pct 2. Twenty-three cycles of deferred
+  premium work became affordable; this cycle spent it on the perishable half.
+control: `bin/swarm-notify.sh poll` is denied by the KI-2 allowlist gap, so the channel was
+  read from the file only: `runs/control.json` has `pending: []`, `applied: []`, no `inject`
+  array. Nothing to apply, nothing to triage, no ack to send. Eighth consecutive cycle.
+orient/salvage: tree CLEAN at open (`git status --porcelain` empty). No salvage needed.
+re-anchor: cycle 76 is not a multiple of 5, so the light restatement only -- close the three
+  measured holes, measure the flag-interaction axis, re-verify every doc claim, no new
+  features, no new deps, astronomy core untouched.
+
+### VERIFICATION EVIDENCE -- gate G1 (S4 re-run by the conductor: the flag-interaction axis)
+
+The SPEC names flag INTERACTIONS as the one axis no prior sweep covered, so this is the
+scenario I re-ran in full rather than spot-checking. I added a discriminator the scenario
+did not ask for, because a count check alone cannot tell "dropped the next-full-moon line"
+from "truncated a frame row" -- both drop exactly one line.
+
+```
+    line counts: default=2 compact=1 block=12 block+compact=11
+  [PASS] default is exactly 2 lines :: 2
+  [PASS] --compact is exactly 1 line :: 1
+  [PASS] --block is >= 3 lines :: 12
+  [PASS] --block --compact drops EXACTLY one line :: 12 -> 11
+  [PASS] --block --compact is still a framed block, not the compact single line
+    dropped line(s): ["   next full moon  28 Aug"]
+  [PASS] the dropped line is the next-full-moon line, not a truncated frame row
+  [PASS] --block --compact introduces no line --block did not have
+```
+
+### VERIFICATION EVIDENCE -- gate G2 (the author's derivation, re-derived from the Domain rules)
+
+cycle.md step 6.7 requires the author's `derivation` arithmetic be spot-checked against the
+spec's Domain rules. The author derived illumination = (1 - cos e)/2 from k = (1 + cos i)/2
+with i = 180 - e. I re-derived it independently and then tested that the WRONG convention is
+actually discriminable tonight -- a check that passes both ways is a wasted slot.
+
+```
+    fresh: phase=waxing crescent e=65.005 illum=0.2887 kFromDomainRule=0.288730
+    illErr=-0.000030  cfErr=0.000001  age=5.144
+  [PASS] illumination matches the Domain-rule formula :: |-0.000030| <= 0.011
+  [PASS] cycleFraction = phaseAngle/360 :: |0.000001| <= 0.003
+    wrong-convention value would be 0.711270 (delta 0.4225)
+  [PASS] the sign-flipped convention IS discriminated at tonight angle -- not vacuous
+```
+
+### VERIFICATION EVIDENCE -- gate G5 (the 18:15 finding REFUTED, second walk into cycle 29's trap)
+
+```
+    route A  ch.49 (julianDay - age)      : 2000-01-06T18:13:43.348Z
+    route B  ch.48 (cycleFraction wrap)   : 2000-01-06T18:15:22.785Z
+  [PASS] route A rounds to 18:14 and is NOT 18:15 :: 18:13
+  [PASS] route B IS 18:15 -- the docs' number is produced by the shipped code :: 18:15
+    gap between the two series: 99.4 s
+  [PASS] gap reproduces cycle 29's measured 99.4 s :: 99.4 s
+```
+
+Cycle 29 recorded the conductor making this identical error and refuting itself, and
+generalised the rule: a "the docs are wrong" finding must be measured by the method the
+doc's own evidence uses AND by one method independent of it. A fresh fable agent walked into
+it 47 cycles later, which says the trap is a property of the artifact (KI-7's two-series
+split showing up at an ordinary epoch), not of the agent. Nothing filed -- the narrower true
+finding, that the docs ATTRIBUTE 18:15 to the ch.49 machinery, is already T-169.
+
+### VERIFICATION EVIDENCE -- gate G3/G4/G6 (the three findings that survived)
+
+```
+G3  suite now (aggregate): tests=159 pass=159 fail=0     per-file sum=159
+    REPORT.md:8:   cycles 48-65, **148/148 tests green**      <- HISTORICAL, correct, leave
+    REPORT.md:377: | Tests | 145 -> **148**                   <- HISTORICAL, correct, leave
+    REPORT.md:362: node --test test/*.test.js    # 155 tests  <- LIVE how-to-run, stale
+  [PASS] 155 matches neither the run-2 figure (148) nor the tree (159) -- stale BOTH frames
+G4  bin/moon.js:38: ~21 hours, so multiplying it by 29.53 to get days is wrong.
+  [PASS] the figure is inside bin/moon.js (the shipped --help), not only in README
+  [PASS] and it is really EMITTED to the user by --help, not merely a source comment
+G6  detectHemisphere('US/Samoa') -> north   (Pago Pago is 14.28 S)
+  [PASS] Pacific/Samoa (SAME islands, other alias) IS handled -- one row, not a layer
+    TZ=US/Samoa -> ICU resolves to 'Pacific/Pago_Pago' -> binary prints 'south'
+  [PASS] NOT user-observable on this host
+
+GATE cycle 76: PASS (0 failed check(s))
+```
+
+Full output: `runs/cycle-076-verify-qa.txt`; the gate itself: `runs/cycle-076-gate.js`.
+
+### instrument repair (fifth instance this run)
+
+G3 FAILED on its first run and the defect was mine, not the product's: I hand-typed six test
+filenames and silently missed `contracts.test.js` and `manifest.test.js`, reading 143 where
+the suite has 159, and my summary regex matched only the TAP `# pass` form so it reported
+`fail=undefined` while still rendering a verdict. Same family as cycle 8's `.trim()` defect,
+cycle 9's sentence-scope defect, cycle 19's line-wrap defect and cycle 29's `@returns`
+defect. Per that standing precedent the widening is not free: the file list is now READ FROM
+THE DIRECTORY so it cannot be mistyped; a null in ANY of the three summary figures now FAILS
+the gate instead of passing as undefined; and the aggregate is cross-checked against an
+independently-summed per-file run (159 == 159), so the exact defect I just committed -- a
+silently omitted test file -- can no longer survive this gate.
+
+### disposition of the five look findings
+
+- **FILED T-174** (REPORT.md:362 `# 155 tests`). The agent's framing is CORRECTED: it read
+  all three test-count figures as equally stale, but lines 8 and 377 are explicitly scoped
+  to run 2 and are correct AS HISTORY -- rewriting them would falsify the record, the mirror
+  of the defect. Line 362 sits in a how-to-run block, so it is a live instruction, and 155
+  matched nothing on the day it was written either.
+- **FOLDED into T-168** (the stale ~21 h bound). T-168 was filed against README.md ALONE;
+  the same figure is emitted to every user by `moon --help` from bin/moon.js:38. The look
+  agent also re-measured 23.03 h by a different method than cycle 73's, and the two agree to
+  the second decimal, so the replacement figure is now double-sourced. Its sibling number in
+  the same paragraph ("endpoints hold to within ~45 min") was checked and STANDS.
+- **REFUTED** (18:15) -- see G5 above.
+- **FILED T-175 at p9, NOT buildable this run** (US/Samoa). I first framed it as a failed doc
+  re-verification against REPORT.md:55's "all 418 zones" and then withdrew my own framing on
+  measurement: `Intl.supportedValuesOf('timeZone').length` is EXACTLY 418 here --
+  unambiguously the source of the figure -- and that set contains no legacy aliases at all
+  (no US/Samoa, no Pacific/Samoa, no NZ). REPORT.md:55 is true as scoped; the alias layer
+  exists precisely for names outside the 418. With the doc-falsity withdrawn it traces to
+  none of the three sources SPEC.md's taste note permits, and that note is explicit that
+  such an item does not get built however tidy it would be.
+- **REJECTED as churn** (nextFullMoon millisecond precision). The agent honestly conceded in
+  the same breath that the rounding claim scopes to "numeric fields" and this is a string,
+  so nothing is false; closing it would mean truncating a field of the explicitly-stable
+  --json contract, a behaviour change the non-goals forbid, to fix nothing untrue.
+
+churn breaker: `consecutive_no_value` -> 0. The pass produced verified value: a required gate
+  closed with evidence, two new defects filed with conductor measurement, one item's scope
+  corrected, two candidate findings killed before they could become work.
+wave autotune: NOT APPLICABLE -- autotune fires after a build-wave's merges, and no wave was
+  dispatched. `k_current` stays 3, `wave_streak` stays 0.
+backlog: 9 todo -- T-164, T-167, T-168, T-169, T-170, T-171, T-173, T-174, T-175. T-167 is
+  still the only product-behaviour item; T-175 is filed-but-not-buildable by the taste rule.
+gate-4 status, for whoever picks next: review-fix ran c73, full QA ran c76. The TASTE pass
+  (qa-verify mode "taste", one fable seat) is the LAST outstanding gate before POLISH, and
+  the premium allowance that made this cycle possible is what it needs. If the next cycle
+  can afford one fable seat, spend it there; T-167 attempt 2 is the alternative and needs
+  a designed fix (a relative per-row eligibility rule -- retuning the 0.02 constant cannot
+  work, cycle 75 measured why).
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],
+ "rotation_cursor":0,"rotation_schedule":[0],
+ "stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00",
+ "model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3",
+ "pacing":{"mode":"thermostat","dial":0.5},
+ "budget":{"gear":2,"gear_target":2,"k_cap":2,"promote":false,"demote":true,
+   "probe_failures":7,"weekly":{"ok":true,"weekly_used_pct":13.0,"opus_used_pct":6,
+   "week_elapsed_pct":9.312,"weekly_heat":1.396,"opus_heat":0.644,"ceiling":2,
+   "promote_blocked":true}},
+ "watchdog":{"mode":"normal","plist_loaded":true},"caffeinate_pid":0,
+ "wrap_up_complete":false,"cycles_since_recycle":10}
+```

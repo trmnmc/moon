@@ -1,0 +1,93 @@
+{
+  "runId": null,
+  "mode": "full",
+  "dispatch": "DIRECT Agent calls, not the Workflow tool (review-gated in a headless -p session; documented SKILL.md fallback). Sequential, per the qa-verify contract's full-mode agent order.",
+  "models": {
+    "author": "fable",
+    "executor": "sonnet",
+    "look": "fable"
+  },
+  "author_tool_uses": 0,
+  "scenarios": [
+    {
+      "id": "S1",
+      "title": "--json internal consistency: illumination/phaseAngle/cycleFraction algebra"
+    },
+    {
+      "id": "S2",
+      "title": "julianDay/timestamp/nextFullMoon mutual + wall-clock agreement under an odd-offset TZ"
+    },
+    {
+      "id": "S3",
+      "title": "hemisphere inference vs override across TZs, TZ-invariance, --south --north conflict"
+    },
+    {
+      "id": "S4",
+      "title": "line-count contract of default/--compact/--block and the --block --compact interaction"
+    },
+    {
+      "id": "S5",
+      "title": "failure surface: positional args and unknown flags exit 2 with 'moon: '; --help/-h"
+    }
+  ],
+  "results": [
+    {
+      "scenario_id": "S1",
+      "status": "pass",
+      "conductor_rerun": "derivation + algebra re-derived from the Domain rules (gate G2)"
+    },
+    {
+      "scenario_id": "S2",
+      "status": "pass",
+      "conductor_rerun": null
+    },
+    {
+      "scenario_id": "S3",
+      "status": "pass",
+      "conductor_rerun": null
+    },
+    {
+      "scenario_id": "S4",
+      "status": "pass",
+      "conductor_rerun": "fully re-run with an added discriminator (gate G1)"
+    },
+    {
+      "scenario_id": "S5",
+      "status": "pass",
+      "conductor_rerun": null
+    }
+  ],
+  "look": {
+    "findings": [
+      {
+        "severity": "medium",
+        "where": "REPORT.md:362",
+        "disposition": "FILED as T-174, framing corrected by the conductor"
+      },
+      {
+        "severity": "low",
+        "where": "README.md:180-181 / REPORT.md:51",
+        "disposition": "REFUTED at gate G5 - already covered by T-169 in the correct framing"
+      },
+      {
+        "severity": "low",
+        "where": "README.md:160 + bin/moon.js:38",
+        "disposition": "FOLDED into T-168 as a scope extension (gate G4)"
+      },
+      {
+        "severity": "low",
+        "where": "src/hemisphere.js (US/Samoa alias)",
+        "disposition": "FILED as T-175 at p9, NOT buildable this run (traceability)"
+      },
+      {
+        "severity": "low",
+        "where": "--json nextFullMoon ms precision",
+        "disposition": "REJECTED as churn on the agent's own analysis"
+      }
+    ]
+  },
+  "taste": null,
+  "agents_used": 3,
+  "dead_agents": [],
+  "timestamp": "2026-08-17T21:05:00+00:00"
+}

@@ -1,0 +1,72 @@
+=== G1 — S4 re-run by the conductor: line-count contract + --block --compact ===
+  [PASS] default: exit 0 and stderr empty :: exit=0 stderrBytes=0
+  [PASS] --compact: exit 0 and stderr empty :: exit=0 stderrBytes=0
+  [PASS] --block: exit 0 and stderr empty :: exit=0 stderrBytes=0
+  [PASS] --block --compact: exit 0 and stderr empty :: exit=0 stderrBytes=0
+    line counts: default=2 compact=1 block=12 block+compact=11
+  [PASS] default is exactly 2 lines :: 2
+  [PASS] --compact is exactly 1 line :: 1
+  [PASS] --block is >= 3 lines :: 12
+  [PASS] --block --compact drops EXACTLY one line :: 12 -> 11
+  [PASS] --block --compact is still a framed block, not the compact single line
+    dropped line(s): ["   next full moon  28 Aug"]
+  [PASS] the dropped line is the next-full-moon line, not a truncated frame row
+  [PASS] --block --compact introduces no line --block did not have
+=== G2 — author derivation re-checked against the Domain rules ===
+    fresh: phase=waxing crescent e=65.011 illum=0.2888 kFromDomainRule=0.288778
+    illErr=0.000022  cfErr=0.000004  age=5.144
+  [PASS] illumination matches the Domain-rule formula :: |0.000022| <= 0.011
+  [PASS] cycleFraction = phaseAngle/360 :: |0.000004| <= 0.003
+    wrong-convention value would be 0.711222 (delta 0.4224)
+  [PASS] the sign-flipped convention IS discriminated at tonight angle — the check is not vacuous
+  [PASS] age inside the Domain-rule lunation bound :: 5.144 < 29.84
+=== G3 — look finding 1: REPORT.md test-count claims ===
+    test files (globbed, not typed): 8 :: args.test.js astro.test.js cli.test.js contracts.test.js hemisphere.test.js manifest.test.js regressions.test.js render.test.js
+    suite now (aggregate): tests=159 pass=159 fail=0
+  [PASS] all three summary figures parsed from real output (no silent nulls) :: {"tests":159,"pass":159,"fail":0}
+      args.test.js: tests=33 fail=0
+      astro.test.js: tests=26 fail=0
+      cli.test.js: tests=22 fail=0
+      contracts.test.js: tests=11 fail=0
+      hemisphere.test.js: tests=14 fail=0
+      manifest.test.js: tests=5 fail=0
+      regressions.test.js: tests=18 fail=0
+      render.test.js: tests=30 fail=0
+    per-file sum=159  aggregate=159
+  [PASS] per-file sum equals the aggregate — no file silently skipped :: 159 vs 159
+    REPORT.md:8: guest pacing, dial 0.3) — cycles 48–65, **148/148 tests green**.
+    REPORT.md:362: node --test test/*.test.js    # 155 tests
+    REPORT.md:377: | Tests | 145 → **148**, all three proven failable and attributable |
+  [PASS] suite is green :: tests=159 pass=159 fail=0
+  [PASS] suite is at or above the SPEC's 148-test floor :: 159
+  [PASS] line 8 is scoped to run 2 (cycles 48-65) — a HISTORICAL claim, not a live one
+  [PASS] line 377 is a run-2 delta row — also historical
+  [PASS] line 362 is a HOW-TO-RUN command annotated "# 155 tests" — a live, output-cited claim
+  [PASS] 155 matches neither the document's own run-2 figure (148) nor the tree (159) — stale in BOTH frames
+=== G4 — look finding 3: is the stale 21 h figure inside the product itself? ===
+    bin/moon.js:38: ~21 hours, so multiplying it by 29.53 to get days is wrong.
+  [PASS] the figure is inside bin/moon.js (the shipped --help text), not only in README :: 1 site(s)
+  [PASS] and it is really EMITTED to the user by --help, not merely present in a source comment
+    README.md:160: synodic month. Mid-cycle it can lead or lag true elapsed time by up to about 21 hours,
+  [PASS] README carries it too (the site T-168 already covers)
+=== G5 — look finding 2: adjudicating 18:15 vs 18:13:43 against the cycle-29 record ===
+    route A  ch.49 (julianDay - age)      : 2000-01-06T18:13:43.348Z
+    route B  ch.48 (cycleFraction wrap)   : 2000-01-06T18:15:22.785Z
+    published Meeus instant              : 2000-01-06T18:14 (README's cited source)
+  [PASS] route A rounds to 18:14 and is NOT 18:15 :: 18:13
+  [PASS] route B IS 18:15 — the docs' number is produced by the shipped code :: 18:15
+  [PASS] the two routes disagree — the KI-7 two-series split, at an ordinary epoch
+    gap between the two series: 99.4 s
+  [PASS] gap reproduces cycle 29's measured 99.4 s :: 99.4 s
+=== G6 — look finding 4: the US/Samoa legacy alias ===
+    detectHemisphere('US/Samoa') -> north   (Pago Pago is 14.28 S)
+  [PASS] the unit-level defect reproduces :: got north, correct answer is south
+    detectHemisphere('NZ') -> south
+    detectHemisphere('Brazil/East') -> south
+    detectHemisphere('Chile/Continental') -> south
+    detectHemisphere('Pacific/Samoa') -> south
+  [PASS] Pacific/Samoa (the SAME islands, the other legacy alias) IS handled — the omission is one row, not a missing layer
+    TZ=US/Samoa -> ICU resolves to 'Pacific/Pago_Pago' -> binary prints hemisphere 'south'
+  [PASS] NOT user-observable on this host: ICU canonicalises before detection, so the live output is correct
+
+GATE cycle 76: PASS (0 failed check(s))
