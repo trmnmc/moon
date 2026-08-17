@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "QA",
-  "cycle": 72,
+  "cycle": 73,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -667,6 +667,16 @@
       "cycle": 72,
       "what": "T-160 PASSED; the run-2 start-time error found while reading it (REPORT.md:7 says 13:37, measured kickoff is 2026-08-16T13:20:10Z) was FILED as T-164, not fixed in-cycle and not charged against T-160.",
       "why": "The builder's own new text is the correct half of the contradicting pair, and the bad line was outside its scope. Failing an item for surfacing a pre-existing error punishes exactly the behaviour the gate is trying to buy. Fixing it inline would have shipped an unverified edit inside a verified item \u2014 the same category of error, in the other direction."
+    },
+    {
+      "cycle": 73,
+      "what": "the three cycle-73 review findings that do NOT trace to the SPEC's three routes (T-165 EPIPE, T-166 date-dependent test, T-167 broken crescent) are admitted as buildable this run anyway; T-170/T-171/T-173 trace to recorded survivors and T-168/T-169/T-172 to failed doc re-verifications",
+      "why": "the SPEC's traceability rule exists to bar CHURN -- reworded prose and duplicate tests invented to fill a cycle. Cycle 72 wrote it forward as 'a finding that does not trace gets RECORDED, never built'. That reading is right for a finding that is merely plausible, and wrong for these three: each is a reproduced defect with reproduction output the conductor generated itself by a route neither the reviewer nor the verifier used. Refusing to fix a crash that prints a stack trace against a README promising 'Safe to pipe', because the crash was found by the very review pass gate 4 mandates, would be the rule defeating its own purpose. The fence that still binds is the NON-GOALS list: no features, no flags, no deps, no glyph-set redesign, no weakening a gate -- and none of the nine items crosses it. T-167 sits closest (it changes visible output) so its gate carries a before/after render and is scoped to the guard condition, not a redraw."
+    },
+    {
+      "cycle": 73,
+      "what": "reviewer A's finding 4 (the '45 minutes' endpoint claim allegedly failing inside years 1000-3000) is DISCARDED, and the verifier's refutation is upheld after the conductor re-ran it",
+      "why": "the reviewer converted an ANGULAR deviation at the mean synodic rate, where the true elongation rate at those lunations is ~15% faster. Conductor's own check at the cited 1202-10-10 extremum: mean-rate conversion -51.9 min, actual time to the cycleFraction=0.5 crossing 45.1 min. The doc sentence is about time, so 'about 45 minutes' holds. Recorded because a refuted finding that is quietly dropped looks identical to one that was never found, and this one cost a reviewer real work."
     }
   ],
   "known_issues": [
@@ -717,7 +727,7 @@
     "last_full_qa_cycle": 46,
     "last_look_cycle": 1,
     "last_taste_cycle": 1,
-    "last_review_fix_cycle": 23,
+    "last_review_fix_cycle": 73,
     "last_build_wave_cycle": 72
   },
   "counters": {

@@ -1289,6 +1289,171 @@
       "model": "sonnet",
       "acceptance": "REPORT.md's run-summary block states a run-2 start time that agrees with the measured kickoff epoch, and EVERY other run start/end time in that same block is checked against its own kickoff-log filename epoch and completed-runfile epoch by the same method rather than assumed correct. Times that cannot be established from an on-disk artifact are labelled as such, not silently kept.",
       "notes": "FOUND AT CYCLE 72 while reading T-160, PRE-EXISTING, and NOT charged against T-160 -- T-160's own new text (\"the first 31 minutes\") is the CORRECT half of the pair. Measured three ways, all agreeing on 2026-08-16T13:20:10Z: kickoff log filename epoch 1786886410; that log's first line naming cycle 48 (REPORT's own run-2 range is cycles 48-65); and the auto-kickoff push at 13:20:10 in runs/notify.log.1786947423. 13:37 is close to the kickoff log's MTIME (13:38:31) -- i.e. when the kickoff session finished writing, not when it started, which is probably how the error was made and is worth checking for in the other rows. Run 1's line (15:32) DOES match kickoff-1786721548 = 2026-08-14T15:32:28Z, so this is not a systematic offset. Evidence + method: .swarm/runs/cycle-072-verify-T160.txt and runs/c072-run2-start.py."
+    },
+    {
+      "id": "T-165",
+      "kind": "fix",
+      "priority": 1,
+      "value": "M",
+      "effort": "S",
+      "title": "bin/moon.js writes to stdout with no 'error' handler: a closed pipe crashes with a stack trace and exit 1, while README:171 says \"Safe to pipe\"",
+      "files_hint": [
+        "bin/moon.js",
+        "test/regressions.test.js"
+      ],
+      "model": "sonnet",
+      "acceptance": "Running the CLI with its stdout reader gone before any byte is read exits with a documented code and prints NO Node stack trace on stderr, in every output mode (default, --compact, --block, --json). Ordinary piping still exits 0 with byte-identical stdout. The behaviour is pinned by a test that FAILS against the current unguarded code and passes after the fix, and the test must name the condition it closes. Whatever exit code is chosen is the one the docs state; if README:171's \"Safe to pipe\" is kept, it must be true as written.",
+      "notes": "REVIEW-FIX cycle 73, reviewer B finding 1, verifier REPRODUCED, conductor re-ran it independently by a third route (node spawn with stdio pipe, c.stdout.destroy() before any read) across three modes:\n  argv=(default)  exit=1  stderr=STACK+EPIPE\n  argv=--block    exit=1  stderr=STACK+EPIPE\n  argv=--json     exit=1  stderr=STACK+EPIPE\n  ordinary \"| head -1\": EXIT=0  stderr_len=0\nSEVERITY IS THE CONDUCTOR'S, NOT THE REVIEWER'S: reviewer said high, the verifier downgraded to low on the ground that ordinary piping is unaffected (the whole output is one small buffered write). Landed at MEDIUM: the crash needs a reader that exits without reading (head -0, | true, quitting a pager early), which is uncommon but not exotic, and when it happens the user sees a raw Node stack trace from a product whose README promises the opposite. Exit 1 is also outside the documented {0,2}. Evidence: runs/c073-gate.mjs, section B1.",
+      "status": "todo",
+      "deps": [],
+      "packages": [],
+      "attempts": 0
+    },
+    {
+      "id": "T-166",
+      "kind": "fix",
+      "priority": 1,
+      "value": "M",
+      "effort": "S",
+      "title": "test/cli.test.js:46 hard-codes two spaces before the day, but the day is space-padded to width 2 \u2014 the suite breaks on 21.5% of future calendar days",
+      "files_hint": [
+        "test/cli.test.js"
+      ],
+      "model": "sonnet",
+      "acceptance": "The next-full-moon line assertion passes for BOTH a single-digit and a double-digit day of month, and the fix is proven date-independent by exercising the assertion against a rendered line of each shape rather than by loosening the regex until it stops mattering. The right-alignment the source calls load-bearing (bin/moon.js:64) must still be asserted \u2014 a fix that stops checking the padding entirely trades a time bomb for a blind spot and does not pass.",
+      "notes": "REVIEW-FIX cycle 73, reviewer B finding 2, verifier REPRODUCED, conductor re-measured independently (no Date mocking \u2014 counted single-digit next-full-moon days directly off the shipped nextFullMoon):\n  two-space (day 28): regex=true\n  three-space (day 9): regex=false\n  single-digit next-full-moon days in next 730: 157 (21.5%)\n  first offending calendar day: 2028-03-12 -> full 2028-04-09\nThe render is CORRECT; the test is wrong. Reviewer called it high, verifier medium on the ground that the first failure is 19 months out. Conductor concurs with MEDIUM: latent, deterministic, and it will fire on a machine nobody is watching. Evidence: runs/c073-gate.mjs, section B2.",
+      "status": "todo",
+      "deps": [],
+      "packages": [],
+      "attempts": 0
+    },
+    {
+      "id": "T-167",
+      "kind": "fix",
+      "priority": 2,
+      "value": "M",
+      "effort": "S",
+      "title": "--block draws a hair-thin crescent as three disconnected specks: the limb hairline guard (render.js:209) accepts rows 0/2/4 and rejects rows 1/3",
+      "files_hint": [
+        "src/render.js",
+        "test/render.test.js"
+      ],
+      "model": "sonnet",
+      "acceptance": "At illuminations low enough to trigger the hairline path, the --block disc's lit rows form a CONTIGUOUS arc down the limb \u2014 no fully dark row between two lit rows \u2014 which is the property the guard's own comment (src/render.js:204-208) says it exists to preserve. Pinned by a test that fails against the current guard. The fix must not widen the disc, must not add a glyph to the set, and must leave the render at ordinary illuminations byte-identical.",
+      "notes": "REVIEW-FIX cycle 73, reviewer B finding 3, verifier REPRODUCED and confirmed the reachability figure (~20 h per lunation). Conductor reproduced from the shipped modules at the cited real instant:\n  computeMoon 2026-08-11T18:00Z illum=0.0140 phase=waning crescent\n  row0 lit=Y  row1 lit=n  row2 lit=Y  row3 lit=n  row4 lit=Y  -> arc BROKEN: true\nGeometrically inverted besides: rows 1/3 hold MORE of the lit limb than rows 0/4 yet are the dark ones. This is the one item in the cycle-73 set that changes what a user SEES, so its gate carries a before/after render, and the no-glyph-set-redesign non-goal binds it: a guard-condition fix is in scope, a redraw is not. Evidence: runs/c073-gate.mjs, section B3.",
+      "status": "todo",
+      "deps": [],
+      "packages": [],
+      "attempts": 0
+    },
+    {
+      "id": "T-168",
+      "kind": "fix",
+      "priority": 3,
+      "value": "S",
+      "effort": "S",
+      "title": "README:160 states the mid-cycle cycleFraction divergence bound as \"about 21 hours\"; the measured worst case is 23.03 h and 1.2% of instants exceed 21 h",
+      "files_hint": [
+        "README.md"
+      ],
+      "model": "haiku",
+      "acceptance": "The stated bound is true for the range the sentence claims, with the figure computed IN-REPO and its derivation shown or cited (the no-unsourced-numbers rule this run has applied since cycle 2). If the sentence is rescoped rather than renumbered, the new scope must be the one actually measured. No magnitude may appear that is not reproducible from a committed script.",
+      "notes": "REVIEW-FIX cycle 73, reviewer A finding 1, verifier REPRODUCED (23.03 h over both 1990-2060 and 1900-2100). Conductor's own sweep, 2026-2040 hourly, independent wrap handling:\n  n=122712 worst=-23.03 h at 2036-12-29T05:00:00Z\n  samples exceeding the documented 21 h: 1503 (1.22%)\n  at extremum: age=11.5595 d  cycleFraction*SY=10.6001 d\nThe paragraph's ADVICE (use age; expect errors up to most of a day) is unaffected \u2014 only the number is understated. Evidence: runs/c073-gate.mjs, section A1.",
+      "status": "todo",
+      "deps": [],
+      "packages": [],
+      "attempts": 0
+    },
+    {
+      "id": "T-169",
+      "kind": "fix",
+      "priority": 3,
+      "value": "S",
+      "effort": "S",
+      "title": "README:181 / REPORT.md:51 credit the ch.49 machinery with 18:15 UTC, which is the ch.48 crossing; the ch.49 instant is 18:13:43 and matches the published 18:14 exactly",
+      "files_hint": [
+        "README.md",
+        "REPORT.md"
+      ],
+      "model": "haiku",
+      "acceptance": "The 2000-01-06 verification sentence names the series the quoted time actually comes from, and the time quoted is the one that series computes, re-derived in-repo. The doc must not understate the implementation's own accuracy by quoting the wrong series' number, and must not overstate it either \u2014 if both numbers are kept, each is attributed.",
+      "notes": "REVIEW-FIX cycle 73, reviewer A finding 2, verifier REPRODUCED via a public-API route. Conductor re-computed both routes independently (ch.49 as julianDay-age, ch.48 by bisecting the cycleFraction wrap):\n  ch.49 (julianDay - age): 2000-01-06T18:13:43.348Z   -> rounds to 18:14, equal to the published value\n  ch.48 (cycleFraction wrap): 2000-01-06T18:15:22.851Z -> the number the docs quote\nThe paragraph is explicitly about ch.49 phase instants, so the doc attributes a ch.48 number to ch.49 and in doing so makes the implementation look ~65 s WORSE than it is. Evidence: runs/c073-gate.mjs, section A2.",
+      "status": "todo",
+      "deps": [],
+      "packages": [],
+      "attempts": 0
+    },
+    {
+      "id": "T-170",
+      "kind": "fix",
+      "priority": 4,
+      "value": "S",
+      "effort": "S",
+      "title": "README-documented round-limb threshold 0.88 (render.js:171) survives mutation anywhere in 0.76-0.99 \u2014 no test pins it, and the killer below 0.76 is incidental",
+      "files_hint": [
+        "test/render.test.js"
+      ],
+      "model": "sonnet",
+      "acceptance": "A test names and pins the round-limb threshold so that moving it in EITHER direction fails the suite, proven two-arm: the new test fails against a specific mutant of the constant BY NAME, and that same mutant survives with the new test reverted to HEAD. The band measured below must be closed, not merely narrowed \u2014 state the residual band if any survives.",
+      "notes": "REVIEW-FIX cycle 73, reviewer B finding 6. THE CONDUCTOR'S OWN MEASUREMENT CORRECTS BOTH AGENTS: the reviewer (0.95) and the verifier (0.80) each ran ONE mutant, both survived, and both concluded the constant is pinned by nothing. A third value killed it, so the hole is one-sided and bounded, not total. Full sweep, whole suite per value (runs/c073-gate-b6b.mjs):\n  0.60 KILLED | 0.70 KILLED | 0.75 KILLED  (all by T-134's README sweep-table reproduction)\n  0.80 SURVIVES | 0.84 SURVIVES | 0.92 SURVIVES | 0.95 SURVIVES | 0.99 SURVIVES\nSo: unpinned across ~0.76-0.99, and the sub-0.76 kill is incidental (a README table whose rows happen to change), not a test that knows the threshold exists. Mutant output is visible: 86/1000 renders differ at 0.70, e.g. at 95% illumination |#|##<| -> |<|##<|. HOLE, not BOUNDARY: README:239-241 states the 0.88 behaviour affirmatively, so it is a documented promise with no gate.",
+      "status": "todo",
+      "deps": [],
+      "packages": [],
+      "attempts": 0
+    },
+    {
+      "id": "T-171",
+      "kind": "fix",
+      "priority": 5,
+      "value": "S",
+      "effort": "S",
+      "title": "test/render.test.js:362 and :376 assert on Array.slice lengths \u2014 structurally incapable of failing, in the test named for the disc-width contract",
+      "files_hint": [
+        "test/render.test.js"
+      ],
+      "model": "sonnet",
+      "acceptance": "Neither assertion can pass against a disc that violates the width contract the test is named for: each is either replaced by one that fails on a widened disc, or removed with the surviving assertions shown to cover the case. Proven by mutation in both directions (widen and narrow), reporting which test catches which \u2014 a fix that only re-proves the existing narrow-side kill has not closed the widen side.",
+      "notes": "REVIEW-FIX cycle 73, reviewer B finding 4, verifier REPRODUCED by a different mutation (appending a sixth cell rather than changing LINE_CELLS) and CORRECTED THE FRAMING: the width contract is still enforced overall \u2014 narrowing is caught by this same test's glyph check, widening by 15 other tests \u2014 so this is vacuous-assertion cleanup, NOT a coverage hole. Conductor confirmed the vacuity by inspection: cells.slice(0,5).length === 5 for any line of >=5 cells, and prefixes.add(slice(5,12).join('').length) accumulates a constant, so prefixes.size === 1 always. Filed at low priority precisely because the contract is covered elsewhere; the defect is that the test LOOKS like the gate and is not.",
+      "status": "todo",
+      "deps": [],
+      "packages": [],
+      "attempts": 0
+    },
+    {
+      "id": "T-172",
+      "kind": "fix",
+      "priority": 5,
+      "value": "S",
+      "effort": "S",
+      "title": "src/args.js:95-96 promises a \"single-line message\" for every usage error; a newline-bearing argv token produces a two-line message, which args.test.js:389 pins as expected",
+      "files_hint": [
+        "src/args.js"
+      ],
+      "model": "haiku",
+      "acceptance": "The parseArgs doc comment describes what the code actually does for newline-bearing tokens, and does not contradict the test that pins that behaviour. The BEHAVIOUR is not to change \u2014 it is deliberate and test-pinned; only the comment is wrong. No user-facing doc needs editing (README promises only stderr + exit 2), and none should be edited by this item.",
+      "notes": "REVIEW-FIX cycle 73, reviewer B finding 5, verifier REPRODUCED from the shipped binary (exit 2, two physical stderr lines) and judged it a doc-comment inaccuracy rather than a behaviour defect: args.test.js:382-388 documents the multi-line output as deliberate parity behaviour, and the single-line test at :416 uses only newline-free argvs \u2014 a deliberate exclusion. Conductor read args.js:90-97 and confirms the comment says \"on any malformed input\", which is the word that makes it false. Lowest-stakes item in the set: one sentence in a comment.",
+      "status": "todo",
+      "deps": [],
+      "packages": [],
+      "attempts": 0
+    },
+    {
+      "id": "T-173",
+      "kind": "polish",
+      "priority": 6,
+      "value": "S",
+      "effort": "S",
+      "title": "test/hemisphere.test.js:211-214 loops five Indian/* zones asserting only membership in {north,south} \u2014 subsumed by the strictEqual assertions three lines below",
+      "files_hint": [
+        "test/hemisphere.test.js"
+      ],
+      "model": "haiku",
+      "acceptance": "The redundant loop is gone or replaced by an assertion that a constant-returning detectHemisphere would fail, and the five zone expectations remain asserted exactly as they are now. Suite count may drop by zero tests (this is inside an existing test); no zone loses its check.",
+      "notes": "REVIEW-FIX cycle 73, reviewer A finding 3. Verifier REPRODUCED the mechanism but set corrected_severity to NONE: an argument-ignoring stub passes the line-213 loop while the strictEqual assertions at 216-220 kill it (10 of 14 tests in the file fail under the stub), so the suite is not weakened \u2014 the loop is dead weight that reads like coverage. Conductor read lines 205-225 and concurs. Filed as polish, lowest priority in the set, and it is the first item to drop if the clock tightens.",
+      "status": "todo",
+      "deps": [],
+      "packages": [],
+      "attempts": 0
     }
   ]
 }

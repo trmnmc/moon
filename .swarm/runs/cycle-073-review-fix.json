@@ -1,0 +1,111 @@
+{
+  "runId": "direct-agent-c073",
+  "work_type": "review-fix",
+  "dispatch": "DIRECT Agent calls (headless -p; Workflow review-gated)",
+  "models": {
+    "reviewer": "opus",
+    "verifier": "fable",
+    "fixer": null
+  },
+  "stages_run": [
+    "reviewers",
+    "adversarial_verifiers"
+  ],
+  "stage3_fixers": "NOT RUN \u2014 deliberate cycle boundary, see journal cycle 73",
+  "findings": [
+    {
+      "id": "B1",
+      "file": "bin/moon.js:135",
+      "reviewer_severity": "high",
+      "verifier_severity": "low",
+      "conductor_severity": "medium",
+      "reproduced": true,
+      "filed_as": "T-165"
+    },
+    {
+      "id": "B2",
+      "file": "test/cli.test.js:46",
+      "reviewer_severity": "high",
+      "verifier_severity": "medium",
+      "conductor_severity": "medium",
+      "reproduced": true,
+      "filed_as": "T-166"
+    },
+    {
+      "id": "B3",
+      "file": "src/render.js:209",
+      "reviewer_severity": "medium",
+      "verifier_severity": "medium",
+      "conductor_severity": "medium",
+      "reproduced": true,
+      "filed_as": "T-167"
+    },
+    {
+      "id": "A1",
+      "file": "README.md:160",
+      "reviewer_severity": "medium",
+      "verifier_severity": "low",
+      "conductor_severity": "low",
+      "reproduced": true,
+      "filed_as": "T-168"
+    },
+    {
+      "id": "A2",
+      "file": "README.md:181,REPORT.md:51",
+      "reviewer_severity": "low",
+      "verifier_severity": "low",
+      "conductor_severity": "low",
+      "reproduced": true,
+      "filed_as": "T-169"
+    },
+    {
+      "id": "B6",
+      "file": "src/render.js:171",
+      "reviewer_severity": "low",
+      "verifier_severity": "low",
+      "conductor_severity": "low",
+      "reproduced": true,
+      "filed_as": "T-170",
+      "conductor_correction": "both agents concluded \"pinned by nothing\" from one mutant each; conductor swept 8 values and found the hole bounded to ~0.76-0.99"
+    },
+    {
+      "id": "B4",
+      "file": "test/render.test.js:362,376",
+      "reviewer_severity": "medium",
+      "verifier_severity": "low",
+      "conductor_severity": "low",
+      "reproduced": true,
+      "filed_as": "T-171"
+    },
+    {
+      "id": "B5",
+      "file": "src/args.js:97",
+      "reviewer_severity": "low",
+      "verifier_severity": "low",
+      "conductor_severity": "low",
+      "reproduced": true,
+      "filed_as": "T-172"
+    },
+    {
+      "id": "A3",
+      "file": "test/hemisphere.test.js:213",
+      "reviewer_severity": "low",
+      "verifier_severity": "none",
+      "conductor_severity": "low",
+      "reproduced": true,
+      "filed_as": "T-173"
+    },
+    {
+      "id": "A4",
+      "file": "README.md:163",
+      "reviewer_severity": "low",
+      "verifier_severity": "none",
+      "conductor_severity": "none",
+      "reproduced": false,
+      "filed_as": null,
+      "discard_reason": "mean-synodic-rate conversion of an angular deviation; actual elapsed time to the crossing is 45.1 min, consistent with the doc. Conductor re-ran both."
+    }
+  ],
+  "fixes": [],
+  "agents_used": 4
+}

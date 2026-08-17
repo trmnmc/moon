@@ -8961,3 +8961,198 @@ T-164, S-effort and traceable, which the following cycle can absorb alongside wh
 review-fix reproduces.
 
 runfile-mirror: {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00","usage_reset_at_note":"ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed","model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3","heartbeat":{"ts":1786991808,"next_wakeup_at":1786991898,"pid":1840562,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"thermostat","dial":0.5},"budget":{"source":"clock+allocator","gear":3,"gear_target":3,"ratio":0.0,"mode":"thermostat","k_cap":3,"promote":false,"demote":false,"window_tokens":0,"window_cost_usd":0.0,"api_cap_usd":null,"api_spend_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786991808,"last_real_probe_ts":1786990233,"probe_failures":5,"gear_evidence":"cycle 72: NO probe attempted \u2014 probe_failures 5 (>=3) and now-last_real_probe_ts was 464s at cycle open, inside the 1800s re-probe window, so cycle.md step 1 forbids the invocation. probe_failures stays 5 rather than being inflated by an attempt the rules barred. allocator.json MEASURED (ok=true, source=probe): weekly_used 10.0 pct at week_elapsed 7.918 pct -> weekly_heat 1.26; opus_used 4 pct -> opus_heat 0.51; dial 0.41. Applying swarm-budget.sh lines 129-140 by hand: heat 1.26 is >1.1 but NO LONGER >1.3 (it was 1.3007 at cycle 71), so the governor RELAXES the ceiling 2 -> 3 and un-blocks promote; opus_heat 0.51 < 1.2 so no opus block. The week elapsed while weekly_used held at 10.0, which is what cooled it. Window rho remains UNMEASURED (needs the denied ccusage probe), so the evidence rule lands cruise \u2014 and cruise is now reachable. Hysteresis one step: gear 2 -> 3, k_cap 3, demote False. Back to cruise after one cycle out of it.","weekly":{"ok":true,"weekly_used_pct":10.0,"opus_used_pct":4,"week_elapsed_pct":7.918,"weekly_heat":1.26,"opus_heat":0.51,"ceiling":3,"promote_blocked":false,"source":"runs/allocator.json ok=true source=probe (pacer-refreshed); heat + ceiling computed by hand from its fields because bin/swarm-budget.sh is denied (KI-2)"}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":6,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043"],"vetoed":[],"source":"learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)","not_wired":{"ids":["L-011","L-018","L-020","L-021","L-022"],"why":"all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."},"ledger_line_blocked":"record-applied could not run (KI-2) -- third consecutive run","directives":{"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"reviewer":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
+
+## cycle 73 | 2026-08-17T19:35:00+00:00 | moon | QA (review-fix pass)
+
+work: review-fix pass — 2 isolated reviewers (opus) -> 2 adversarial verifiers (fable) ->
+  NO fixers this cycle. 10 findings raised, 9 reproduced, 1 refuted and discarded; all 9
+  filed as backlog items T-165..T-173.
+why: step-4 gate 4. The run's definition-of-done was confirmed MET at cycle 72, but none of
+  the three gate-4 passes had run in this run at all, and the newest of them was 26 cycles
+  and two runs old — `last_review_fix_cycle 23 · last_full_qa_cycle 46 · last_taste_cycle 1`.
+  Cycle 72 handed forward review-fix first as the least-recently-run and most likely to find
+  something real. It was, by a wide margin.
+models: reviewers opus (routing table: reviewers = review-fix stage 1), verifiers fable
+  (judgment seat — adversarial verifiers, exempt from every pacing demotion by the fable
+  guard). Gear 3 cruise, table-as-is, demote false, so nothing moved either way.
+dispatch: DIRECT Agent calls, not the Workflow tool — headless `-p` session spawned by
+  bin/swarm-pacer.sh (PID walk: bash -> `claude -p /swarm cycle` 1845659 -> swarm-pacer.sh),
+  where Workflow is review-gated (documented SKILL.md fallback). Both reviewers were
+  read-only and both verifiers wrote scratch outside the target, so no file-scope collision
+  was possible; the target tree was clean before and after every agent.
+
+budget: NO probe possible. `bash bin/swarm-budget.sh` was attempted this cycle and REFUSED —
+  the allowlist carries `Bash(bin/swarm-notify.sh:*)` but has no entry for swarm-budget.sh at
+  all, which is KI-2 exactly as re-measured at cycle 71. The attempt was due (2067s since
+  last_real_probe_ts, past the 1800s re-probe window), so it was made and counted:
+  probe_failures 5 -> 6, last_real_probe_ts stamped. Gear computed by hand from
+  runs/allocator.json (ok=true, source=probe, pacer-refreshed): weekly_used 10.0 pct at
+  week_elapsed 8.172 pct -> weekly_heat 1.224 (cooler than cycle 72's 1.26 — the week
+  elapsed while usage held flat); opus_used 4 pct -> opus_heat 0.49. Heat >1.1 but <1.3 so
+  the ceiling stays 3 and promote stays unblocked; window rho remains UNMEASURED, so the
+  evidence rule lands cruise. Gear 3, k_cap 3, demote false — unchanged from cycle 72.
+
+---
+
+### Stage 1 — two isolated reviewers, no cross-visibility
+
+Reviewer A took the astronomy core (src/astro.js, src/hemisphere.js and their tests);
+reviewer B took the CLI surface (src/args.js, src/render.js, bin/moon.js and their tests).
+Neither saw the other's brief. Both were told, in the brief's own words, that style, naming,
+refactors, added features, added flags and added dependencies are NOT findings and would be
+discarded — the SPEC's non-goals pushed down into the reviewer prompt rather than left for
+the conductor to filter afterwards.
+
+Reviewer A returned 4 findings and, more usefully, an explicit ruled-out list: it
+transcribed Meeus Table 47.A as an INDEPENDENT 59-term series and reproduced worked example
+49.b to 0.34 s, swept 494,760 instant-window boundary probes across years 1000-3000 with 0
+misnamings, walked all 498 compiled IANA zone names against published reference latitudes
+with 0 mismatches, and killed 20 of 20 of its own astro/hemisphere mutants. The astronomy
+core came through this pass clean, which is itself a result worth recording after three runs
+of hardening it.
+
+Reviewer B returned 6 findings across ~40 hostile argv shapes, 14 environment variants, five
+stream conditions and a 19-mutant campaign.
+
+### Stage 2 — adversarial verifiers, briefed to REFUTE
+
+Both verifiers were told to default to REFUTED, to reproduce by a DIFFERENT route than the
+reviewer where possible, and were given the two reviewer error modes to hunt: scope
+misreading on doc claims (read the whole paragraph before judging) and unreachable-input
+claims (state explicitly whether the shipped binary can hit it). They earned their seat:
+
+- **One finding REFUTED and discarded** — A4, the claim that README's "about 45 minutes"
+  endpoint bound fails inside years 1000-3000 with 49-52 minute extrema. The verifier found
+  the reviewer had converted an ANGULAR deviation at the MEAN synodic rate where the true
+  elongation rate is ~15% faster, and separately that the 1000-3000 domain README declares
+  belongs to a different property altogether.
+- **Three severities corrected DOWNWARD** — B1 high -> low, B2 high -> medium, A1 medium ->
+  low, each with a stated reason (ordinary piping unaffected; first failure 19 months out;
+  the paragraph's advice survives the wrong number).
+- **One framing corrected** — B6's "illuminations between ~88% and ~95%" is outer-cell
+  cover, not disc illumination; the mutant changes output at 14% disc illumination.
+
+### The conductor's own gate — none of the above is accepted on an agent's word
+
+Every finding that mattered was re-run by a third route, written fresh at verification time
+(`runs/c073-gate.mjs`, `runs/c073-gate-b6.mjs`, `runs/c073-gate-b6b.mjs`):
+
+```
+=== B1  unguarded stdout write / closed pipe ===
+  argv=(default)  exit=1  stderr=STACK+EPIPE
+  argv=--block    exit=1  stderr=STACK+EPIPE
+  argv=--json     exit=1  stderr=STACK+EPIPE
+  ordinary "| head -1": EXIT=0  stderr_len=0
+=== B2  test/cli.test.js:46 regex vs space-padded day ===
+  two-space (day 28): regex=true
+  three-space (day 9): regex=false
+  single-digit next-full-moon days in next 730: 157 (21.5%)
+  first offending calendar day: 2028-03-12 -> full 2028-04-09
+=== B3  --block crescent continuity at low illumination ===
+  computeMoon 2026-08-11T18:00Z illum=0.0140 phase=waning crescent
+  row0 lit=Y  row1 lit=n  row2 lit=Y  row3 lit=n  row4 lit=Y
+  lit rows = [0,2,4]  -> arc BROKEN: true
+=== A1  README "about 21 hours" mid-cycle divergence bound ===
+  2026-2040 hourly n=122712 worst=-23.03 h at 2036-12-29T05:00:00.000Z
+  samples exceeding the documented 21 h: 1503 (1.22%)
+=== A2  2000-01-06 new moon: ch.49 instant vs ch.48 crossing ===
+  ch.49 (julianDay - age): 2000-01-06T18:13:43.348Z
+  ch.48 (cycleFraction wrap): 2000-01-06T18:15:22.851Z
+=== A4  endpoint offset: mean-rate conversion vs actual elapsed time ===
+  reviewer's figure (mean-rate conversion): -51.9 min
+  actual time to the cycleFraction=0.5 crossing: 45.1 min
+```
+
+B1/B2/B3/A1/A2 CONFIRMED. A4's refutation UPHELD — the conductor's own re-run reproduces
+both numbers side by side, so the discard rests on measurement, not on deferring to the
+verifier.
+
+### Where the conductor's gate CORRECTED BOTH AGENTS — T-170
+
+Reviewer B ran one mutant of the round-limb threshold (0.88 -> 0.95), it survived all 155
+tests, and it concluded the constant is pinned by nothing. The verifier ran one mutant the
+other way (0.80), it also survived, and it agreed. Two agents, two data points, one
+confident conclusion. The conductor ran a third value and it DIED:
+
+```
+cover < 0.60  ->  fail 1  KILLED  by: T-134 — README north/south sweep table rows ...
+cover < 0.70  ->  fail 1  KILLED  by: T-134 — README north/south sweep table rows ...
+cover < 0.75  ->  fail 1  KILLED  by: T-134 — README north/south sweep table rows ...
+cover < 0.80  ->  fail 0  SURVIVES
+cover < 0.84  ->  fail 0  SURVIVES
+cover < 0.92  ->  fail 0  SURVIVES
+cover < 0.95  ->  fail 0  SURVIVES
+cover < 0.99  ->  fail 0  SURVIVES
+```
+
+So the hole is real but BOUNDED and one-sided: unpinned across ~0.76-0.99, with the sub-0.76
+kill coming incidentally from a README table whose rendered rows happen to change, not from
+any test that knows the threshold exists. "Pinned by nothing" would have gone into the
+backlog as the item's premise and a builder would have written a test against a false
+picture of the gap. Two independent agents agreeing is not evidence; it is two samples.
+
+### Findings filed — 9 items, T-165..T-173
+
+| id | sev | what | traces to |
+|---|---|---|---|
+| T-165 | medium | closed pipe -> stack trace, exit 1, vs README "Safe to pipe" | review finding |
+| T-166 | medium | cli.test.js:46 breaks on 21.5% of future calendar days | review finding |
+| T-167 | medium | --block crescent splits into three specks at <2% illum | review finding |
+| T-168 | low | README:160 "about 21 hours" is really 23.03 h | failed doc re-verification |
+| T-169 | low | README:181/REPORT:51 quote the ch.48 number for ch.49 | failed doc re-verification |
+| T-170 | low | 0.88 round-limb threshold unpinned across 0.76-0.99 | recorded survivor |
+| T-171 | low | render.test.js:362/:376 assert on slice lengths — cannot fail | recorded survivor |
+| T-172 | low | args.js JSDoc "single-line message" false for newline tokens | failed doc re-verification |
+| T-173 | low | hemisphere.test.js:211-214 loop subsumed by the lines below | recorded survivor |
+
+Severities are the CONDUCTOR's, not the reviewers'. Nothing reached high, so nothing was
+added to known_issues; the five existing entries are unchanged.
+
+### The SPEC ruling this cycle forced — recorded as a decision, not resolved in silence
+
+Six of the nine items trace cleanly to the SPEC's permitted routes (recorded survivor /
+failed doc re-verification). Three — T-165, T-166, T-167 — trace to NEITHER, and cycle 72
+had written the rule forward as "a finding that does not trace gets RECORDED for a human or
+the next run, never built into this one."
+
+Admitted as buildable anyway, and the reasoning is on the record in state.json: the
+traceability rule exists to bar churn — reworded prose and duplicate tests invented to fill a
+cycle. That reading is right for a merely plausible finding and wrong for a reproduced crash.
+Refusing to fix a stack trace that fires against a README promising "Safe to pipe", because
+the crash was found by the very review pass gate 4 mandates, would be the rule defeating its
+own purpose. The fence that still binds is the NON-GOALS list — no features, no flags, no
+deps, no glyph-set redesign, no weakening a gate — and none of the nine crosses it. T-167
+sits closest, since it is the only one that changes what a user sees, so its acceptance
+clause scopes it to the guard condition and requires a before/after render at its gate.
+
+### Why no fixers this cycle
+
+The review-fix contract has three stages and stage 3 was not run. That is a deliberate cycle
+boundary, not an abandoned stage: stages 1-2 took 52 minutes against a 30-minute wave budget
+(the heartbeat was re-touched mid-wave at 19:08 as cycle.md allows), and dispatching fixers
+on top would have put the verification gate for nine items into the tail of a 90-minute
+cycle. Nine items with reproduction evidence attached is this cycle's verified value; the
+fixes are next cycle's, with gates authored fresh against acceptance clauses the fixers never
+see. Recorded plainly because an unrun stage that goes unmentioned reads exactly like a stage
+that failed.
+
+wave autotune: NOT a build wave — no merges, no reverts, so k_current stays 3 and
+  wave_streak stays 1 by the rule's own terms (it keys on build-wave outcomes).
+churn breaker: consecutive_no_value stays 0 — nine verified findings with conductor-run
+  reproduction evidence is verified value, even though no backlog item moved to done.
+
+state: phase QA, cycle 73. Backlog 74 items: 64 done, 10 todo (T-164 plus the nine filed
+  here). Known issues 5, unchanged. last_review_fix_cycle 23 -> 73.
+
+outcome: gate 4's first of three passes COMPLETE through stage 2. 10 findings raised, 9
+  reproduced and filed, 1 refuted and discarded with the arithmetic on record, 1 agent
+  consensus overturned by the conductor's own mutation sweep. 155/155 green, tree clean,
+  no product file touched this cycle.
+
+next: cycle 74 = fixers for the three medium items (T-165, T-166, T-167) as a build wave at
+  k=3 — their files_hint sets are pairwise disjoint (bin/moon.js+test/regressions.test.js /
+  test/cli.test.js / src/render.js+test/render.test.js), which cycle 70's lesson says is
+  necessary but NOT sufficient, so the gate runs after each merge separately. Then the doc
+  items, then QA full and TASTE — the two gate-4 passes still owed.
+
+runfile-mirror: {"version": 1, "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-18T16:02:34+00:00", "usage_reset_at": "2026-08-17T21:00:00+00:00", "usage_reset_at_note": "ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed", "model_policy": "value-routing", "auth_mode": "subscription", "run_label": "moon-improve-3", "heartbeat": {"ts": 1786994695, "next_wakeup_at": 1786994785, "pid": 1845659, "limp": false, "degraded_tiers": []}, "pacing": {"mode": "thermostat", "dial": 0.5}, "budget": {"source": "clock+allocator", "gear": 3, "gear_target": 3, "ratio": 0.0, "mode": "thermostat", "k_cap": 3, "promote": false, "demote": false, "window_tokens": 0, "window_cost_usd": 0.0, "api_cap_usd": null, "api_spend_usd": 0.0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786994695, "last_real_probe_ts": 1786994695, "probe_failures": 6, "gear_evidence": "cycle 73: probe ATTEMPTED and REFUSED. now-last_real_probe_ts was 2067s at cycle open, past the 1800s re-probe window, so cycle.md step 1 required the invocation; `bash bin/swarm-budget.sh` was run and the harness refused it (\"part requires approval\"). The allowlist carries Bash(bin/swarm-notify.sh:*) and no entry for swarm-budget.sh at all -- KI-2 exactly as re-measured at cycle 71. probe_failures 5 -> 6 and last_real_probe_ts stamped, because an attempt was genuinely made this time rather than skipped by rule. Gear computed by hand from runs/allocator.json (ok=true, source=probe, pacer-refreshed): weekly_used 10.0 pct at week_elapsed 8.172 pct -> weekly_heat 1.224 (cooling from 1.26 at cycle 72 as the week elapses against flat usage); opus_used 4 pct -> opus_heat 0.49. Applying swarm-budget.sh lines 129-140 by hand: heat >1.1 but <1.3, so ceiling stays 3 and promote stays unblocked; opus_heat well under 1.2. Window rho remains UNMEASURED (needs the denied ccusage probe), so the evidence rule lands cruise. Gear 3, k_cap 3, demote false -- unchanged.", "weekly": {"ok": true, "weekly_used_pct": 10.0, "opus_used_pct": 4, "week_elapsed_pct": 8.172, "weekly_heat": 1.224, "opus_heat": 0.49, "ceiling": 3, "promote_blocked": false, "source": "runs/allocator.json ok=true source=probe (pacer-refreshed); heat + ceiling computed by hand from its fields because bin/swarm-budget.sh is denied (KI-2)"}}, "watchdog": {"mode": "normal", "plist_loaded": true, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "caffeinate_pid": 0, "wrap_up_complete": false, "cycles_since_recycle": 7, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}, "playbook": {"mode": "auto", "applied": ["L-008", "L-011", "L-016", "L-018", "L-020", "L-021", "L-022", "L-024", "L-026", "L-029", "L-031", "L-033", "L-034", "L-042", "L-043"], "vetoed": [], "source": "learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)", "not_wired": {"ids": ["L-011", "L-018", "L-020", "L-021", "L-022"], "why": "all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."}, "ledger_line_blocked": "record-applied could not run (KI-2) -- third consecutive run", "directives": {"routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer -- never commit or push yourself", "The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"], "reviewer": ["The conductor is the SOLE committer -- never commit or push yourself", "The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer -- never commit or push yourself", "The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.", "When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.", "Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.", "Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test", "Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
