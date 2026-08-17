@@ -334,3 +334,65 @@ test('every successful invocation mode writes nothing to stderr', () => {
     assert.equal(result.stderr, '', `${JSON.stringify(args)} wrote to stderr: ${result.stderr}`)
   }
 })
+
+// T-158 C1: bin/moon.js:100 returns on opts.help before any other opt is read, so --help
+// dominates every partner, not just --json (already pinned above). --block, --compact,
+// --south, and --north are the four remaining partners named HOLE by the cycle-069
+// T-157 matrix (M02/M03/M04 all survived): nothing in the suite spawned --help alongside
+// any of them, so a mutant that carves an exception into the :100 gate for one of them
+// went undetected. Pin all four, both orders, byte-for-byte against plain --help.
+test('--help wins over --block, --compact, --south, and --north regardless of flag order', () => {
+  const helpOnly = run(['--help'])
+  for (const flag of ['--block', '--compact', '--south', '--north']) {
+    assert.equal(run(['--help', flag]), helpOnly, `--help ${flag} must match --help byte-for-byte`)
+    assert.equal(run([flag, '--help']), helpOnly, `${flag} --help must match --help byte-for-byte`)
+  }
+})
+
+// T-158 C2: bin/moon.js:109 returns the JSON payload before the render fork at :125 is
+// ever reached, so --json is documented as "stable, structured output for scripting"
+// unconditionally — --block and --compact must not leak into it. The T-157 matrix found
+// this HOLE (M05/M06 survived): a mutant that let --block or --compact suppress the json
+// gate emitted box-drawing art instead of parseable JSON. Assert JSON.parse succeeds and
+// the key set matches plain --json, both orders, both partners.
+test('--json ignores --block and --compact and still emits the plain --json payload', () => {
+  const plainKeys = new Set(Object.keys(JSON.parse(run(['--json']))))
+  const pairs = [
+    ['--json', '--block'], ['--block', '--json'],
+    ['--json', '--compact'], ['--compact', '--json']
+  ]
+  for (const pair of pairs) {
+    const payload = JSON.parse(run(pair))
+    assert.deepEqual(new Set(Object.keys(payload)), plainKeys,
+      `${pair.join(' ')} must yield the plain --json key set`)
+  }
+})
+
+// T-158 C5: the line-mode compact guard (bin/moon.js:133) must suppress the next-full-
+// moon line regardless of a hemisphere override — README:75/:89 commit --compact to
+// exactly one line unconditionally, and the MOTD/prompt use case is exactly a
+// southern-hemisphere user writing `moon --compact --south`. The T-157 matrix found this
+// HOLE (M09 survived): a mutant that re-enabled the second line whenever a hemisphere
+// flag was present passed the existing mirror test, because that test asserts glyphs,
+// never line count.
+test('--compact --south and --compact --north each collapse to exactly one line', () => {
+  for (const flag of ['--south', '--north']) {
+    const out = run(['--compact', flag])
+    assert.equal(out.replace(/\n$/, '').split('\n').length, 1,
+      `--compact ${flag} must be exactly one line`)
+  }
+})
+
+// T-158 C6: renderBlock (src/render.js:281-301) mirrors the art AND prints an explicit
+// "hemisphere southern/northern" row, but the only existing coverage of that mirroring
+// calls renderBlock directly (render.test.js) — the bin-level wiring of the hemisphere
+// argument at bin/moon.js:127 was unpinned. The T-157 matrix found this HOLE (M10
+// survived): a mutant that hardcoded 'north' into that call site made --block --south
+// byte-identical to --block --north, including a row that prints the wrong hemisphere
+// word at a user who explicitly asked for the other one.
+test('--block --south differs from --block --north, and its detail row reports the southern hemisphere', () => {
+  const south = run(['--block', '--south'])
+  const north = run(['--block', '--north'])
+  assert.notEqual(south, north, '--block --south output must differ from --block --north output')
+  assert.match(south, /hemisphere +southern/, '--block --south detail row must read "hemisphere southern"')
+})

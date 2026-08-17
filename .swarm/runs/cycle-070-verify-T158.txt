@@ -1,0 +1,101 @@
+CYCLE 70 — CONDUCTOR VERIFICATION GATE, item T-158
+Gate script: /opt/swarm/runs/_cycle70_gate.mjs
+Sealed sha256 (final, isolated run): b7f487e4c6f0e1210a5e20a9e7a89cc0a9f866ee250758afda5587d5b560d68f
+  (earlier seals this cycle: 0a616167… initial draft, 57e9545b… after the G1 replacement)
+
+The gate uses the CONDUCTOR'S OWN four mutants, authored without reference to the
+builder's. Arm A = new tests present + mutant -> suite must go RED and every failing test
+must be one of the newly-added names. Arm B = test/cli.test.js reverted to HEAD + the SAME
+mutant -> suite must go GREEN, proving the kill belongs to the new test.
+
+--------------------------------------------------------------------------------
+BASELINE CONTROL (from `git archive HEAD`, immune to concurrent builder edits)
+  /opt/swarm/runs/_cycle70_baseline.mjs
+--------------------------------------------------------------------------------
+HEAD control (no mutant): pass=151 fail=0 over 8 test files
+G1: pass=150 fail=1 -> KILLED at HEAD by: --help wins over --json regardless of flag order
+G2: pass=151 fail=0 -> SURVIVES at HEAD (real hole)
+G5: pass=151 fail=0 -> SURVIVES at HEAD (real hole)
+G6: pass=151 fail=0 -> SURVIVES at HEAD (real hole)
+
+The conductor's FIRST G1 (`opts.help && argv.length === 1`) was DISCARDED: it is already
+killed at HEAD, because it also breaks the help-vs-json case that C1 explicitly excludes.
+A second, genuinely independent args-layer variant was then tried and also discarded
+(/opt/swarm/runs/_cycle70_baseline2.mjs):
+
+G1a [src/args.js] narrow the `help:` key when a render/hemisphere flag is also present
+   pass=150 fail=1 -> KILLED at HEAD by: flags combine in any order
+G1b [bin/moon.js] narrow the help gate condition
+   pass=151 fail=0 -> SURVIVES at HEAD (usable)
+     ["--help","--block"]     -> first line: "┌────────────────────────────────┐"
+     ["--block","--help"]     -> first line: "┌────────────────────────────────┐"
+     ["--help","--json"]      -> first line: "moon — the current phase of the moon"
+     ["--help"]               -> first line: "moon — the current phase of the moon"
+
+Finding on record: the ARGS layer is already protected against this class; the CLI layer is
+not. Narrowing the cli-layer gate is the only formulation that breaks exactly the four
+non-json partners while leaving help-vs-json intact, so the conductor's G1 converges on the
+M02 shape by necessity, not by copying the builder.
+
+--------------------------------------------------------------------------------
+FIRST GATE RUN — CONTAMINATED, DISCARDED (recorded, not hidden)
+--------------------------------------------------------------------------------
+G1 -> FAIL, G2 -> FAIL, G5 -> PASS, G6 -> PASS. Arm A of G1/G2 carried two PRE-EXISTING
+failures:
+    not ok - T-134 — README headline fence matches renderLine(moon, "north")
+    not ok - T-134 — README `--block` fence (minus its next-full-moon line) matches renderBlock(moon, "north")
+and G1's Arm B was RED (fail=2) for the same reason, destroying attribution.
+
+CAUSE (measured, not guessed): test/regressions.test.js's T-134 tests assert README.md's
+captures against live renderLine/renderBlock output. README.md was the CONCURRENT builder
+T-159's scope and was mid-edit while these arms ran. The two items had pairwise-disjoint
+files_hint and were still not independent.
+
+  >>> files_hint disjointness is NOT test disjointness. <<<
+
+FIX: pin README.md to HEAD in every scratch tree, so this gate measures T-158's
+contribution alone. T-159's README work is judged by its own separate gate.
+
+--------------------------------------------------------------------------------
+FINAL GATE RUN — ISOLATED
+--------------------------------------------------------------------------------
+=== NEWLY ADDED TEST NAMES (4) ===
+  + --help wins over --block, --compact, --south, and --north regardless of flag order
+  + --json ignores --block and --compact and still emits the plain --json payload
+  + --compact --south and --compact --north each collapse to exactly one line
+  + --block --south differs from --block --north, and its detail row reports the southern hemisphere
+
+=== G1 (C1 help dominance) -> PASS ===
+  mutant: bin/moon.js   if (opts.help) {  ->  if (opts.help && !opts.block && !opts.compact && !opts.hemisphere) {
+  ARM A (new tests present): pass=154 fail=1
+    not ok - --help wins over --block, --compact, --south, and --north regardless of flag order   [NEW test]
+  ARM B (test/cli.test.js @ HEAD):  pass=151 fail=0  (green — kill is attributable to the new test)
+
+=== G2 (C2 --json swallows render flags) -> PASS ===
+  mutant: bin/moon.js   if (opts.json) {  ->  if (opts.json && !opts.block && !opts.compact) {
+  ARM A (new tests present): pass=154 fail=1
+    not ok - --json ignores --block and --compact and still emits the plain --json payload   [NEW test]
+  ARM B (test/cli.test.js @ HEAD):  pass=151 fail=0  (green — kill is attributable to the new test)
+
+=== G5 (C5 line-mode --compact + hemisphere override) -> PASS ===
+  mutant: bin/moon.js   if (!opts.compact) lines.push(nextFullLine(now, NAME_COLUMN))  ->  if (!opts.compact || opts.hemisphere) lines.push(nextFullLine(now, NAME_COLUMN))
+  ARM A (new tests present): pass=154 fail=1
+    not ok - --compact --south and --compact --north each collapse to exactly one line   [NEW test]
+  ARM B (test/cli.test.js @ HEAD):  pass=151 fail=0  (green — kill is attributable to the new test)
+
+=== G6 (C6 --block honours hemisphere override) -> PASS ===
+  mutant: bin/moon.js   lines.push(renderBlock(moon, hemisphere))  ->  lines.push(renderBlock(moon, detectHemisphere()))
+  ARM A (new tests present): pass=154 fail=1
+    not ok - --block --south differs from --block --north, and its detail row reports the southern hemisphere   [NEW test]
+  ARM B (test/cli.test.js @ HEAD):  pass=151 fail=0  (green — kill is attributable to the new test)
+
+=== T-158 GATE: PASS ===
+
+Note: the conductor's G1/G2/G5/G6 are DIFFERENT mutants from the builder's reported
+M02/M05/M09/M10 at three of the four sites (G5 uses `|| opts.hemisphere` vs the builder's
+`|| opts.hemisphere !== null`; G6 substitutes `detectHemisphere()` vs the builder's literal
+`'north'`; G2 negates both render flags vs the builder's `!opts.block` alone). Each new test
+kills the conductor's variant too, so the pins guard the BEHAVIOUR, not one mutant's shape.
+
+Scope: `git diff --stat` = test/cli.test.js 62 insertions(+), 0 deletions — pure append, no
+pre-existing block touched. No package-lock.json, no node_modules, no dependencies key.

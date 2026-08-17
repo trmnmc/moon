@@ -1,0 +1,124 @@
+CYCLE 70 — CONDUCTOR VERIFICATION GATE, item T-159 (README capture re-verification)
+
+The conductor's discriminator, authored before the builder returned: a README capture that
+was HAND-EDITED cannot cohere with its own pasted timestamp. Every numeric field of the
+--json capture, and the exact bytes of the headline and --block captures, are re-derived
+from the capture's OWN timestamp by calling the library directly — never by reading the
+builder's report.
+
+--------------------------------------------------------------------------------
+GROUND TRUTH ESTABLISHED AT HEAD (before the builder returned)
+--------------------------------------------------------------------------------
+HEAD capture timestamp: 2026-08-14T11:56:08.127Z
+$ node -e "... computeMoon(new Date('2026-08-14T11:56:08.127Z')) ..."
+{
+  "phase": "waxing crescent", "illumination": 0.0408, "age": 1.764,
+  "cycleFraction": 0.06477, "phaseAngle": 23.319,
+  "nextFullMoon": "2026-08-28T04:18:25.225Z", "julianDay": 2461266.99732
+}
+-> matches HEAD's pasted --json capture in ALL SEVEN fields.
+renderLine  -> "░░░░▕   4%  waxing crescent"      == HEAD README:7
+renderBlock -> the 11-line frame at HEAD README:101-111, byte-identical.
+
+CONCLUSION: HEAD's captures were GENUINE and internally consistent, not fabricated. The
+question T-159 had to answer was therefore not "are they fake" but "are they still true".
+
+--------------------------------------------------------------------------------
+RE-DERIVATION OF THE REGENERATED CAPTURES
+--------------------------------------------------------------------------------
+New capture timestamp: 2026-08-17T17:41:12.358Z
+$ node -e "... computeMoon(new Date('2026-08-17T17:41:12.358Z')) ..."
+DERIVED JSON:
+{
+  "phase": "waxing crescent",
+  "illumination": 0.2758,
+  "age": 5.003,
+  "cycleFraction": 0.17601,
+  "phaseAngle": 63.362,
+  "nextFullMoon": "2026-08-28T04:18:25.225Z",
+  "julianDay": 2461270.23695
+}
+-> matches the regenerated README --json capture (README:129-138) in ALL SEVEN fields.
+
+DERIVED renderLine(north): "░░░▓◗  28%  waxing crescent"   == README:12, byte-identical.
+DERIVED renderBlock(north):
+┌────────────────────────────────┐
+│            ░░░░░▒██            │
+│           ░░░░░░░▓██           │
+│          ░░░░░░░░▒███          │
+│           ░░░░░░░▓██           │
+│            ░░░░░▒██            │
+│                                │
+│  phase        waxing crescent  │
+│  illuminated              28%  │
+│  hemisphere          northern  │
+└────────────────────────────────┘
+   == README:108-118, byte-identical.
+Cross-check: illumination 0.2758 -> round(27.58) = 28%, the value shown in both the
+headline and the block's "illuminated" row. Consistent.
+
+--------------------------------------------------------------------------------
+THE LATENT DOC BUG — INDEPENDENTLY CONFIRMED
+--------------------------------------------------------------------------------
+The builder claims the --block capture's trailing next-full-moon line had the WRONG indent
+at HEAD (2 spaces) versus what the binary emits (3). Conductor's own measurement, spaces
+rendered as dots:
+
+$ node bin/moon.js --block | tail -1 | sed 's/ /./g'
+...next.full.moon..28.Aug                          <- live binary: THREE spaces
+
+$ git show HEAD:README.md | sed -n '112p' | sed 's/ /./g'
+..next.full.moon..28.Aug                           <- HEAD README: TWO spaces
+
+$ sed -n '119p' README.md | sed 's/ /./g'
+...next.full.moon..28.Aug                          <- fixed README: THREE spaces
+
+CONFIRMED: a real, time-INDEPENDENT defect in the docs, not phase drift. It survived every
+prior run because the suite structurally cannot see it — test/regressions.test.js:379-392:
+
+  // T-134 — same gap, for the `--block` fence. Its last line is "next full moon ...",
+  // which renderBlock does not produce (bin/moon.js appends it separately), so it's
+  // excluded before comparing.
+  const framed = lines.slice(0, -1).join('\n')
+
+The one line the doc got wrong is the exact line the check drops. This is the run's first
+genuine FAILED doc claim, and it is the item's whole justification under the SPEC's
+traceability rule.
+
+--------------------------------------------------------------------------------
+ACCURACY-SECTION SPOT CHECKS (conductor-run, not inherited)
+--------------------------------------------------------------------------------
+$ sed -n '79p' src/astro.js
+const MEAN_PHASE_EPOCH = 2451550.09766; // JDE of the k=0 mean new moon (49.1)
+  -> backs the "14:20 UTC" mean-formula figure. HOLDS.
+  -> 18:15:22 − 14:20:00 = 3h55m22s ≈ 3.92 h. "nearly four hours" is accurate. HOLDS.
+
+$ grep -n "29.27\|29.82" test/astro.test.js
+24:const DOCUMENTED_MIN_LUNATION_DAYS = 29.274;
+25:const DOCUMENTED_MAX_LUNATION_DAYS = 29.826;
+410:test('measured lunation length and new->full interval over 1990-2060 match the documented figures', ...)
+  -> the README's 29.274–29.826 range is asserted by a test in the green suite. HOLDS.
+
+--------------------------------------------------------------------------------
+SUITE + SCOPE
+--------------------------------------------------------------------------------
+$ node --test test/*.test.js
+ℹ tests 155
+ℹ pass 155
+ℹ fail 0
+ℹ cancelled 0 / skipped 0 / todo 0
+
+$ git diff --stat
+ README.md        | 39 ++++++++++++++++++++++-------------
+ test/cli.test.js | 62 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 87 insertions(+), 14 deletions(-)
+No file outside the two builders' declared scopes was touched.
+
+CONDUCTOR NOTE — a disagreement resolved in the builder's favour on evidence: the PLAN-time
+measurement said 4 command-output captures; the builder counted 3, arguing the north/south
+sweep table is assembled from many renderLine() calls and has no single documented command
+to diff against. The conductor accepts this: there is indeed no CLI flag that sweeps the
+cycle, so L-036's regenerate-the-capture model genuinely does not apply to that block. The
+table is separately guarded by the T-134/T-135/T-136 tests, all green.
+
+T-159 GATE: PASS.

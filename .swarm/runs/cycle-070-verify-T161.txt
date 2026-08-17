@@ -1,0 +1,70 @@
+CYCLE 70 — CONDUCTOR VERIFICATION GATE, item T-161 (CONTRACTS.md citation re-verification)
+
+The builder returned "verified, no change". A no-diff return is the easiest possible thing
+to fake, so the conductor re-derived the enumeration and re-checked every cited line itself.
+
+--------------------------------------------------------------------------------
+1. ZERO-DIFF CLAIM — verified by the strongest available check
+--------------------------------------------------------------------------------
+$ git -C /opt/targets/moon status --porcelain
+(no output)
+Taken at the moment T-161 returned. An empty porcelain proves the WHOLE file is
+byte-identical to HEAD — strictly stronger than the builder's frozen-region-only checksum,
+and it also proves no out-of-scope file was touched.
+
+--------------------------------------------------------------------------------
+2. CITATION ENUMERATION — re-derived independently
+--------------------------------------------------------------------------------
+$ sed -n '104,152p' .swarm/CONTRACTS.md | grep -nE "[A-Za-z_/.-]+\.(js|md):[0-9]|[Ll]ine [0-9]+"
+7:Line 33 declares:
+13:`src/astro.js:363` currently exports:
+23:Line 60 declares:
+29:`src/args.js:124-130` currently returns an object with an additional fifth key:
+37:Line 67 declares:
+43:`src/args.js:13-23` currently registers six flags in OPTIONS, including `--compact` on line 21.
+47:`test/args.test.js:124` is a shipping test titled ... The frozen contract on line 60 declares only four keys ...
+
+= 9 citation OCCURRENCES over 8 distinct targets (offsets 43 and 47 each carry two).
+The conductor's own PLAN-time figure of 4 counted only the extension-bearing subset; the
+builder's 9/8 split is correct and the conductor's original number was the incomplete one.
+All 9 sit inside the Recorded Divergences appendix (line 104 onward), as required.
+
+--------------------------------------------------------------------------------
+3. EVERY CITED TARGET RE-READ AT ITS CITED LINE
+--------------------------------------------------------------------------------
+.swarm/CONTRACTS.md:33  ->  module.exports = { computeMoon, PHASE_NAMES }
+src/astro.js:363        ->  module.exports = { computeMoon, nextFullMoon, PHASE_NAMES, PHASE_ILLUMINATION_CONSISTENCY_DOMAIN };
+.swarm/CONTRACTS.md:60  ->  * @returns {{json:boolean, hemisphere:("north"|"south"|null), block:boolean, help:boolean}}
+src/args.js:128         ->  compact: parsed.values.compact === true,
+.swarm/CONTRACTS.md:67  ->  Flags: `--json`, `--south`, `--north`, `--block`, `--help`/`-h`.
+src/args.js:21          ->  compact: { type: 'boolean' },
+test/args.test.js:124   ->  test('the returned object has exactly the five contract keys', () => {
+
+--- args.js:124-130 (cited as a range) ---
+  124   return {
+  125     json: parsed.values.json === true,
+  126     hemisphere,
+  127     block: parsed.values.block === true,
+  128     compact: parsed.values.compact === true,
+  129     help: parsed.values.help === true,
+  130   };
+  -> the quoted fifth key `compact` is at 128, inside the cited range. HOLDS.
+
+--- args.js:13-23 (cited as a range) ---
+  13 const OPTIONS = {
+  14   json: { type: 'boolean' },
+  15   south: { type: 'boolean' },
+  16   north: { type: 'boolean' },
+  17   block: { type: 'boolean' },
+  18   // Suppresses the next-full-moon line, leaving exactly one line of output.
+  19   // Exists so the MOTD/shell-prompt use case (the primary interface, per SPEC
+  20   // must-have 6) survives the next-full-moon line being on by default.
+  21   compact: { type: 'boolean' },
+  22   help: { type: 'boolean', short: 'h' },
+  23 };
+  -> six flags registered as described, `--compact` at 21 as cited. HOLDS.
+
+RESULT: 9/9 occurrences HOLD. Zero drift, zero edits required.
+
+T-161 GATE: PASS. "Verified, no change" was the honest and correct outcome, and the
+conductor confirmed it rather than accepting it.

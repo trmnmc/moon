@@ -3,8 +3,12 @@
 Prints the current phase of the moon. Accurate, hemisphere-aware, offline, zero
 dependencies.
 
+Below is a live capture — actual `node bin/moon.js` output, not a mocked-up example.
+The moon keeps moving, so run it yourself and you'll see today's percentage and date
+instead of this one:
+
 ```
-░░░░▕   4%  waxing crescent
+░░░▓◗  28%  waxing crescent
             next full moon  28 Aug
 ```
 
@@ -97,34 +101,41 @@ echo "$(node ~/src/moon/bin/moon.js --compact)"
 
 ## `--block`
 
+Another live capture (`node bin/moon.js --block`) — same caveat as the one above, it
+will show today's phase when you run it, not this one:
+
 ```
 ┌────────────────────────────────┐
-│            ░░░░░░░▒            │
-│           ░░░░░░░░░▕           │
-│          ░░░░░░░░░░░▓          │
-│           ░░░░░░░░░▕           │
-│            ░░░░░░░▒            │
+│            ░░░░░▒██            │
+│           ░░░░░░░▓██           │
+│          ░░░░░░░░▒███          │
+│           ░░░░░░░▓██           │
+│            ░░░░░▒██            │
 │                                │
 │  phase        waxing crescent  │
-│  illuminated               4%  │
+│  illuminated              28%  │
 │  hemisphere          northern  │
 └────────────────────────────────┘
-  next full moon  28 Aug
+   next full moon  28 Aug
 ```
 
 ## `--json`
 
+Also a live capture (`node bin/moon.js --json`, pretty-printed for readability — the
+CLI itself prints it as one line) and subject to the same caveat: your own run will
+carry today's numbers, not these:
+
 ```json
 {
   "phase": "waxing crescent",
-  "illumination": 0.0408,
-  "age": 1.764,
-  "cycleFraction": 0.06477,
-  "phaseAngle": 23.319,
+  "illumination": 0.2758,
+  "age": 5.003,
+  "cycleFraction": 0.17601,
+  "phaseAngle": 63.362,
   "hemisphere": "north",
   "nextFullMoon": "2026-08-28T04:18:25.225Z",
-  "julianDay": 2461266.99732,
-  "timestamp": "2026-08-14T11:56:08.127Z"
+  "julianDay": 2461270.23695,
+  "timestamp": "2026-08-17T17:41:12.358Z"
 }
 ```
 
