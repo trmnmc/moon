@@ -10734,7 +10734,7 @@ NEXT CYCLE IS QUEUED IN WRITING, so it is not left to a fresh session's judgemen
   a DO-NOT-BUILD verdict on traceability grounds; it is filed rather than dropped only so a future
   run inherits the measurement instead of re-deriving it.
 
-commit: (this cycle, stamped below)
+commit: 7125440 (and f7d6326 for T-173, gated and committed before T-174 was dispatched)
 next wakeup: 1787008081 (+90s)
 runfile-mirror:
 ```json
