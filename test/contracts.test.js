@@ -508,3 +508,92 @@ test('--json illumination at 2026-01-05T19:00Z equals the hand-derived Meeus val
       `got ${payload.illumination}`,
   );
 });
+
+// ---------------------------------------------------------------------------
+// T-163: second exact-value pin for the --json rounding RULE, on the other
+// side of the .5 boundary.
+//
+// The T-155 pin above lands at a scaled value of 9251.7276 - fractional part
+// .7276, ABOVE .5. There, Math.ceil agrees with Math.round exactly, so a
+// mutation of bin/moon.js round() from Math.round to Math.ceil survived the
+// whole suite. This test pins a second instant whose scaled illumination has
+// a fractional part BELOW .5, where ceil and round disagree. Together the two
+// pins bracket the boundary: this one kills ceil; T-155 kills trunc and floor
+// (which agree with round below .5 - at THIS instant they all produce 0.7358,
+// so this test alone does not discriminate them, and deliberately does not
+// claim to).
+//
+// Pinned instant: 2026-01-08T05:00:00.000Z  (ms = 1767848400000)
+//
+// Derivation (same Domain rules as T-155: k = (1 + cos i) / 2, i the Meeus
+// ch. 48 phase angle from eq. (48.4) with the ch. 47 mean elements, TT via
+// the Espenak-Meeus DeltaT polynomial - every formula published, evaluated
+// independently with a throwaway script implementing the published formulas,
+// not by running this repo's code):
+//
+//   JD(UT) = 1767848400000 / 86400000 + 2440587.5 = 2461048.7083333335
+//   t      = (JD - 2451545) / 365.25 = 26.0197 yr -> DeltaT = 62.92
+//            + 0.32217 t + 0.005589 t^2 = 75.087 s = 0.000869 d
+//   T      = (JD + DeltaT - 2451545) / 36525 = 0.260197377204
+//   D  (47.2) = 297.8501921 + 445267.1114034 T - 0.0018819 T^2
+//               + T^3/545868 - T^4/113065000          = 235.184607 (mod 360)
+//   M  (47.3) = 357.5291092 + 35999.0502909 T
+//               - 0.0001536 T^2 + T^3/24490000        =   4.387566 (mod 360)
+//   M' (47.4) = 134.9633964 + 477198.8675055 T + 0.0087414 T^2
+//               + T^3/69699 - T^4/14712000            = 100.857718 (mod 360)
+//   elongation = D + 6.289 sin M'   (+6.176414)
+//                  - 2.100 sin M    (-0.160656)
+//                  + 1.274 sin(2D - M') (+0.210523)
+//                  + 0.658 sin 2D   (+0.616855)
+//                  + 0.214 sin 2M'  (-0.079179)
+//                  + 0.110 sin D    (-0.090310)       = 241.858255 (mod 360)
+//   i = |180 - 241.858255| = 61.858255 deg
+//   k = (1 + cos 61.858255) / 2 = (1 + 0.47165447) / 2 = 0.73582724
+//   k * 10^4 = 7358.2724; fractional part .2724, distance from the .5
+//   rounding boundary 0.2276 and from the digit boundary below 0.2724 -
+//   comfortably clear of both, so float noise cannot flip the digit.
+//   rounded to the 4 decimal places bin/moon.js emits: nearest integer 7358
+//   ->  0.7358
+//
+// What this instant discriminates: Math.ceil gives 7359 -> 0.7359, wrong.
+// What it does NOT: Math.trunc and Math.floor give 7358 here, identical to
+// round - those two rules stay killed by the T-155 pin at frac .7276, where
+// they yield 0.9251 against its expected 0.9252.
+//
+// Same pinning mechanism as T-155: shadow global.Date for one synchronous
+// in-process main() call, restore in a finally; --north skips hemisphere
+// detection so the run is fully deterministic.
+// ---------------------------------------------------------------------------
+
+test('--json illumination at 2026-01-08T05:00Z equals the hand-derived Meeus value 0.7358 exactly', () => {
+  const { main } = require('../bin/moon.js');
+  const PINNED_MS = 1767848400000; // 2026-01-08T05:00:00.000Z, inside the 1000-3000 consistency domain
+  const RealDate = Date;
+  class PinnedDate extends RealDate {
+    constructor(...args) {
+      if (args.length === 0) super(PINNED_MS);
+      else super(...args);
+    }
+    static now() { return PINNED_MS; }
+  }
+  const realWrite = process.stdout.write;
+  let captured = '';
+  let exitCode;
+  global.Date = PinnedDate;
+  process.stdout.write = (chunk) => { captured += chunk; return true; };
+  try {
+    exitCode = main(['--json', '--north']);
+  } finally {
+    global.Date = RealDate;
+    process.stdout.write = realWrite;
+  }
+  assert.strictEqual(exitCode, 0, `--json exited ${exitCode}, output: ${captured}`);
+  const payload = JSON.parse(captured);
+  assert.strictEqual(
+    payload.illumination,
+    0.7358,
+    'illumination at the pinned instant must equal the hand-derived 0.7358 exactly: ' +
+      'the scaled value is 7358.2724, fractional part below .5, so 0.7359 means ' +
+      `round() ceiled instead of rounding to nearest, got ${payload.illumination}`,
+  );
+});

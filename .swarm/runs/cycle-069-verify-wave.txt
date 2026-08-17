@@ -1,0 +1,173 @@
+cycle 069 — VERIFICATION EVIDENCE (conductor-authored at verification time; neither seat
+saw any of it). Harnesses: /opt/swarm/runs/.c69-derive.py, .c69-gate.py, .c69-gate2.py.
+Every mutant applied to an isolated FULL copy of the repo (.git and .swarm included, since
+contracts.test.js verifies doc citations against those files). The real tree was never
+mutated. Two arms per claim: A = the target test fails BY NAME; B = with that item's test
+file reverted to HEAD, the mutant SURVIVES.
+
+================================================================================
+1. INDEPENDENT RE-DERIVATION of T-163's pinned value (.c69-derive.py — the cycle-68
+   script with only the instant changed; it does not import the repo, does not call
+   computeMoon, and does not read src/astro.js). Published Meeus ch.47/48 + the
+   Espenak-Meeus DeltaT polynomial only.
+================================================================================
+$ python3 /opt/swarm/runs/.c69-derive.py
+=== T-163 (new, this cycle)
+pinned instant     : 2026-01-08T05:00:00+00:00
+JD (UT)            : 2461048.7083333335
+DeltaT             : 75.087 s
+T (Julian cent TT) : 0.260197377204
+D  : 235.184607   M : 4.387566   M' : 100.857718
+i (phase angle)    : -61.858255 deg
+k = (1+cos i)/2    : 0.7358272353
+k * 10^4           : 7358.2724   frac 0.2724   margin to .5 boundary 0.2276
+  round -> 0.7358 | ceil -> 0.7359 | trunc -> 0.7358 | floor -> 0.7358 | scale-1 -> 0.7360
+  test pins 0.7358 -> MATCH
+  discriminates ceil? True   trunc? False   floor? False
+
+=== T-155 (cycle 68, control)
+pinned instant     : 2026-01-05T19:00:00+00:00
+JD (UT)            : 2461046.2916666665
+DeltaT             : 75.083 s
+T (Julian cent TT) : 0.260131212476
+D  : 205.723630   M : 2.005699   M' : 69.283984
+i (phase angle)    : -31.750731 deg
+k = (1+cos i)/2    : 0.9251727571
+k * 10^4           : 9251.7276   frac 0.7276   margin to .5 boundary 0.2276
+  round -> 0.9252 | ceil -> 0.9252 | trunc -> 0.9251 | floor -> 0.9251 | scale-1 -> 0.9250
+  test pins 0.9252 -> MATCH
+  discriminates ceil? False   trunc? True   floor? True
+
+Every intermediate matches the builder's stated derivation to the digit (sign convention
+differs: my 48.4 form yields i = -61.858255, the builder's |180 - elongation| framing
+yields +61.858255; cos is even, so k is identical). The T-155 control is the reason this
+item exists and is now on record in one table: at T-155's instant ceil does NOT
+discriminate, at T-163's instant it does; trunc/floor are the mirror image.
+
+================================================================================
+2. MUTATION HARNESS (.c69-gate.py) — 12 runs, expectations declared before execution
+================================================================================
+$ python3 /opt/swarm/runs/.c69-gate.py
+--- control: post-wave tree, no mutation
+OK C0 unmutated                                         SURVIVED  tests 151 pass 151 fail 0
+
+--- T-163: the two arms its acceptance names
+OK A1 Math.round -> Math.ceil (arm A)                   KILLED  tests 151 pass 150 fail 1
+        failing test: --json illumination at 2026-01-08T05:00Z equals the hand-derived Meeus value 0.7358 exactly
+OK A2 same mutant, contracts.test.js @ HEAD (arm B)     SURVIVED  tests 150 pass 150 fail 0
+OK A3 Math.round -> Math.trunc (T-155 must still kill)  KILLED  tests 151 pass 150 fail 1
+        failing test: --json illumination at 2026-01-05T19:00Z equals the hand-derived Meeus value 0.9252 exactly
+OK A4 Math.round -> Math.floor (T-155 must still kill)  KILLED  tests 151 pass 150 fail 1
+        failing test: --json illumination at 2026-01-05T19:00Z equals the hand-derived Meeus value 0.9252 exactly
+
+--- T-163: INDEPENDENT variants, named by no acceptance clause
+OK V1 round(x + 0.4999) -- ceil-alike by offset         KILLED  tests 151 pass 150 fail 1
+        failing test: --json illumination at 2026-01-08T05:00Z equals the hand-derived Meeus value 0.7358 exactly
+OK V2 floor(x + 0.5) -- MATHEMATICALLY EQUAL, must survive SURVIVED  tests 151 pass 151 fail 0
+
+--- T-157: spot-checks of the seat's claimed matrix
+OK M02 help gate && !block (claim: SURVIVED)            SURVIVED  tests 151 pass 151 fail 0
+        $ node bin/moon.js --help --block  -> 12 line(s), first: '┌────────────────────────────────┐'
+OK M09 line-mode compact || hemisphere (claim: SURVIVED) SURVIVED  tests 151 pass 151 fail 0
+        $ node bin/moon.js --compact --south  -> 2 line(s), first: '◖▓░░░  27%  waxing crescent'
+OK M10 renderBlock(moon, "north") (claim: SURVIVED)     SURVIVED  tests 151 pass 151 fail 0
+        $ node bin/moon.js --block --south  -> 12 line(s), first: '┌────────────────────────────────┐'
+OK M07 payload hemisphere: detectHemisphere() (claim: KILLED) KILLED  tests 151 pass 150 fail 1
+        failing test: --json hemisphere follows the override flag
+
+--- T-157: INDEPENDENT probe, in no seat's table
+OK V3 hemisphere source site: detect() || override      KILLED  tests 151 pass 149 fail 2
+        failing test: --south is the horizontal mirror of --north on the disc
+        failing test: --json hemisphere follows the override flag
+
+scratch left at /opt/swarm/runs/.c69-scratch-gate (deleted by the caller)
+SUMMARY: 12/12 gate expectations met
+
+INSTRUMENT NOTE, disclosed rather than trimmed: my failing-test regex also matches the
+reporter's own "failing tests:" summary header, so that line appeared as a phantom third
+"failing test" entry in the raw stdout. It is a cosmetic defect in MY instrument, not in
+the measurement — the tests/pass/fail counts corroborate the real names, and the duplicate
+lines have been removed from the table above rather than left to inflate it.
+
+READING OF V2 and V3, since both are mine and both matter:
+- V2 (floor(x + 0.5), mathematically identical to round for positive values) SURVIVES, and
+  that is the check being CORRECT, not a hole. A suite that killed V2 would be pinning the
+  implementation's spelling rather than its behaviour. This is T-157's own
+  "indiscriminable survivor = correct check" clause applied to my own gate.
+- V3 mutates the hemisphere SOURCE site (bin/moon.js:106), which no seat's table touched.
+  It dies to TWO pre-existing tests, which is the evidence that the T-157 seat did not
+  over-claim: the LINE path's hemisphere wiring is genuinely covered, which is exactly why
+  its C6 hole is scoped to the BLOCK path alone.
+
+================================================================================
+3. FOLLOW-UP CHECKS the first pass earned (.c69-gate2.py)
+================================================================================
+$ python3 /opt/swarm/runs/.c69-gate2.py
+=== D1: under M10, is --block --south byte-identical to --block --north?
+mutated:  identical=True  (south 411 bytes, north 411 bytes)
+mutated:  hemisphere row under --south -> '│  hemisphere          northern  │'
+real HEAD: identical=False
+real HEAD: hemisphere row under --south -> '│  hemisphere          southern  │'
+
+=== D2: derivation intermediates present in the new test's comment
+added region: 4462 bytes, 89 lines
+  pinned instant 2026-01-08T05:00        PRESENT (3)
+  epoch ms 1767848400000                 PRESENT (3)
+  JD 2461048.708                         PRESENT (1)
+  DeltaT 75.08                           PRESENT (1)
+  T 0.2601973                            PRESENT (1)
+  D 235.1846                             PRESENT (1)
+  M 4.3875                               PRESENT (1)
+  M' 100.8577                            PRESENT (1)
+  i 61.858                               PRESENT (2)
+  k 0.7358272                            PRESENT (1)
+  scaled 7358.2724                       PRESENT (2)
+  frac .2724                             PRESENT (4)
+  margin from .5                         PRESENT (1)
+  names ceil as the discriminated rule   PRESENT (6)
+  says trunc/floor stay with T-155       PRESENT (2)
+  shadows global.Date                    PRESENT (3)
+  passes --north for determinism         PRESENT (1)
+
+=== D3: T-155 block byte-identical vs HEAD
+T-155 block (4064 bytes) still present verbatim in the worktree file: True
+worktree file is HEAD + pure append: True
+HEAD tail preserved (no reorder): True
+
+D1 is the measurement T-158 will assert on: under M10 the two commands are byte-identical
+(411 bytes each) and the block prints "hemisphere northern" to a user who typed --south;
+at HEAD they differ and it prints "southern". The claimed observable is real.
+
+================================================================================
+4. test_cmd on the REAL tree, no mutation present
+================================================================================
+$ node --test test/*.test.js                       -> tests 151 / pass 151 / fail 0
+$ TZ=Pacific/Kiritimati node --test test/*.test.js -> tests 151 / pass 151 / fail 0  (GMT+14)
+$ TZ=Pacific/Niue node --test test/*.test.js       -> tests 151 / pass 151 / fail 0  (GMT-11)
+$ git diff --numstat -> 89  0  test/contracts.test.js   (pure append, 0 deletions)
+$ git status --porcelain -> " M test/contracts.test.js" + the untracked T-157 matrix log
+
+The two TZ runs are mine, asked for by no acceptance clause: the new test shadows
+global.Date, and run 2's cycle 65 found a genuine TZ-crossing bug in this area, so a pin
+that is green only in UTC would be a trap laid for a future contributor.
+
+================================================================================
+5. RESIDUAL AXIS CLAIMS, measured by the conductor rather than filed as items
+================================================================================
+$ node bin/moon.js --json --south --south
+  {"phase":"waxing crescent","illumination":0.2746,...,"hemisphere":"south",...}   exit 0
+$ node bin/moon.js -h --block | head -2
+  moon — the current phase of the moon
+$ node bin/moon.js --south --north --json | (hemisphere field)
+  hemisphere: north
+
+Three of the T-157 seat's four "not measured" residuals resolved in three commands:
+repeats are harmless as src/args.js:93 claims; help dominance holds for the -h short form
+as well as --help; last-one-wins holds on the json path (src/args.js:88 policy). All three
+are CONFIRMED BEHAVIOUR AT HEAD, not coverage: nothing in the suite guards them, which is
+information for T-158's brief, not a new backlog row. The fourth residual (flag TRIPLES
+executed rather than argued from gate order) stays NOT MEASURED and is reported as such.
+
+collision-scan and the qa-verify look pass: NOT RUN, and reported as not-run. Both gate
+browser-served surfaces; moon is a zero-dependency terminal CLI with no HTML, CSS or
+client JS, and nothing in this wave touched a user-visible browser asset.

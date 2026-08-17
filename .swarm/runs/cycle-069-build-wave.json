@@ -1,0 +1,40 @@
+{
+ "cycle": 69,
+ "type": "build-wave",
+ "dispatch": "DIRECT Agent calls (headless -p session; Workflow is review-gated there - the documented SKILL.md fallback). No worktrees on that path, so the two seats were given strictly disjoint file scopes.",
+ "timestamp": "2026-08-17T17:05:00+00:00",
+ "gear": 3,
+ "effective_k": 2,
+ "k_cap": 3,
+ "items": [
+  {
+   "id": "T-157",
+   "model": "fable",
+   "kind": "qa",
+   "scope": "no product files; one measurement log under .swarm/runs/",
+   "raw_return": ".swarm/runs/cycle-069-return-T157.md",
+   "seat_artifact": ".swarm/runs/cycle-069-T157-matrix.md",
+   "verdict": "VERIFIED"
+  },
+  {
+   "id": "T-163",
+   "model": "fable",
+   "kind": "fix",
+   "scope": "test/contracts.test.js only",
+   "raw_return": ".swarm/runs/cycle-069-return-T163.md",
+   "verdict": "VERIFIED"
+  }
+ ],
+ "gate": {
+  "evidence": ".swarm/runs/cycle-069-verify-wave.txt",
+  "harnesses": [
+   "/opt/swarm/runs/.c69-derive.py",
+   "/opt/swarm/runs/.c69-gate.py",
+   "/opt/swarm/runs/.c69-gate2.py"
+  ],
+  "expectations_met": "12/12 plus 3 follow-up checks",
+  "test_cmd": "tests 151 / pass 151 / fail 0 (UTC, GMT+14, GMT-11)"
+ },
+ "reverts": 0,
+ "failed_verifies": 0
+}
