@@ -1,0 +1,86 @@
+
+A. re-derive every run boundary from the on-disk artifacts (the gate does its own work)
+  [REPORT] kickoff-1786721548.log : start=2026-08-14T15:32:28Z
+  [REPORT] kickoff-1786793065.log : start=2026-08-15T11:24:25Z
+  [REPORT] kickoff-1786886410.log : start=2026-08-16T13:20:10Z
+  [REPORT] kickoff-1786955678.log : start=2026-08-17T08:34:38Z
+  [REPORT] kickoff-1786982556.log : start=2026-08-17T16:02:36Z
+  [REPORT] current.json.done-1786720936 : label=null targets=["/opt/targets/moon"] stop_at=2026-08-14T12:59:57+00:00 last_heartbeat=2026-08-14T12:17:00Z
+  [REPORT] current.json.done-1786792728 : label=improvement-2026-08-14 targets=["/opt/targets/moon"] stop_at=2026-08-15T15:32:27+00:00 last_heartbeat=2026-08-15T09:15:42Z
+  [REPORT] current.json.done-1786886108 : label=improvement-aphorism-cli-2026-08-15 targets=["/opt/targets/aphorism-cli"] stop_at=2026-08-16T11:24:24+00:00 last_heartbeat=2026-08-16T11:10:49Z
+  [REPORT] current.json.done-1786955327 : label=null targets=["/opt/targets/moon"] stop_at=2026-08-17T04:59:59+00:00 last_heartbeat=2026-08-17T06:27:39Z
+  [REPORT] current.json.done-1786982238 : label=improvement-aphorism-cli-2026-08-17 targets=["/opt/targets/aphorism-cli"] stop_at=2026-08-18T08:34:37+00:00 last_heartbeat=2026-08-17T13:53:22Z
+  [REPORT] notification-log timestamps harvested : 120
+  [REPORT]   notify.log : 2026-08-17 16:02 — poll ok init cursor=now
+  [REPORT]   notify.log.1786785385 : 2026-08-14 12:17 — poll ok init cursor=now
+  [REPORT]   notify.log.1786785385 : 2026-08-15 09:16 — send wrap-up ok
+  [REPORT]   notify.log.1786878787 : 2026-08-15 11:24 — poll ok init cursor=now
+  [REPORT]   notify.log.1786878787 : 2026-08-16 11:12 — send wrap-up ok
+  [REPORT]   notify.log.1786947423 : 2026-08-16 13:20 — poll ok init cursor=now
+  [REPORT]   notify.log.1786974000 : 2026-08-17 08:34 — poll ok init cursor=now
+  [REPORT]   notify.log.1786974000 : 2026-08-17 13:59 — send wrap-up ok
+  [PASS] A0: every artifact the derivation needs was found on disk
+  [REPORT] DERIVED run1_start : 2026-08-14T15:32:28Z  -> 15:32
+  [REPORT] DERIVED run1_end : 2026-08-15T09:15:42Z  -> 09:15
+  [REPORT] DERIVED run2_start : 2026-08-16T13:20:10Z  -> 13:20
+  [REPORT] DERIVED run2_end : 2026-08-17T06:27:39Z  -> 06:27
+  [REPORT] DERIVED build_end : 2026-08-14T12:17:00Z  -> 12:17
+  [PASS] A1: the attended build run's START is genuinely NOT establishable from any on-disk artifact (so the labelling clause has real work to do and this gate is not vacuous)
+
+B. controls — the defect was real, and the gate is reading the right text
+  [PASS] B1 control: HEAD's run-summary block really does state 13:37 as run 2's start
+  [PASS] B2: the 13:37 figure is gone from the run-summary block
+        tree run-summary block:
+        | # REPORT — moon
+        | 
+        | **Build run:** 2026-08-14, start not recorded on disk (no kickoff log exists for it) →
+        | 12:59:57 UTC (attended; the runfile's planned `stop_at`, not an observed end — last
+        | recorded heartbeat was 12:17:00 UTC) — shipped v0.1.0, 102/102 tests green.
+        | **Improvement run 1:** 2026-08-14 15:32:28 → 2026-08-15 09:15:42 UTC (last recorded
+        | heartbeat, corroborated by the wrap-up notification at 09:16:19 UTC; allocator
+        | auto-kickoff, guest pacing, dial 0.3) — cycles 0–47, 77 cycle commits, **145/145 tests
+        | green**.
+        | **Improvement run 2:** 2026-08-16 13:20:10 UTC (kickoff-log filename epoch, corroborated by
+        | the control-channel init at 13:20:09 UTC) → two defensible end times that disagree, not
+        | one: the run's work ended 2026-08-16 20:02 UTC when the weekly usage cap was exhausted at
+        | cycle 65, but the session did not finally wrap up until 2026-08-17 06:27:39 UTC (last
+        | recorded heartbeat) (allocator auto-kickoff, guest pacing, dial 0.3) — cycles 48–65,
+        | **148/148 tests green**.
+        | **Target:** `/opt/targets/moon`
+        | **Outcome of run 2:** **STOPPED SHORT — the weekly usage cap ran out.** 14 items verified
+        | and every source file mutation-swept, but three measured holes are still open and the run
+        | had no clock to close them in: the cap was exhausted at 20:02 UTC on 2026-08-16 and every
+        | relaunch until the 05:00 reset died at HTTP 429. This was an interruption, not a decision —
+        | the contrast with run 1's deliberate early stop is the point. See "Why run 2 stopped".
+        | 
+  [PASS] B3: the run-boundary region is delimited in both arms (first run entry .. **Target:**) :: tree 3..15 / head 3..8
+
+C. the item's own claim: run 2's start now agrees with the measured kickoff epoch
+  [PASS] C1: the run entries quote the measured run-2 kickoff time 13:20 (from kickoff-1786886410.log) :: 13:20
+  [PASS] C2: that time is attached to run 2, not parked somewhere unrelated :: "**Improvement run 2:** 2026-08-16 13:20:10 UTC (kickoff-log filename epoch, corroborated by"
+
+D. the acceptance's WIDER clause: every other boundary checked, not assumed
+  [PASS] D1: run 1's start 15:32 — already correct at HEAD — is preserved, not "corrected" :: 15:32
+  [REPORT] artifact-anchored HH:MM count : 113
+  [REPORT] run-boundary entry lines scanned : 13
+  [PASS] D2a: the run-boundary entries were actually located :: 13
+  [PASS] D2b: every clock time in the run-boundary entries is artifact-anchored or explicitly labelled as unestablished :: []
+  [PASS] D2c: everything in the block OUTSIDE the run-boundary entries is byte-identical to HEAD — narrowing the scan cannot hide an edit (compared as a blob, so reflow inside the entries is not mistaken for a change)
+  [PASS] D3: the attended build run — whose start no artifact establishes — carries an honest label :: "**Build run:** 2026-08-14, start not recorded on disk (no kickoff log exists for it) → 12:59:57 UTC (attended; the runfile's planned `stop_a"
+  [PASS] D4: the entries state the artifact-derived run1_start (15:32) :: 15:32
+  [PASS] D4: the entries state the artifact-derived run1_end (09:15) :: 09:15
+  [PASS] D4: the entries state the artifact-derived run2_start (13:20) :: 13:20
+  [PASS] D4: the entries state the artifact-derived run2_end (06:27) :: 06:27
+
+E. blast radius — nothing outside this item's scope moved
+  [PASS] E1: the test-count figure "102/102" is untouched (T-174 owns it) :: HEAD 1 -> tree 1
+  [PASS] E1: the test-count figure "145/145" is untouched (T-174 owns it) :: HEAD 2 -> tree 2
+  [PASS] E1: the test-count figure "148/148" is untouched (T-174 owns it) :: HEAD 2 -> tree 2
+  [PASS] E1: the test-count figure "# 155 tests" is untouched (T-174 owns it) :: HEAD 1 -> tree 1
+  [PASS] E1: the test-count figure "145 → **148**" is untouched (T-174 owns it) :: HEAD 1 -> tree 1
+  [PASS] E2: the rest of REPORT.md below the run-summary block is byte-identical to HEAD
+  [REPORT] files changed in the whole tree this cycle : ["REPORT.md","src/render.js","test/render.test.js"]
+  [PASS] E3: REPORT.md was actually edited
+  [PASS] E4: nothing outside the wave's two disjoint scopes was touched :: []
+
+GATE T-164 (v3): PASS (0 failed check(s))

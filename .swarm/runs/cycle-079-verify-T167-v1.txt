@@ -1,0 +1,46 @@
+
+A. the residual band — is the hole real at HEAD, and is it closed in the tree?
+  [REPORT] band k=0.001..0.003, 16004 renders
+  [REPORT] ARM B (HEAD) broken-arc renders : 3000
+  [REPORT] ARM A (tree) broken-arc renders : 0
+  [REPORT] ARM B first break : k=0.0015330 waxing north
+        ARM B rows: ["            ░░░░░░░░▕           ","           ░░░░░░░░░░           ","          ░░░░░░░░░░░░          ","           ░░░░░░░░░░           ","            ░░░░░░░░▕           "]
+        ARM A rows: ["            ░░░░░░░░▕           ","           ░░░░░░░░░░▕          ","          ░░░░░░░░░░░▕          ","           ░░░░░░░░░░▕          ","            ░░░░░░░░▕           "]
+  [PASS] ARM B control: the residual band really does still break the arc at HEAD (the hole is reproduced, not assumed) :: 3000
+  [PASS] ARM A: no broken arc anywhere in the residual band :: 0
+
+B. full-lunation sweep — contiguity everywhere, not only at the pinned point
+  [REPORT] sweep: 20000 cycle steps x 2 hemispheres = 40000 renders
+  [REPORT] ARM B (HEAD) broken-arc renders : 116
+  [REPORT] ARM A (tree) broken-arc renders : 0
+  [PASS] ARM A: the block disc never breaks its arc across a whole lunation, both hemispheres :: 0
+  [PASS] ARM A strictly improves on ARM B over the same sweep (the change does something) :: 116 -> 0
+
+C-E. the acceptance constraints: no widening, no new glyph, ordinary render untouched
+  [FAIL] C: the disc silhouette NEVER grows wider than HEAD on any row of any render :: 864
+  [REPORT] ARM A glyph set : [" ","█","▏","░","▒","▓","▕"]
+  [REPORT] ARM B glyph set : [" ","█","▏","░","▒","▓","▕"]
+  [PASS] D: no glyph was added to the set :: []
+  [REPORT] E: renders at k >= 0.05 compared : 34258
+  [PASS] E: every render at ordinary illumination (k >= 0.05) is byte-identical to HEAD :: 34258/34258
+  [PASS] E2: renderLine (the primary one-line interface) is byte-identical to HEAD everywhere :: 0
+
+F: the pinning test — failable AND attributable by name, in two arms (L-029)
+  [REPORT] ARM A (tree render + tree tests) failing : []
+  [REPORT] ARM B (HEAD render + tree tests) failing : []
+  [REPORT] CONTROL (HEAD render + HEAD tests) failing : []
+  [PASS] ARM A: the render suite is green against the fixed render :: 0
+  [FAIL] ARM B: the new/extended test FAILS against the current (HEAD) guard — it is failable :: []
+  [PASS] CONTROL: HEAD tests pass against HEAD render, so ARM B failures are attributable to the TEST change alone, not to a pre-broken suite :: 0
+  [FAIL] L-029 attribution: at least one named test fails in ARM B that does not already fail in the control :: []
+
+G: no gate was opened by weakening it
+  [REPORT] test/render.test.js: test declarations removed / added : 0 / 2
+  [PASS] G1: no test was skipped or narrowed with .only/.skip
+  [PASS] G2: no geometry constant was redefined inside the test file to manufacture a pass
+  [PASS] G3: the test file did not lose coverage on net :: 0 removed, 2 added
+  [REPORT] files changed in the whole tree this cycle : ["REPORT.md","src/render.js","test/render.test.js"]
+  [PASS] G4: nothing outside the wave's two disjoint scopes was touched :: []
+  [PASS] G5: no manifest change, no lockfile — the zero-dependency non-goal holds
+
+GATE T-167: FAIL (3 failed check(s))

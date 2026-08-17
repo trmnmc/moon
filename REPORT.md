@@ -1,11 +1,18 @@
 # REPORT — moon
 
-**Build run:** 2026-08-14, 11:29 → 12:59 UTC (90 minutes, attended) — shipped v0.1.0,
-102/102 tests green.
-**Improvement run 1:** 2026-08-14 15:32 → 2026-08-15 09:00 UTC (allocator auto-kickoff,
-guest pacing, dial 0.3) — cycles 0–47, 77 cycle commits, **145/145 tests green**.
-**Improvement run 2:** 2026-08-16 13:37 → 2026-08-17 06:17 UTC (allocator auto-kickoff,
-guest pacing, dial 0.3) — cycles 48–65, **148/148 tests green**.
+**Build run:** 2026-08-14, start not recorded on disk (no kickoff log exists for it) →
+12:59:57 UTC (attended; the runfile's planned `stop_at`, not an observed end — last
+recorded heartbeat was 12:17:00 UTC) — shipped v0.1.0, 102/102 tests green.
+**Improvement run 1:** 2026-08-14 15:32:28 → 2026-08-15 09:15:42 UTC (last recorded
+heartbeat, corroborated by the wrap-up notification at 09:16:19 UTC; allocator
+auto-kickoff, guest pacing, dial 0.3) — cycles 0–47, 77 cycle commits, **145/145 tests
+green**.
+**Improvement run 2:** 2026-08-16 13:20:10 UTC (kickoff-log filename epoch, corroborated by
+the control-channel init at 13:20:09 UTC) → two defensible end times that disagree, not
+one: the run's work ended 2026-08-16 20:02 UTC when the weekly usage cap was exhausted at
+cycle 65, but the session did not finally wrap up until 2026-08-17 06:27:39 UTC (last
+recorded heartbeat) (allocator auto-kickoff, guest pacing, dial 0.3) — cycles 48–65,
+**148/148 tests green**.
 **Target:** `/opt/targets/moon`
 **Outcome of run 2:** **STOPPED SHORT — the weekly usage cap ran out.** 14 items verified
 and every source file mutation-swept, but three measured holes are still open and the run

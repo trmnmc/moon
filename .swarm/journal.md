@@ -10387,3 +10387,200 @@ runfile-mirror:
  "watchdog":{"mode":"normal","plist_loaded":true},"caffeinate_pid":0,
  "wrap_up_complete":false,"cycles_since_recycle":12}
 ```
+
+## cycle 79 | 2026-08-17T22:46:00+00:00 | moon | BUILD
+
+build-wave k=2 (gear cap 2 binds; `k_current` is 4). Picked **T-167** (the only
+product-behaviour item left, attempt 2 of 2, flagged `route_class: "core"` -> fable) and
+**T-164** (sonnet). Both verified, zero reverts. `consecutive_no_value` -> 0.
+
+budget: the REAL probe was DUE (`last_real_probe_ts` 2303 s old, past the 1800 s window) and
+was re-attempted in the bare-relative form `bin/swarm-budget.sh` with cwd=/opt/swarm — the
+exact shape `bin/swarm-notify.sh poll` succeeds in. DENIED again (KI-2, eleventh consecutive
+cycle, and the form is the one cycle 33 already isolated). `probe_failures` 9 -> 10;
+`last_real_probe_ts` restamped, because this WAS a real attempt. Gear computed by hand from a
+pacer-fresh `runs/allocator.json` (refreshed 22:19:47Z): weekly_used 15.0 pct at week_elapsed
+10.32 pct -> weekly_heat **1.4535**, DOWN from 1.4955 at cycle 78 — usage flat while the week
+advanced, so the heat is cooling for the first time in three cycles, but it is still well over
+the 1.3 ceiling trigger. opus_used 8 pct -> opus_heat 0.7752. Ceiling 2, promote BLOCKED.
+Window rho unmeasured -> evidence rule lands cruise 3, governor clamps to 2. Applied gear 2,
+unchanged; hysteresis did not bind. `bin/swarm-notify.sh poll` succeeded (control channel
+empty: 0 pending, 0 inject).
+
+### the wave was RE-COMPOSED before dispatch — a semantic collision the disjoint-files rule misses
+
+The obvious k=2 pairing by priority was T-167 + **T-174** (p2 + p3), and their `files_hint`
+sets are disjoint (`src/render.js`+`test/render.test.js` vs `REPORT.md`), so the step-4
+composition rule admits it. It is still wrong. T-174's whole content is *the test count quoted
+in REPORT.md's how-to-run block*, and T-167's builder was certain to change that count by
+adding a pinning test — which it did, 160 -> 161. T-174's builder would have measured a number
+that its own wave-mate invalidated before the cycle committed.
+
+Disjoint FILES do not imply disjoint SEMANTICS. Swapped in **T-164** (p5), whose content is
+run start/end times and is independent of the suite. T-174 is deferred one cycle by conductor
+decision, not by churn, and its backlog note now records why and the count it must beat.
+
+### VERIFICATION EVIDENCE — T-167 (gate v3 exit 0; full: `.swarm/runs/cycle-079-verify-T167.txt`)
+
+The fix: `firstLit`/`lastLit` change their hairline-eligibility test from the hard-coded
+`cover > 0.02` to `cover > 0` — the sunward-most on-disc cell with ANY lit sub-sample. Cycle
+75 measured why no fixed positive cut can work: near k~0.002 the lit sliver is thinner than one
+SUB=16 sub-sample, so `cover` is a quantization artifact that ranks rows in the wrong order
+(0.025 in rows 0/2/4 vs 0.017 in rows 1/3, while a fine 400x20 sampler ranks them the other
+way). Zero is the only cut that cannot land between two rows of the same crescent.
+
+```
+  [REPORT] ARM B first break : k=0.0015330 waxing north
+        ARM B rows: ["            ░░░░░░░░▕           ","           ░░░░░░░░░░           ",
+                     "          ░░░░░░░░░░░░          ","           ░░░░░░░░░░           ",
+                     "            ░░░░░░░░▕           "]
+        ARM A rows: ["            ░░░░░░░░▕           ","           ░░░░░░░░░░▕          ",
+                     "          ░░░░░░░░░░░▕          ","           ░░░░░░░░░░▕          ",
+                     "            ░░░░░░░░▕           "]
+  [PASS] A1 control: the residual band really does still break the arc at HEAD :: 3000
+  [PASS] A2: no broken arc anywhere in the residual band :: 0
+  [PASS] B1: never breaks its arc across a whole lunation, both hemispheres :: 0
+  [PASS] B2: ARM A strictly improves on ARM B over the same sweep :: 116 -> 0
+  [PASS] C1: the WHOLE-RENDER silhouette bounding box never grows vs HEAD :: 0
+  [PASS] C2: ARM A never places a glyph on a column HEAD leaves entirely blank :: 0
+  [PASS] C3-cal: the derived art offset is PROVEN against a full moon :: 0
+  [PASS] C3b: every hairline sits on a cell with real geometric presence on the disc :: 0
+  [PASS] D: no glyph was added to the set :: []
+  [PASS] E: every render at k >= 0.05 is byte-identical to HEAD :: 34258/34258
+  [PASS] E2: renderLine is byte-identical to HEAD everywhere :: 0
+  [PASS] F0 instrument self-check: TAP parser saw a full suite in every arm :: 161 / 161 / 160
+  [PASS] F2 ARM B: the new test FAILS against the current (HEAD) guard :: ["renderBlock: the
+         hairline arc stays contiguous across the thin-crescent band"]
+  [PASS] F4 L-029 attribution: a named test fails in ARM B that does not fail in the control
+  [PASS] F5: ARM B's failures are CONFINED to the new test :: 1/1
+GATE T-167 (v3): PASS (0 failed check(s))
+```
+
+The ARM B render above IS the defect the user would have seen: three disconnected specks down
+a hair-thin crescent. ARM A is one continuous arc. That is the first item this run that changes
+what the product looks like.
+
+### VERIFICATION EVIDENCE — T-164 (gate v3 exit 0; full: `.swarm/runs/cycle-079-verify-T164.txt`)
+
+```
+  [PASS] A1: the attended build run's START is genuinely NOT establishable from any on-disk
+         artifact (so the labelling clause has real work to do and this gate is not vacuous)
+  [PASS] B1 control: HEAD's block really does state 13:37 as run 2's start
+  [PASS] B2: the 13:37 figure is gone from the run-summary block
+  [PASS] C1: the run entries quote the measured run-2 kickoff time 13:20
+  [PASS] D1: run 1's start 15:32 — already correct at HEAD — is preserved, not "corrected"
+  [PASS] D2b: every clock time in the run-boundary entries is artifact-anchored or explicitly
+         labelled as unestablished :: []
+  [PASS] D2c: everything in the block OUTSIDE the run-boundary entries is byte-identical to HEAD
+  [PASS] D3: the attended build run carries an honest label
+  [PASS] D4: the entries state the artifact-derived run1_start (15:32) / run1_end (09:15)
+         / run2_start (13:20) / run2_end (06:27)
+  [PASS] E1: 102/102, 145/145, 148/148, "# 155 tests", "145 -> **148**" all untouched
+GATE T-164 (v3): PASS (0 failed check(s))
+```
+
+The item was filed as a one-date fix. Re-deriving every boundary — as its acceptance demanded
+rather than assuming the rest correct — found **two more wrong times in the same block**, which
+is the whole argument for that clause: run 1's end was published as 09:00 against a measured
+09:15:42 (last heartbeat, corroborated by a 09:16:19 wrap-up notification), and run 2's end was
+published as 06:17 against no artifact at all. Run 2's end now states both defensible readings
+with attribution — work died on the cap at 20:02Z, the session did not wrap until 06:27:39Z —
+instead of silently picking one. The attended build run's start is now labelled
+"not recorded on disk" rather than carrying an invented 11:29. Run 1's start (15:32) was
+already right and is preserved: the errors are not a systematic offset, and 13:37 is very close
+to the run-2 kickoff log's MTIME (13:38:31Z), i.e. when the kickoff session finished writing.
+
+### the gates needed FOUR repairs, and every one was the instrument, not the work
+
+Recorded in full because it is the cycle's most transferable result. Both gates were authored
+and hash-sealed at 22:26:29Z BEFORE dispatch (`.swarm/runs/c079-gates.sha256`, seals re-verified
+intact after the wave). v1 of each then FAILED, and every failure was traced by direct probe to
+the gate's own measuring apparatus:
+
+1. **T-167 check C** measured non-blank span PER ROW. But adding a hairline to a row that had
+   none necessarily grows that row's span by one cell — that IS the fix. The check fired on the
+   item's success condition and could not have passed for any correct fix. Replaced with three
+   measures of what "widen the disc" actually means (whole-render bounding box; no glyph on a
+   column HEAD leaves blank; and a HEAD-free one: every hairline sits on a cell with real
+   geometric presence, computed from the circle).
+2. **T-167 check F was VACUOUS IN THE PASS DIRECTION** — the dangerous kind. It parsed TAP
+   `not ok` lines from a stream carrying SPEC-reporter output. Probe:
+   `node --test <file> | grep -c '^ok \|^not ok '` returns **0**. It matched nothing in all
+   three arms and reported every arm clean. ARM A's "green" was exactly as meaningless as ARM
+   B's "no failures".
+3. **T-167 check C3 (added in v2)** indexed the 12-cell art grid with column numbers taken from
+   the 32-wide framed row, computing disc geometry ~10 columns off, and called 1464 legitimate
+   hairlines off-disc. v3 derives the offset from the render and *proves* it against a full moon
+   before trusting the verdict.
+4. **T-164 check D2** had an incomplete anchor set (it omitted the notification logs, which are
+   on-disk artifacts the document legitimately cites) and over-scoped (it flagged a
+   usage-window RESET time in untouched prose as an unanchored run boundary). Its v2 replacement
+   D2c then compared the unscanned remainder LINE-BY-LINE BY INDEX — but the edit changed the
+   block's line count 8 -> 15, so every later line was compared against a different HEAD line.
+   It was measuring the reflow.
+
+Not one repair loosened an acceptance criterion; two of them (C3, D2c) are strictly stronger
+than what they replaced, and D2c's purpose was preserved exactly — whatever the scan does not
+check against the artifacts must be proven byte-identical to HEAD, so narrowing the scan can
+never hide an edit. v1 and v2 of both gates are kept on disk unmodified with their full output
+(`cycle-079-verify-T167-v1.txt`, `-v2.txt`, `cycle-079-verify-T164-v1.txt`, `-v2.txt`) so the
+repairs are auditable rather than asserted.
+
+The lesson worth carrying: a gate that fails is cheap, but a gate that PASSES for a broken
+reason is the failure mode this whole design exists to prevent — and #2 above was one
+non-vacuity check away from being exactly that. Every gate from here should carry an explicit
+instrument self-check that proves it CAN see (F0: "the parser saw 161 assertions"; C3-cal:
+"the offset is right"; A1/B1 controls: "the defect is really there"). Prior instrument failures
+this run: cycles 8, 9, 19, 29, 76, 77 — this is the seventh, and the first where a vacuous
+check would have opened a gate rather than closed one.
+
+### VERIFICATION EVIDENCE — full suite, conductor-run on the real tree
+
+```
+$ node --test test/*.test.js
+ℹ tests 161
+ℹ suites 0
+ℹ pass 161
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3156.047801
+```
+
+161/161 green (160 -> 161, T-167's pinning test; per the SPEC test COUNT is never an outcome —
+it is here only as the no-tests-were-lost control). No `dependencies` key, no
+`package-lock.json`, no `node_modules`. CLI smoke-run by the conductor: `node bin/moon.js` and
+`node bin/moon.js --block` both render correctly (30% waxing crescent, next full moon 28 Aug).
+
+craft pack: `node bin/swarm-craft.mjs` ran clean, `degraded: []`. The `craft.ui` splice was
+deliberately NOT applied to T-167: the pack is web-surface guidance (border-radius, SVG icon
+sets, accent colour) and moon is a zero-dependency terminal CLI, so splicing it would be noise
+the builder must discard. Same call as prior cycles, journaled rather than silent.
+
+churn breaker: `consecutive_no_value` -> 0. Two must-have items verified with conductor-run
+  evidence.
+wave autotune: the wave was CLEAN — zero reverts, zero failed verifies -> `wave_streak` 0 -> 1.
+  Does not reach the promote threshold of 2, so `k_current` stays 4. Effective wave size remains
+  min(4, gear cap 2) = 2 while the governor holds.
+backlog: 4 todo — T-174 (next; needs the settled count of 161), T-173, T-175. T-167 and T-164
+  done. T-175 remains filed-but-not-buildable by the SPEC's taste rule.
+gate-4 status, for whoever picks next: review-fix ran c73, full QA ran c76, **TASTE STILL
+  OUTSTANDING** (deferred three times now, each on the record). With ~17 h of clock left and the
+  product-behaviour backlog now empty, the argument for deferring it a fourth time is much
+  weaker than it was.
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],
+ "rotation_cursor":0,"rotation_schedule":[0],
+ "stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00",
+ "model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3",
+ "pacing":{"mode":"thermostat","dial":0.5},
+ "budget":{"gear":2,"gear_target":2,"k_cap":2,"promote":false,"demote":true,
+   "probe_failures":10,"weekly":{"ok":true,"weekly_used_pct":15.0,"opus_used_pct":8,
+   "week_elapsed_pct":10.32,"weekly_heat":1.4535,"opus_heat":0.7752,"ceiling":2,
+   "promote_blocked":true}},
+ "watchdog":{"mode":"normal","plist_loaded":true},"caffeinate_pid":0,
+ "wrap_up_complete":false,"cycles_since_recycle":13}
+```

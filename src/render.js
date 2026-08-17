@@ -237,15 +237,25 @@ function blockArt(k, waxing) {
  * Looks at cover directly rather than at how the cell rounded to a glyph,
  * so a cell too thin to reach 50% presence — and therefore rendered blank —
  * still counts if it truly has sunlight on it.
+ *
+ * "Carrying real light" means any lit sub-sample at all, never a fixed
+ * absolute cut on cover. Near the illuminations that reach this guard the
+ * crescent is thinner than one SUB-grid sample, so a cell's measured cover
+ * is a quantization artifact that can rank the rows in the wrong order —
+ * e.g. at k ≈ 0.0016 the limb cell measures ~0.025 in rows 0/2/4 but
+ * ~0.017 in rows 1/3, while a fine-grained integration ranks those rows
+ * the other way round. Any absolute threshold therefore lands between two
+ * rows of the same crescent somewhere and breaks the arc into specks; the
+ * only cut that cannot is zero.
  * @param {{cover:number,presence:number}[]} cells
  */
 function firstLit(cells) {
-  return cells.findIndex((cell) => cell.cover > 0.02);
+  return cells.findIndex((cell) => cell.cover > 0);
 }
 
 /** Index of the last cell (from the right) carrying real light, or -1. */
 function lastLit(cells) {
-  for (let i = cells.length - 1; i >= 0; i--) if (cells[i].cover > 0.02) return i;
+  for (let i = cells.length - 1; i >= 0; i--) if (cells[i].cover > 0) return i;
   return -1;
 }
 

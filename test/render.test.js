@@ -541,6 +541,43 @@ test('renderBlock: a hairline crescent forms a contiguous arc, not disconnected 
   }
 });
 
+// T-167, second half: fixing the limb *selection* still left the guard's
+// eligibility as a fixed absolute cut, `cover > 0.02`. Once the crescent is
+// thinner than one SUB-grid sample, a cell's measured cover is a quantization
+// artifact that can rank the rows in the wrong order — in the band
+// k ≈ 0.00164..0.00191 the limb cell measures ~0.025 in rows 0/2/4 but
+// ~0.017 in rows 1/3, even though a fine-grained integration puts MORE light
+// in rows 1/3 — so the constant fell between two rows of the same crescent
+// and the arc broke into three specks again. A continuous crescent has no
+// honest reading in which row 1 is dark while rows 0 and 2 are lit, so the
+// guard now accepts any lit sub-sample at all.
+test('renderBlock: the hairline arc stays contiguous across the thin-crescent band', () => {
+  // 25 illuminations spanning the measured residual band (plus a little
+  // margin either side), each rendered waxing and waning. The property under
+  // test is the guard comment's own contract: the lit rows form one
+  // contiguous arc — never a fully dark row sandwiched between two lit ones.
+  for (let i = 0; i <= 24; i++) {
+    const k = 0.0016 + (i / 24) * 0.00035; // 0.00160 .. 0.00195
+    const f0 = Math.acos(1 - 2 * k) / (2 * Math.PI); // k = (1 - cos 2*pi*f) / 2
+    for (const waxing of [true, false]) {
+      const f = waxing ? f0 : 1 - f0;
+      const moon = state(waxing ? 'waxing crescent' : 'waning crescent', f, k);
+      const rows = renderBlock(moon, 'north').split('\n').slice(1, 6);
+      const litPerRow = rows.map((row) => litness(row.slice(1, -1)) > 0);
+      assert.ok(
+        litPerRow.some(Boolean),
+        `k=${k} waxing=${waxing}: the whole disc went dark inside the hairline band`,
+      );
+      for (let r = 1; r < litPerRow.length - 1; r++) {
+        assert.ok(
+          !(litPerRow[r - 1] && !litPerRow[r] && litPerRow[r + 1]),
+          `k=${k} waxing=${waxing}: row ${r} is a dark gap between two lit rows: ${JSON.stringify(rows)}`,
+        );
+      }
+    }
+  }
+});
+
 test('renderBlock: every block is the same size, whatever the phase', () => {
   const shapes = new Set();
   for (const moon of CYCLE) {

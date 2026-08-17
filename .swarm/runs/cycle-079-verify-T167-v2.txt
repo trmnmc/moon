@@ -1,0 +1,59 @@
+
+A. the residual band — is the hole real at HEAD, and is it closed in the tree?
+  [REPORT] band k=0.001..0.003, 16004 renders
+  [REPORT] ARM B (HEAD) broken-arc renders : 3000
+  [REPORT] ARM A (tree) broken-arc renders : 0
+  [REPORT] ARM B first break : k=0.0015330 waxing north
+        ARM B rows: ["            ░░░░░░░░▕           ","           ░░░░░░░░░░           ","          ░░░░░░░░░░░░          ","           ░░░░░░░░░░           ","            ░░░░░░░░▕           "]
+        ARM A rows: ["            ░░░░░░░░▕           ","           ░░░░░░░░░░▕          ","          ░░░░░░░░░░░▕          ","           ░░░░░░░░░░▕          ","            ░░░░░░░░▕           "]
+  [PASS] A1 control: the residual band really does still break the arc at HEAD (hole reproduced, not assumed) :: 3000
+  [PASS] A2: no broken arc anywhere in the residual band :: 0
+
+B. full-lunation sweep — contiguity everywhere, not only at the pinned point
+  [REPORT] sweep: 20000 cycle steps x 2 hemispheres = 40000 renders
+  [REPORT] ARM B (HEAD) broken-arc renders : 116
+  [REPORT] ARM A (tree) broken-arc renders : 0
+  [PASS] B1: the block disc never breaks its arc across a whole lunation, both hemispheres :: 0
+  [PASS] B2: ARM A strictly improves on ARM B over the same sweep :: 116 -> 0
+
+C. must not widen the disc — three independent measures (v2 repair)
+  [PASS] C1: the WHOLE-RENDER silhouette bounding box never grows vs HEAD (cycle 75's measure) :: 0
+  [PASS] C2: ARM A never places a glyph on a column HEAD leaves entirely blank :: 0 []
+  [REPORT] hairline glyphs inspected (northern, 4000 phase steps) : 2088
+  [PASS] C3a non-vacuity: hairlines were actually found to inspect :: 2088
+  [FAIL] C3b: every hairline ARM A draws sits on a cell with real geometric presence on the disc — computed from the circle, with no reference to HEAD :: 1464 [{"k":0.0007129,"row":2,"col":21},{"k":0.0007555,"row":1,"col":21},{"k":0.0007555,"row":2,"col":21}]
+
+D-E. glyph set unchanged; ordinary illuminations byte-identical
+  [REPORT] ARM A glyph set : [" ","█","▏","░","▒","▓","▕"]
+  [REPORT] ARM B glyph set : [" ","█","▏","░","▒","▓","▕"]
+  [PASS] D: no glyph was added to the set :: []
+  [REPORT] renders at k >= 0.05 compared : 34258
+  [PASS] E: every render at ordinary illumination (k >= 0.05) is byte-identical to HEAD :: 34258/34258
+  [PASS] E2: renderLine is byte-identical to HEAD everywhere :: 0
+
+F: the pinning test — failable AND attributable by name, in two arms (L-029)
+   v2 forces --test-reporter=tap and cross-checks the child exit code, because
+   v1 parsed TAP lines from a SPEC-reporter stream and matched nothing in every arm.
+  [REPORT] ARM A  tree render + tree tests : exit=1 tap_assertions_parsed=1 failing=["test"]
+  [REPORT] ARM B  HEAD render + tree tests : exit=1 tap_assertions_parsed=1 failing=["test"]
+  [REPORT] CONTROL HEAD render + HEAD tests : exit=1 tap_assertions_parsed=1 failing=["test"]
+  [PASS] F0 instrument self-check: the TAP parser actually saw assertions in every arm (v1 saw none and called it clean) :: 1 / 1 / 1
+  [PASS] F0b instrument self-check: exit code agrees with the parse for ARM A  tree render + tree tests :: exit=1 failing=1
+  [PASS] F0b instrument self-check: exit code agrees with the parse for ARM B  HEAD render + tree tests :: exit=1 failing=1
+  [PASS] F0b instrument self-check: exit code agrees with the parse for CONTROL HEAD render + HEAD tests :: exit=1 failing=1
+  [FAIL] F1 ARM A: the suite is green against the fixed render :: exit=1
+  [PASS] F2 ARM B: the new test FAILS against the current (HEAD) guard — it is failable :: ["test"]
+  [FAIL] F3 CONTROL: HEAD tests pass against HEAD render, so ARM B failures are attributable to the TEST change alone :: exit=1
+  [FAIL] F4 L-029 attribution: a named test fails in ARM B that does not already fail in the control :: []
+  [FAIL] F5: ARM B's failures are CONFINED to the new test — the fix did not silently rely on breaking something else :: 0/1
+
+G: no gate was opened by weakening it
+  [REPORT] test/render.test.js: test declarations removed / added : 0 / 2
+  [PASS] G1: no test skipped or narrowed with .only/.skip
+  [PASS] G2: no geometry constant redefined in the test file
+  [PASS] G3: the test file did not lose coverage on net :: 0 removed, 2 added
+  [REPORT] files changed in the whole tree this cycle : ["REPORT.md","src/render.js","test/render.test.js"]
+  [PASS] G4: nothing outside the wave's two disjoint scopes was touched :: []
+  [PASS] G5: no manifest change, no lockfile — the zero-dependency non-goal holds
+
+GATE T-167 (v2): FAIL (5 failed check(s))
