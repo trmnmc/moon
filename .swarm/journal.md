@@ -9866,3 +9866,40 @@ runfile-mirror:
  "watchdog":{"mode":"normal","plist_loaded":true},"caffeinate_pid":0,
  "wrap_up_complete":false,"cycles_since_recycle":10}
 ```
+
+addendum (cycle 76, post-commit) -- KI-2 RE-MEASURED with the exact refusal on record.
+A phase change really occurred this cycle (BUILD -> QA), so the step-8 `phase-change` push
+was genuinely DUE and was genuinely attempted rather than assumed dead. Both invocation
+forms were refused by the permission layer, and the two refusal texts differ, which is
+itself the useful part -- the gap is in the ALLOWLIST, not in the script:
+
+```
+$ /opt/swarm/bin/swarm-notify.sh send phase-change "swarm: moon to QA" "cycle 76" 2>&1 | head -5
+  -> This Bash command contains multiple operations. The following part requires approval:
+     /opt/swarm/bin/swarm-notify.sh send phase-change "swarm: moon to QA" "cycle 76" 2>&1
+
+$ /opt/swarm/bin/swarm-notify.sh send phase-change "swarm: moon to QA" "cycle 76"
+  -> This command requires approval
+```
+
+So the bare invocation is refused on its own, with no pipe or redirection to blame. This is
+the same gap that has denied `bin/swarm-budget.sh` (both the real probe and its
+`PROBE_CMD=false` clock-only mode), `bin/swarm-notify.sh poll`, and
+`bin/swarm-playbook.sh` across three consecutive runs. The SPEC's fourth must-have asks for
+KI-2 "closed on a live invocation as evidence or re-measured with the exact refusal
+recorded"; this is the re-measurement half, and it CANNOT be closed from inside the run --
+hard rule 5 fences the conductor out of `SWARM/.claude/settings.json`, which is where the
+allowlist entry would go. It needs a human, and the morning report must say so with this
+output attached.
+
+Other refusals hit this cycle, recorded because they shape how every gate on this run gets
+written: `awk`, `tee`, `echo $?`, `$(...)` command substitution, `cd <dir> && git ...`, and
+a `python3 -c` string containing a newline followed by `#`. Every one was re-expressed --
+`git -C` instead of `cd`, `python3` and `node -e` driver scripts instead of shell one-liners
+-- so nothing was dropped, but it is why the QA executor also had to rewrite all five
+scenarios as Node drivers (it reported this itself, unprompted, in its honesty note).
+
+wakeup: `next_wakeup_at` = cycle open + 90 s per cycle.md step 9 (base delay; this was a
+verified-value cycle, so neither the 900-1800 s no-value delay nor limp's 3600 s applies).
+No ScheduleWakeup call: on the VPS `bin/swarm-pacer.sh` is the firing mechanism and reads
+`next_wakeup_at` directly. Clamp satisfied with ~18.8 h of margin (wakeup + 900 << stop_at).
