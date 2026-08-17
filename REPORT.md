@@ -20,9 +20,13 @@ the contrast with run 1's deliberate early stop is the point. See "Why run 2 sto
 A zero-dependency Node CLI that prints the current phase of the moon.
 
 ```
-░░░░▕   4%  waxing crescent
+░░░▓◗  28%  waxing crescent
             next full moon  28 Aug
 ```
+
+*Captured by running `node bin/moon.js` with no flags at 2026-08-17 18:22 UTC against the
+host system clock; the percentage and next-full-moon date move with the calendar, so a
+later run will show different figures.*
 
 Flags: `--json`, `--block`, `--compact`, `--south`, `--north`, `--help`.
 Run: `node bin/moon.js` · Test: `node --test test/*.test.js`
@@ -168,7 +172,7 @@ now stands, so the two never collide.
 
 | id | severity | status | issue |
 |---|---|---|---|
-| KI-2 | medium | open, blocking — **worsening** | `settings.json` allowlist edit was denied at all three kickoffs, so `permissions.additionalDirectories` is `[]` and **`bin/swarm-budget.sh` and `bin/swarm-playbook.sh` are not allowlisted at any path**, while `swarm-notify.sh` is allowlisted only under a relative path and the macOS absolute path — neither of which matches `/opt/swarm/bin/...` on this host. Degraded across run 2: the budget probe (never invoked in 65 cycles), the notification channel (zero pushes sent, including the wrap-up), and the playbook append (hand-edited fallback for the second run running). It is also masking the curator deadlock — see Operational findings 1, and fix the two together. Headless relaunches must pass `--add-dir`. SWARM tooling gap, not a product defect. |
+| KI-2 | medium | open, blocking — **worsening** | `settings.json` allowlist edit was denied at all three kickoffs, so `permissions.additionalDirectories` is `[]` and **`bin/swarm-budget.sh` and `bin/swarm-playbook.sh` are not allowlisted at any path**. `swarm-notify.sh` *is* reachable on this host — its relative allowlist entry matches whenever the conductor's cwd is the SWARM root, even though the macOS absolute entry does not match `/opt/swarm/bin/...`. Degraded across run 2: the budget probe (never invoked in 65 cycles) and the playbook append (hand-edited fallback for the second run running). The notification channel is not part of this gap — see the Run 2 stats table for what actually happened to it, which KI-2 does not explain. It is also masking the curator deadlock — see Operational findings 1, and fix the two together. Headless relaunches must pass `--add-dir`. SWARM tooling gap, not a product defect. |
 | KI-4 | low | open, unverified | Terminal font variance beyond width (ligatures, exotic fonts) remains unverified — no automated check can cover it; needs a human look. |
 | KI-5 | medium | pinned by test, not fixed | **Glyph width.** The disc mixes East Asian Width classes (`░` `▐` are Neutral; `▒ ▓ █ ▌ ▏ ▕` are Ambiguous). In terminals rendering ambiguous-width as double (CJK locales, iTerm2 setting, `xterm -cjk_width`) the disc is 5–9 columns instead of 5: the line jitters between nights, the two-line form stops aligning, and the `--block` frame does not close. Correct in default Western-locale terminals. `test/render.test.js:629` (`KI-5 pin: disc glyph set matches the documented East Asian Width partition`) derives the disc's actual glyph set from `renderLine`/`renderBlock` output and checks it against the documented partition, so an unannounced glyph change now fails the suite instead of drifting silently. The glyph-set redesign that would actually fix the width problem is still deferred — this is a pin, not a fix. |
 | KI-7 | low | bounded (sampled), not fixed | At epochs far outside normal use (empirically found around ±270,000 years) `phaseName` and `illumination` can contradict, since the ch.49 and ch.48 Meeus series diverge. `src/astro.js`'s exported `PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` (astro.js:71-74) declares the domain over which the two are known to stay consistent — the half-open range of calendar years **1000–3000** — and `test/astro.test.js:491` (`KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)`) strides **4000** deterministic points across that domain with zero band violations. This is a sampled bound, not a proof, and nothing enforces it at runtime. |
@@ -236,7 +240,7 @@ a decision and it is worth stating plainly rather than burying.
 
 The definition of done was re-verified from evidence at cycle 47, not read off backlog
 labels: KI-1 (REPORT.md above + README:38-41), KI-6 (astro.js:358 + astro.test.js:294),
-KI-7 (`PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` declared astro.js:71-74, exported astro.js:363, README:184,
+KI-7 (`PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` declared astro.js:71-74, exported astro.js:363, README:194,
 astro.test.js:491), KI-5 (render.test.js:629), 145/145 green at the time (**147/147**
 re-run against the current tree at cycle 58, T-148), no `dependencies` key.
 
@@ -283,17 +287,25 @@ value-ranked drop list, is in `playbook/HANDOFF-cap-2026-08-15.md` (addendum dat
 2026-08-17). Honest label: established by *reading* `bin/swarm-playbook.sh`; the script has
 still never been executed on this host.
 
-**2. KI-2 is now on its third consecutive degraded artifact.** The root cause is precise
-and small: `SWARM/.claude/settings.json` allows `Bash(bin/swarm-notify.sh:*)` (a *relative*
-path) and `Bash(/Users/truman/Projects/SWARM/bin/swarm-notify.sh:*)` (the macOS path).
-Neither matches `/opt/swarm/bin/...` on this VPS, and `swarm-playbook.sh` and
-`swarm-budget.sh` have no entry at any path. Consequences in run 2: the budget probe never
-ran (gear was read from `runs/allocator.json`, freshness re-checked against
-`week_elapsed_pct` movement each cycle), no push notification was sent at any point
-including the wrap-up, and the playbook append fell back to a hand edit again
-(L-037…L-041). `permissions.additionalDirectories` is still `[]`; headless relaunches must
-keep passing `--add-dir` explicitly. Per hard rule 5 the conductor may not fix this from
-inside a run — it needs one human edit.
+**2. KI-2 still blocks the budget probe and the playbook append; the notification channel
+turned out not to be part of it.** `SWARM/.claude/settings.json` allows
+`Bash(bin/swarm-notify.sh:*)` (a *relative* path) and
+`Bash(/Users/truman/Projects/SWARM/bin/swarm-notify.sh:*)` (the macOS path). The allowlist
+matches on the leading command token, so the relative entry matches whenever the
+conductor's cwd is the SWARM root — `swarm-notify.sh` **is** reachable on this host; only
+the macOS absolute entry fails to match `/opt/swarm/bin/...`. `swarm-playbook.sh` and
+`swarm-budget.sh` have no entry at any path and remain genuinely blocked. Consequences in
+run 2: the budget probe never ran (gear was read from `runs/allocator.json`, freshness
+re-checked against `week_elapsed_pct` movement each cycle), and the playbook append fell
+back to a hand edit again (L-037…L-041). Notifications, by contrast, did go out: run 2's
+notify log (`runs/notify.log.1786947423`) records four successful pushes — auto-kickoff,
+goodnight, and two phase-changes — all inside the run's first 31 minutes, and then stops
+entirely, polls included, at 14:11:03Z, roughly 16 hours before the run actually ended; no
+wrap-up push was sent. Why the log goes silent there is not established by anything on
+record and is not asserted here. `permissions.additionalDirectories` is still `[]`;
+headless relaunches must keep passing `--add-dir` explicitly. Per hard rule 5 the
+conductor may not fix the still-blocked budget and playbook scripts from inside a run —
+that needs one human edit.
 
 **3. The gear was never actually measured.** `probe_failures` sat at 8 with
 `last_real_probe_ts` frozen since cycle 35, and gear 1 was held for all 18 cycles on
@@ -347,7 +359,7 @@ node bin/moon.js              # single line + next full moon
 node bin/moon.js --compact    # exactly one line, for a shell prompt
 node bin/moon.js --block      # framed readout
 node bin/moon.js --json       # structured output
-node --test test/*.test.js    # 148 tests
+node --test test/*.test.js    # 155 tests
 ```
 
 No install step, no dependencies, no network access at any point.
@@ -371,7 +383,7 @@ No install step, no dependencies, no network access at any point.
 | Pace | mode `guest`, dial 0.30, **gear pinned at 1 for all 18 cycles**; effective wave size 1 every cycle (gear cap 1 vs `k_current` 5) |
 | Weekly window at reset | **100% overall / 97% premium** — fully consumed, and 8h 50m early |
 | Cost | ≈**$103** (17 of the 18 cycles have a `cycle-done cost=` line in `runs/pacer.log`; range $2.32–$12.12) |
-| Notifications sent | **0 — not configured on this host.** `.ntfy.json` exists but `swarm-notify.sh` is not allowlisted (KI-2), so no goodnight, stall, or wrap-up push was ever delivered |
+| Notifications sent | **4, then stopped.** auto-kickoff, goodnight, and two phase-change pushes, all `ok`, all inside the run's first 31 minutes (13:20–13:50 UTC on 08-16); the log (`runs/notify.log.1786947423`) then goes silent, polls included, at 14:11:03Z — roughly 16 hours before the run ended — and no wrap-up push was sent. `.ntfy.json` **is** configured on this host (144 bytes). Why the log stops there is not established by the record. |
 | Commands received | none (`runs/control.json` `pending` and `applied` both empty all run) |
 | Screenshots | none — this is a terminal CLI with no browser surface; the QA look pass and collision scan are recorded as **not-run**, not as passed |
 
@@ -420,7 +432,8 @@ now 42 cycles stale**.
 4. **Fix the SWARM allowlist (KI-2) and cull the playbook in the same change.** Run 2
    established that doing the first without the second makes the playbook *inert* — see
    Operational findings 1. Neither is a product defect; both will silently degrade the next
-   run if left, and the allowlist gap has now degraded three separate subsystems.
+   run if left, and the allowlist gap still blocks two separate subsystems (budget probe,
+   playbook append).
 5. **Decide whether to give run 3 the clock to close T-155.** The sweeps proved the
    `--json` numeric surface is permanently invisible to the suite, and gear 1 never admitted
    the M-effort item that would fix it. This is a scheduling decision, not a technical one:

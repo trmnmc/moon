@@ -1,0 +1,163 @@
+T-160 — conductor's independent gate, cycle 72. VERDICT: PASS (attempt 2).
+
+Gate: /opt/swarm/runs/c072-gate-T160-v2.mjs   sha256 e3388a77b3bd72cf2febcbd247a94d9c89035589b23b5024414ad6871dac1c4b
+  v1: /opt/swarm/runs/c072-gate-T160.mjs      sha256 5fbeb1237e5757ffd0bd69202e3c223b8cc9fd308404ab91777f73dc9aaf14ef
+  v1 authored 18:23:11Z, ~2 min AFTER the builder was dispatched (~18:21Z) and never
+  visible to it. Kept on disk unchanged so the instrument's own history is auditable.
+
+================================================================================
+THE INSTRUMENT FAILED FIRST — 12 failures, ALL of them gate bugs
+================================================================================
+
+v1 returned FAIL with 12 failures against the builder's tree. Every one was diagnosed
+against the tree before anything was rewritten, and NOT ONE was a finding about the
+builder's work. Recorded rather than quietly fixed, because "the gate failed" and "the
+work failed" are different facts and the difference is the whole point of this step:
+
+  1. the NAMED-citation regex had a leading-backtick in its negative lookbehind, so every
+     BACKTICKED citation — the document's dominant form — was invisible. It enumerated 11,
+     not 15. Fixing this made the gate STRICTER: it now sees 4 more citations.
+  2. `node --test` prints "i tests 155", not "# tests 155". The live count parsed as the
+     -1 sentinel, so every count comparison failed against garbage.
+  3. the count sweep flagged HISTORICAL counts (102/102 at v0.1.0, 145/145 run 1,
+     148/148 run 2, cycle 47's mutation arithmetic) as stale. Those are past-tense claims
+     about earlier trees. NARROWED to the how-to-run block, which is what the acceptance
+     clause actually names — and the narrowing is compensated, not silent: every other
+     count mention is now PRINTED for the conductor to read.
+  4. `git status --porcelain` was .trim()'d whole, eating the leading space of the first
+     line, so slice(3) sheared the first character of the path ("EPORT.md").
+
+================================================================================
+ARM A — the gate run against HEAD. MUST fail, or ARM B proves nothing.
+================================================================================
+
+  $ node /opt/swarm/runs/c072-armA.mjs
+  ARM B file saved; sha256=3c0bfce23d15c3fd18bc25e5fa9c4a87bff85e46de3cd730c88cb3d443e8e573
+  reverted to HEAD;  sha256=b13c7817f5ab11b84e11909517c066c11024d6598e0f8769058f3affadee40ae
+
+  MECHANICAL VERDICT: FAIL — 9 failure(s)
+    [B] capture at REPORT.md:22-25 is NOT byte-identical to the live binary
+    [C] how-to-run block claims "# 148 tests" but the live suite reports 155
+    [D] REPORT:171 still carries the "zero pushes" assertion
+    [D] REPORT:292 still carries the "no push notification was sent" assertion
+    [D] REPORT:374 still carries a stats row still reporting 0 notifications
+    [D] REPORT:374 still carries the "not configured on this host" claim
+    [D] REPORT:423 still carries the "three degraded subsystems" narrative
+    [D] REPORT.md never states the real run-2 push count (4)
+    [E] REPORT.md is unchanged — the item produced no work
+  ARM A gate exit=1
+
+  restored;          sha256=3c0bfce23d15c3fd18bc25e5fa9c4a87bff85e46de3cd730c88cb3d443e8e573
+  RESTORE VERIFIED: byte-identical to the builder's file
+
+All five D-checks fire on the unfixed document. The gate discriminates.
+
+================================================================================
+ARM B — the gate run against the builder's tree. PASS.
+================================================================================
+
+  $ node /opt/swarm/runs/c072-gate-T160-v2.mjs
+  ENUMERATED 15 citation instances (named=13, bare=2)
+    REPORT:177  test/render.test.js:629   -> test('KI-5 pin: disc glyph set matches the docum
+    REPORT:178  astro.js:71-74            -> const PHASE_ILLUMINATION_CONSISTENCY_DOMAIN = {
+    REPORT:178  test/astro.test.js:491    -> test('KI-7: phaseName/illumination band discrimi
+    REPORT:187  src/astro.js:358          -> throw new TypeError('nextFullMoon result is outsi
+    REPORT:187  `:281` (-> src/astro.js)  -> throw new TypeError('computeMoon expects a valid
+    REPORT:187  `:346` (-> src/astro.js)  -> throw new TypeError('nextFullMoon expects a valid
+    REPORT:187  test/astro.test.js:294    -> // KI-6 regression: a valid input Date whose resu
+    REPORT:242  README:38-41              -> it is a fixed set of sprites, which is hemisphere
+    REPORT:242  astro.js:358              -> throw new TypeError('nextFullMoon result is outsi
+    REPORT:242  astro.test.js:294         -> // KI-6 regression: a valid input Date whose resu
+    REPORT:243  astro.js:71-74            -> const PHASE_ILLUMINATION_CONSISTENCY_DOMAIN = {
+    REPORT:243  astro.js:363              -> module.exports = { computeMoon, nextFullMoon, PHA
+    REPORT:243  README:194                -> guarantees they stay in step forever. Over the ha
+    REPORT:244  astro.test.js:491         -> test('KI-7: phaseName/illumination band discrimi
+    REPORT:244  render.test.js:629        -> test('KI-5 pin: disc glyph set matches the docum
+  CAPTURE byte-identical to `node bin/moon.js` (REPORT.md:22-25, 63 bytes)
+  SUITE tests=155 pass=155 fail=0
+    how-to-run block (REPORT.md:356-363) claims "# 155 tests" — matches live 155
+  NOTIFY count stated at REPORT:301: ... records four successful pushes — auto-kickoff,
+  KI-2 row still names budget + playbook as blocked: OK
+  SCOPE working tree touches: REPORT.md
+  MECHANICAL VERDICT: PASS (15 citations, capture, 155 tests, notification truth)
+
+The count dispute recorded in the item's notes is settled the same way attempt 1 settled
+it and the same way cycle 71's independent gate settled it: 15 instances, 13 named + 2
+bare. Three independent enumerations now agree; the original grep's 13 missed exactly the
+two bare shorthands.
+
+STATED LIMIT OF THE A-CHECK: it verifies that a citation RESOLVES to a non-blank line, not
+that the line is semantically apt. Aptness is the conductor's read — and here the two arms
+make it visible side by side, which is why the README:184 -> README:194 correction is
+evidence rather than assertion:
+
+    ARM A (HEAD)      REPORT:239  README:184  -> Independently checked properties:
+    ARM B (builder)   REPORT:243  README:194  -> guarantees they stay in step forever.
+                                                 Over the half-open range of years
+                                                 **1000-3000**,
+
+README:184 is a section lead-in; README:194 holds the cited KI-7 domain prose. The
+correction is genuine.
+
+================================================================================
+SUB-GOAL 4 — the conductor's own read of the prose. No script decides this.
+================================================================================
+
+The fabrication tripwire surfaced 2 sentences; both were read in full, along with the
+entire diff. All three notification sites are now true, and all three explicitly REFUSE
+to assert a cause:
+
+  REPORT:304  "Why the log goes silent there is not established by anything on record and
+               is not asserted here."
+  REPORT:386  "| Notifications sent | **4, then stopped.** ... the log then goes silent,
+               polls included, at 14:11:03Z — roughly 16 hours before the run ended — and
+               no wrap-up push was sent. ... Why the log stops there is not established by
+               the record. |"
+  REPORT:175  KI-2 row: notifications removed from its degraded list; budget + playbook
+               retained; "which KI-2 does not explain."
+
+The builder also self-reported one correction beyond the three: "the allowlist gap has now
+degraded three separate subsystems" -> "still blocks two separate subsystems (budget
+probe, playbook append)". Confirmed against the same evidence and against the live
+allowlist. This is what attempt 1 failed to do while claiming it had.
+
+Each underlying fact was re-measured by the conductor, not taken from the builder:
+  $ cat /opt/swarm/runs/notify.log.1786947423
+    2026-08-16T13:20:10+0000 send auto-kickoff ok
+    2026-08-16T13:29:47+0000 send goodnight ok
+    2026-08-16T13:38:01+0000 send phase-change ok
+    2026-08-16T13:50:41+0000 send phase-change ok
+    2026-08-16T14:11:03+0000 poll ok merged=0     <- last entry of ANY kind
+  $ stat -c '%y' notify.log.1786947423  -> 2026-08-16 14:11:03 +0000  (nothing appended after)
+  $ ls -la /opt/swarm/.ntfy.json        -> 144 bytes, present
+  $ grep -n 'swarm-notify\|budget\|playbook' /opt/swarm/.claude/settings.json
+      6: "Bash(/Users/truman/Projects/SWARM/bin/swarm-notify.sh:*)"
+      7: "Bash(bin/swarm-notify.sh:*)"          <- the only entry that can match here
+      (no entry for swarm-budget.sh or swarm-playbook.sh at any path)
+
+================================================================================
+A NEW DOC ERROR FOUND WHILE READING — NOT the builder's, NOT failed against it
+================================================================================
+
+The corrected text says the four pushes landed "inside the run's first 31 minutes". That
+is true against the log's own first entry (13:20:09) — but REPORT.md:7 states run 2 began
+at **13:37**, which would put the 13:20:10 auto-kickoff push 17 minutes BEFORE the run
+started. One of the two had to be wrong, so it was measured:
+
+  $ python3 /opt/swarm/runs/c072-run2-start.py
+    1786886410  2026-08-16T13:20:10Z  mtime=2026-08-16T13:38:31Z
+      | Kickoff complete and cycle 48 landed. Three things worth your attention...
+    archived notify log first entry: 2026-08-16T13:20:09+0000 poll ok init cursor=now
+
+Three independent agreements put run 2's kickoff at 2026-08-16T13:20:10Z: the kickoff
+log's filename epoch, its own first line naming cycle 48 (REPORT's own run-2 range is
+"cycles 48 -> 65"), and the auto-kickoff push. REPORT.md:7's "13:37" is wrong by ~17
+minutes — it is close to the kickoff log's MTIME (13:38:31), i.e. when the kickoff
+session finished writing, not when it started.
+
+This is PRE-EXISTING, on a line T-160 was not scoped to touch, and the builder's own text
+is the CORRECT one of the pair. Failing the item for it would punish the attempt that
+made the error visible. Filed instead as T-164 with the evidence above.
+
+VERDICT: PASS. T-160 -> done, verified_cycle 72, attempts 1 (the failed attempt stands on
+the record). Working tree carries REPORT.md and nothing else; 155/155 green.

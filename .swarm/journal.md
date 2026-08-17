@@ -8722,3 +8722,242 @@ runfile-mirror:
 ```json
 {"version": 1, "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-18T16:02:34+00:00", "usage_reset_at": "2026-08-17T21:00:00+00:00", "usage_reset_at_note": "ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed", "model_policy": "value-routing", "auth_mode": "subscription", "run_label": "moon-improve-3", "heartbeat": {"ts": 1786990233, "next_wakeup_at": 1786992070, "pid": 1835935, "limp": false, "degraded_tiers": []}, "pacing": {"mode": "thermostat", "dial": 0.5}, "budget": {"source": "clock+allocator", "gear": 2, "gear_target": 2, "ratio": 0.0, "mode": "thermostat", "k_cap": 2, "promote": false, "demote": true, "window_tokens": 0, "window_cost_usd": 0.0, "api_cap_usd": null, "api_spend_usd": 0.0, "tokens_per_hour": 0, "projected_depletion_at": 0, "last_probe_ts": 1786990233, "last_real_probe_ts": 1786990233, "probe_failures": 5, "gear_evidence": "cycle 71: bin/swarm-budget.sh DENIED for the 5th consecutive cycle, measured in THREE forms this time (env-prefixed absolute, bare absolute, bare relative) as part of T-162 -- all three \"This command requires approval\". probe_failures 4 -> 5; last_real_probe_ts stamped (real attempts were made). allocator.json MEASURED (ok=true, source=probe): weekly_used 10.0 pct at week_elapsed 7.688 pct -> weekly_heat 1.3007; opus_used 4 pct -> opus_heat 0.5203; dial 0.40. Applying the swarm-budget.sh ladder (lines 18-19) by hand: weekly_heat now CROSSES 1.3 (it was 1.2035 at cycle 70), so the governor tightens the ceiling 3 -> 2 and blocks the promote rung; opus_heat 0.52 < 1.2 so no opus block. Window rho REMAINS UNMEASURED (needs the denied ccusage probe), so the evidence rule still lands cruise rather than crawl -- but the governor ceiling binds below it. Hysteresis permits one step: gear 3 -> 2, k_cap 2, demote true. First cycle of run 3 to leave cruise.", "weekly": {"ok": true, "weekly_used_pct": 10.0, "opus_used_pct": 4, "week_elapsed_pct": 7.688, "weekly_heat": 1.3007, "opus_heat": 0.5203, "ceiling": 2, "promote_blocked": true, "source": "runs/allocator.json ok=true source=probe (pacer-refreshed); heat + ceiling computed by hand from its fields because bin/swarm-budget.sh is denied (KI-2)"}}, "watchdog": {"mode": "normal", "plist_loaded": true, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "caffeinate_pid": 0, "wrap_up_complete": false, "cycles_since_recycle": 5, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}, "playbook": {"mode": "auto", "applied": ["L-008", "L-011", "L-016", "L-018", "L-020", "L-021", "L-022", "L-024", "L-026", "L-029", "L-031", "L-033", "L-034", "L-042", "L-043"], "vetoed": [], "source": "learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)", "not_wired": {"ids": ["L-011", "L-018", "L-020", "L-021", "L-022"], "why": "all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."}, "ledger_line_blocked": "record-applied could not run (KI-2) -- third consecutive run", "directives": {"routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer -- never commit or push yourself", "The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"], "reviewer": ["The conductor is the SOLE committer -- never commit or push yourself", "The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer -- never commit or push yourself", "The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.", "When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.", "Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.", "Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test", "Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
 ```
+
+## cycle 72 | 2026-08-17T18:36:16+00:00 | moon | BUILD -> QA
+
+work: T-160 attempt 2 (ONE sonnet builder) — REPORT.md doc re-verification. The last todo
+  item in the run-3 backlog.
+why: step-4 phase gate 3, one must-have item remained todo. It sat at attempts 1 after
+  failing cycle 71's gate, so a second failure would have blocked it permanently and turned
+  the run's last must-have into a known issue. Sole item by choice, not by capacity: gear 3
+  allowed k=3, but cycle 70's finding — files_hint disjointness is NOT test disjointness —
+  makes a concurrent second item a live contamination risk on the exact gate that matters
+  most this cycle. One item, read closely, beat three items and a noisy gate.
+models: T-160 sonnet (escalated haiku -> sonnet at cycle 71's failure, per the routing
+  ladder; gear 3 is table-as-is with demote FALSE, so nothing pulled it back down). A gear-2
+  demote would have returned this item to the exact tier that fabricated the claim — the
+  escalation ladder is a correctness mechanism and outranks a cost mechanism on a
+  doc-truth item at attempts 1. The gear moved to 3 before the pick, so the conflict did
+  not arise; recorded because it nearly did.
+dispatch: ONE DIRECT Agent call, not the Workflow tool — headless -p session spawned by
+  bin/swarm-pacer.sh, where Workflow is review-gated (documented SKILL.md fallback).
+playbook prompt lines: the 2 all-role lines (L-008 sole committer, L-042 sealed gate)
+  appended verbatim to the builder prompt; craft.docs from swarm-craft.mjs (degraded: [])
+  informed its style section. craft.ui not passed — no UI surface.
+
+budget/gear: NO probe attempted this cycle, deliberately. probe_failures is 5 (>= 3), and
+  `now - last_real_probe_ts` was 464s at cycle open, well inside the 1800s re-probe window
+  cycle.md step 1 mandates — so the correct action was not to invoke, and probe_failures
+  stays 5 rather than being inflated by an attempt the rules forbade. Gear computed by
+  hand from runs/allocator.json (ok=true, source=probe, pacer-refreshed) against
+  swarm-budget.sh's own ladder, read from the script at lines 129-140:
+    weekly_used 10.0 / week_elapsed 7.918 -> weekly_heat 1.26  (was 1.3007 at cycle 71)
+    opus_used 4      / week_elapsed 7.918 -> opus_heat   0.51
+    heat 1.26 is > 1.1 but NO LONGER > 1.3 -> ceiling 3, promote_blocked FALSE
+  The week's elapsed fraction advanced while weekly_used held at 10.0, so the governor
+  RELAXED on its own. Window rho remains UNMEASURED (it needs the denied ccusage probe),
+  so the evidence rule lands cruise, and cruise is now reachable: gear_target 3, ceiling 3,
+  hysteresis one step -> gear 2 -> **gear 3**, k_cap 3, demote FALSE, promote FALSE.
+  Back to cruise after one cycle out of it.
+
+control: bin/swarm-notify.sh poll ran clean (18:19:39, merged=0). runs/control.json
+  pending[] and applied[] both empty; the file carries no inject[] array. Nothing to apply,
+  nothing to triage.
+
+KI-2, incidentally re-confirmed by real work rather than by a probe: this cycle's ARM-A
+  driver was first written as a shell script and invoked as `bash /opt/swarm/runs/c072-armA.sh`.
+  DENIED — "This command requires approval". That is T-162's finding (a), the `bash ` prefix
+  breaking the leading-token match, reproducing in ordinary use rather than in a measurement.
+  It was re-authored as a node script (node is allowlisted) and ran. Worth recording because
+  the denial's cost is not the probe it blocks; it is the ordinary tooling it silently
+  reshapes.
+
+---
+
+### T-160 — VERIFIED. Attempt 2 passed, two-arm proven.
+
+Gate `/opt/swarm/runs/c072-gate-T160-v2.mjs`
+  sha256 e3388a77b3bd72cf2febcbd247a94d9c89035589b23b5024414ad6871dac1c4b
+  v1 `/opt/swarm/runs/c072-gate-T160.mjs`
+  sha256 5fbeb1237e5757ffd0bd69202e3c223b8cc9fd308404ab91777f73dc9aaf14ef
+v1 was authored at 18:23:11Z, ~2 minutes AFTER the builder was dispatched, and never
+existed in any form the builder could reach. Full transcript:
+`.swarm/runs/cycle-072-verify-T160.txt`.
+
+**The instrument failed before the work did, and the two are not the same fact.**
+
+v1 returned FAIL with 12 failures against the builder's tree. Every single one was a bug in
+the gate; not one was a finding about the work. Diagnosed against the tree BEFORE anything
+was rewritten, because "the gate failed" read as "the work failed" is precisely how a
+correct item gets wrongly reverted — cycle 71 reverted T-160 rightly, and this cycle would
+have reverted it wrongly on identically-shaped surface evidence.
+
+  1. the NAMED-citation regex excluded a leading backtick in its lookbehind, so every
+     BACKTICKED citation — the document's dominant form — was invisible: 11 enumerated,
+     not 15. Fixing it made the gate STRICTER by 4 citations.
+  2. `node --test` prints "i tests 155", not "# tests 155". Live count parsed as a -1
+     sentinel and every count comparison then failed against garbage.
+  3. the count sweep flagged HISTORICAL counts (102/102 at v0.1.0, 145/145 run 1, 148/148
+     run 2, cycle 47's mutation arithmetic) as stale. Narrowed to the how-to-run block,
+     which is what the acceptance clause names — and the narrowing is COMPENSATED, not
+     silent: every other count mention is now printed for the conductor to read.
+  4. `git status --porcelain` was trimmed whole, eating the first line's leading space, so
+     slice(3) sheared the path's first character ("EPORT.md").
+
+Direction of the fixes matters and is stated: three made the gate stricter or neutral; the
+one that narrowed a check prints what it dropped instead of discarding it. v1 is kept on
+disk unchanged beside v2 so the instrument has its own audit trail.
+
+VERIFICATION EVIDENCE — ARM A, the same gate against HEAD. It MUST fail or ARM B proves
+nothing:
+```
+$ node /opt/swarm/runs/c072-armA.mjs
+ARM B file saved; sha256=3c0bfce23d15c3fd18bc25e5fa9c4a87bff85e46de3cd730c88cb3d443e8e573
+reverted to HEAD;  sha256=b13c7817f5ab11b84e11909517c066c11024d6598e0f8769058f3affadee40ae
+MECHANICAL VERDICT: FAIL — 9 failure(s)
+  [B] capture at REPORT.md:22-25 is NOT byte-identical to the live binary
+  [C] how-to-run block claims "# 148 tests" but the live suite reports 155
+  [D] REPORT:171 still carries the "zero pushes" assertion
+  [D] REPORT:292 still carries the "no push notification was sent" assertion
+  [D] REPORT:374 still carries a stats row still reporting 0 notifications
+  [D] REPORT:374 still carries the "not configured on this host" claim
+  [D] REPORT:423 still carries the "three degraded subsystems" narrative
+  [D] REPORT.md never states the real run-2 push count (4)
+  [E] REPORT.md is unchanged — the item produced no work
+restored; sha256=3c0bfce2...e573   RESTORE VERIFIED: byte-identical to the builder's file
+```
+
+VERIFICATION EVIDENCE — ARM B, the same gate against the builder's tree:
+```
+$ node /opt/swarm/runs/c072-gate-T160-v2.mjs
+ENUMERATED 15 citation instances (named=13, bare=2)
+  REPORT:187  `:281` (-> src/astro.js)  -> throw new TypeError('computeMoon expects a valid
+  REPORT:243  README:194                -> guarantees they stay in step forever. Over the ha
+  ... 13 more, every one resolving to non-blank cited content ...
+CAPTURE byte-identical to `node bin/moon.js` (REPORT.md:22-25, 63 bytes)
+SUITE tests=155 pass=155 fail=0
+  how-to-run block (REPORT.md:356-363) claims "# 155 tests" — matches live 155
+NOTIFY count stated at REPORT:301: ... records four successful pushes — auto-kickoff,
+KI-2 row still names budget + playbook as blocked: OK
+SCOPE working tree touches: REPORT.md
+MECHANICAL VERDICT: PASS (15 citations, capture, 155 tests, notification truth)
+```
+
+Three independent enumerations now agree on 15 (13 named + 2 bare): the PLAN seat's, cycle
+71's gate, and this one. The count dispute recorded in the item's notes is settled; the
+original grep's 13 missed exactly the two bare shorthands.
+
+STATED LIMIT of the A-check, so it is not read as stronger than it is: it verifies a
+citation RESOLVES to a non-blank line, not that the line is semantically APT. Aptness is a
+read, and here the two arms put it side by side, which is what makes the README correction
+evidence rather than assertion:
+```
+ARM A (HEAD)     REPORT:239  README:184 -> Independently checked properties:
+ARM B (builder)  REPORT:243  README:194 -> guarantees they stay in step forever. Over the
+                                           half-open range of years **1000-3000**,
+```
+
+**Sub-goal 4 — the conductor's own read. No script decides this one.** All three
+notification sites are now true and all three explicitly REFUSE to assert a cause, which
+is exactly what attempt 1 fabricated:
+```
+REPORT:304  "Why the log goes silent there is not established by anything on record and is
+             not asserted here."
+REPORT:386  "| Notifications sent | **4, then stopped.** ... then goes silent, polls
+             included, at 14:11:03Z — roughly 16 hours before the run ended ... Why the log
+             stops there is not established by the record. |"
+REPORT:175  KI-2 row: notifications removed from its degraded list, budget + playbook kept,
+             "which KI-2 does not explain."
+```
+Every underlying fact was re-measured by the conductor, not taken from the builder: the
+archived log's four `send ... ok` lines, its mtime equal to its last entry (nothing
+appended after), `.ntfy.json` at 144 bytes, and settings.json lines 6-7. The builder also
+self-reported a FOURTH correction beyond its brief — "the allowlist gap has now degraded
+three separate subsystems" -> "still blocks two separate subsystems" — which is the
+enumerate-then-report behaviour attempt 1 claimed and had not done.
+
+### A pre-existing doc error found while reading — filed as T-164, NOT charged to T-160
+
+The corrected text says the four pushes landed "inside the run's first 31 minutes". True
+against the log's first entry (13:20:09) — but REPORT.md:7 dates run 2's start at **13:37**,
+which would put the 13:20:10 auto-kickoff push 17 minutes before the run began. One of the
+pair had to be wrong, so it was measured rather than argued:
+```
+$ python3 /opt/swarm/runs/c072-run2-start.py
+  1786886410  2026-08-16T13:20:10Z  mtime=2026-08-16T13:38:31Z
+    | Kickoff complete and cycle 48 landed. Three things worth your attention...
+  archived notify log first entry: 2026-08-16T13:20:09+0000 poll ok init cursor=now
+```
+Three independent agreements put the kickoff at 13:20:10Z: the kickoff log's filename
+epoch, its own first line naming cycle 48 (REPORT's stated run-2 range is cycles 48-65),
+and the auto-kickoff push. 13:37 sits near that log's MTIME (13:38:31) — when the kickoff
+session finished WRITING, not when it started, which is likely how the error was made and
+is worth checking for in the sibling rows. Run 1's line (15:32) DOES match
+kickoff-1786721548 = 2026-08-14T15:32:28Z, so this is not a systematic offset.
+
+Pre-existing, on a line T-160 was never scoped to touch, and the builder's own new text is
+the CORRECT half of the pair. Failing the item for it would punish the attempt that made
+the error visible; fixing it inline would have shipped an unverified edit inside a verified
+item. Filed as T-164 with the method, not the answer alone.
+
+---
+
+### VALUE_LOOP judgment — the one cycle 71 handed forward
+
+Cycle 71 closed by saying that once T-160 landed the backlog would be empty with ~22h left,
+and that DONE was the likely honest reading. Discharged now, and the answer is *not yet*,
+for a reason cycle 71 did not have in view.
+
+The SPEC's **definition of done is MET**, all six clauses, each traced to a verified cycle:
+```
+T-153 / T-155 / T-156 closed with two-arm proofs      -> done, cycle 68
+flag-interaction matrix, survivors HOLE vs BOUNDARY   -> done, cycles 69-70
+every line-cited + output-cited doc claim re-verified -> README T-159 c70; CONTRACTS T-161
+                                                         c70 (9/9); REPORT T-160 c72
+KI-2 closed or re-measured with the exact refusal     -> T-162, cycle 71
+suite green, never below the 148 baseline             -> 155/155 (measured this cycle)
+no dependencies key, no lockfile, no node_modules     -> all three ABSENT (measured):
+    $ python3 -c "...json..."  dependencies: ABSENT   devDependencies: ABSENT
+    $ ls package-lock.json node_modules -> No such file or directory (both)
+```
+
+But cycle.md's step-4 **gate 4 has not been satisfied in this run at all**: ONE review-fix,
+ONE QA, ONE TASTE pass are owed before POLISH and before VALUE_LOOP opens, and the newest
+of the three is 26 cycles and two runs old —
+`last_review_fix_cycle 23 · last_full_qa_cycle 46 · last_taste_cycle 1`. Declaring DONE now
+would be declaring it on the strength of the build waves' own gates alone, having never
+once looked at the product from outside them this run. That is the same shape of error the
+gate step exists to prevent.
+
+So: NOT done, and the remaining clock has honest work in it. Recommended order, left as a
+recommendation because the next cycle owns the call with fresher probe data —
+**73 review-fix** (least-recently-run, 49 cycles of change since, most likely to find
+something real), **74 T-164** plus any reproduced findings that trace, **75 QA full**,
+**76 TASTE**, then POLISH and a re-opened VALUE_LOOP.
+
+One constraint binds all of them and is written down now so it is not rediscovered at 3 AM:
+the SPEC's traceability rule ("every work item must trace to a recorded survivor, a failed
+doc re-verification, or the flag-interaction axis") governs what may be BUILT, not what may
+be LOOKED AT. The passes are verification and cost little; a finding that does not trace
+gets RECORDED for a human or the next run, never built into this one. T-164 traces via
+route (2) and is the only currently-open item that does.
+
+---
+
+wave autotune: the wave was CLEAN — 0 reverts, 0 failed verifies. wave_streak 0 -> 1;
+  k_current unchanged at 3 (the +1 lands at streak 2).
+churn breaker: consecutive_no_value stays 0 — T-160 delivered verified value.
+
+state: phase BUILD -> QA, cycle 72. Backlog 65 items: 64 done, 1 todo (T-164, attempts 0,
+sonnet). Known issues 5, unchanged — KI-2's `what` field already carried T-162's measured
+root cause and needed no edit.
+
+outcome: 1 item verified two-arm (T-160, the run's last must-have), 1 pre-existing doc
+error measured and filed (T-164), the run's definition-of-done confirmed met while gate 4
+is confirmed NOT met. 155/155 green.
+
+next: cycle 73 = review-fix pass (gate 4, first of three). The backlog's only todo is
+T-164, S-effort and traceable, which the following cycle can absorb alongside whatever
+review-fix reproduces.
+
+runfile-mirror: {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00","usage_reset_at_note":"ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed","model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3","heartbeat":{"ts":1786991808,"next_wakeup_at":1786991898,"pid":1840562,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"thermostat","dial":0.5},"budget":{"source":"clock+allocator","gear":3,"gear_target":3,"ratio":0.0,"mode":"thermostat","k_cap":3,"promote":false,"demote":false,"window_tokens":0,"window_cost_usd":0.0,"api_cap_usd":null,"api_spend_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786991808,"last_real_probe_ts":1786990233,"probe_failures":5,"gear_evidence":"cycle 72: NO probe attempted \u2014 probe_failures 5 (>=3) and now-last_real_probe_ts was 464s at cycle open, inside the 1800s re-probe window, so cycle.md step 1 forbids the invocation. probe_failures stays 5 rather than being inflated by an attempt the rules barred. allocator.json MEASURED (ok=true, source=probe): weekly_used 10.0 pct at week_elapsed 7.918 pct -> weekly_heat 1.26; opus_used 4 pct -> opus_heat 0.51; dial 0.41. Applying swarm-budget.sh lines 129-140 by hand: heat 1.26 is >1.1 but NO LONGER >1.3 (it was 1.3007 at cycle 71), so the governor RELAXES the ceiling 2 -> 3 and un-blocks promote; opus_heat 0.51 < 1.2 so no opus block. The week elapsed while weekly_used held at 10.0, which is what cooled it. Window rho remains UNMEASURED (needs the denied ccusage probe), so the evidence rule lands cruise \u2014 and cruise is now reachable. Hysteresis one step: gear 2 -> 3, k_cap 3, demote False. Back to cruise after one cycle out of it.","weekly":{"ok":true,"weekly_used_pct":10.0,"opus_used_pct":4,"week_elapsed_pct":7.918,"weekly_heat":1.26,"opus_heat":0.51,"ceiling":3,"promote_blocked":false,"source":"runs/allocator.json ok=true source=probe (pacer-refreshed); heat + ceiling computed by hand from its fields because bin/swarm-budget.sh is denied (KI-2)"}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":6,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043"],"vetoed":[],"source":"learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)","not_wired":{"ids":["L-011","L-018","L-020","L-021","L-022"],"why":"all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."},"ledger_line_blocked":"record-applied could not run (KI-2) -- third consecutive run","directives":{"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"reviewer":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
