@@ -7685,3 +7685,131 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"done","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-17T04:59:59+00:00","usage_reset_at":"2026-08-17T04:59:59+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1786948059,"next_wakeup_at":0,"pid":1350929,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"clock","gear":1,"gear_target":1,"ratio":0,"mode":"guest","k_cap":1,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786948059,"last_real_probe_ts":1786906571,"probe_failures":8,"gear_evidence":"cycle 66 WRAP_UP: no probe attempted -- bin/swarm-budget.sh is still denied by the Bash allowlist (KI-2), so probe_failures holds at 8 and last_real_probe_ts is unchanged. The run did not end on a gear decision: it ended on the weekly cap. Cycle 65 took a 429 mid-turn at 20:02 UTC after $4.38 and 62 turns (its commit f45f2d6 and journal block both landed), and the five pacer spawns after it (20:08, 22:10, 00:11, 02:13, 04:15) each died at 429 in under a second with total_cost_usd 0, before any Agent call -- records in runs/cycle-1786910898.json and four siblings. heartbeat.limp stayed false throughout because limp is entered by the tier probe, which needs a session alive enough to make four Agent calls; these sessions never got a turn. Not corrected retroactively: the flag records what the run observed, and it observed nothing. runs/allocator.json now reads weekly_used_pct 0 / source none -- the week reset at 05:00, which is stop_at, so the fresh window belongs to the next run, not this one.","weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":97,"week_elapsed_pct":94.57,"weekly_heat":1.064,"opus_heat":1.032,"ceiling":null,"promote_blocked":true,"note":"ceiling stays null because bin/swarm-budget.sh still cannot run (KI-2), so no governor ceiling was emitted this cycle either. Gear 1 rests on the allocator posture, not on the weekly governor."}},"playbook":{"mode":"auto","applied":["L-003","L-006","L-007","L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-034"],"vetoed":[],"inert_for_this_target":["L-006","L-007","L-011","L-018","L-020","L-021","L-022"],"parse_source":"MANUAL. bin/swarm-playbook.sh parse was DENIED (KI-2); playbook/learnings.md was read directly and its [apply:] directives staged by hand. apply_mode auto and next_id 37 were read from the file header. No wave_k directive exists in the file, so k defaults to 3 (gear 1 caps the effective wave at 1 regardless). The record-applied ledger line cannot be written for the same reason and is journaled instead.","inert_note":"The seven inert lessons are staged as applied per auto mode but deliberately kept OUT of prompt_lines: they instruct browser/React behavior (open the page, hard-reload after restart, mount a component, clear persisted UI state, scan classic-script globals) and moon is a zero-dependency terminal CLI with no browser surface. Injecting them would hand a QA agent an instruction it cannot honestly follow.","directives":{"wave_k":3,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer \u2014 never commit or push yourself"],"reviewer":["The conductor is the SOLE committer \u2014 never commit or push yourself","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer \u2014 never commit or push yourself","Script a deterministic scenario with hand-computed expected outputs; eyeballing rendered numbers is not verification","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive \u2014 a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'."]}}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":true,"cycles_since_recycle":17,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 66-kickoff | 2026-08-17T16:12:20+00:00 | moon | PLAN
+work: KICKOFF of improvement run 3 (allocator auto-kickoff) — no build work this turn
+why: runs/kickoff-hints.json carried source=allocator, mode=thermostat, dial=0.50,
+  stop_at=1787068954, brief="harden tests, fix playbook items, polish docs — no new features",
+  and the idea text began "improve existing target /opt/targets/moon", so SKILL.md guard 1d
+  applied: interactive Q&A skipped, pacing/stop_at taken verbatim from the hints, existing
+  repo REUSED (no dir creation, no git init, no gh repo create). Hints file consumed and
+  deleted so it can never steer a later human kickoff.
+
+BASELINE MEASURED BEFORE ANY WRITE (not inherited from run 2's report):
+  $ node --test /opt/targets/moon/test/*.test.js
+  ℹ tests 148
+  ℹ pass 148
+  ℹ fail 0
+  ℹ duration_ms 2489.614915                                        PASS (148/148 green)
+
+STRESS-TEST (templates/kickoff/stress-pack.md): verdict proceed, confidence 7.
+  survived: product-not-demo (the whole work list is non-happy-path — two-arm failability
+    proofs, refuse-with-evidence outs, HOLE/BOUNDARY classification before hardening);
+    toy-version trap named and forbidden (a fourth broad re-sweep).
+  RESHAPED — this is the material change from the brief as queued: cut the opening mutation
+    sweep entirely. All five source files were already swept in runs 1-2, so a fourth pass at
+    the same granularity re-derives an existing survivor list. The run opens instead on the
+    three survivors run 2 MEASURED but never dispatched (T-153, T-155, T-156 — T-155 is
+    M-effort and gear 1 never admitted it), extends measurement only to the one uncovered
+    axis (flag INTERACTIONS), and attempts the KI-2 repair at the kickoff carve-out.
+
+PRIOR-ART SCOUT (templates/kickoff/scout-method.md, 3 of 6 searches spent deliberately):
+  stryker-mutator/stryker-js — 3018 stars, Apache-2.0, pushed 2026-08-15. GREP-VERIFIED past
+  the README: `gh api repos/stryker-mutator/stryker-js/contents/packages` lists `tap-runner`,
+  and the vendor docs confirm it drives node's built-in test runner via TAP. So it would
+  genuinely mechanize this repo's hand-rolled sweeps and produce a real mutation score.
+  stance: BUILD (keep conductor-authored targeted mutants). why: cost-of-dependency in a repo
+  whose selling point is zero deps (devDep tree + lockfile, which the housekeeping brief does
+  not authorize), and a generic operator set would not have found T-155 — that is an
+  oracle/exactness gap, not an operator gap. Recorded as a decision so it is not re-litigated
+  every run; the condition that would change the call is a brief that authorizes devDeps.
+
+TASTE JUDGE (fresh fable subagent, spec text only, no kickoff transcript):
+  use-twice 5 · product-not-demo 8 · scope-fits-night 7 · one-memorable-thing 3
+  verdict: "Worth the night only if maintenance is what the night is for — the traceability
+  rule and pre-measured targets make this the rare third housekeeping run that isn't churn,
+  but it hinges on accepting that one-memorable-thing is absent by design."
+  ACCEPTED, not disputed, and written into the SPEC's taste notes. The 3/10 is correct:
+  nothing a user can see changes tonight. Named alternative that WOULD clear it — a glyph-set
+  redesign closing KI-5 for real — is feature-shaped and the brief forbids it, so it is
+  recorded as a non-goal rather than quietly omitted.
+
+PLAYBOOK: apply_mode auto, 15 apply-able lessons staged (L-008, L-011, L-016, L-018, L-020,
+  L-021, L-022, L-024, L-026, L-029, L-031, L-033, L-034, L-042, L-043).
+  Parsed BY HAND — `/opt/swarm/bin/swarm-playbook.sh parse` was DENIED (KI-2), so the
+  record-applied ledger line cannot be written for a THIRD consecutive run.
+  5 of the 15 staged lessons are deliberately NOT wired into prompt_lines (L-011, L-018,
+  L-020, L-021, L-022): all five instruct browser/React/SPA behaviour and moon is a
+  zero-dependency terminal CLI with no browser surface. Same call run 2 made and reported as
+  not-exercised. Wired: 2 all-role lines (L-008 sole committer, L-042 sealed gate), 1 reviewer
+  line (L-016 disjoint fixer scopes), 6 qa lines (L-034 refute, L-024 discriminator, L-029
+  two-arm, L-031 mutation-measure, L-033 HOLE/BOUNDARY, L-043 no-prose-regex), and one
+  routing recommendation (L-026 core-logic->fable).
+
+KI-2 RE-MEASURED — three refusals at this kickoff, all recorded rather than worked around:
+  $ /opt/swarm/bin/swarm-playbook.sh parse
+  -> This command requires approval                                DENIED
+  $ /opt/swarm/bin/swarm-budget.sh
+  -> This command requires approval                                DENIED
+  $ Edit /opt/swarm/.claude/settings.json (add 4 absolute-path allow entries)
+  -> Claude requested permissions to write ... but you haven't granted it yet.   DENIED
+  The third one is the important one: that edit is the SANCTIONED kickoff carve-out in hard
+  rule 5 and the ONLY path by which KI-2 could close from inside a run. Third consecutive
+  kickoff it has been refused. KI-2 is therefore structurally unclosable by the swarm.
+  DELIBERATE NON-ACTION, stated so a reader knows it was considered: python3 and node ARE
+  allowlisted and either could have written settings.json. The conductor did not use them.
+  Routing around a denied permission with a second tool would have produced a green artifact
+  over a boundary the user never granted. The exact patch a human needs is four lines:
+    Bash(/opt/swarm/bin/swarm-budget.sh:*)
+    Bash(/opt/swarm/bin/swarm-playbook.sh:*)
+    Bash(/opt/swarm/bin/swarm-notify.sh:*)
+    plus the bin/... relative twins.
+  Consequences carried by THIS run: budget.source="clock" and gear 3 is the fresh-run cruise
+  default, NOT a measurement (gear_evidence records this verbatim in the runfile);
+  usage_reset_at is an ESTIMATE (no block start observed); no playbook ledger line.
+
+HEADLESS ZERO-PROMPT ASSERT (SKILL.md step 11): COULD NOT RUN — `claude` is not in the Bash
+  allowlist, so the nested `claude -p "/swarm status ..."` call was denied. Reported as
+  not-run, never as passed. Risk assessment, honestly bounded: LOW, because the pacer path is
+  independently proven rather than assumed — bin/swarm-pacer.sh spawned 18 conductor cycles
+  on this same host during run 2 (runs/pacer.log), which is the same mechanism a watchdog
+  relaunch uses. What is unverified is specifically the --add-dir/permission scope of a
+  relaunch spawned from THIS session's settings, and that is what a human could confirm in
+  one command.
+
+INFRASTRUCTURE: Linux/VPS — caffeinate step skipped entirely (servers do not sleep,
+  caffeinate_pid left 0). swarm-pacer.timer enabled+active and swarm-watchdog.timer enabled,
+  both asserted via systemctl, so watchdog.plist_loaded=true. Artifact tool absent in this
+  headless session, so runs/dashboard.html IS the publication (caddy serves it) — rendered,
+  44230 bytes, all 12 template anchors filled, 0 unfilled.
+
+SPEC: .swarm/SPEC.md REPLACED for run 3. Run 2's spec preserved verbatim at
+  .swarm/SPEC-improve-2026-08-16.md and run 2's retro at .swarm/RETRO-improve-2026-08-16.md
+  BEFORE either was touched — archived, never overwritten (run 2's own lesson).
+  Every must-have, non-goal and taste note of the 2026-08-14 spec, the 2026-08-16 spec and
+  the original build spec (tag v0.1.0) remains binding; this file scopes only what may change.
+
+STATE: phase PLAN (the DESIGN gate is already satisfied — 113 prior decisions on record; the
+  PLAN gate holds because the run-3 must-haves are not yet covered by backlog items).
+  Backlog INHERITED, not wiped: 57 items, 54 done, 3 todo — and those 3 todo are exactly
+  T-153/T-155/T-156, this run's primary targets. counters reset for a fresh run:
+  consecutive_no_value 0, k_current 3 (run 2 left it at 5 but never exercised it above 1
+  under a gear-1 cap all night, so 5 was never earned evidence — a fresh run starts at the
+  documented default), wave_streak 0. 4 run-3 decisions appended (117 total).
+
+PACING: thermostat, dial 0.50, gear 3 cruise. The material difference from run 2: a FRESH
+  weekly window — allocator reports posture=normal, weekly_used_pct=6.0, opus_used_pct=0,
+  allow_premium_pct=15.13, week_resets_at=1787547600 (2026-08-24T05:00Z). Run 2 died at
+  100%/97%. stop_at 2026-08-18T16:02:34Z sits ~5.5 days INSIDE the weekly boundary, which
+  satisfies L-038 (never set stop_at on the reset boundary) — run 2's stop_at sat exactly on
+  it and spent its whole tail in the emptiest part of the window.
+  M-effort work is dispatchable this run for the first time, which is what makes T-155
+  reachable at all.
+
+next: cycle 67 — inline PLAN pass converting the run-3 must-haves into backlog items
+  (T-153/T-155/T-156 already exist; the flag-interaction matrix, the doc-claim
+  re-verification sweep, and the KI-2 outcome need items).
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00","usage_reset_at_note":"ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed","model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3","heartbeat":{"ts":1786982988,"next_wakeup_at":1786983588,"pid":0,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"thermostat","dial":0.5},"budget":{"source":"clock","gear":3,"gear_target":3,"ratio":0.0,"mode":"thermostat","k_cap":3,"promote":false,"demote":false,"window_tokens":0,"window_cost_usd":0.0,"api_cap_usd":null,"api_spend_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1786982988,"last_real_probe_ts":0,"probe_failures":1,"gear_evidence":"bin/swarm-budget.sh DENIED at kickoff (KI-2, third run running). Gear 3 is the fresh-run cruise default, NOT a measurement. Posture context from runs/allocator.json: posture=normal, weekly_used_pct=6.0, opus_used_pct=0, week_elapsed_pct=6.573, allow_premium_pct=15.13, dial=0.50 -- a fresh weekly window, which is the material difference from run 2 (it died at 100%/97%).","weekly":{"ok":true,"weekly_used_pct":6.0,"opus_used_pct":0,"week_elapsed_pct":6.573,"weekly_heat":0.91,"opus_heat":0.0,"ceiling":5,"promote_blocked":false,"source":"runs/allocator.json (probe denied)"}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":0,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043"],"vetoed":[],"source":"learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)","not_wired":{"ids":["L-011","L-018","L-020","L-021","L-022"],"why":"all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."},"ledger_line_blocked":"record-applied could not run (KI-2) -- third consecutive run","directives":{"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"reviewer":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
+```
