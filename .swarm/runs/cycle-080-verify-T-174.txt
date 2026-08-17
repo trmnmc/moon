@@ -1,0 +1,33 @@
+C1 product-scope files touched: ["REPORT.md"]
+ok   C1: only REPORT.md changed
+C2 differing line indices (0-based): [368]
+   - HEAD[369]: "node --test test/*.test.js    # 155 tests"
+   + WORK[369]: "node --test test/*.test.js    # 161 tests"
+ok   C2: exactly one line changed and it is the how-to-run annotation (line 369)
+ok   C2b: historical figure preserved: "102/102 tests green"
+ok   C2b: historical figure preserved: "**145/145 tests"
+ok   C2b: historical figure preserved: "**148/148 tests green**"
+ok   C2b: historical figure preserved: "The three tests that were added (145 → 148)"
+ok   C2b: historical figure preserved: "| Tests | 145 → **148**"
+ok   C3: the documented command is still `node --test test/*.test.js`
+ok   C4: claimed figure extracted: 161
+C5 aggregate run tail:
+ℹ tests 161
+ℹ suites 0
+ℹ pass 161
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3086.819678
+ok   C5: documented command reports tests 161 / pass 161 / fail 0
+C6 per-file counts: args.test.js=33 astro.test.js=26 cli.test.js=22 contracts.test.js=11 hemisphere.test.js=14 manifest.test.js=5 regressions.test.js=18 render.test.js=32  sum=161
+ok   C6: independent per-file sum agrees with the aggregate (161 == 161)
+ok   C7: the annotation (161) is reproduced by BOTH derivations
+C8 old annotation figure: 155
+ok   C8: the stale figure 155 is gone and did not match the tree (non-vacuous fix)
+C9 NOT VERIFIABLE FROM THE ARTIFACT: whether the figure was regenerated from a live run or
+   hand-typed is not observable in the diff. What IS verified is that it is TRUE under two
+   independent derivations. Reported as a limit, never as a passed check.
+
+GATE T-174: PASS

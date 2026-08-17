@@ -10593,3 +10593,150 @@ runfile-mirror:
  "watchdog":{"mode":"normal","plist_loaded":true},"caffeinate_pid":0,
  "wrap_up_complete":false,"cycles_since_recycle":13}
 ```
+
+## cycle 80 | 2026-08-17T23:08:01+00:00 | moon | QA
+
+work: build-wave k=2 — **T-173** (the vacuous membership loop in the Indian/* hemisphere test)
+  and **T-174** (REPORT.md's how-to-run block annotating the test command `# 155 tests`, a live
+  instruction to a reader that matched neither the tree nor its own document).
+outcome: BOTH VERIFIED, 0 reverted, suite 161/161 conductor-run. With these two, **every SPEC
+  must-have is closed** and the backlog holds one todo, which this run's own record forbids
+  building. The target was NOT declared done — two gates remain unrun (TASTE, VALUE_LOOP scan).
+why: gear 2 (cap 2) puts must-haves before polish. T-174 is priority 2 and traces to the
+  must-have "every line-cited and output-cited doc claim re-verified"; T-173 traces to source (1),
+  a survivor already on record (review-fix cycle 73, reviewer A finding 3). T-175, the only other
+  todo, carries a recorded DO-NOT-BUILD verdict on traceability grounds and was not considered.
+
+dispatch: DIRECT Agent calls (Workflow is review-gated in a `-p` session — documented fallback),
+  **run SEQUENTIALLY, not concurrently**, and T-173 was gated AND COMMITTED before T-174 was
+  dispatched. Their files are disjoint (test/hemisphere.test.js vs REPORT.md) so the composition
+  rule admits them as a pair, but T-174's acceptance is a MEASUREMENT OF THE WHOLE TREE — the test
+  count printed by `node --test test/*.test.js` — and T-173 edits a file that command reads. A
+  concurrent T-174 builder could have sampled the suite mid-edit and pasted a number true of no
+  committed tree. Cycle 79 recorded the semantic form of this hazard; the concurrent form is worse
+  because it is a race rather than a predictable delta. Recorded as a decision: **file-scope
+  disjointness is necessary but not sufficient for wave concurrency — an item whose acceptance
+  measures a global property of the tree conflicts with every item that can move that property,
+  whatever files each touches.**
+models: T-173 haiku (kind polish/S — table row, gear-2 floor); T-174 sonnet (kind fix — the table
+  routes fix/S to sonnet, and gear-2 demotion never drops build/fix below sonnet, which also
+  settles the open question cycle 10 left for the retro about haiku on doc items in this repo).
+craft pack: `swarm-craft.mjs` ran clean, `degraded: []`. Neither item is UI-flagged (no .html/.css/
+  .jsx path, no UI surface in either title), so no craft splice applied.
+
+GATES SEALED BEFORE DISPATCH, hashes re-checked after the builders returned:
+  T-173 v1 sha256 e51c9645fcea689343e2d36a1226b845e04a9453ab0883ad46b2eff8003cf793
+  T-173 v2 sha256 5e52551d90e1bd0e6deabbd614bd2b50017dbeb0a933900b0c96eaf9c7799470  (instrument repair)
+  T-174    sha256 889a719f79400976fc6b8910505475cfb99e0ee089534bc72309b7271bf58c40  (unchanged, verified after)
+
+INSTRUMENT REPAIR — the T-173 gate's four flags were ALL MINE, and two were VACUOUS PASSES:
+  v1's pair regex demanded a second `)` that `assert.strictEqual(detectHemisphere('X'), 'south')`
+  has not, so it extracted 0 pairs from BOTH revisions and C4 reported "no zone lost its equality
+  check" while measuring nothing. v1's mutation regex assumed ESM (`export function`); the repo is
+  CommonJS, so the M1 mutant was never applied, all three arms ran unmutated, and C5 reported "the
+  loop is DECORATION" off a run that proved nothing. **A gate that passes because it measured
+  nothing is worse than one that fails — it looks validated.** Fifth instance this run of my own
+  instrument being narrower than what it measures (cycles 8, 9, 19, 29). Per that standing
+  precedent every widening was paid for with a STRICTLY STRONGER check, never a relaxed one:
+   - C4 now SELF-TESTS the extractor on known-good input (it must find the five known Indian pairs
+     in HEAD, and the block is VOID if it cannot). It found 43 pairs.
+   - M1 is now proven applied BEHAVIOURALLY — load the mutant, observe `south|south -> north|north`
+     — not inferred from a regex having matched. Control failure now VOIDS every arm as a hard FAIL.
+   - ARM C must report exactly 1 PASSING test, so a module-system load error (0 passing) can no
+     longer masquerade as "the loop survives the mutant".
+  Generalizable: **a vacuity guard must be a POSITIVE control on known-good input, because a check
+  that extracts nothing and a check that finds no violations return the identical verdict.**
+
+VERIFICATION EVIDENCE:
+  T-173 (gate 5e52551d) — full output .swarm/runs/cycle-080-verify-T-173.txt
+    ok C1: only test/hemisphere.test.js changed        ok C0: 13705 -> 13519 bytes
+    ok C2: tests 161 / pass 161 / fail 0 — count invariant held
+    ok C3: test() declarations unchanged (14)
+    ok C4-self: extractor validated on known-good input (43 pairs found in HEAD)
+    ok C4: before=43 after=43 lost=[]                  ok C4b: all five Indian/* expectations intact
+    [CONTROL unmutated] detectHemisphere('Australia/Sydney')|('Indian/Mahe') = south|south
+    [CONTROL mutated M1]                                                     = north|north
+    [A: HEAD tests + M1] tests=14 pass=4 fail=10   [B: NEW tests + M1] tests=14 pass=4 fail=10
+    [C: extracted loop ONLY + M1] tests=1 pass=1 fail=0
+    ok C5: the removed loop is DECORATION — it PASSES 1/1 against a constant-returning detectHemisphere
+    ok C6: M1 still dies (A=10, B=10) and no test stopped catching it (lost kills: [])
+    ok C6b: the Indian/* test itself still kills the mutant   ok C7: control green (14 passing)
+    GATE T-173 v2: PASS
+  T-174 (gate 889a719f) — full output .swarm/runs/cycle-080-verify-T-174.txt
+    ok C1: only REPORT.md changed
+    C2 differing line indices: [368] — EXACTLY ONE LINE
+      - HEAD[369]: "node --test test/*.test.js    # 155 tests"
+      + WORK[369]: "node --test test/*.test.js    # 161 tests"
+    ok C2b: 102/102, **145/145, **148/148**, "(145 → 148)", "| Tests | 145 → **148**" all preserved
+    ok C3: the documented command is unaltered        ok C4: claimed figure 161
+    ok C5: documented command reports tests 161 / pass 161 / fail 0
+    C6 per-file: args=33 astro=26 cli=22 contracts=11 hemisphere=14 manifest=5 regressions=18 render=32  sum=161
+    ok C6: independent per-file sum agrees with the aggregate (161 == 161)
+    ok C7: the annotation is reproduced by BOTH derivations   ok C8: stale 155 gone, non-vacuous
+    GATE T-174: PASS
+  test_cmd (conductor-run, whole suite): `node --test test/*.test.js` -> tests 161 / pass 161 / fail 0
+
+HONEST LIMIT (recorded in the T-174 evidence file, not claimed as a passed check): whether that
+  figure was regenerated from a live run or hand-typed is NOT observable in the diff. What is
+  verified is that it is TRUE, twice, by structurally different derivations.
+
+RESIDUAL WEIGHED AND NOT FILED: a hard-coded count in a how-to-run block goes stale on every future
+  test addition — it is decay-prone by construction (cycle 28's lesson: a figure is a liability
+  unless a test pins it). It is not filed as a further item: the acceptance required a reproduced
+  count, CI now runs the suite on every push (T-117), and filing a prose re-word is the
+  DIMINISHING-RETURN CHURN the spec digest names as this run's chief risk. Same disposition as
+  cycle 17's README readability residual.
+
+wave autotune: clean wave (0 reverts, 0 failed verifies) -> wave_streak 1 -> 2 -> `k_current` 4 -> 5,
+  streak reset 0. No practical effect: min(5, gear cap 2) = 2 binds, and `k_current` is once again
+  running ahead of anything this run has exercised (the overhang cycle 7 flagged against itself).
+
+hygiene (cycle 80, the 5th-cycle full pass): SPEC.md re-read end to end. Every must-have is now
+  covered by a done item — T-153/T-155/T-156 (done), T-157 flag-interaction matrix + T-158 HOLE
+  hardening (done), T-159/T-160/T-161 doc re-verification (done), T-162 KI-2 re-measure (done).
+  Backlog 76 items, 75 done / 1 todo; nothing to dedupe, nothing stale, well under the ~30 live cap.
+  Also fixed: `last_cycle` had been left at cycle 77 by cycles 78 and 79 — restamped to 80.
+
+control: `bin/swarm-notify.sh poll` ran clean; control.json pending=[] applied=[] inject absent.
+  Nothing to apply.
+
+budget: gear 2 (unchanged). REAL probe was due at 1934 s and was re-attempted — DENIED, KI-2, the
+  TWELFTH consecutive cycle. Controlled comparison reproduced a third time in the same shell and
+  cycle: `bin/swarm-notify.sh poll` succeeded in the byte-identical invocation shape, so the refusal
+  is specific to the swarm-budget.sh allowlist entry, not to relative paths, to bin/, or to the
+  sandbox. probe_failures 10 -> 11. Hand-computed from a pacer-fresh allocator.json (22:53:48Z):
+  weekly_heat 16.0/10.65 = 1.5023 (UP from 1.4535 — last cycle's cooling did not continue and the
+  heat is back above its cycle-78 level), opus_heat 0.8451, ceiling 2, promote blocked. rho
+  UNMEASURED -> evidence rule cruise 3, governor clamps to 2. Hysteresis did not bind.
+  **POSTURE CHANGE: the allocator flipped trickle -> NORMAL** (allow_premium_pct 0 -> 9.307,
+  allow_overall 0 -> 2.307, dial 0.30 -> 0.31). Eleven cycles of this run deferred premium work on a
+  0 pct premium allowance; that constraint has lifted. It does not move the gear (the weekly
+  governor clamps, not the posture) and it is moot for review-fix, which ran at cycle 73 — but it is
+  precisely the condition the queued TASTE pass needs, its one agent being a fable judgment seat the
+  fable guard forbids demoting in any gear.
+
+NEXT CYCLE IS QUEUED IN WRITING, so it is not left to a fresh session's judgement:
+  **cycle 81 runs the TASTE pass** (qa-verify.js, mode "taste"). `qa.last_taste_cycle` is 1 — run 1,
+  cycle 1 — so the taste gate has NEVER been exercised on this run, while review-fix (73) and full
+  QA (76) both have; cycle.md step 4 requires all three before POLISH. The trigger is specific, not
+  a box-tick: cycle 79 landed T-167, which changed the product's VISUAL CORE (a hair-thin crescent
+  that drew as three disconnected specks now draws as a contiguous arc), and the only thing that has
+  ever looked at it is a 40,000-render machine sweep counting broken arcs. Nobody has USED the
+  product since its rendering changed — exactly the defect class a green suite cannot see.
+  Counter-argument weighed: on a run whose non-goals forbid every feature, most boredom findings
+  will be feature-shaped and rejected en masse. That is a triage cost, not a reason to skip the
+  look; findings get triaged against the SPEC's three permitted sources and the rejected ones
+  journaled, not built.
+  AND: cycle 81 must NOT read the drained backlog as an exhausted value space (cycle 26's rule,
+  proved by cycle 27 finding a ratchet-PASSING candidate in a backlog that looked empty). A
+  VALUE_LOOP candidate scan is still owed before any DONE declaration. ~17 h remain to stop_at, so
+  nothing forces a shortcut. T-175 sitting as the sole `todo` is NOT pending work — its notes carry
+  a DO-NOT-BUILD verdict on traceability grounds; it is filed rather than dropped only so a future
+  run inherits the measurement instead of re-deriving it.
+
+commit: (this cycle, stamped below)
+next wakeup: 1787008081 (+90s)
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00","usage_reset_at_note":"ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed","model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3","heartbeat":{"ts":1787007991,"next_wakeup_at":1787008081,"pid":2007326,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"thermostat","dial":0.5},"budget":{"source":"clock+allocator","gear":2,"gear_target":2,"ratio":0.0,"mode":"thermostat","k_cap":2,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0.0,"api_cap_usd":null,"api_spend_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1787007991,"last_real_probe_ts":1787007991,"probe_failures":11,"gear_evidence":"cycle 80: the REAL probe was due (last_real_probe_ts 1934 s old, past the 1800 s window) and was re-attempted in the bare-relative form `bin/swarm-budget.sh` with cwd=/opt/swarm. DENIED again (KI-2, twelfth consecutive cycle). The controlled comparison was reproduced a THIRD time in the same shell and the same cycle: `bin/swarm-notify.sh poll` -- byte-identical invocation shape, same directory, same argument style -- SUCCEEDED. So the refusal is specific to the swarm-budget.sh allowlist entry and is not a property of relative paths, of bin/, or of the sandbox. probe_failures 10 -> 11; last_real_probe_ts RESTAMPED because this was a genuine attempt, not a clock run. Gear computed by hand from a pacer-fresh runs/allocator.json (refreshed 22:53:48Z): weekly_used 16.0 pct at week_elapsed 10.65 pct -> weekly_heat 1.5023, UP from 1.4535 at cycle 79 -- the one-cycle cooling seen last cycle did NOT continue, and the heat is back above its cycle-78 level. Still far over the 1.3 ceiling trigger. opus_used 9 pct -> opus_heat 0.8451. Ceiling 2, promote BLOCKED. Window rho UNMEASURED (no burn probe), so the evidence rule lands cruise 3 and the governor clamps to 2. Applied gear 2, unchanged; hysteresis did not bind. MATERIAL CHANGE WORTH FLAGGING: the allocator POSTURE flipped trickle -> NORMAL this cycle (allow_premium_pct 0 -> 9.307, allow_overall_pct 0 -> 2.307, dial 0.30 -> 0.31). Eleven cycles of this run deferred premium work on the strength of a 0 pct premium allowance; that constraint has lifted. It does NOT move the gear (the weekly governor, not the posture, is what clamps to 2) and it is moot for review-fix, which already ran at cycle 73 -- but it is exactly the condition the queued TASTE pass needs, since its single agent is a fable judgment seat that the fable guard forbids demoting in any gear.","weekly":{"ok":true,"weekly_used_pct":16.0,"opus_used_pct":9,"week_elapsed_pct":10.65,"weekly_heat":1.5023,"opus_heat":0.8451,"ceiling":2,"promote_blocked":true,"source":"runs/allocator.json ok=true source=probe (pacer-refreshed 22:53:48Z); heat + ceiling computed by hand because bin/swarm-budget.sh is denied (KI-2)"}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":13,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043"],"vetoed":[],"source":"learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)","not_wired":{"ids":["L-011","L-018","L-020","L-021","L-022"],"why":"all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."},"ledger_line_blocked":"record-applied could not run (KI-2) -- third consecutive run","directives":{"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"reviewer":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
+```

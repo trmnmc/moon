@@ -2,8 +2,8 @@
  "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
- "phase": "BUILD",
- "cycle": 79,
+ "phase": "QA",
+ "cycle": 80,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -764,6 +764,26 @@
   {
    "cycle": 79,
    "what": "Flagged T-167 route_class=\"core\" -> fable, exempt from the gear-2 demotion by the fable guard. Attempt 1 failed on exactly the judgment the cheaper tier got wrong (a fixed absolute cut on a sub-sample-quantized quantity), and choosing between a relative-eligibility fix and a resolution increase under a no-glyph-redesign non-goal is a correctness-core call, not a mechanical edit."
+  },
+  {
+   "cycle": 80,
+   "what": "T-173 and T-174 were dispatched SEQUENTIALLY inside one k=2 build wave, not concurrently, because T-174's artifact is a measurement OF the tree that T-173 edits.",
+   "why": "Their files_hint sets are disjoint (test/hemisphere.test.js vs REPORT.md), so the step-4 composition rule admits the pair and the no-worktree headless fallback's 'strictly disjoint file scopes' condition is met on its face. It is met only on its face. T-174's whole content is the test count printed by `node --test test/*.test.js`, and T-173 edits a file that command reads -- so a concurrent T-174 builder could sample the suite mid-edit and paste a number that was never true of any committed tree. Cycle 79 recorded this exact hazard in its semantic form (it deferred T-174 out of a wave with T-167 for the same reason) and the mechanical form is worse, because the window is a race rather than a predictable delta. The fallback's own wording offers the remedy -- 'strictly disjoint file scopes OR run them sequentially' -- so I ran T-173 first, gated it, COMMITTED it, and only then dispatched T-174 against a clean tree. Generalizable and worth a candidate lesson: file-scope disjointness is necessary but NOT sufficient for wave concurrency; an item whose acceptance MEASURES a global property of the tree conflicts with every item that can move that property, whatever files each touches."
+  },
+  {
+   "cycle": 80,
+   "what": "The sealed T-173 gate (v1, sha e51c9645) returned four flags. All four were defects in MY OWN INSTRUMENT, not in the artifact, and two of them were VACUOUS PASSES -- the dangerous direction. The instrument was repaired (v2, sha 5e52551d) and every widening was paired with a strictly stronger assertion.",
+   "why": "v1's pair-extractor regex demanded a second ')' that `assert.strictEqual(detectHemisphere('X'), 'south')` does not have, so it extracted ZERO pairs from BOTH revisions and check C4 then reported 'no zone lost its equality check' while measuring nothing at all. v1's mutation regex assumed ESM (`export function`); the repo is CommonJS (`function detectHemisphere(timeZone)` + `module.exports`), so the M1 mutant was silently never applied, all three mutant arms ran against UNMUTATED source, and C5 reported 'the removed loop is DECORATION' on the strength of a test run that proved nothing. A gate that passes because it measured nothing is worse than one that fails, because it looks validated. This is the FIFTH instance this run of my own instrument being narrower than the thing it measures (cycle 8's .trim() defect, cycle 9's sentence-scope defect, cycle 19's line-wrap defect, cycle 29's @returns/shorthand defect) -- the pattern is now the strongest candidate lesson this run has. Per that standing precedent every repair was paid for with a STRONGER check, not merely a corrected one: C4 now SELF-TESTS its extractor against known-good input (it must find the five known Indian pairs in the HEAD revision, and the whole block is VOID if it cannot -- it found 43 pairs); the M1 mutant is now proven applied BEHAVIOURALLY by loading the mutated module and observing south|south -> north|north, rather than inferred from a regex having matched, and if that control fails every mutant arm is a hard FAIL rather than a pass; and ARM C must report exactly 1 PASSING test, so a module-system load failure (0 passing) can no longer masquerade as 'the loop passes under the mutant'. The generalizable rule: a vacuity guard must be a POSITIVE control on known-good input, because a check that extracts nothing and a check that finds no violations produce the identical verdict."
+  },
+  {
+   "cycle": 80,
+   "what": "The run's ONE TASTE pass has never run and is queued as cycle 81's work, with the trigger recorded in writing rather than left to the next session's judgement.",
+   "why": "state.json's `qa.last_taste_cycle` is 1 -- run 1, cycle 1 -- so the taste gate has never been exercised on THIS run, while review-fix (cycle 73) and the full QA pass (cycle 76) both have. cycle.md step 4 requires all three before POLISH. The reason to run it now rather than record another deferral is specific and not a box-tick: cycle 79 landed T-167, which changed the product's VISUAL CORE -- a hair-thin crescent that used to draw as three disconnected specks now draws as a contiguous arc -- and the only thing that has ever looked at that change is a 40,000-render machine sweep counting broken arcs. No agent and no human has USED the product since its rendering changed. That is precisely the class of defect a green suite cannot see, which is the taste pass's whole reason to exist. The counter-argument I weighed: on a housekeeping run whose non-goals forbid every feature, most boredom findings will be feature-shaped and rejected en masse, which is itself churn. That is real but it is a triage cost, not a reason to skip the look -- and the SPEC's traceability rule already tells me how to dispose of them. Findings will be triaged against the three permitted sources and the rejected ones journaled, not built."
+  },
+  {
+   "cycle": 80,
+   "what": "With T-173 and T-174 verified, EVERY SPEC must-have is closed and the backlog's only remaining todo is T-175, which this run's own record forbids building. The target was NOT declared done, and cycle 81 must not read the drained backlog as an exhausted value space.",
+   "why": "T-153/T-155/T-156 (done), T-157 flag-interaction matrix and T-158 HOLE hardening (done), T-159/T-160/T-161 doc re-verification (done), T-162 KI-2 re-measure (done) cover the must-have list clause by clause. But cycle 26 already named the trap in the other direction: an EMPTY QUEUE IS NOT AN EXHAUSTED VALUE SPACE, and cycle 27 then proved it by finding a ratchet-PASSING candidate (T-123) in a scan of a backlog that looked drained. Two gates stand between here and DONE and neither has been run: the TASTE pass (queued above) and a VALUE_LOOP candidate scan. ~17h remain to stop_at, so nothing forces the shortcut. Recorded also as a guard for a fresh session re-orienting from disk: T-175 sitting as the sole `todo` is NOT pending work -- its own notes carry a DO-NOT-BUILD verdict on traceability grounds, and it is filed rather than dropped only so a future run inherits the measurement instead of re-deriving it."
   }
  ],
  "known_issues": [
@@ -815,19 +835,19 @@
   "last_look_cycle": 76,
   "last_taste_cycle": 1,
   "last_review_fix_cycle": 73,
-  "last_build_wave_cycle": 79
+  "last_build_wave_cycle": 80
  },
  "counters": {
   "consecutive_no_value": 0,
   "consecutive_failures": 0,
-  "k_current": 4,
-  "wave_streak": 1,
+  "k_current": 5,
+  "wave_streak": 0,
   "window_tokens_attributed": 0
  },
  "last_cycle": {
-  "cycle": 77,
-  "ts": "2026-08-17T21:42:39+00:00",
-  "work": "build-wave k=2 (T-168, T-170)",
+  "cycle": 80,
+  "ts": "2026-08-17T23:06:00+00:00",
+  "work": "build-wave k=2 (T-173, T-174)",
   "outcome": "2 verified, 0 reverted"
  },
  "run_label": "improve-3",
