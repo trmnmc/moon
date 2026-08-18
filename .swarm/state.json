@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "VALUE_LOOP",
-  "cycle": 94,
+  "cycle": 95,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -971,6 +971,21 @@
     {
       "cycle": 94,
       "what": "REFUTED, and recorded so it is not re-filed: the agent suspected REPORT.md:138's \"state.json recorded last_review_fix_cycle: 23\" was stale because the key is absent from state.json. The key EXISTS, nested as qa.last_review_fix_cycle = 73; the agent read only the top level. And the sentence is a parenthetical describing an EARLIER REVISION'S error, correctly framed as history — a claim that names its own past reading cannot rot. Checked-and-clean, which this SPEC names as a valid reportable outcome."
+    },
+    {
+      "cycle": 95,
+      "what": "The sealed gate returned 16/16 PASS and I ran an ADDENDUM anyway, because the gate had inherited the figure \"four consecutive runs\" from the cycle-94 audit instead of deriving it. The addendum re-derived it and it held — but the derivation surfaced a causal fact the propagated number had lost.",
+      "why": "SPEC must-have #5 does not say counts must be correct, it says they must be \"re-derived AT RUN TIME from the authoritative source\" (L-045) — and a gate that hands a builder a number, then checks the builder used that number, has verified obedience rather than truth. The whole item is about a figure that rotted; accepting a replacement figure on the strength of the previous cycle's measurement would have reproduced the defect one layer up, in my own instrument. Two independent derivations agree on four: the watchdog log carries ZERO decision=fresh firings in the 201 since 2026-08-14T12:14:37Z, and the repo preserves 3 prior improvement SPECs plus tonight's live one. The causal detail only the re-derivation could show: that last arming at 12:14:37Z precedes REPORT.md's first commit (9bc8a0f, 12:16:32Z) by 115 SECONDS. KI-9 asserts the guard fires because REPORT.md exists; the log shows the watchdog arming normally right up to the two minutes before that file appeared and never once after. That is the mechanism caught in the act, and it upgrades KI-9 from a well-argued inference to a measured one."
+    },
+    {
+      "cycle": 95,
+      "what": "ACCEPTED T-191's builder DELETING the two-sentence placeholder justification rather than rewriting it, and verified the result by RUNNING the README's command rather than reading it.",
+      "why": "The acceptance offered two dispositions (use the real URL, or correct the placeholder's justification) and the builder took a third shape: use the real URL and delete the justification, on the ground that \"this is a placeholder, left unfilled\" has no true residue once the placeholder is filled. That reasoning is right, and the standing \"no rewording of prose that is already true\" rule supports deleting rather than re-registering it. But a deletion is exactly where a gate reading only for the ABSENCE of the false claim is weakest — absence is also what you get from deleting the section wholesale. So the check that decided it was a positive one: extract the clone one-liner FROM README (never a copy I typed), run it in a fresh tmpdir, and require moon-CLI-shaped output. It clones and prints a real phase line. The fix's own testability is the point — the sentence it replaced could not be run at all, and this one can, which is this repo's taste rule (\"every number in the docs should have a command behind it\") satisfied structurally rather than by assertion."
+    },
+    {
+      "cycle": 95,
+      "what": "MEASURED AND DISMISSED, recorded so it is not re-found: T-192's edited line is 109 characters against a prose median of 89, and no item was filed for it.",
+      "why": "Filing it was the tempting move on a run whose remit is doc polish. Measured instead of judged by eye: REPORT.md already carries 25 lines over 100 characters, so 109 sits inside the document's existing variation rather than outside it, and the line is prose the reader never sees unwrapped. The SPEC names CHURN as this run's chief risk and requires every item to trace to a filed defect or a demonstrably violated lesson; a re-wrap traces to neither. Recording the dismissal with its measurement so a later cycle does not spend a pass rediscovering it and reaching the opposite conclusion."
     }
   ],
   "known_issues": [
@@ -1030,22 +1045,22 @@
     "last_look_cycle": 76,
     "last_taste_cycle": 81,
     "last_review_fix_cycle": 73,
-    "last_build_wave_cycle": 93,
+    "last_build_wave_cycle": 95,
     "last_wrap_up_cycle": 84
   },
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 5,
-    "wave_streak": 0,
+    "wave_streak": 1,
     "window_tokens_attributed": 40599702
   },
   "last_cycle": {
-    "cycle": 94,
-    "ts": "2026-08-18T16:53:37+00:00",
-    "work": "VALUE_LOOP standing-claim audit (inline conductor re-derivation, 4 passes) + one recall-only Explore agent (101 claims enumerated)",
-    "outcome": "VERIFIED. 4 real defects found and FILED (T-191..T-194), 0 built — filing is this work type's output; the build wave is next cycle's. The conductor's own 15-claim mechanical sweep came back ZERO stale; all four defects came from the agent's 101-claim enumeration, because three of them are false RATIONALES carrying no number for a grep to catch. Suite 175/175 green with coverage proven arithmetically (9 files sum to 175). 4 conductor instrument defects found and fixed with the failing passes kept on disk. 1 prior-record error corrected (cycle 91's repo-root listing omitted .github). 1 agent suspicion refuted. NOT DONE: four candidates pass the ratchet.",
-    "commit": "56c190e"
+    "cycle": 95,
+    "ts": "2026-08-18T17:28:26+00:00",
+    "work": "build-wave k=2 [T-191 README clone-URL premise, T-192 REPORT KI-9 decaying count] — both sonnet, direct Agent dispatch, disjoint files",
+    "outcome": "VERIFIED. 2/2 items passed a gate sealed before either diff was read (sha256 265a7b43…d2b631314), 16/16 checks, every prose predicate paired with a control arm against HEAD. Addendum 2/2: the count re-derived at run time rather than inherited, and the README clone command run for real from a scratch clone. Suite 175/175. 0 reverts, 0 failed verifies — clean wave.",
+    "commit": "pending"
   },
   "run_label": "improve-3",
   "resolved_issues": [

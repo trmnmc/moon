@@ -1,0 +1,42 @@
+PASS  G0  only README.md and REPORT.md modified among tracked files
+        tracked=[README.md,REPORT.md] untracked=[.swarm/runs/cycle-095-verify-T-191.txt] stray=[]
+PASS  G1a  CONTROL: the predicate fires on HEAD README (proves it is not vacuous)
+        HEAD hits=[would-404,404-for-a-reader,rather-than-pointing]
+PASS  G1b  README no longer asserts a real URL here would 404
+        worktree hits=[]
+PASS  G2  README and REPORT do not contradict each other about a usable URL existing
+        REPORT prints remote=true (https://github.com/trmnmc/moon.git); README denies usable URL=false; README prints remote=true
+PASS  G3  every http(s) URL newly added to README is one the repo can confirm
+        added URLs=[https://github.com/trmnmc/moon.git] unconfirmable=[]
+PASS  G4a  CONTROL: HEAD states a run count that the measurement has since falsified
+        HEAD paragraph counts=[3] measured=4
+PASS  G4b  worktree KI-9 hand-off understates nothing: every run count it states is >= measured
+        worktree counts=[4] measured=4
+PASS  G4c  CONTROL: the self-dating convention exists in REPORT.md at HEAD (extracted, not invented)
+        HEAD conventions=[["at-cycle-N",12],["cycle-N",20],["run-N",20],["as-of",1],["iso-date",7]]
+PASS  G4d  CONTROL: HEAD KI-9 paragraph does NOT bind its count to a measurement point
+        HEAD KI-9 paragraph conventions=[] (empty = the defect)
+PASS  G4e  worktree KI-9 hand-off binds its figure to a measurement point in the document's own convention
+        worktree KI-9 conventions=[["at-cycle-N",1],["cycle-N",1],["measured-at",1]] borrowed-from-document=[at-cycle-N,cycle-N]
+PASS  G5a  no changed line in REPORT.md lies inside a markdown table
+        changed table lines=0
+PASS  G5b  REPORT.md table row count unchanged vs HEAD
+        HEAD=29 worktree=29
+PASS  G5c  every REPORT.md heading is byte-identical to HEAD
+        HEAD=9 worktree=9 differing=[]
+PASS  G6  full test_cmd green, at or above the 171-test kickoff baseline
+        tests=175 pass=175 fail=0 baseline=171
+PASS  G7  test/report-issues.test.js green on its own (the gate that parses REPORT tables)
+        fail=0 exit_ok=true
+PASS  G8  no dependencies/devDependencies, no lockfile, no node_modules
+        violations=[]
+
+GATE PASS  (16/16)
+Cloning into 'moon'...
+PASS  G9  the run count in the KI-9 hand-off is re-derived from the watchdog log, both directions
+        last decision=fresh at 2026-08-14T12:14:37+0000; 201 firings since across days [2026-08-14,2026-08-15,2026-08-16,2026-08-17,2026-08-18], of which armed=0; preserved improvement specs=3 + tonight = 4 improvement runs; hand-off states 4
+PASS  G10  README's clone command runs clean from a scratch directory and prints a moon
+        cmd from README: git clone https://github.com/trmnmc/moon.git && node moon/bin/moon.js
+        output tail: ░░░█◗  37%  waxing crescent |             next full moon  28 Aug
+
+ADDENDUM PASS  (2/2)

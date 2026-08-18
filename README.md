@@ -23,11 +23,8 @@ node bin/moon.js
 To get the repo onto another machine, clone it — there are no dependencies to fetch:
 
 ```sh
-git clone <url-of-this-repo> && node moon/bin/moon.js
+git clone https://github.com/trmnmc/moon.git && node moon/bin/moon.js
 ```
-
-`<url-of-this-repo>` is a placeholder: replace it with wherever you host this repository.
-It's left unfilled here rather than pointing at a URL that would 404 for a reader.
 
 ## Why this one
 

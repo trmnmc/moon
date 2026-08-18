@@ -1795,7 +1795,7 @@
     },
     {
       "kind": "fix",
-      "status": "todo",
+      "status": "done",
       "attempts": 0,
       "deps": [],
       "packages": [],
@@ -1808,11 +1808,13 @@
         "README.md"
       ],
       "acceptance": "README's clone instructions no longer assert a reason that is false. Either the real remote URL is used (it is public and resolves — REPORT.md:28 already uses it), or the placeholder stays but its stated justification is corrected to one that is actually true. The two documents must not contradict each other about whether a usable URL exists. No new claim is introduced that is not checkable from the repo.",
-      "source": "cycle-94 standing-claim audit, claim C6/C50. README.md:29-30 reads \"It's left unfilled here rather than pointing at a URL that would 404 for a reader.\" Conductor-measured this cycle: git remote -v gives https://github.com/trmnmc/moon.git, HEAD 06a88f4f == origin/main 06a88f4f, and REPORT.md:28 hands the reader that exact URL in its own clone command. The sentence's premise was true before KI-3 closed and became false when it did."
+      "source": "cycle-94 standing-claim audit, claim C6/C50. README.md:29-30 reads \"It's left unfilled here rather than pointing at a URL that would 404 for a reader.\" Conductor-measured this cycle: git remote -v gives https://github.com/trmnmc/moon.git, HEAD 06a88f4f == origin/main 06a88f4f, and REPORT.md:28 hands the reader that exact URL in its own clone command. The sentence's premise was true before KI-3 closed and became false when it did.",
+      "verified_cycle": 95,
+      "verification": "PASS. Sealed gate G1a/G1b/G2/G3 + addendum G10. The false premise (\"a URL that would 404 for a reader\") is gone from README, the predicate that catches it FIRES on HEAD (control, so it is not vacuous), and README/REPORT now agree that a usable URL exists. Discriminator: the README clone one-liner, extracted from README itself rather than retyped, was run in a scratch tmpdir — it clones and prints \"░░░█◗  37%  waxing crescent / next full moon 28 Aug\". An untestable placeholder became a claim with a command behind it. Evidence: .swarm/runs/cycle-095-verify-T-191.txt"
     },
     {
       "kind": "fix",
-      "status": "todo",
+      "status": "done",
       "attempts": 0,
       "deps": [],
       "packages": [],
@@ -1825,7 +1827,9 @@
         "REPORT.md"
       ],
       "acceptance": "The KI-9 hand-off no longer states a run count that decays. It either names its measurement point explicitly (the way the sibling sentences in the same document already do) or is re-derived from the evidence at the moment it is written. Whichever form is used, the figure must not understate the scope of the ask a human is being handed. The two REPORT.md issue tables are untouched.",
-      "source": "cycle-94 standing-claim audit, claim C90. REPORT.md:157-158 reads \"has not run in three consecutive runs\", written at cycle 84. Conductor-measured this cycle from /opt/swarm/runs/watchdog.log: decision=all-done detail=reports-present at 15:41:07, 16:11:08 and 16:41:08Z TODAY, i.e. during run 4. Four runs, not three, and the count keeps rising while the sentence sits still. Worse than cosmetic: this paragraph asks a human to act and undersells why."
+      "source": "cycle-94 standing-claim audit, claim C90. REPORT.md:157-158 reads \"has not run in three consecutive runs\", written at cycle 84. Conductor-measured this cycle from /opt/swarm/runs/watchdog.log: decision=all-done detail=reports-present at 15:41:07, 16:11:08 and 16:41:08Z TODAY, i.e. during run 4. Four runs, not three, and the count keeps rising while the sentence sits still. Worse than cosmetic: this paragraph asks a human to act and undersells why.",
+      "verified_cycle": 95,
+      "verification": "PASS. Sealed gate G4a-G4e/G5a-G5c + addendum G9. The bare decaying count is gone and the figure is bound to a measurement point in REPORT.md's OWN convention (the allowed vocabulary was extracted from HEAD's REPORT, not typed by the conductor); control arms confirm HEAD both states a falsified count and carries no measurement point. Tables, headings and anchors byte-identical (29 rows, 9 headings, 0 changed table lines) and test/report-issues.test.js green. The figure \"four\" was independently re-derived at run time per L-045, not inherited from the cycle-94 audit. Evidence: .swarm/runs/cycle-095-verify-T-192.txt"
     },
     {
       "kind": "fix",

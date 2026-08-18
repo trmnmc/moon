@@ -155,7 +155,7 @@ quietly dropped.)*
    any already-shipped repo will run with its crash-recovery redundancy silently switched off.
    The pacer still covers the common case, which is why this is medium and not high — but the
    layer that exists specifically for "the conductor died and its heartbeat went stale" has not
-   run in three consecutive runs, and nothing surfaced that until someone read the log.
+   run in four consecutive runs (measured at cycle 95), and nothing surfaced that until someone read the log.
 
 4. **Fix the SWARM allowlist (KI-2) and cull the playbook in the same change.** Run 2
    established that doing the first without the second makes the playbook *inert* — see
