@@ -1,0 +1,68 @@
+audit tree = pristine copy of c26821f at /tmp/moon-audit
+
+BASELINE (unmutated c26821f): tests=171 pass=171 fail=0
+
+===== S1  "KI-5 pin: disc glyph set matches the documented East Asian Width partition"
+      guards src/render.js
+  A KILL        mutation: SHADE[1] '▒' -> '▨' (a glyph outside the documented EAW partition)
+                fail=8  failing tests: T-134 — README `--block` fence (minus its next-full-moon line) matches renderBlock(moon, "north") | T-134 — README north/south sweep table rows are self-consistent and reproducible | renderBlock: exact output for a waxing crescent, both hemispheres | renderBlock: exact output for a waning gibbous, both hemispheres | renderBlock: a hair-thin crescent stays continuous down the limb | renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks | the whole cycle renders without throwing and never widens the disc | KI-5 pin: disc glyph set matches the documented East Asian Width partition
+                -> FAILABLE, and the named test is among the killers
+  B ATTRIBUTION same mutation, "KI-5 pin: disc glyph set matches the documented East Asian Width partition" skipped
+                tests=170 pass=163 fail=7  survivors of the kill: T-134 — README `--block` fence (minus its next-full-moon line) matches renderBlock(moon, "north") | T-134 — README north/south sweep table rows are self-consistent and reproducible | renderBlock: exact output for a waxing crescent, both hemispheres | renderBlock: exact output for a waning gibbous, both hemispheres | renderBlock: a hair-thin crescent stays continuous down the limb | renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks | the whole cycle renders without throwing and never widens the disc
+                -> NOT attributable: 7 other test(s) also kill it
+  C CONTROL     neutral edit: reword the trailing comment on the same SHADE line (no behaviour change)
+                tests=171 pass=171 fail=0  
+                -> ASSERTION: the neutral edit leaves the suite GREEN
+  VERDICT  L-029 VIOLATION   L-044 CLEAN
+
+===== S2  "T-129: ch.49 correction-table characterization pins (new/Q1/full/Q3, one lunation near year 2150)"
+      guards src/astro.js
+  A KILL        mutation: last new/full periodic coefficient 0.00208 -> 0.00209 (5th decimal transcription slip)
+                fail=1  failing tests: T-129: ch.49 correction-table characterization pins (new/Q1/full/Q3, one lunation near year 2150)
+                -> FAILABLE, and the named test is among the killers
+  B ATTRIBUTION same mutation, "T-129: ch.49 correction-table characterization pins (new/Q1/full/Q3, one lunation near year 2150)" skipped
+                tests=170 pass=170 fail=0  survivors of the kill: (none)
+                -> ATTRIBUTABLE: removing this test lets the mutant survive
+  C CONTROL     neutral edit: whitespace inside the same coefficient array (no value changes)
+                tests=171 pass=171 fail=0  
+                -> ASSERTION: the neutral edit leaves the suite GREEN
+  VERDICT  L-029 CLEAN   L-044 CLEAN
+
+===== S3  "legacy top-level aliases"
+      guards src/hemisphere.js
+  A KILL        mutation: delete the 'us/samoa' SOUTHERN_ZONES row added by T-175 at cycle 86
+                fail=1  failing tests: legacy top-level aliases
+                -> FAILABLE, and the named test is among the killers
+  B ATTRIBUTION same mutation, "legacy top-level aliases" skipped
+                tests=170 pass=170 fail=0  survivors of the kill: (none)
+                -> ATTRIBUTABLE: removing this test lets the mutant survive
+  C CONTROL     neutral edit: reword the comment on the same 'us/samoa' row (row itself untouched)
+                tests=171 pass=171 fail=0  
+                -> ASSERTION: the neutral edit leaves the suite GREEN
+  VERDICT  L-029 CLEAN   L-044 CLEAN
+
+===== SUMMARY (conductor-run, not agent-claimed)
+  S1  L-029 VIOLATION  L-044 CLEAN      KI-5 pin: disc glyph set matches the documented East Asian Width partition
+  S2  L-029 CLEAN      L-044 CLEAN      T-129: ch.49 correction-table characterization pins (new/Q1/full/Q3, one lunation near year 2150)
+  S3  L-029 CLEAN      L-044 CLEAN      legacy top-level aliases
+
+1 subject(s) violate a lesson.
+
+SCOPE LIMIT, stated rather than hidden: this measures three named pins, one per
+source module, chosen as the repo's load-bearing characterization tests. It
+establishes the property for those three. It does NOT establish it for all 171
+shipped tests, and no run of any size would - L-029 is a proof obligation on how
+each test was built. What this DOES retire is the cycle-85 structural claim,
+which had no behavioural evidence behind it at all.
+
+SHADE[1] U+2592 '▒' -> U+259A '▚' (Block Element, undocumented)
+  A kill arm      fail=8  pin among killers: true
+  B attribution   fail=7  (pin skipped)
+     others that also kill it: T-134 — README `--block` fence (minus its next-full-moon line) matches renderBlock(moon, "north") | T-134 — README north/south sweep table rows are self-consistent and reproducible | renderBlock: exact output for a waxing crescent, both hemispheres | renderBlock: exact output for a waning gibbous, both hemispheres | renderBlock: a hair-thin crescent stays continuous down the limb | renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks | the whole cycle renders without throwing and never widens the disc
+  -> NOT attributable: 7 other test(s) subsume the kill
+
+SHADE[2] U+2593 '▓' -> U+2584 '▄' (Block Element, undocumented)
+  A kill arm      fail=12  pin among killers: true
+  B attribution   fail=11  (pin skipped)
+     others that also kill it: T-134 — README headline fence matches renderLine(moon, "north") | T-134 — README `--block` fence (minus its next-full-moon line) matches renderBlock(moon, "north") | T-134 — README north/south sweep table rows are self-consistent and reproducible | renderLine: exact output across the full cycle, northern hemisphere | renderLine: exact output across the full cycle, southern hemisphere | renderLine: a waxing moon is lit on the right in the north, the left in the south | renderLine emits only geometric block glyphs, digits, letters and spaces | renderLine disc is always exactly five cells | renderBlock: exact output for a waxing crescent, both hemispheres | renderBlock: exact output for a waning gibbous, both hemispheres | the whole cycle renders without throwing and never widens the disc
+  -> NOT attributable: 11 other test(s) subsume the kill

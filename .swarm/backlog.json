@@ -1641,7 +1641,7 @@
       "priority": 3,
       "value": "M",
       "effort": "S",
-      "status": "todo",
+      "status": "done",
       "deps": [],
       "files_hint": [
         "REPORT.md"
@@ -1651,7 +1651,7 @@
       "model": "haiku",
       "attempts": 0,
       "traces_to": "must-have 5 (rotting file:line citations) -- CONDUCTOR-MEASURED at cycle 85, and the ONLY stale citation of the 17 in the docs",
-      "notes": "CONDUCTOR FINDING, cycle 85, and a correction to the planning agent, which marked this citation CURRENT. Measured with a run-time instrument that extracts every file:line token from README.md, REPORT.md and .swarm/CONTRACTS.md and prints the actual line at that position: 17 citations, all files resolve, 16 point at the right code. The exception: REPORT.md:288 and REPORT.md:428 both cite `test/render.test.js:629` as the KI-5 pin test, but line 629 is `const f = 1 - Math.acos(1 - 2 * k) / (2 * Math.PI);` inside the test 'renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks'. The KI-5 pin test is declared at line 826 (its section comment at 764). The builder must re-derive the true line at the moment of the fix rather than trusting 826 from this note (L-045) -- if any edit lands in that file first, 826 rots too. Scope is EXACTLY these citations; prose already true is out of scope per the SPEC."
+      "notes": "CONDUCTOR FINDING, cycle 85, and a correction to the planning agent, which marked this citation CURRENT. Measured with a run-time instrument that extracts every file:line token from README.md, REPORT.md and .swarm/CONTRACTS.md and prints the actual line at that position: 17 citations, all files resolve, 16 point at the right code. The exception: REPORT.md:288 and REPORT.md:428 both cite `test/render.test.js:629` as the KI-5 pin test, but line 629 is `const f = 1 - Math.acos(1 - 2 * k) / (2 * Math.PI);` inside the test 'renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks'. The KI-5 pin test is declared at line 826 (its section comment at 764). The builder must re-derive the true line at the moment of the fix rather than trusting 826 from this note (L-045) -- if any edit lands in that file first, 826 rots too. Scope is EXACTLY these citations; prose already true is out of scope per the SPEC.\n\nVERIFIED cycle 87. Sealed gate .swarm/gates/cycle-087-T-183.sh (sha256 25dc5a98...), executed as the\nfaithful node port .swarm/gates/cycle-087-T-183.mjs because `bash <script>` is denied by this host's\nallowlist. 8/8 checks; evidence .swarm/runs/cycle-087-verify-T-183.txt. The gate RE-DERIVED the true\nline (826) from test/render.test.js at verify time rather than trusting the 826 in this note (L-045),\nand C2 confirmed HEAD really carried the defect twice, so the pass is non-vacuous."
     },
     {
       "id": "T-184",
@@ -1682,7 +1682,7 @@
       "priority": 5,
       "value": "M",
       "effort": "S",
-      "status": "todo",
+      "status": "done",
       "deps": [],
       "files_hint": [
         "test/"
@@ -1692,7 +1692,26 @@
       "model": "fable",
       "attempts": 0,
       "traces_to": "SPEC must-have 2 -- the audit is only half-verified, and recording it as fully checked would be the overclaim the SPEC exists to prevent",
-      "notes": "CONDUCTOR-FILED, cycle 85, to keep a HALF-VERIFIED result from reading as a whole one. Status of the four-lesson audit after cycle 85:\n  L-043 CLEAN -- CONDUCTOR-VERIFIED. Grepped the whole suite: zero `[^>]*` patterns; the only two `[^>]+` uses (regressions.test.js:249,266) are markdown-placeholder detection, not HTML-attribute crossing; and readmeSection (regressions.test.js:19-31) uses plain string search with a code comment that pre-empts L-043's exact multi-line failure mode.\n  L-045 CLEAN -- CONDUCTOR-VERIFIED. grep for hardcoded counts in test/report-issues.test.js returns nothing, and its heading-count test derives BOTH the claimed N and the actual row count live from REPORT.md.\n  L-029 CLEAN -- AGENT-CLAIMED ONLY. The agent's own evidence concedes this is not statically checkable (it is a proof obligation on how a test was built, not a property visible in the shipped file) and rests on journal decisions from cycles 81-83.\n  L-044 CLEAN -- AGENT-CLAIMED ONLY. Rests on the cycle-83 decision naming a converse control (M5), not on anything re-run this cycle.\nThis item closes the gap or records honestly that L-029/L-044 are not mechanically checkable, in which case the SPEC's must-have 2 is satisfied by the recorded reasoning and that limit is stated in the report rather than hidden. Routed fable: this is a judgment seat (deciding whether evidence is sufficient), exempt from the gear-2 demotion per the fable guard."
+      "notes": "CONDUCTOR-FILED, cycle 85, to keep a HALF-VERIFIED result from reading as a whole one. Status of the four-lesson audit after cycle 85:\n  L-043 CLEAN -- CONDUCTOR-VERIFIED. Grepped the whole suite: zero `[^>]*` patterns; the only two `[^>]+` uses (regressions.test.js:249,266) are markdown-placeholder detection, not HTML-attribute crossing; and readmeSection (regressions.test.js:19-31) uses plain string search with a code comment that pre-empts L-043's exact multi-line failure mode.\n  L-045 CLEAN -- CONDUCTOR-VERIFIED. grep for hardcoded counts in test/report-issues.test.js returns nothing, and its heading-count test derives BOTH the claimed N and the actual row count live from REPORT.md.\n  L-029 CLEAN -- AGENT-CLAIMED ONLY. The agent's own evidence concedes this is not statically checkable (it is a proof obligation on how a test was built, not a property visible in the shipped file) and rests on journal decisions from cycles 81-83.\n  L-044 CLEAN -- AGENT-CLAIMED ONLY. Rests on the cycle-83 decision naming a converse control (M5), not on anything re-run this cycle.\nThis item closes the gap or records honestly that L-029/L-044 are not mechanically checkable, in which case the SPEC's must-have 2 is satisfied by the recorded reasoning and that limit is stated in the report rather than hidden. Routed fable: this is a judgment seat (deciding whether evidence is sufficient), exempt from the gear-2 demotion per the fable guard.\n\nVERIFIED cycle 87 by conductor-run MUTATION MEASUREMENT, not by structural reading.\nHarness: .swarm/gates/cycle-087-T-185-audit.mjs plus -s1-robustness.mjs; evidence\n.swarm/runs/cycle-087-verify-T-185.txt. Three named pins, one per source module, three arms each\n(A KILL / B ATTRIBUTION / C CONVERSE CONTROL) against a pristine `git archive HEAD` copy in /tmp so\nthe live tree and the concurrent T-183 builder could not influence it. Baseline 171/171 green.\n\nRESULT\n  L-044 CLEAN on all three. Every converse control - a comment reword, an array whitespace change,\n  another comment reword - left the suite 171/171 green, so none of the three is a snapshot of its file.\n  L-029 CLEAN on T-129 (ch.49 coefficient 0.00208 -> 0.00209 in src/astro.js: kills 1 test, and with\n  that test skipped the mutant SURVIVES 170/170) and on the T-175 legacy-alias pin (deleting the\n  us/samoa row: kills 1, survives 170/170 when skipped). Both are failable AND attributable.\n  L-029 NOT ESTABLISHED on the KI-5 pin. Under three separate glyph substitutions the pin is among the\n  killers but is never the attributable one: with it skipped the mutant still dies to 7, 7 and 11 other\n  exact-output tests. The cycle-85 agent verdict of CLEAN for L-029 is RETIRED as unfounded for this\n  subject. Filed as T-186 - a comment-truth defect, not a reason to touch the test.\n\nSTATED LIMIT, recorded rather than hidden: this measures three pins, not 171 tests, and L-029 is a\nproof obligation about how a test was BUILT, so no run of any size establishes it suite-wide. What the\nrun does retire is a claim that had no behavioural evidence behind it at all."
+    },
+    {
+      "id": "T-186",
+      "title": "The KI-5 pin comment claims it is what makes an unannounced glyph change fail the gate; measurement shows 7-11 exact-output tests kill first and the pin is never the attributable killer",
+      "kind": "docs",
+      "priority": 5,
+      "value": "M",
+      "effort": "S",
+      "status": "todo",
+      "deps": [],
+      "files_hint": [
+        "test/render.test.js"
+      ],
+      "acceptance": "The comment block above the KI-5 pin test in test/render.test.js no longer asserts that this test is what causes an unannounced glyph change to fail the gate. It states instead what the pin uniquely establishes - that the Block Element set the disc actually draws equals the documented partition, and that the partition really does straddle two East Asian Width classes - and records that glyph IDENTITY is already covered by the exact-output tests. Any quantity it cites is sourced to .swarm/runs/cycle-087-verify-T-185.txt. The test body itself is unchanged.",
+      "packages": [],
+      "model": "haiku",
+      "attempts": 0,
+      "traces_to": "SPEC must-have 2 - every violation of a recorded lesson filed with file and line. Filed from the cycle-87 T-185 audit.",
+      "notes": "CONDUCTOR-FILED, cycle 87, from measurement not from reading. The comment block above the pin ends \"...so an unannounced glyph change fails the gate instead of drifting silently.\" That sentence is true of the SUITE and false of this test: with the pin skipped, substituting U+2592 for U+259A still fails 7 tests and U+2593 for U+2584 still fails 11. The pin does add something no other test does - the documented-partition equality and the two-class straddle assertion - and that is what the comment should claim. Do NOT weaken, skip or delete the test, and do not touch its assertions: this is a comment-truth fix only (hard rule 2)."
     }
   ]
 }

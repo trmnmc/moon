@@ -1,0 +1,16 @@
+  C1 residual :629 citations = 0
+PASS  C1 zero residual render.test.js:629 citations
+  C2 occurrences at HEAD = 2
+PASS  C2 defect present at HEAD (non-vacuous fix)
+  C3 KI-5 pin test truly declared at test/render.test.js:826
+PASS  C3 KI-5 pin test locatable by name
+PASS  C4 every render.test.js citation resolves to the KI-5 pin line
+  C5 line 826 reads: test('KI-5 pin: disc glyph set matches the documented East Asian Width partition', () => {
+PASS  C5 cited line is the KI-5 pin test declaration
+  C6 citations checked = 10
+PASS  C6 all doc file:line citations resolve in range
+  C7 non-.swarm files changed: [REPORT.md]
+PASS  C7 scope limited to REPORT.md
+  C8 parsed: tests=171 pass=171 fail=0
+PASS  C8 full suite green (fail=0 and pass==tests)
+---- GATE: 8 passed, 0 failed ----
