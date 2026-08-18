@@ -1,0 +1,39 @@
+[PASS] BASE full test_cmd green on the working tree
+      tests 171 / pass 171 / fail 0
+[PASS] T-175a detectHemisphere('US/Samoa')==='south' AND no US/* collateral
+      US/Samoa -> south
+      Pacific/Samoa -> south
+      Pacific/Pago_Pago -> south
+      us/samoa -> south
+        US/Samoa   -> south
+      NZ -> south
+      US/Pacific -> north
+      Japan -> north
+      US/Alaska -> north
+      US/Hawaii -> north
+[PASS] T-175b arm A: mutant + new test -> RED and attributable by name
+      deleted src line 163: 'us/samoa', // legacy alias of Pacific/Pago_Pago - Pago Pago is 14d16' S
+      tests 14 / pass 13 / fail 1
+      failing test(s): legacy top-level aliases | failing tests: | legacy top-level aliases
+[PASS] T-175c arm B: mutant + HEAD test file -> GREEN (kill is attributable to the new test alone)
+      tests 14 / pass 14 / fail 0
+[PASS] T-182a names the one line, the exact file (LICENSE at repo root), and what stays broken
+      copyright-line:true LICENSE:true package.json:true private:true
+[PASS] T-182b does NOT contain MIT license body text
+      no MIT boilerplate
+[PASS] T-182c invents NO legal holder (every copyright line is a placeholder)
+        Copyright (c) <year> <legal holder>
+[PASS] T-182d standalone and short (<= 600 words)
+      278 words
+
+=== GATE VERDICT ===
+PASS  BASE  full test_cmd green on the working tree
+PASS  T-175a  detectHemisphere('US/Samoa')==='south' AND no US/* collateral
+PASS  T-175b  arm A: mutant + new test -> RED and attributable by name
+PASS  T-175c  arm B: mutant + HEAD test file -> GREEN (kill is attributable to the new test alone)
+PASS  T-182a  names the one line, the exact file (LICENSE at repo root), and what stays broken
+PASS  T-182b  does NOT contain MIT license body text
+PASS  T-182c  invents NO legal holder (every copyright line is a placeholder)
+PASS  T-182d  standalone and short (<= 600 words)
+
+GATE PASSED: all checks

@@ -160,6 +160,7 @@ const SOUTHERN_ZONES = new Set([
   // --- legacy top-level aliases ---
   'nz', // Pacific/Auckland
   'nz-chat', // Pacific/Chatham
+  'us/samoa', // legacy alias of Pacific/Pago_Pago - Pago Pago is 14d16' S
 ]);
 
 /**

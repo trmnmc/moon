@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "BUILD",
-  "cycle": 85,
+  "cycle": 86,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -879,6 +879,16 @@
       "cycle": 85,
       "what": "the four-lesson conformance audit is recorded as HALF conductor-verified, and T-185 is filed to close the other half rather than reporting the whole audit as verified",
       "why": "L-043 and L-045 were re-checked by the conductor directly (grep for [^>]* across the suite returns nothing; test/report-issues.test.js has no hardcoded counts and derives both sides of its heading-count check live). L-029 and L-044 rest on the planning agent's structural reading of journal decisions from cycles 81-83. Evidence or silence: an agent's reading is a claim."
+    },
+    {
+      "cycle": 86,
+      "what": "The sealed verification gate was RE-AUTHORED mid-cycle after it failed, and the edit is recorded rather than quietly folded in",
+      "why": "gate-c86.mjs was sealed at 5f3a7764 BEFORE dispatch, ran, and reported T-175b FAIL \"(none named)\". Root cause was the INSTRUMENT, not the product: the gate parsed TAP (\"# tests\", \"not ok N - name\") while Node v24.19.0 defaults to the SPEC reporter (\"i tests N\", \"x name\"), so both regexes matched nothing on a suite that HAD gone red. Only the two parsers were changed; no assertion, arm or threshold was touched. Re-sealed at d1a81a68 and re-run -> all 8 checks pass. Recorded because editing a gate after seeing it fail is exactly the shape of weakening a gate, and the defence is the diff, not the assurance: the post-fix gate is strictly MORE discriminating than the pre-fix one (it can now see failures at all)."
+    },
+    {
+      "cycle": 86,
+      "what": "T-182 was built on haiku rather than the sonnet the backlog item asked for, over that item's own written objection",
+      "why": "Gear 2 (guest mode, weekly-governor ceiling 2) sets demote:true, and the rule demotes S-effort docs sonnet->haiku. T-182's notes had pre-argued for sonnet on the grounds that \"a cheap tier is likelier to helpfully fill in a plausible name\" for the copyright holder. The mechanical gear rule was followed and the risk was answered with a gate check instead of a model tier: check T-182c requires every rendered copyright line to be a placeholder. It passed - haiku rendered \"Copyright (c) <year> <legal holder>\" and refused the holder. The item's worry was reasonable and turned out not to bind here."
     }
   ],
   "known_issues": [
@@ -938,22 +948,22 @@
     "last_look_cycle": 76,
     "last_taste_cycle": 81,
     "last_review_fix_cycle": 73,
-    "last_build_wave_cycle": 83,
+    "last_build_wave_cycle": 86,
     "last_wrap_up_cycle": 84
   },
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 3,
-    "wave_streak": 0,
+    "wave_streak": 1,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "cycle": 85,
-    "ts": "2026-08-18T12:43:47+00:00",
-    "work": "KICKOFF (improvement run 4, allocator TRICKLE auto-kickoff) + inline PLAN",
-    "outcome": "5 items filed covering all 6 must-haves; 4-lesson conformance audit returned ZERO violations (2 conductor-verified, 2 agent-claimed); 1 stale doc citation found by the conductor that the planning agent had marked CURRENT",
-    "commit": "869182f"
+    "cycle": 86,
+    "ts": "2026-08-18T12:55:50+00:00",
+    "work": "build-wave k=2 (direct Agent dispatch, Workflow is review-gated headless): T-175 + T-182",
+    "outcome": "both items VERIFIED done via sealed gate d1a81a6 (8/8 checks); suite 171/171; one instrument defect found and recorded in the gate itself",
+    "commit": ""
   },
   "run_label": "improve-3",
   "resolved_issues": [

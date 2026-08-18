@@ -226,7 +226,14 @@ test('legacy top-level aliases', () => {
   assert.strictEqual(detectHemisphere('America/Buenos_Aires'), 'south');
   assert.strictEqual(detectHemisphere('Asia/Ujung_Pandang'), 'south');
   assert.strictEqual(detectHemisphere('Pacific/Samoa'), 'south');
+  // US/Samoa is a legacy alias of Pacific/Pago_Pago (14d16' S) - the one southern
+  // US/* legacy alias. The other US/* aliases below must stay north: a fix that
+  // flips all of US/* south would be worse than the bug it corrects.
+  assert.strictEqual(detectHemisphere('US/Samoa'), 'south');
   assert.strictEqual(detectHemisphere('US/Pacific'), 'north');
+  assert.strictEqual(detectHemisphere('US/Alaska'), 'north');
+  assert.strictEqual(detectHemisphere('US/Hawaii'), 'north');
+  assert.strictEqual(detectHemisphere('US/Eastern'), 'north');
   assert.strictEqual(detectHemisphere('Japan'), 'north');
 });
 

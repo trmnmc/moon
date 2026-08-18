@@ -1487,7 +1487,7 @@
       "id": "T-175",
       "title": "detectHemisphere('US/Samoa') returns north for a 14 S location -- the one southern legacy alias missing from src/hemisphere.js's defensive alias layer",
       "kind": "fix",
-      "status": "todo",
+      "status": "done",
       "priority": 1,
       "effort": "S",
       "model": "sonnet",
@@ -1500,7 +1500,10 @@
       ],
       "acceptance": "detectHemisphere('US/Samoa') returns 'south' (matching Pacific/Pago_Pago's 14.267 S reference latitude and its sibling alias Pacific/Samoa, which already returns south), proven FAILABLE and ATTRIBUTABLE BY NAME in two arms per L-029.",
       "notes": "FOUND AT CYCLE 76 by the QA look pass (full-tzdb sweep: exactly 1 mismatch across every canonical zone in zone1970.tab and every Link in tzdata.zi). Conductor reproduced it at the unit level in gate check G6: detectHemisphere('US/Samoa') -> north, while Pago Pago is 14.28 S. The omission is one ROW, not a missing layer -- the sibling legacy aliases NZ, Brazil/East, Chile/Continental and Pacific/Samoa (the SAME islands, the other alias) all correctly return south.\n\nNOT USER-OBSERVABLE ON THIS HOST: with TZ=US/Samoa, ICU canonicalises to Pacific/Pago_Pago before detection ever runs, and the live binary prints hemisphere 'south'. It would only surface on a runtime whose Intl reports the raw legacy name.\n\nCONDUCTOR CORRECTION TO MY OWN FIRST FRAMING, recorded because I had drafted the wrong version: I first filed this as a FAILED DOC RE-VERIFICATION against REPORT.md:55 (\"validated against all 418 zones in the host IANA database\"), reasoning that a zone the table gets wrong falsifies the claim. Measuring settled it the other way. Intl.supportedValuesOf('timeZone').length is EXACTLY 418 on this host -- that is unambiguously where the figure came from -- and that set contains NO legacy aliases at all: not US/Samoa, not Pacific/Samoa, not NZ. So REPORT.md:55 is TRUE AS SCOPED, and the alias layer exists precisely for names outside the 418. The doc is fine; the table has a gap.\n\nTRACEABILITY VERDICT -- DO NOT BUILD THIS RUN. With the doc-falsity framing withdrawn, this traces to NONE of the three sources SPEC.md's taste note permits: it is not a survivor already on record from a prior sweep, not a doc claim that failed re-verification, and not on the flag-interaction axis. The taste note's rule is explicit -- \"an item that traces to none of those three does not get built, however tidy it would be\" -- and the run's named risk is diminishing-return churn. Filed rather than dropped so a future run inherits the measurement instead of re-deriving it; same disposition shape as T-116.\n\n--- RUN 4, CYCLE 85: RE-AUTHORIZED. ---\nThe cycle-76 DO-NOT-BUILD verdict above was correct UNDER RUN 3'S SPEC, whose taste note admitted only three sources (a recorded survivor, a failed doc re-verification, or the flag-interaction axis). Run 4's SPEC.md replaces that rule with two sources -- (a) a defect already filed, (b) a demonstrably violated lesson -- and names this item as must-have 1 by id. Under the new rule it traces cleanly to (a). The prior verdict is superseded by a spec change, NOT overturned by argument, and is left above verbatim rather than edited.\n\nCONDUCTOR REPRODUCTION, cycle 85 (independent of any agent): detectHemisphere('US/Samoa') -> 'north'; Pacific/Samoa, Pacific/Pago_Pago, NZ, Brazil/East, Chile/Continental, America/Buenos_Aires and Asia/Ujung_Pandang all -> 'south'. The omission is one row in a table whose entire purpose is names outside the 418-zone Intl set.\n\nBLAST RADIUS RE-MEASURED (planning agent, cycle 85): all 151 legacy Link aliases in tzdata.zi resolved against zone1970.tab reference latitudes -- of the 120 comparable ones, exactly ONE mismatch, this one. No pattern of holes, so no broader table sweep is warranted. This independently reproduces the cycle-76 sweep.\n\nSCOPE HONESTY -- the run-4 SPEC's framing of this as 'a real wrong answer to a user' is NARROWER than measured, and the correction is recorded rather than left to stand: the conductor ran `TZ=US/Samoa node bin/moon.js --json` at cycle 85 and it printed \"hemisphere\":\"south\" CORRECTLY, because ICU canonicalises US/Samoa to Pacific/Pago_Pago before detectHemisphere is ever called. The defect is reachable only (i) through the direct exported API a library consumer could call, or (ii) on a runtime whose Intl reports the raw legacy name (a small-icu or --without-intl Node build). It is a real defect in the alias table's own contract; it is not a wrong answer from the shipped CLI on a full-ICU host. The fix proceeds on ground (i)+(ii); the spec's stronger claim does not.",
-      "value": "H"
+      "value": "H",
+      "verified_cycle": 86,
+      "model_used": "sonnet",
+      "verification": "cycle 86, sealed gate d1a81a6: acceptance behaviour + L-029 two-arm mutation proof, BOTH ARMS CONDUCTOR-RUN. arm A (mutant + new test) 14/14 -> 13 pass / 1 fail, failing test named \"legacy top-level aliases\"; arm B (mutant + HEAD test file) 14/14 GREEN, so the kill is attributable to the new assertion alone. Full suite 171/171. The builder REASONED arm B rather than running it; the conductor ran it."
     },
     {
       "id": "T-176",
@@ -1616,7 +1619,7 @@
       "priority": 2,
       "value": "M",
       "effort": "S",
-      "status": "todo",
+      "status": "done",
       "deps": [],
       "files_hint": [
         ".swarm/KI-8-OWNER-ACTION.md"
@@ -1626,7 +1629,10 @@
       "model": "sonnet",
       "attempts": 0,
       "traces_to": "KI-8 (state.json known_issues, open since cycle 27) -- a filed defect whose owner-ask has never been written",
-      "notes": "REPORT.md:291 already states most of the substance but reads as a status note, not an owner-addressed ask, and never names the target filename. Deliberately a NEW standalone file so the owner has one thing to read and so this item's files_hint stays disjoint from T-183/T-184's REPORT.md work. HARD CONSTRAINT (SPEC non-goal): this file must not contain LICENSE text and must not invent a holder name -- it is an ask, not a license. Routed sonnet rather than the haiku the table gives S-effort docs: the binding requirement here is a refusal (do not invent a legal person), and a cheap tier is likelier to helpfully fill in a plausible name."
+      "notes": "REPORT.md:291 already states most of the substance but reads as a status note, not an owner-addressed ask, and never names the target filename. Deliberately a NEW standalone file so the owner has one thing to read and so this item's files_hint stays disjoint from T-183/T-184's REPORT.md work. HARD CONSTRAINT (SPEC non-goal): this file must not contain LICENSE text and must not invent a holder name -- it is an ask, not a license. Routed sonnet rather than the haiku the table gives S-effort docs: the binding requirement here is a refusal (do not invent a legal person), and a cheap tier is likelier to helpfully fill in a plausible name.",
+      "verified_cycle": 86,
+      "model_used": "haiku (gear-2 demotion from sonnet)",
+      "verification": "cycle 86, sealed gate d1a81a6: names the copyright line, the exact file (LICENSE at repo root) and what stays broken (package.json license MIT + private false, no license text); ships NO MIT body text and invents NO legal holder (sole copyright line is the placeholder \"Copyright (c) <year> <legal holder>\"); 278 words. Conductor also read the file end to end."
     },
     {
       "id": "T-183",

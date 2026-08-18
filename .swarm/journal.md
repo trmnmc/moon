@@ -3912,3 +3912,91 @@ runfile-mirror:
 ```json
 {"version":1,"run_label":"improvement-moon-2026-08-18","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-19T12:21:07+00:00","usage_reset_at":"2026-08-18T13:00:00+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787057027,"next_wakeup_at":1787057117,"pid":2240352,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.108,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":60525618,"window_cost_usd":48.99,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":13834765,"projected_depletion_at":1787058000,"last_probe_ts":1787056144,"last_real_probe_ts":1787056144,"probe_failures":1,"probe_note":"bin/swarm-budget.sh DENIED by the allowlist gap (KI-2) for the 12th consecutive run; the numbers here are REAL, taken by running the script's own PROBE_CMD (npx ccusage@latest blocks --json --token-limit max) by hand. source=probe is therefore accurate about the DATA and probe_failures=1 is accurate about the SCRIPT.","weekly":{"ok":true,"weekly_used_pct":30,"opus_used_pct":20,"week_elapsed_pct":18.66,"weekly_heat":1.61,"opus_heat":1.07,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":1,"playbook":{"mode":"auto","applied":["L-008","L-016","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043","L-044"],"vetoed":[],"directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Tests asserting environment-dependent behavior must reset the env var in beforeEach, not beforeAll - a suite-level restore hook lets a real ambient value leak back in"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive - a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns","For every mutation that must kill the suite, author one control that must leave it GREEN - a check that dies on everything is a snapshot test, not an assertion"]},"held_out":{"ids":["L-021","L-022"],"why":"both instruct browser/SPA behaviour (hard-reload after server restart; clear persisted UI state before mounting a component) and the target is a zero-dependency terminal CLI with no browser surface. Staged as applied by auto mode, deliberately NOT wired into prompt_lines - wiring them would be noise a builder must discard. To be reported not-exercised at WRAP_UP."},"staged_by":"conductor read of playbook/learnings.md, NOT bin/swarm-playbook.sh parse - the script is DENIED by the allowlist gap (KI-2, 12th consecutive run). The 14 applied ids are exactly the lessons carrying an [apply:] directive, verified by structural read."}},"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
 ```
+
+## cycle 86 | 2026-08-18T12:55:50+00:00 | moon | BUILD
+work: build-wave, k = min(k_current 3, gear-2 cap 2) = 2 — T-175 (Samoa hemisphere fix) + T-182 (KI-8 owner ask). Both were the wave cycle 85 pre-composed; files_hint pairwise disjoint (src/hemisphere.js + test/hemisphere.test.js vs .swarm/KI-8-OWNER-ACTION.md).
+workflow: DIRECT Agent dispatch, not Workflow — the Workflow tool is review-gated in a `-p` session, which is the documented failure-table fallback. No worktrees; the two agents were given strictly disjoint file scopes and the post-hoc `git status` confirmed exactly 3 touched paths, no crossover.
+models: T-175 sonnet (fix — build/fix never demotes below sonnet); T-182 haiku, DEMOTED from the sonnet the backlog item asked for by the gear-2 demote rule for S-effort docs. Playbook builder prompt_lines appended to both dispatches.
+clock+burn: bin/swarm-budget.sh DENIED again (KI-2, 13th consecutive run) in the absolute form AND with a RUNFILE= env prefix. PROBE_CMD run by hand instead: window 08:00–13:00Z, 72,942,947 of a 130,591,250 token limit (57.8%), ~15.1M tok/h, reset 13:00Z. ρ = 0.044 → gear 5 on burn alone, but guest clamps to 3 and the weekly governor ceiling clamps to 2. Gear 2 stands, k_cap 2, demote on, promote blocked.
+KI-2 NARROWED (new measurement, not a re-observation): `bin/swarm-notify.sh poll` SUCCEEDED this cycle in the bare-relative form with cwd=/opt/swarm, in the same session where the budget probe was refused at every path tried. That is the cycle-83 root cause confirmed by controlled comparison: the gap is a MISSING ALLOWLIST ENTRY for swarm-budget.sh / swarm-playbook.sh, not a path-form effect, not a shell-script-class effect, not a flaky permission layer. Notify is NOT degraded on this host; budget and playbook are. Fix remains a settings edit a human must make (hard rule 5 fences the run from it).
+control: poll clean, pending[] empty, inject[] empty — nothing to triage or apply.
+craft: node bin/swarm-craft.mjs ran clean, degraded[] empty (ui 2969 / review 2233 / docs 1737 chars). No item flagged craft:"ui" — a terminal CLI item and a markdown item, no browser surface — so no craft pack was spliced into either prompt.
+post-merge checks SKIPPED, with the reason recorded rather than silently omitted: collision-scan.mjs is a gate for browser targets built from classic non-module scripts, and the qa-verify look pass keys on user-visible merged files (html/css/client-js/template/static). This wave merged one CommonJS source file, one test file and one markdown file. Neither check applies; neither was run; neither is reported as passed.
+
+GATE DEFECT FOUND IN MY OWN INSTRUMENT — recorded because editing a gate after watching it fail is exactly the shape of weakening one:
+  gate-c86.mjs was authored and sealed at sha256 5f3a7764 BEFORE dispatch, per the standing
+  rule that builders must never be able to code to the check. It ran and reported
+  T-175b FAIL, "failing test(s): (none named)".
+  That was NOT a product defect. The gate parsed TAP ("# tests N", "not ok N - name");
+  Node v24.19.0 defaults to the SPEC reporter ("ℹ tests N", "✖ name"), so every tally read
+  "? / ? / ?" and the failing-name regex matched nothing on a suite that HAD gone red.
+  Fix touched the two PARSERS only — no assertion, no arm, no threshold. Re-sealed at
+  sha256 d1a81a68 and re-run: 8/8 pass. The post-fix gate is strictly MORE discriminating
+  than the sealed one, since the sealed one could not see a failure at all.
+  Both hashes are in the record so the diff, not my assurance, is the evidence.
+
+VERIFICATION EVIDENCE (sealed gate d1a81a68, conductor-run; full output at .swarm/runs/cycle-086-verify-gate.txt):
+  [PASS] BASE full test_cmd green on the working tree
+        tests 171 / pass 171 / fail 0
+  [PASS] T-175a detectHemisphere('US/Samoa')==='south' AND no US/* collateral
+        US/Samoa -> south
+        Pacific/Samoa -> south
+        Pacific/Pago_Pago -> south
+        us/samoa -> south
+          US/Samoa   -> south
+        NZ -> south
+        US/Pacific -> north
+        Japan -> north
+        US/Alaska -> north
+        US/Hawaii -> north
+  [PASS] T-175b arm A: mutant + new test -> RED and attributable by name
+        deleted src line 163: 'us/samoa', // legacy alias of Pacific/Pago_Pago - Pago Pago is 14d16' S
+        tests 14 / pass 13 / fail 1
+        failing test(s): legacy top-level aliases | failing tests: | legacy top-level aliases
+  [PASS] T-175c arm B: mutant + HEAD test file -> GREEN (kill is attributable to the new test alone)
+        tests 14 / pass 14 / fail 0
+  [PASS] T-182a names the one line, the exact file (LICENSE at repo root), and what stays broken
+        copyright-line:true LICENSE:true package.json:true private:true
+  [PASS] T-182b does NOT contain MIT license body text
+        no MIT boilerplate
+  [PASS] T-182c invents NO legal holder (every copyright line is a placeholder)
+          Copyright (c) <year> <legal holder>
+  [PASS] T-182d standalone and short (<= 600 words)
+        278 words
+  
+  === GATE VERDICT ===
+  PASS  BASE  full test_cmd green on the working tree
+  PASS  T-175a  detectHemisphere('US/Samoa')==='south' AND no US/* collateral
+  PASS  T-175b  arm A: mutant + new test -> RED and attributable by name
+  PASS  T-175c  arm B: mutant + HEAD test file -> GREEN (kill is attributable to the new test alone)
+  PASS  T-182a  names the one line, the exact file (LICENSE at repo root), and what stays broken
+  PASS  T-182b  does NOT contain MIT license body text
+  PASS  T-182c  invents NO legal holder (every copyright line is a placeholder)
+  PASS  T-182d  standalone and short (<= 600 words)
+  
+  GATE PASSED: all checks
+
+  L-029 IS THE POINT HERE, and the builder did not actually satisfy it. Its return said
+  arm B "would not fail" against the prior test file — REASONED, from a Read it had taken
+  before editing. The conductor RAN it: HEAD's test/hemisphere.test.js + the same
+  src-row deletion → 14/14 GREEN. So the kill in arm A is attributable to the new
+  assertion alone and to nothing else in the suite. Claim became fact only at this step.
+
+  T-182 read end to end by the conductor, beyond the mechanical checks: the document is
+  addressed to the owner, names LICENSE at the repo root explicitly (the gap REPORT.md:291
+  left open), and refuses the holder. One judgment call recorded: line 19 illustrates the
+  slot with "e.g., Jane Doe / Acme Corporation / The Contributors". Those are labelled
+  examples of the KIND of legal person, not an assertion about this repo's holder, and the
+  sole rendered copyright line is the bare placeholder. Read as compliant with the
+  non-goal, and flagged here so a human can disagree.
+
+items: T-175 done (verified) · T-182 done (verified) · 0 reverted · 0 failed verifies
+backlog: 80 done / 3 todo / 3 dropped (86 total). Remaining: T-183 (p3, S, haiku — stale render.test.js:629 citation), T-184 (p4, M, sonnet — REPORT.md first-screen restructure), T-185 (p5, S, fable — conductor-verify the agent-claimed L-029/L-044 audit verdicts).
+wave autotune: CLEAN wave (0 reverts, 0 failed verifies) → wave_streak 0 → 1. k_current stays 3; a second consecutive clean wave would raise it to 4, where the gear-2 cap of 2 would still bind.
+next wave: T-183 and T-184 both touch REPORT.md and must never be paired (L-016) — so the next wave is T-183 + T-185 (disjoint: REPORT.md vs test/), with T-184 sequenced after T-183 lands.
+commit: (stamped in the addendum)
+next wakeup: 1787057940 (+90s, base delay after a verified-value cycle)
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-moon-2026-08-18","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-19T12:21:07+00:00","usage_reset_at":"2026-08-18T13:00:00+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787057750,"next_wakeup_at":1787060147,"pid":2244955,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.044,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":72942947,"window_cost_usd":57.88,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":15096000,"projected_depletion_at":1787058000,"last_probe_ts":1787057750,"last_real_probe_ts":1787057750,"probe_failures":2,"probe_note":"bin/swarm-budget.sh DENIED again (KI-2, 13th consecutive run) in BOTH the absolute form and with a RUNFILE= env prefix. The numbers here are REAL: the conductor ran the script's own PROBE_CMD (npx ccusage@latest blocks --json --token-limit max) by hand. Window 08:00-13:00Z, 72.94M of a 130.59M limit (57.8%), reset ~10 min after this cycle opened. rho = 0.044 would reach gear 5, but guest mode clamps to 3 and the weekly governor ceiling clamps to 2, so gear 2 stands. NEW THIS CYCLE, and it narrows KI-2: bin/swarm-notify.sh poll SUCCEEDED in the bare-relative form with cwd=/opt/swarm, confirming the cycle-83 root cause exactly - the gap is a MISSING ENTRY for budget/playbook, not a path-form or shell-script-class effect. notify is NOT degraded on this host.","weekly":{"ok":true,"weekly_used_pct":30,"opus_used_pct":20,"week_elapsed_pct":18.66,"weekly_heat":1.61,"opus_heat":1.07,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":2,"playbook":{"mode":"auto","applied":["L-008","L-016","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043","L-044"],"vetoed":[],"directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Tests asserting environment-dependent behavior must reset the env var in beforeEach, not beforeAll - a suite-level restore hook lets a real ambient value leak back in"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive - a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns","For every mutation that must kill the suite, author one control that must leave it GREEN - a check that dies on everything is a snapshot test, not an assertion"]},"held_out":{"ids":["L-021","L-022"],"why":"both instruct browser/SPA behaviour (hard-reload after server restart; clear persisted UI state before mounting a component) and the target is a zero-dependency terminal CLI with no browser surface. Staged as applied by auto mode, deliberately NOT wired into prompt_lines - wiring them would be noise a builder must discard. To be reported not-exercised at WRAP_UP."},"staged_by":"conductor read of playbook/learnings.md, NOT bin/swarm-playbook.sh parse - the script is DENIED by the allowlist gap (KI-2, 12th consecutive run). The 14 applied ids are exactly the lessons carrying an [apply:] directive, verified by structural read."}},"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```
