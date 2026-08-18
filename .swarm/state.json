@@ -1013,7 +1013,7 @@
     "ts": "2026-08-18T16:23:57+00:00",
     "work": "build-wave k=1 (direct Agent dispatch, sonnet) — T-190; plus conductor-run re-verification that closed T-189 as stale",
     "outcome": "VERIFIED. T-190 done: --json precision policy now generated from a single table in bin/moon.js, help + README carry it verbatim, pinned by 4 new tests. Gate: 8/9 pass 1 (one instrument defect, corrected in pass 2: 7/7), mutation A + B both turned the suite RED, control C left it GREEN. Suite 171 -> 175, all green. T-189 dropped: the check it asked for already shipped at cycle 63 and was re-proved over 976 frames.",
-    "commit": ""
+    "commit": "230e659"
   },
   "run_label": "improve-3",
   "resolved_issues": [
