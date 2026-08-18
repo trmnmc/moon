@@ -1,0 +1,19 @@
+test_cmd read from state.json: "node --test test/*.test.js"
+test/ glob matches 9 files: args.test.js astro.test.js cli.test.js contracts.test.js hemisphere.test.js manifest.test.js regressions.test.js render.test.js report-issues.test.js
+
+FAIL     COVERAGE: the run touched every file the test_cmd glob matches
+          glob 9 files · named in the run output 3 · MISSING: contracts.test.js hemisphere.test.js manifest.test.js regressions.test.js render.test.js report-issues.test.js
+
+PASS     suite is GREEN over the full glob
+          reporter: spec (ℹ tests N) · tests 175 · pass 175 · fail 0
+
+PASS     suite is never below the 171-test kickoff baseline
+          live 175 vs baseline 171 · delta 4
+
+PASS     no UNDATED doc test-count claim disagrees with the live count
+          no undated doc count claim disagrees with 175
+
+PASS     CONTROL: the self-dating historical counts are still present (not scrubbed)
+          REPORT.md:33 -> 171 · REPORT.md:38 -> 161 · REPORT.md:82 -> 147
+
+AUDIT PASS 3: 1 FAILED

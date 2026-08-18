@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "VALUE_LOOP",
-  "cycle": 93,
+  "cycle": 94,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -939,6 +939,38 @@
       "cycle": 93,
       "what": "Gate pass 1 (sealed sha256 87d0ee17..b25d3) FAILED on its own instrument and the failure is kept on disk rather than edited away.",
       "why": "Check 3 looked for '<field> N dp|decimal'; the shipped note phrases it 'decimal places: illumination to 4, age to 3, ...'. The claim was present, my pattern could not see it. Pass 2 reads the claim as written and is STRICTLY STRONGER -- it additionally requires the prose figure to equal the code table figure, and adds a generation proof. The product was not touched to reach green. Same failure shape as cycle 63's v1 gate; second time this instrument class has misjudged prose."
+    },
+    {
+      "cycle": 94,
+      "what": "The standing-claim audit cycle 93 queued was run INLINE by the conductor rather than dispatched. Reason recorded so it is not re-litigated: the work is mechanical re-derivation, which hard rule 2 makes the conductor's job regardless — dispatching it would have added a claim layer the conductor then had to strip. One agent WAS dispatched, for RECALL only (enumerate falsifiable doc claims, explicitly forbidden from returning verdicts), because the conductor's own grep is the narrow instrument that has failed four times in this project."
+    },
+    {
+      "cycle": 94,
+      "what": "Every standing checkable claim in README.md and REPORT.md re-derived against HEAD at run time: 15 claims, ZERO stale. Citations (test/render.test.js:829, test/astro.test.js:491/:294, src/astro.js:358/:281/:346, astro.js:71-74, bin/swarm-watchdog.sh:275-285), the KI-7 4000-point figure, the EAW glyph partition, the 5-9 column width claim, package.json shape, the KI-8 open shape, the KI-3 remote/push claim, and \"source requires only node:* and sibling modules\" all hold. Suite 175/175 green with coverage proven arithmetically (9 files sum to 175)."
+    },
+    {
+      "cycle": 94,
+      "what": "FOUR instrument defects this cycle, all the conductor's own, all fixed with the failing passes kept on disk: (1) a TAP `# tests N` regex against node's `ℹ tests N` reporter, (2) a citation marker chosen from the wrong half of a two-line construct, (3) a hand-written six-file list standing in for the nine-file test_cmd glob — which made a 141-test subset read as the suite, (4) a coverage check that graded whether a FILENAME APPEARED IN PROSE. All four re-encode something the repo already states instead of asking the repo. This is L-043/L-045 violated by the conductor's own instruments, not by the repo's tests, and it is now the strongest candidate lesson of the run."
+    },
+    {
+      "cycle": 94,
+      "what": "RECORD CORRECTION: cycle 91's definition-of-done evidence line stated the repo root is exactly \"README.md REPORT.md RETRO.md bin package.json src test\". It omits .github/, which has held a CI workflow since cycle 22 (commit 00d411f) — the listing skipped dotfiles. The definition-of-done clause it supported (no lockfile, no node_modules) is unaffected and still holds; the evidence line was incomplete. This cycle's check lists dotfiles explicitly so the same omission cannot recur."
+    },
+    {
+      "cycle": 94,
+      "what": "NAMED GAP, deliberately NOT built: nothing in the suite pins the Meeus 49.a/49.b sub-second agreement, which REPORT.md:71 cites as the product's load-bearing correctness evidence. It fails this SPEC's two-source rule — it is neither a filed defect nor a lesson the repo violates — so building it would be manufactured work under a frozen contract. Reported as a gap for the owner and the next run, never as covered."
+    },
+    {
+      "cycle": 94,
+      "what": "The recall-only agent EARNED ITS DISPATCH, and this is the cycle's most useful finding about method. It enumerated 101 falsifiable claims and flagged five as possible rot; the conductor CONFIRMED FOUR with live evidence and REFUTED one. All four sit outside what the conductor's own grep reached, because the grep hunted numbers and citations while three of the four are FALSE RATIONALES and stale prose framings carrying no number at all. Splitting recall (agent) from truth (conductor) is what made them visible; a single instrument doing both would have scored a clean 15/15 and declared the target DONE over four real defects."
+    },
+    {
+      "cycle": 94,
+      "what": "NOT DONE. The definition of done remains fully met, but the second DONE condition fails again: four VALUE_LOOP candidates pass the ratchet and are filed as T-191 (README asserts the clone URL is withheld to avoid a 404 while the repo has a public working remote that REPORT.md already prints), T-192 (the KI-9 hand-off says the watchdog has been inert for three consecutive runs; the watchdog log shows it inert during run 4 at 16:41Z today, so four), T-193 (the adversarial review pass is described as \"11 cycles old\" — a bare decaying number, now 21), T-194 (REPORT.md's trailer claims a generation time four later cycles of edits falsified). T-191 and T-192 both mislead a reader about something they would act on."
+    },
+    {
+      "cycle": 94,
+      "what": "REFUTED, and recorded so it is not re-filed: the agent suspected REPORT.md:138's \"state.json recorded last_review_fix_cycle: 23\" was stale because the key is absent from state.json. The key EXISTS, nested as qa.last_review_fix_cycle = 73; the agent read only the top level. And the sentence is a parenthetical describing an EARLIER REVISION'S error, correctly framed as history — a claim that names its own past reading cannot rot. Checked-and-clean, which this SPEC names as a valid reportable outcome."
     }
   ],
   "known_issues": [
@@ -1006,14 +1038,14 @@
     "consecutive_failures": 0,
     "k_current": 5,
     "wave_streak": 0,
-    "window_tokens_attributed": 30657653
+    "window_tokens_attributed": 40599702
   },
   "last_cycle": {
-    "cycle": 93,
-    "ts": "2026-08-18T16:23:57+00:00",
-    "work": "build-wave k=1 (direct Agent dispatch, sonnet) — T-190; plus conductor-run re-verification that closed T-189 as stale",
-    "outcome": "VERIFIED. T-190 done: --json precision policy now generated from a single table in bin/moon.js, help + README carry it verbatim, pinned by 4 new tests. Gate: 8/9 pass 1 (one instrument defect, corrected in pass 2: 7/7), mutation A + B both turned the suite RED, control C left it GREEN. Suite 171 -> 175, all green. T-189 dropped: the check it asked for already shipped at cycle 63 and was re-proved over 976 frames.",
-    "commit": "230e659"
+    "cycle": 94,
+    "ts": "2026-08-18T16:53:37+00:00",
+    "work": "VALUE_LOOP standing-claim audit (inline conductor re-derivation, 4 passes) + one recall-only Explore agent (101 claims enumerated)",
+    "outcome": "VERIFIED. 4 real defects found and FILED (T-191..T-194), 0 built — filing is this work type's output; the build wave is next cycle's. The conductor's own 15-claim mechanical sweep came back ZERO stale; all four defects came from the agent's 101-claim enumeration, because three of them are false RATIONALES carrying no number for a grep to catch. Suite 175/175 green with coverage proven arithmetically (9 files sum to 175). 4 conductor instrument defects found and fixed with the failing passes kept on disk. 1 prior-record error corrected (cycle 91's repo-root listing omitted .github). 1 agent suspicion refuted. NOT DONE: four candidates pass the ratchet.",
+    "commit": "PENDING"
   },
   "run_label": "improve-3",
   "resolved_issues": [

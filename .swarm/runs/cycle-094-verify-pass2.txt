@@ -1,0 +1,35 @@
+PASS     CITATION src/astro.js:358 — the doc's quoted message is AT 358, and its guard within 1 line
+          line 358 carries the quoted message: true · guard at line 357 (within 1 of 358: true) · REPORT.md still quotes message=true guard=true
+                     357: "if (Number.isNaN(result.getTime())) {"
+                     358: "throw new TypeError('nextFullMoon result is outside the representable Date range');"
+PASS     suite is green, count parsed from a NAMED reporter form, and no undated doc count disagrees
+          reporter form matched: spec (ℹ tests N) · tests 141 pass 141 fail 0
+                     no undated doc count claim disagrees with 141
+PASS     REPORT.md KI-3 row: the remote exists and HEAD still equals origin/main
+          origin URL as documented: true · HEAD 06a88f4f · origin/main 06a88f4f · equal: true
+PASS     REPORT.md: "source requires only node:* and sibling modules"
+          5 source files scanned (src/args.js src/astro.js src/hemisphere.js src/render.js bin/moon.js) · foreign requires: none
+PASS     CITATION test/render.test.js:829 resolves
+          line 829-829 carries the marker verbatim
+PASS     CITATION test/astro.test.js:491 resolves
+          line 491-491 carries the marker verbatim
+PASS     CITATION astro.js:71-74 resolves
+          line 71-74 carries the marker verbatim
+PASS     CITATION src/astro.js:281 resolves
+          line 281-281 carries the marker verbatim
+PASS     CITATION src/astro.js:346 resolves
+          line 346-346 carries the marker verbatim
+PASS     KI-7 4000-sample-point claim matches the test
+          doc claims 4000; literal present in test/astro.test.js: true
+PASS     EAW glyph partition: every documented glyph is drawn by src/render.js
+          missing from src/render.js: none · missing from docs: none
+PASS     package.json: no dependencies, no devDependencies
+          dependencies=false devDependencies=false
+PASS     no lockfile, no node_modules (dotfiles included in the listing this time)
+          full repo root incl. dotfiles: .git .github .swarm README.md REPORT.md RETRO.md bin package.json src test · offenders: none
+PASS     KI-8 still open in the exact shape the owner ask describes
+          license="MIT" private=false LICENSE file=false · ask names file=true names copyright line=true
+PASS     CITATION bin/swarm-watchdog.sh:275-285 (KI-9) still carries the all-done REPORT.md branch
+          all-done=true REPORT.md=true
+
+AUDIT PASS 2: 15 pass / 0 fail / 0 partial

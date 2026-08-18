@@ -1,0 +1,37 @@
+PASS     CITATION test/render.test.js:829 resolves to what the doc says is there
+          line 829-829 carries the marker verbatim
+PASS     CITATION test/astro.test.js:491 resolves to what the doc says is there
+          line 491-491 carries the marker verbatim
+PASS     CITATION test/astro.test.js:294 resolves to what the doc says is there
+          line 294 exists: "// KI-6 regression: a valid input Date whose resulting full-moon insta"
+FAIL     CITATION src/astro.js:358 resolves to what the doc says is there
+          marker NOT at cited line 358-358 — it is at line 357 (off by -1)
+PASS     CITATION astro.js:71-74 resolves to what the doc says is there
+          line 71-74 carries the marker verbatim
+PASS     CITATION src/astro.js:281 (bad-input guard shape) resolves to what the doc says is there
+          line 281: "throw new TypeError('computeMoon expects a valid Date');" (matches throw,TypeError)
+PASS     CITATION src/astro.js:346 (bad-input guard shape) resolves to what the doc says is there
+          line 346: "throw new TypeError('nextFullMoon expects a valid Date');" (matches throw,TypeError)
+PASS     CITATION test/astro.test.js:294 is in fact the nextFullMoon-range regression
+          lines 289-300 mention nextFullMoon=true range-ish=true :: test('nextFullMoon rejects non-Dates and invalid Dates', () => { assert.throws(() => nextFullMoon('2024-01-01'), TypeError); assert.throws(() => nextF
+PASS     CITATION bin/swarm-watchdog.sh:275-285 still carries the all-done REPORT.md branch
+          lines 275-285: all-done=true REPORT.md=true :: if jq -e '.targets | type == "array" and length > 0' "$RUNFILE" >/dev/null 2>&1; then ALL_REPORTS=1 while IFS= read -r tpath; do [ -n "$tpath" ] || continue [ -
+PASS     KI-7 claim of 4000 deterministic sample points matches the test
+          doc claims 4000; test constants found []; literal 4000 present in test file: true
+PASS     PHASE_ILLUMINATION_CONSISTENCY_DOMAIN really is the half-open year range 1000-3000
+          1000=true 3000=true :: PHASE_ILLUMINATION_CONSISTENCY_DOMAIN = { startMs: Date.UTC(1000, 0, 1), endMs: Date.UTC(3000, 0, 1), }; const DEG = Math.PI / 180; const DAY_MS = 86400000; const JD_UNIX_EPOCH = 2
+PASS     the documented EAW glyph partition matches what the code actually draws
+          glyphs documented-and-present: true; every glyph appears in the docs: true
+PASS     the "5-9 columns instead of 5" width claim is stated identically in both docs
+          README=true REPORT=true
+PASS     package.json declares no dependencies and no devDependencies
+          dependencies key: false · devDependencies key: false
+PASS     no lockfile and no node_modules in the repo
+          repo root: .github README.md REPORT.md RETRO.md bin package.json src test · offenders: none
+PASS     KI-8 is still open in the shape the owner ask describes: license claimed, no LICENSE file
+          pkg.license="MIT" pkg.private=false LICENSE file present=false · ask names the file=true names the copyright line=true
+FAIL     suite is green, and every live test-count claim in the docs agrees with the run
+          LIVE SUITE: tests null pass null fail null
+                     no undated doc count claim disagrees with null
+
+AUDIT: 15 pass / 2 fail / 0 partial

@@ -1,0 +1,25 @@
+test_cmd (from state.json): "node --test test/*.test.js"
+GLOB RUN: tests 175 pass 175 fail 0
+
+per-file counts (9 files):
+  args.test.js             tests  33  pass  33  fail 0
+  astro.test.js            tests  26  pass  26  fail 0
+  cli.test.js              tests  26  pass  26  fail 0
+  contracts.test.js        tests  11  pass  11  fail 0
+  hemisphere.test.js       tests  14  pass  14  fail 0
+  manifest.test.js         tests   5  pass   5  fail 0
+  regressions.test.js      tests  18  pass  18  fail 0
+  render.test.js           tests  36  pass  36  fail 0
+  report-issues.test.js    tests   6  pass   6  fail 0
+  SUM                      tests 175
+
+PASS     COVERAGE: per-file counts sum exactly to the glob run total
+          sum of 9 files = 175 · glob run = 175 · delta 0
+
+PASS     every file is green alone AND together
+          glob fail=0 · files red alone: none
+
+PASS     CONTROL: excluding report-issues.test.js makes the total DISAGREE (a blind check would not notice)
+          8-file run = 169 vs full 175 · detected the omission: true
+
+AUDIT PASS 4: all checks pass
