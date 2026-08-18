@@ -4138,7 +4138,7 @@ items: T-184 done (verified, 9/9) · T-187 filed · 0 reverted · 0 failed verif
 backlog: 83 done / 2 todo / 3 dropped (88 total). Remaining: T-186 (p5, S, haiku — the pin comment) and T-187 (p5, S, haiku — the REPORT row).
 wave autotune: CLEAN wave (0 reverts, 0 failed verifies) → wave_streak 0 → 1. `k_current` stays 4; the gear-2 cap of 2 binds every wave regardless, so the raise remains bookkeeping until the posture lifts.
 next wave: **T-186 + T-187 together, k=2.** One finding in two disjoint files, judged against one measurement record (`.swarm/runs/cycle-087-verify-T-185.txt`). That closes the backlog, which makes the cycle after it the DONE determination — every SPEC must-have would then be closed, and the churn breaker must not read a finished target as stalled.
-commit: pending — stamped by an addendum commit, as at cycles 85/86/87
+commit: 623b6ef (stamped by the cycle-88 addendum commit, as at cycles 85/86/87)
 next wakeup: 1787061852 (2026-08-18T14:04:12+00:00, +900s). Base 90s is too short for a run with ~22h of clock and a two-item wave next; 900s keeps the pacer from spinning. Clamp checked: wakeup + 900 = 1787062752 sits far inside stop_at 1787142067, so hard rule 8 does not bind.
 
 runfile-mirror:

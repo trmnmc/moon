@@ -978,7 +978,7 @@
     "ts": "2026-08-18T13:48:38+00:00",
     "work": "build-wave k=1 (direct Agent dispatch, sonnet) — T-184, the run's last M-effort must-have: restructure REPORT.md and archive the forensics",
     "outcome": "VERIFIED 9/9 on sealed gate 0a236502. REPORT.md 781 -> 209 lines, all four reader anchors inside the first 60, zero forensic headings remaining; 0 substantive lines lost, 4 lines of connective text added. Filed T-187 (same KI-5 misattribution, second file). Gate instrument defect caught and fixed mid-cycle.",
-    "commit": "pending"
+    "commit": "623b6ef"
   },
   "run_label": "improve-3",
   "resolved_issues": [
