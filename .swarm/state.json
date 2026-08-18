@@ -986,6 +986,11 @@
       "cycle": 95,
       "what": "MEASURED AND DISMISSED, recorded so it is not re-found: T-192's edited line is 109 characters against a prose median of 89, and no item was filed for it.",
       "why": "Filing it was the tempting move on a run whose remit is doc polish. Measured instead of judged by eye: REPORT.md already carries 25 lines over 100 characters, so 109 sits inside the document's existing variation rather than outside it, and the line is prose the reader never sees unwrapped. The SPEC names CHURN as this run's chief risk and requires every item to trace to a filed defect or a demonstrably violated lesson; a re-wrap traces to neither. Recording the dismissal with its measurement so a later cycle does not spend a pass rediscovering it and reaching the opposite conclusion."
+    },
+    {
+      "cycle": 95,
+      "what": "Corrected a doc-truth defect in MY OWN artifact: the dashboard meta line has read \"notify off (helper denied — KI-2)\" for several cycles while notify actually works. Then took THREE drafts to write an assertion that could tell the correction from the record of it.",
+      "why": "Measured rather than inherited: /opt/swarm/.ntfy.json exists and bin/swarm-notify.sh poll SUCCEEDED twice this cycle (runs/notify.log, 17:21:47Z and 17:28:58Z). KI-2 root-caused at cycle 35 that notify works in the bare relative form and only budget/playbook lack allowlist entries, so \"helper denied\" was true of the wrong helper — a claim ABOUT A TOOL that decayed when the tool status changed, which is T-192 pointed at myself. The instrument story is the more useful one. Draft 1 swept the whole page and fired on this very decision entry, which must quote the old wording to record it; that is cycle 19 C4a verbatim. Draft 2 used a string blacklist and fired on the template HTML comment documenting both meta-line shapes. Draft 3 is structural — strip comments, strip the decisions list, require the remainder to carry no notify-off claim — and is STRICTER than draft 1 because it isolates regions draft 1 never separated, with two controls proving the stripping changed the verdict rather than the predicate going vacuous. That makes NINE own-instrument defects across cycles 93-95, all the same mistake: re-encoding a document structure in a pattern instead of asking the document."
     }
   ],
   "known_issues": [
@@ -1060,7 +1065,7 @@
     "ts": "2026-08-18T17:28:26+00:00",
     "work": "build-wave k=2 [T-191 README clone-URL premise, T-192 REPORT KI-9 decaying count] — both sonnet, direct Agent dispatch, disjoint files",
     "outcome": "VERIFIED. 2/2 items passed a gate sealed before either diff was read (sha256 265a7b43…d2b631314), 16/16 checks, every prose predicate paired with a control arm against HEAD. Addendum 2/2: the count re-derived at run time rather than inherited, and the README clone command run for real from a scratch clone. Suite 175/175. 0 reverts, 0 failed verifies — clean wave.",
-    "commit": "pending"
+    "commit": "407855d"
   },
   "run_label": "improve-3",
   "resolved_issues": [
