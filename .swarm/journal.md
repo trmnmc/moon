@@ -3841,3 +3841,74 @@ enabled because the conductor cannot authenticate to systemd. It was already ine
 additionally gated by `wrap_up_complete=true`, which BOTH the watchdog (`:270`) and the pacer
 (`:183`) check. No further cycles will spawn. Saying "disarmed" would have been a rendered pass
 over a check that did not run.
+
+## cycle 85 | 2026-08-18T12:43:47+00:00 | moon | PLAN -> BUILD
+work: KICKOFF (improvement run 4, allocator TRICKLE auto-kickoff) + inline PLAN — the backlog held 1 todo against a brand-new 6-must-have spec, so the PLAN gate was the only open gate.
+workflow: inline PLAN, 1 Plan-type subagent (sonnet) | models: planner sonnet; taste judge fable (kickoff); no build wave this cycle
+kickoff: allocator hints consumed and deleted (mode=guest dial=0.30 posture=trickle, stop_at 2026-08-19T12:21:07+00:00). Guard 1d improvement-run path taken: existing repo REUSED, no git init, no gh repo create. Run-3 spec preserved verbatim at .swarm/SPEC-improve-2026-08-17.md.
+stress-test: verdict RESHAPE (confidence 7). "harden tests" reshaped to "no test may be added that does not close a survivor already on record or a defect already filed"; no new measurement axis; "polish docs" narrowed to two named deliverables. "Nothing needed doing" declared an ALLOWED terminal outcome.
+prior-art: 4 searches, stance BUILD. The only direct Node moon-phase CLI hit (ShawnMcGough/moon-phases) has 0 stars and licenseInfo null — fails the license gate outright. Nothing to adopt or extend.
+taste-judge (fable, fresh, spec text only): use-twice 3, product-not-demo 8, scope-fits-night 9, one-memorable-thing 3. Verdict: honest and safely scoped, but worth spending ONLY if the capacity has no competing claim. allocator.json records posture=trickle, human_active=false, allow_overall_pct=0 — that condition is met, and it is recorded rather than assumed.
+playbook: apply_mode auto, 14 [apply:] lessons staged (L-008,016,020,021,022,024,026,029,031,033,034,042,043,044) by DIRECT READ of learnings.md — bin/swarm-playbook.sh parse DENIED again (KI-2, 12th consecutive run). L-021/L-022 held out of prompt_lines as browser-shaped against a terminal CLI. DEVIATION recorded: L-020 wired IN this run (held out on 2026-08-16 as browser-shaped) — its mechanism is suite-level env restore hooks, and this repo detects hemisphere from TZ, so the hazard is live here. Ledger line hand-appended to playbook/applied.log.
+
+VERIFICATION EVIDENCE:
+  baseline, conductor-run (not inherited): node --test test/*.test.js
+    ℹ tests 171 / ℹ pass 171 / ℹ fail 0 / ℹ duration_ms 2928.6   PASS
+
+  T-175 reproduced independently of the planning agent:
+    node -e "require('/opt/targets/moon/src/hemisphere.js').detectHemisphere(z)"
+    US/Samoa -> north          <-- DEFECT
+    Pacific/Samoa -> south     Pacific/Pago_Pago -> south    NZ -> south
+    Brazil/East -> south       Chile/Continental -> south    Asia/Ujung_Pandang -> south
+    America/Buenos_Aires -> south                            US/Alaska -> north
+    CONFIRMED: one row missing from a table whose purpose is names outside the 418-zone Intl set.
+
+  T-175 scope claim CHECKED, and it narrows the spec's own framing:
+    TZ=US/Samoa node bin/moon.js --json
+    {"phase":"waxing crescent",...,"hemisphere":"south",...}   <-- shipped CLI is CORRECT
+    TZ=US/Samoa node -e 'Intl.DateTimeFormat().resolvedOptions().timeZone' -> Pacific/Pago_Pago
+    So: reachable via the exported API or a small-icu runtime, NOT from the CLI on a full-ICU host.
+
+  doc citations, measured with a run-time instrument (all 17 in README/REPORT/CONTRACTS):
+    citations found: 17 | file resolved: 17 | file missing: 0
+    16 of 17 resolve to the code they name. ONE stale, appearing TWICE:
+      REPORT.md:288 -> test/render.test.js:629  [claims "KI-5 pin: disc glyph set ..."]
+        actual: const f = 1 - Math.acos(1 - 2 * k) / (2 * Math.PI); // waning: second crossing
+      REPORT.md:428 -> render.test.js:629  [same claim, same miss]
+      true location: test/render.test.js:826 (section comment at 764)
+    CONDUCTOR CORRECTION TO THE PLANNING AGENT, which marked this citation CURRENT with a
+    true_value ("const k = 0.014;") that is both off by one AND not the KI-5 pin test.
+    Filed as T-183.
+
+  lesson audit L-043 CLEAN — conductor-verified:
+    grep -rn '\[\^>\]\*' test/ src/ bin/  ->  (no matches)
+    the only two [^>]+ uses are markdown-placeholder detection (regressions.test.js:249,266)
+    readmeSection (regressions.test.js:19-31) uses plain string search, with a comment
+    pre-empting L-043's exact multi-line failure mode.   PASS
+
+  lesson audit L-045 CLEAN — conductor-verified:
+    grep -n "171\|=== 6\|length, 6" test/report-issues.test.js  ->  (no matches)
+    its heading-count test derives BOTH the claimed N and the actual row count live from
+    REPORT.md — no hardcoded expected value.   PASS
+
+  lesson audit L-029, L-044 — AGENT-CLAIMED CLEAN, NOT conductor-verified.
+    Recorded as half-verified and filed as T-185 rather than reported as checked.
+
+  NOT RUN, reported as not-run: the kickoff headless zero-prompt assert
+    (claude -p "/swarm status ...") was DENIED — the nested claude spawn is not allowlisted.
+    Same allowlist gap as KI-2. Watchdog relaunches may stall; on the VPS the pacer is the
+    real firing mechanism, so recovery is degraded, not absent.
+
+backlog: 5 todo covering all 6 must-haves — T-175(p1,S,sonnet) T-182(p2,S,sonnet)
+  T-183(p3,S,haiku) T-184(p4,M,sonnet) T-185(p5,S,fable). PLAN gate CLOSED, phase -> BUILD.
+  Zero lesson violations found: the audit's honest outcome is CLEAN, and the SPEC names
+  checked-and-clean a valid result.
+next wave (k = min(k_current 3, gear-2 cap 2) = 2): T-175 + T-182 — pairwise-disjoint
+  files_hint (src/hemisphere.js+test/hemisphere.test.js vs .swarm/KI-8-OWNER-ACTION.md).
+  T-183 and T-184 both touch REPORT.md and are sequenced by deps, never paired (L-016).
+commit: stamped by addendum
+next wakeup: 1787057117 (+90s)
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-moon-2026-08-18","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-19T12:21:07+00:00","usage_reset_at":"2026-08-18T13:00:00+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787057027,"next_wakeup_at":1787057117,"pid":2240352,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.108,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":60525618,"window_cost_usd":48.99,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":13834765,"projected_depletion_at":1787058000,"last_probe_ts":1787056144,"last_real_probe_ts":1787056144,"probe_failures":1,"probe_note":"bin/swarm-budget.sh DENIED by the allowlist gap (KI-2) for the 12th consecutive run; the numbers here are REAL, taken by running the script's own PROBE_CMD (npx ccusage@latest blocks --json --token-limit max) by hand. source=probe is therefore accurate about the DATA and probe_failures=1 is accurate about the SCRIPT.","weekly":{"ok":true,"weekly_used_pct":30,"opus_used_pct":20,"week_elapsed_pct":18.66,"weekly_heat":1.61,"opus_heat":1.07,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":1,"playbook":{"mode":"auto","applied":["L-008","L-016","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043","L-044"],"vetoed":[],"directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Tests asserting environment-dependent behavior must reset the env var in beforeEach, not beforeAll - a suite-level restore hook lets a real ambient value leak back in"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive - a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns","For every mutation that must kill the suite, author one control that must leave it GREEN - a check that dies on everything is a snapshot test, not an assertion"]},"held_out":{"ids":["L-021","L-022"],"why":"both instruct browser/SPA behaviour (hard-reload after server restart; clear persisted UI state before mounting a component) and the target is a zero-dependency terminal CLI with no browser surface. Staged as applied by auto mode, deliberately NOT wired into prompt_lines - wiring them would be noise a builder must discard. To be reported not-exercised at WRAP_UP."},"staged_by":"conductor read of playbook/learnings.md, NOT bin/swarm-playbook.sh parse - the script is DENIED by the allowlist gap (KI-2, 12th consecutive run). The 14 applied ids are exactly the lessons carrying an [apply:] directive, verified by structural read."}},"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```
