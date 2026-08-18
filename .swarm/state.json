@@ -978,7 +978,7 @@
     "ts": "2026-08-18T14:35:00+00:00",
     "work": "build-wave k=2 (direct Agent dispatch, haiku, SEQUENTIAL) - T-186 pin comment truth in test/render.test.js, then T-187 the same finding in REPORT.md KI-5",
     "outcome": "VERIFIED 2/2 on gate 0dd141e8 (sealed afccfd76, one predicate amended and proved failable). 20/20 checks pass, suite 171/171. T-187 re-derived the pin line 826 -> 829 at run time, which the sequential dispatch existed to make possible. Filed T-188: T-187 dropped the title from the citation. Two gate instrument defects caught - one pre-dispatch, one at verification.",
-    "commit": "PENDING"
+    "commit": "5ff166e"
   },
   "run_label": "improve-3",
   "resolved_issues": [

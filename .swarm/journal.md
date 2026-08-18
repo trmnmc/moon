@@ -4187,7 +4187,7 @@ backlog: 85 done / 1 todo / 3 dropped (89 total). Remaining: T-188 only.
 wave autotune: CLEAN wave — 0 reverts, 0 failed verifies. Both gate failures traced to the instrument, and the amended predicate was proved failable before acceptance, so neither is an item failure. `wave_streak` 1 → 2 → fires the raise: `k_current` 4 → **5**, streak reset to 0. Operationally this is bookkeeping only — the gear-2 cap of 2 binds every wave until the posture lifts.
 burn attribution: `window_tokens` delta since cycle 88 = 20,518,009 − 9,352,466 = **11,165,543**, credited to moon (the previous cycle's target). Prior cycles left `window_tokens_attributed` at 0, so this figure is this-cycle-only and NOT a run total — stated so the number is not misread at RETRO.
 next wave: **T-188 alone**, and then the DONE determination. With T-188 closed, every SPEC must-have is closed and the VALUE_LOOP ratchet ("would the target user notice? would they still care after 10 minutes?") has to be applied honestly to a shipped, spec-complete CLI under a TRICKLE brief whose own taste note says *"nothing needed doing" is an ALLOWED outcome that ends the run early*. The churn breaker must not read that as `stalled`: `consecutive_no_value` is 0 and a finished target sets status `done`, not `stalled`.
-commit: PENDING (stamped by the cycle-89 addendum commit, as at cycles 85–88)
+commit: 5ff166e (stamped by the cycle-89 addendum commit, as at cycles 85–88)
 next wakeup: 1787064960 (2026-08-18T14:56:00+00:00, +900s). Base 90s is too short for a run with ~22h of clock and one S item left; 900s keeps the pacer from spinning. Clamp checked: wakeup + 900 = 1787065860, far inside stop_at 1787142067, so hard rule 8 does not bind.
 
 runfile-mirror:
