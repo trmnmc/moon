@@ -1,0 +1,134 @@
+cycle 89 — VERIFICATION EVIDENCE for T-186 and T-187
+conductor-run, not agent-claimed. Target /opt/targets/moon, HEAD at dispatch 32a66af.
+
+Gate script: SWARM/runs/c089-gate.mjs
+  sealed BEFORE dispatch     sha256 afccfd76921bc4c7ed0a279fc9d3d7b76f2ceed96f4dd3fd1d4cd2b887a5e6a5
+  amended AT VERIFICATION     sha256 0dd141e858553b45cf02d1b6ca37e85586b7c0fa0ef1f26fbe719f9a9b81d22b
+  (one predicate widened, H7a — see AMENDMENT below; the change is recorded, not silent)
+
+=============================================================================
+ARM 0 — BASELINE. The sealed gate run against the UNFIXED tree, before any
+builder was dispatched. A gate that cannot fail proves nothing.
+=============================================================================
+$ node /opt/swarm/runs/c089-gate.mjs /opt/targets/moon      # sealed form afccfd76
+FAIL  G3  block no longer says "so an unannounced glyph change ..."
+FAIL  G4  block claims a glyph change fails; exact-output attribution present=false
+FAIL  G5  block names the exact-output tests as the existing identity coverage
+FAIL  H5  KI-5 row no longer says "so an unannounced glyph change ..."
+FAIL  H6  row claims a glyph change fails; exact-output attribution present=false
+FAIL  H7b  row states the two-EAW-class straddle
+GATE FAIL (6 failure(s))          [14 other checks PASS on the unfixed tree]
+
+The six failures are exactly the defect T-186/T-187 describe, in both files.
+
+INSTRUMENT DEFECT #1, caught pre-dispatch and fixed before sealing: the first
+draft of G3 passed vacuously on the unfixed tree. The source comment wraps the
+sentence across two `//` lines ("...so an" / "// unannounced glyph change..."),
+so a regex over the raw block never saw the connective. Fixed by stripping the
+`//` prefixes and collapsing whitespace before applying any prose predicate.
+G3 then failed on the baseline as it must. Both hashes above are post-fix.
+
+$ node --test test/*.test.js        # baseline, before any edit
+ℹ tests 171   ℹ pass 171   ℹ fail 0
+
+=============================================================================
+ARM 1 — POST-BUILD. Same gate, built tree.
+=============================================================================
+$ node /opt/swarm/runs/c089-gate.mjs /opt/targets/moon      # sealed form afccfd76
+PASS  G1  only // comment lines changed vs HEAD (11 changed line(s), 0 non-comment)
+PASS  G2  pin comment block located structurally (lines 762-781, 1191 chars)
+PASS  G3  block no longer says "so an unannounced glyph change ..."
+PASS  G4  block makes no glyph-change-fails claim (vacuously attributed)
+PASS  G5  block names the exact-output tests as the existing identity coverage
+PASS  G6a G6b G7 G8 ...
+PASS  H1 H2 H3 H4 H5 H6 H7b H8 H9 H10 ...
+FAIL  H7a  row states the documented-partition equality
+GATE FAIL (1 failure(s))
+
+=============================================================================
+AMENDMENT — why H7a's failure is an instrument defect, not an item failure
+=============================================================================
+H7a's predicate encoded ONE word order: /documented[-\s]...partition/. T-187
+wrote the same equality in the other order — "matches the partition documented
+in README.md" — which states the property MORE precisely than the phrasing the
+regex anticipated (it names README.md as the document). The property is present;
+the instrument could not see it.
+
+Widening a predicate to admit the text in front of you is the exact move hard
+rule 2 forbids when it hides a false claim, so the widened form was PROVED to
+still discriminate before it was accepted:
+
+$ node /opt/swarm/runs/c089-gate-failability.mjs
+OK   A  live row (property present): predicate=true, expected=true
+OK   B  equality clause deleted: predicate=false, expected=false
+      mutated? yes
+OK   C  equality reworded away from "documented": predicate=false, expected=false
+      mutated? yes
+AMENDED H7a IS FAILABLE: passes only when the equality is actually stated.
+
+Note also that H7a passed on the UNFIXED baseline too — it is a positive-content
+check, never one of the six that discriminated. The checks that actually caught
+this cycle's defect (G3/G4/G5/H5/H6/H7b) are untouched by the amendment.
+
+=============================================================================
+ARM 2 — FINAL. Amended gate, built tree.
+=============================================================================
+$ node /opt/swarm/runs/c089-gate.mjs /opt/targets/moon      # amended form 0dd141e8
+PASS  G1  only // comment lines changed vs HEAD (11 changed line(s), 0 non-comment)
+PASS  G2  pin comment block located structurally (lines 762-781, 1191 chars)
+PASS  G3  block no longer says "so an unannounced glyph change ..."
+PASS  G4  block makes no glyph-change-fails claim (vacuously attributed)
+PASS  G5  block names the exact-output tests as the existing identity coverage
+PASS  G6a block states the documented-partition equality
+PASS  G6b block states the two-EAW-class straddle
+PASS  G7  block cites no measured count (nothing to source)
+PASS  G8  pin test present under its exact title at test/render.test.js:829
+PASS  H1  heading "## Known issues (6)" intact
+PASS  H2  header cells and column order unchanged (["id","severity","status","issue"])
+PASS  H3  data-row count is 6 (got 6)
+PASS  H4  KI-5 row located (1014 chars)
+PASS  H5  KI-5 row no longer says "so an unannounced glyph change ..."
+PASS  H6  row makes no glyph-change-fails claim (vacuously attributed)
+PASS  H7a row states the documented-partition equality
+PASS  H7b row states the two-EAW-class straddle
+PASS  H8  row cites no measured count (nothing to source)
+PASS  H9  cited line number(s) 829 vs live pin declaration at 829
+PASS  H10 .swarm/runs/cycle-087-verify-T-185.txt present on disk
+GATE PASS (0 failures)
+
+$ node --test test/*.test.js        # built tree, before state.json was written
+ℹ tests 171   ℹ pass 171   ℹ fail 0
+
+=============================================================================
+WHAT THE GATE DID NOT ESTABLISH — stated, not hidden
+=============================================================================
+1. G4 and H6 passed VACUOUSLY. Both are conditional ("if the text still claims
+   a glyph change fails, it must attribute that to the exact-output tests"), and
+   neither final text contains the literal phrase the antecedent matches. So
+   neither check exercised. The attribution was read BY THE CONDUCTOR instead:
+     T-186: "Glyph identity mutations are guarded by exact-output tests
+             (renderLine: exact output, renderBlock: exact output, T-134 README
+             fences); this pin is not the identity guard."   — correct, explicit.
+     T-187: "Glyph-set changes crossing EAW classes fail the suite's exact-output
+             tests (T-134 README fence, explicit renderLine/renderBlock checks);
+             the pin uniquely establishes this width-class boundary."  — correct.
+   Read-not-measured is why this paragraph exists.
+
+2. The T-187 qualifier "crossing EAW classes" is NARROWER than the measurement
+   supports. The exact-output tests compare exact strings, so they fail on ANY
+   glyph substitution, EAW-crossing or not. The sentence as written is true (an
+   EAW-crossing change is a subset of all glyph changes) but understates the
+   coverage. Not a false claim, so not a gate failure. Recorded here rather than
+   quietly accepted.
+
+3. G1 proves only that every CHANGED line is a `//` comment line. It does not
+   prove the prose is true — that is what G3-G7 and the conductor's read are for.
+
+4. Neither item was re-measured by mutation this cycle. Both rest on the cycle-87
+   measurement in .swarm/runs/cycle-087-verify-T-185.txt, which is cited rather
+   than re-derived. Re-running it was out of scope for two S-effort doc items.
+
+VERDICT  T-186 DONE (verified)   T-187 DONE (verified)   0 reverted   0 failed verifies
+FOLLOW-UP FILED: T-188 — T-187's new citation dropped the test's TITLE and now
+cites a bare line number, which is the rot-prone form this run has already had to
+fix once (T-183, cycle 87). Found by conductor read, not by the gate.

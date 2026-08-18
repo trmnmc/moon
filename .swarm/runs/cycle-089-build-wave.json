@@ -1,0 +1,45 @@
+{
+  "cycle": 89,
+  "work_type": "build-wave",
+  "dispatch": "direct Agent calls, SEQUENTIAL (Workflow tool is review-gated in a headless -p session; cycle.md headless fallback)",
+  "why_sequential": "T-187 cites a line number inside the file T-186 rewrites. Run concurrently, T-187 could only copy the stale 826. Dispatched in order so T-187 re-derived 829 from the post-T-186 tree at run time (L-045).",
+  "effective_k": 2,
+  "k_inputs": {"k_current": 4, "gear_cap": 2, "hard_max": 5, "note": "gear-2 cap binds"},
+  "model": "haiku",
+  "model_derivation": "docs items route sonnet; gear 2 demote=true drops docs/polish one rung sonnet->haiku (build/fix never drop below sonnet, but these are kind:docs)",
+  "gate_sealed_before_dispatch": "afccfd76921bc4c7ed0a279fc9d3d7b76f2ceed96f4dd3fd1d4cd2b887a5e6a5",
+  "gate_amended_at_verification": "0dd141e858553b45cf02d1b6ca37e85586b7c0fa0ef1f26fbe719f9a9b81d22b",
+  "items": [
+    {
+      "id": "T-186",
+      "file": "test/render.test.js",
+      "agent_id": "a35971e4928372433",
+      "tokens": 47630,
+      "tool_uses": 6,
+      "duration_ms": 149067,
+      "claimed": "rewrote the KI-5 pin comment block; all 171 tests pass",
+      "raw_return_summary": "Returned before/after of the comment block. AFTER drops the 'so an unannounced glyph change fails the gate' clause; adds 'establishing that the documented partition is accurate and straddles two EAW classes' and 'Glyph identity mutations are guarded by exact-output tests (renderLine: exact output, renderBlock: exact output, T-134 README fences); this pin is not the identity guard.' Cited the cycle-087 record as the basis but quoted no counts, so named no source inline.",
+      "conductor_verdict": "VERIFIED — gate G1-G8 all pass; diff is 11 changed lines, 0 non-comment"
+    },
+    {
+      "id": "T-187",
+      "file": "REPORT.md",
+      "agent_id": "a1b51ff2b0c24c5b6",
+      "tokens": 38188,
+      "tool_uses": 9,
+      "duration_ms": 116254,
+      "claimed": "rewrote the KI-5 row; re-derived the line number as 829 by grep; all 171 tests pass",
+      "raw_return_summary": "Returned before/after of the KI-5 row. AFTER drops the 'so ... now fails the suite' attribution; attributes failure to the suite's exact-output tests by name; states the pin 'pins that the Block Element glyph set the disc actually draws ... matches the partition documented in README.md, which straddles two East Asian Width classes'. Re-derived 826 -> 829 from the live file after T-186 landed. Quoted no counts, so named no source inline.",
+      "conductor_verdict": "VERIFIED — gate H1-H10 all pass, including H9 (cited 829 == live pin declaration at 829)"
+    }
+  ],
+  "reverted": 0,
+  "failed_verifies": 0,
+  "gate_failures_traced_to_instrument": 2,
+  "instrument_defects": [
+    "pre-dispatch: G3 read the raw comment block, so a connective split across two // lines went unseen. Fixed by normalising // prefixes before applying prose predicates; G3 then failed the baseline as required.",
+    "at-verification: H7a encoded one word order ('documented partition'); T-187 wrote 'the partition documented in README.md'. Widened, then PROVED failable in c089-gate-failability.mjs (3 arms: live PASS, clause-deleted FAIL, reworded FAIL)."
+  ],
+  "filed": ["T-188"],
+  "evidence_file": ".swarm/runs/cycle-089-verify-T-186-T-187.txt"
+}

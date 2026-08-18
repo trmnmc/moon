@@ -1701,7 +1701,7 @@
       "priority": 5,
       "value": "M",
       "effort": "S",
-      "status": "todo",
+      "status": "done",
       "deps": [],
       "files_hint": [
         "test/render.test.js"
@@ -1711,7 +1711,9 @@
       "model": "haiku",
       "attempts": 0,
       "traces_to": "SPEC must-have 2 - every violation of a recorded lesson filed with file and line. Filed from the cycle-87 T-185 audit.",
-      "notes": "CONDUCTOR-FILED, cycle 87, from measurement not from reading. The comment block above the pin ends \"...so an unannounced glyph change fails the gate instead of drifting silently.\" That sentence is true of the SUITE and false of this test: with the pin skipped, substituting U+2592 for U+259A still fails 7 tests and U+2593 for U+2584 still fails 11. The pin does add something no other test does - the documented-partition equality and the two-class straddle assertion - and that is what the comment should claim. Do NOT weaken, skip or delete the test, and do not touch its assertions: this is a comment-truth fix only (hard rule 2)."
+      "notes": "CONDUCTOR-FILED, cycle 87, from measurement not from reading. The comment block above the pin ends \"...so an unannounced glyph change fails the gate instead of drifting silently.\" That sentence is true of the SUITE and false of this test: with the pin skipped, substituting U+2592 for U+259A still fails 7 tests and U+2593 for U+2584 still fails 11. The pin does add something no other test does - the documented-partition equality and the two-class straddle assertion - and that is what the comment should claim. Do NOT weaken, skip or delete the test, and do not touch its assertions: this is a comment-truth fix only (hard rule 2).",
+      "verified_cycle": 89,
+      "verified_by": ".swarm/runs/cycle-089-verify-T-186-T-187.txt"
     },
     {
       "id": "T-187",
@@ -1720,7 +1722,7 @@
       "priority": 5,
       "value": "M",
       "effort": "S",
-      "status": "todo",
+      "status": "done",
       "deps": [],
       "files_hint": [
         "REPORT.md"
@@ -1730,7 +1732,28 @@
       "model": "haiku",
       "attempts": 0,
       "traces_to": "SPEC must-have 2 — every violation of a recorded lesson filed with file and line. Found at cycle 88 while scoping T-186.",
-      "notes": "CONDUCTOR-FILED, cycle 88. Found by grepping the T-185 finding's phrasing across the whole repo instead of trusting the one file T-186 named: the claim lives in TWO places, test/render.test.js:777 (T-186) and REPORT.md:54 (this item). README.md is CLEAN — grepped, no such claim there — so the scope is exactly those two files and no third sweep is warranted.\n\nREPORT.md:54 reads \"...checks it against the documented partition, so an unannounced glyph change now fails the suite instead of drifting silently.\" The consequent is true of the SUITE and the \"so\" attributes it to the pin, which the cycle-87 measurement refutes: with the pin skipped, U+2592->U+259A still fails 7 tests and U+2593->U+2584 still fails 11.\n\nPAIR WITH T-186 as one k=2 wave: same finding, disjoint files, and one measurement record (.swarm/runs/cycle-087-verify-T-185.txt) judges both. Comment/prose truth only — do NOT touch the pin test's body or assertions (hard rule 2)."
+      "notes": "CONDUCTOR-FILED, cycle 88. Found by grepping the T-185 finding's phrasing across the whole repo instead of trusting the one file T-186 named: the claim lives in TWO places, test/render.test.js:777 (T-186) and REPORT.md:54 (this item). README.md is CLEAN — grepped, no such claim there — so the scope is exactly those two files and no third sweep is warranted.\n\nREPORT.md:54 reads \"...checks it against the documented partition, so an unannounced glyph change now fails the suite instead of drifting silently.\" The consequent is true of the SUITE and the \"so\" attributes it to the pin, which the cycle-87 measurement refutes: with the pin skipped, U+2592->U+259A still fails 7 tests and U+2593->U+2584 still fails 11.\n\nPAIR WITH T-186 as one k=2 wave: same finding, disjoint files, and one measurement record (.swarm/runs/cycle-087-verify-T-185.txt) judges both. Comment/prose truth only — do NOT touch the pin test's body or assertions (hard rule 2).",
+      "verified_cycle": 89,
+      "verified_by": ".swarm/runs/cycle-089-verify-T-186-T-187.txt"
+    },
+    {
+      "id": "T-188",
+      "title": "REPORT.md's KI-5 citation is now a bare line number - T-187 dropped the test title that made it rot-resistant",
+      "kind": "docs",
+      "priority": 5,
+      "value": "S",
+      "effort": "S",
+      "status": "todo",
+      "deps": [],
+      "files_hint": [
+        "REPORT.md"
+      ],
+      "acceptance": "REPORT.md's KI-5 row cites the pin test by BOTH its live line number and its exact title, in the form `test/render.test.js:NNN` (`KI-5 pin: disc glyph set matches the documented East Asian Width partition`) - the form the row used before cycle 89. NNN must be re-derived from the live file at the time of the edit, not copied. No other cell of the row changes, the Known-issues heading/header/row-count are untouched, and the suite stays 171/171.",
+      "packages": [],
+      "model": "haiku",
+      "attempts": 0,
+      "traces_to": "Regression introduced by T-187 at cycle 89, found by conductor read at the step-6 gate.",
+      "notes": "CONDUCTOR-FILED, cycle 89. Before T-187 the row read: `test/render.test.js:826` (`KI-5 pin: disc glyph set matches the documented East Asian Width partition`). After, it reads `test/render.test.js:829` with no title. The line number is correct TODAY - gate check H9 confirmed 829 == the live declaration - so this is not a stale-citation defect yet; it is the removal of the anchor that makes staleness detectable. This very cycle demonstrated the risk: rewriting the comment block above the test moved it 826 -> 829, and only the title let the number be re-derived without guessing. The run has already paid for this class once at T-183 (cycle 87, stale citation). Prose-only, one cell, no test changes."
     }
   ]
 }

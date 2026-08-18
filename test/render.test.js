@@ -771,10 +771,13 @@ test('the whole cycle renders without throwing and never widens the disc', () =>
 // renders Ambiguous as double-width, the disc is 5-9 columns instead of a
 // constant 5. The glyph-set redesign that would fix it is deliberately
 // deferred — this block does not fix it, it pins it: no EAW table ships as a
-// dependency, so this map IS the machine-checkable copy of the README's
-// claim, and the test below derives the glyph set the disc actually draws
-// (never hand-typed against itself) and checks it against this table, so an
-// unannounced glyph change fails the gate instead of drifting silently.
+// dependency, so this map IS the machine-checkable copy of the README's claim.
+// This test derives the glyph set the disc actually draws (never hand-typed
+// against itself) and verifies it matches the table, establishing that the
+// documented partition is accurate and straddles two EAW classes. Glyph
+// identity mutations are guarded by exact-output tests (renderLine: exact
+// output, renderBlock: exact output, T-134 README fences); this pin is not
+// the identity guard.
 // ---------------------------------------------------------------------------
 
 /** The Block Element partition documented in README.md, transcribed verbatim. */

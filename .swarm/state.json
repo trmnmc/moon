@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "BUILD",
-  "cycle": 88,
+  "cycle": 89,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -963,22 +963,22 @@
     "last_look_cycle": 76,
     "last_taste_cycle": 81,
     "last_review_fix_cycle": 73,
-    "last_build_wave_cycle": 88,
+    "last_build_wave_cycle": 89,
     "last_wrap_up_cycle": 84
   },
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
-    "k_current": 4,
-    "wave_streak": 1,
-    "window_tokens_attributed": 0
+    "k_current": 5,
+    "wave_streak": 0,
+    "window_tokens_attributed": 11165543
   },
   "last_cycle": {
-    "cycle": 88,
-    "ts": "2026-08-18T13:48:38+00:00",
-    "work": "build-wave k=1 (direct Agent dispatch, sonnet) — T-184, the run's last M-effort must-have: restructure REPORT.md and archive the forensics",
-    "outcome": "VERIFIED 9/9 on sealed gate 0a236502. REPORT.md 781 -> 209 lines, all four reader anchors inside the first 60, zero forensic headings remaining; 0 substantive lines lost, 4 lines of connective text added. Filed T-187 (same KI-5 misattribution, second file). Gate instrument defect caught and fixed mid-cycle.",
-    "commit": "623b6ef"
+    "cycle": 89,
+    "ts": "2026-08-18T14:35:00+00:00",
+    "work": "build-wave k=2 (direct Agent dispatch, haiku, SEQUENTIAL) - T-186 pin comment truth in test/render.test.js, then T-187 the same finding in REPORT.md KI-5",
+    "outcome": "VERIFIED 2/2 on gate 0dd141e8 (sealed afccfd76, one predicate amended and proved failable). 20/20 checks pass, suite 171/171. T-187 re-derived the pin line 826 -> 829 at run time, which the sequential dispatch existed to make possible. Filed T-188: T-187 dropped the title from the citation. Two gate instrument defects caught - one pre-dispatch, one at verification.",
+    "commit": "PENDING"
   },
   "run_label": "improve-3",
   "resolved_issues": [
