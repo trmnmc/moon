@@ -3994,7 +3994,7 @@ items: T-175 done (verified) · T-182 done (verified) · 0 reverted · 0 failed 
 backlog: 80 done / 3 todo / 3 dropped (86 total). Remaining: T-183 (p3, S, haiku — stale render.test.js:629 citation), T-184 (p4, M, sonnet — REPORT.md first-screen restructure), T-185 (p5, S, fable — conductor-verify the agent-claimed L-029/L-044 audit verdicts).
 wave autotune: CLEAN wave (0 reverts, 0 failed verifies) → wave_streak 0 → 1. k_current stays 3; a second consecutive clean wave would raise it to 4, where the gear-2 cap of 2 would still bind.
 next wave: T-183 and T-184 both touch REPORT.md and must never be paired (L-016) — so the next wave is T-183 + T-185 (disjoint: REPORT.md vs test/), with T-184 sequenced after T-183 lands.
-commit: (stamped in the addendum)
+commit: 5f986cf
 next wakeup: 1787057940 (+90s, base delay after a verified-value cycle)
 runfile-mirror:
 ```json

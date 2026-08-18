@@ -963,7 +963,7 @@
     "ts": "2026-08-18T12:55:50+00:00",
     "work": "build-wave k=2 (direct Agent dispatch, Workflow is review-gated headless): T-175 + T-182",
     "outcome": "both items VERIFIED done via sealed gate d1a81a6 (8/8 checks); suite 171/171; one instrument defect found and recorded in the gate itself",
-    "commit": ""
+    "commit": "5f986cf"
   },
   "run_label": "improve-3",
   "resolved_issues": [
