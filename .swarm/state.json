@@ -978,7 +978,7 @@
     "ts": "2026-08-18T15:05:00+00:00",
     "work": "build-wave k=1 (direct Agent dispatch, haiku) - T-188, restore the pin test title to REPORT.md KI-5 citation so the line number stays re-derivable",
     "outcome": "VERIFIED 1/1 on sealed gate 4da22cb5. Baseline arm on the unfixed tree FAILED 2 (C2 the defect, C6 no-fix-yet), final arm 8/8 with the seal hash unchanged. Suite 171/171 before, after, and again after the state.json write. One gate instrument defect caught PRE-dispatch (C7 parsed the TAP summary form; this Node defaults to the spec reporter). Backlog is now EMPTY - next cycle is the DONE determination.",
-    "commit": "PENDING-addendum"
+    "commit": "b3dae5e"
   },
   "run_label": "improve-3",
   "resolved_issues": [
