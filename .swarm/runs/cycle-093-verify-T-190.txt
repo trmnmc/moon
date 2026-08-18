@@ -1,0 +1,20 @@
+PASS     --json key set unchanged (no field added, none removed)
+           emitted: phase,illumination,age,cycleFraction,phaseAngle,hemisphere,nextFullMoon,julianDay,timestamp
+PASS     nextFullMoon still emitted at full ISO precision (docs moved, not the value)
+           nextFullMoon=2026-08-28T04:18:25.225Z fullIso=true subMinuteNonZero=true (a rounded-to-hour instant would read ...:00:00.000Z; the chance a true instant lands exactly there at ms granularity is negligible, and two consecutive runs are compared below)
+FAIL     each rounded --json field survives the precision the docs now claim for it
+           illumination: no documented precision found; age: no documented precision found; cycleFraction: no documented precision found; phaseAngle: no documented precision found; julianDay: no documented precision found
+PASS     help and README both still speak to nextFullMoon and its ~hour accuracy
+           help mentions nextFullMoon: true; README mentions nextFullMoon: true
+PASS     full test_cmd green before any mutation
+           ℹ tests 175 | ℹ pass 175 | ℹ fail 0
+PASS     MUTATION A: illumination precision 4 -> 2 must turn the suite RED
+           suite RED (wanted RED) — ℹ tests 175 | ℹ pass 172 | ℹ fail 3
+PASS     MUTATION B: an undocumented extra --json field must turn the suite RED
+           suite RED (wanted RED) — ℹ tests 175 | ℹ pass 173 | ℹ fail 2
+PASS     CONTROL C: an inert comment edit must leave the suite GREEN
+           suite GREEN (wanted GREEN) — ℹ tests 175 | ℹ pass 175 | ℹ fail 0
+PASS     bin/moon.js restored byte-identical after mutation testing
+           11401 bytes
+
+GATE: 8 pass / 1 fail / 0 not-run

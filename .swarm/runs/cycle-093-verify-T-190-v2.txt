@@ -1,0 +1,16 @@
+PASS     the shipped precision note states a decimal place count for every rounded field
+           {"illumination":4,"age":3,"cycleFraction":5,"phaseAngle":3,"julianDay":5}
+PASS     prose figure equals the code table figure for every rounded field
+           illumination=4 age=3 cycleFraction=5 phaseAngle=3 julianDay=5
+PASS     each rounded --json value survives re-rounding at the claimed precision
+           illumination=0.3643 age=5.947 cycleFraction=0.20627 phaseAngle=74.256 julianDay=2461271.18099
+PASS     nextFullMoon and timestamp are declared instants AND emitted at full ISO precision
+           2026-08-28T04:18:25.225Z / 2026-08-18T16:20:37.890Z
+PASS     README.md embeds the generated note verbatim (byte-identical to --help)
+           note is 533 chars; README contains it: true
+PASS     GENERATION PROOF: table illumination 4 -> 7 makes --help say "illumination to 7"
+           help text followed the table — the note is generated, not hand-written
+PASS     bin/moon.js restored byte-identical after the generation proof
+           11401 bytes
+
+GATE PASS 2: 7 pass / 0 fail / 0 not-run

@@ -151,9 +151,14 @@ carry today's numbers, not these:
 | `julianDay` | Julian Day of the observation instant |
 | `timestamp` | ISO-8601 instant the reading was computed for |
 
-Numeric fields are rounded to the precision the algorithm has actually earned. Phase
-instants are good to roughly an hour, so illumination is good to about a percent —
-emitting seventeen significant digits would be precision theatre.
+Numeric fields are rounded to the precision the algorithm has actually earned,
+not dumped as raw floats — decimal places: illumination to 4, age to 3,
+cycleFraction to 5, phaseAngle to 3, and julianDay to 5. nextFullMoon and
+timestamp are different: both are ISO-8601 instants, emitted at full
+precision, unrounded. Full precision is not the same as accuracy —
+nextFullMoon's accuracy is roughly an hour regardless of how many digits the
+printed instant carries, because the phase-instant algorithm itself is only
+good to about that.
 
 **Caution on `cycleFraction`.** It is angular, not temporal: `phaseAngle / 360`, the
 Moon–Sun elongation as a fraction of the full circle — not elapsed time through the

@@ -677,3 +677,142 @@ heartbeat re-touch: `next_wakeup_at` was written as 1787068772 at the persist an
 TOOL OBSERVATION, restated not acted on (hard rule 5 — `templates/` is read-only mid-run): the rendered dashboard still has no `<!DOCTYPE>`, no `<html>` and no `<body>`. Inherited fragment from `templates/dashboard.template.html`, unchanged since at least cycle 88 and now carried for a fifth consecutive cycle. Browsers render it and the stale-banner script works, so the phone viewer is not broken. For the morning report, not for a live edit.
 
 commit: this addendum. The cycle-92 work commit is `eff794e`, now stamped into `state.last_cycle.commit`.
+
+## cycle 93 — 2026-08-18T16:04:52+00:00 → 16:24 UTC · VALUE_LOOP · build-wave k=1 (direct Agent dispatch, sonnet) + conductor re-verification
+
+clock/gear: `date +%s` = 1787069092. stop_at 1787142067 is 20h16m out — no WRAP_UP, no admission pressure; build-wave's 2700s budget admits with room to spare. `bin/swarm-budget.sh` DENIED for the **20th consecutive run** (KI-2), and `bin/swarm-notify.sh poll` denied with it, so the control channel was read from `runs/control.json` on disk: `{"version":1,"since_cursor":"1787055667","pending":[],"applied":[]}` — `pending[]` empty, no `inject` array, nothing to triage. PROBE_CMD run BY HAND and succeeded, but returned **no `tokenLimitStatus` for the third consecutive cycle**, so the 130,591,250 limit is CARRIED FORWARD from cycles 89–90 — carried three times running now. Active block 13:00–18:00Z at 16:05Z: 44,442,732 tokens, $38.94, 185.58 min in → 239.5k tokens/min (14.37M/hour), **UP** from cycle 92's 233.7k/min: the four-cycle cooling streak is **broken**, and the 15:37→16:05 interval alone ran at 263.3k/min. Remaining 86.15M over 114.42 min = 753.0k/min target at the guest-forced dial of 1.0, so **ρ = 0.32** — deeper into the gear-5 band than cycle 92's 0.35. Worth stating plainly because the two numbers point opposite ways: burn ROSE while ρ FELL, and both readings are correct — the 18:00Z reset is closing, so the per-minute allowance is rising faster than the burn is. ρ is a pacing signal, not a burn measurement. Guest clamps reachable gears to 3; the weekly governor ceiling clamps to 2; **gear 2 stands** — the sixth consecutive cycle where measured ρ would license a higher gear and the posture refuses it. ccusage projection 72.36M against the 130.59M carried limit, no depletion risk. `weekly` block STILL carried forward, not re-measured. `probe_failures` **held at 2, not incremented**: the script never launched, so it returned neither `probe_ok` true nor false.
+
+orient: tree CLEAN at 7742e2d, no salvage needed. Backlog on entry: 86 done / 2 todo (T-189, T-190) / 3 dropped.
+
+re-anchor: cycle 93, not a 5th cycle, so the digest is restated rather than the spec re-read. Backlog hygiene not due by the cycle rule — but the T-189 finding below IS hygiene, arrived at through verification rather than through a scheduled sweep.
+
+pick: effective wave = min(k_current 5, gear-2 cap 2, hard max 5) = **2**, and exactly two items were todo, both S-effort with disjoint `files_hint` (README.md vs bin/moon.js). Gear 2 puts must-haves before polish/docs, which orders T-190 (kind `fix`, a filed defect) ahead of T-189 (kind `polish`). Routing recomputed AT PICK TIME per the table, not copied from the backlog: T-190 is kind fix / effort S → **sonnet** (the backlog's stale `haiku` was overridden; the gear-2 demotion rung sonnet→haiku is scoped to docs/polish items and does not reach a fix item, and build/fix never drops below sonnet anyway). T-189 was routed haiku — and then never dispatched, for the reason below.
+
+### T-189 was not built, because it was already built — at cycle 63
+
+Before dispatching a builder to add a reader-runnable KI-5 check, the conductor read the section it was to be added to. **README.md:231–237 already carries one**, shipped by cycle 63 (commit `def98fd`, the T-151 retry).
+
+T-189's own notes, and SPEC nice-to-have #1 which it descends from, are both written from cycle **62** — whose proposed observable (top-right vs bottom-right corner alignment) was disproved at the gate because all six frame glyphs are EAW Ambiguous and both borders scale together. Neither the item nor the SPEC bullet noticed that cycle **63** then retried with a different, sound observable and landed it. So this run inherited a stale premise at kickoff and carried it for four cycles.
+
+That is a claim about a past cycle's work, so it does not get to be taken on trust either. The conductor re-derived it at run time (L-045) against **current HEAD**, deliberately NOT re-running cycle 63's proof: a fresh 976-frame sweep over 2026-08-01..09-30 — a different window, chosen because it includes the round-limb U+25D6/U+25D7 regime that cycle 63's Jan–Feb window may not have exercised. The check under test is the README sentence read as a function `verdict(frame, ambiguous_width)`, which is a check at all only if it answers differently under the two width policies:
+
+```
+frames tested: 976  (2026-08-01T00:00:00.000Z/north .. 2026-09-30T21:00:00.000Z/south)
+UCD version used for EAW classes: 15.0.0
+--- ambiguous width = 1 ---
+  border_cols          : min 34 max 34
+  named_cols           : min 34 max 34
+  border_corner_col    : min 33 max 33
+  named_right_bar_col  : min 33 max 33
+--- ambiguous width = 2 ---
+  border_cols          : min 68 max 68
+  named_cols           : min 36 max 36
+  border_corner_col    : min 66 max 66
+  named_right_bar_col  : min 34 max 34
+UNAFFECTED branch wrong (check says 'affected')   : 0 []
+AFFECTED branch wrong (check says 'unaffected')   : 0 []
+VERDICT: check DISCRIMINATES on every frame
+```
+
+Scripts: `.swarm/runs/cycle-093-capture-t189.js` (capture) + `cycle-093-verify-t189.py` (verdict). The mechanism, restated because it is the part cycle 62 got wrong: the three named rows are ASCII bracketed by two `│`, so their width is 32 + 2·w(│) at every phase, while the border rows are 34 frame glyphs and scale wholly with w. The gap is phase-independent — the reader gets the same answer on any night.
+
+**T-189 → `dropped`, not `done` and not deferred**: this cycle built nothing for it, and dropping is the honest status for an item whose defect does not exist. SPEC nice-to-have #1 is satisfied and has been since cycle 63; that is recorded as a decision so WRAP_UP reports it as satisfied-by-prior-work rather than silently unbuilt.
+
+### T-190 — the gate was sealed before the builder existed
+
+`sha256sum .swarm/gates/cycle-093-T-190.mjs` → `87d0ee173387ad83cc152ec6a13192c2c245b591378813b11139ae3a930b25d3`, taken **before dispatch** and re-checked unchanged after the builder returned. The builder was told not to read `.swarm/gates/`; the hash is what makes that instruction checkable rather than trusted.
+
+**The judgment call was made by the conductor, not delegated.** T-190's acceptance offers two mutually exclusive fixes — round the emitted instant, or make the docs precise — and says to pick one. That is a correctness/honesty call, so it was decided before dispatch and the builder was given the decision, not the choice: **the docs move, the value does not.** Rounding `nextFullMoon` would not remove the misleading impression — `2026-08-28T04:00:00.000Z` still reads as exact — and it would destroy information a `--json` consumer may legitimately diff. The defect is a false CLAIM, not a false value: precision and accuracy are different properties, and the old sentence conflated them. The gate was written to FAIL a build that rounded the value, so the other branch was not quietly available.
+
+Dispatch shape: headless `-p` session → the Workflow tool is review-gated → `workflows/build-wave.js` was not invoked; one **direct Agent call**, the documented failure-table fallback. One builder means no parallelism, so no worktree was provisioned and it worked directly in the tree; the conductor remained sole committer. Playbook `prompt_lines.builder` (all three) were appended. Craft pack: `node bin/swarm-craft.mjs` ran clean (`degraded: []`); no item was flagged `craft: "ui"` — moon has no browser surface — so no `craft.ui` splice was due, and the conductor spliced `craft.docs` instead as a deliberate call, since the item's whole payload is help text and README prose. `craftRefDir` was **not** passed: it is a SWARM path and hard rule 5 keeps SWARM paths away from agents, so the pack text was inlined instead.
+
+### VERIFICATION EVIDENCE — gate pass 1 (sealed), and the check of mine that failed
+
+```
+PASS     --json key set unchanged (no field added, none removed)
+           emitted: phase,illumination,age,cycleFraction,phaseAngle,hemisphere,nextFullMoon,julianDay,timestamp
+PASS     nextFullMoon still emitted at full ISO precision (docs moved, not the value)
+           nextFullMoon=2026-08-28T04:18:25.225Z fullIso=true subMinuteNonZero=true (a rounded-to-hour instant would read ...:00:00.000Z; the chance a true instant lands exactly there at ms granularity is negligible, and two consecutive runs are compared below)
+FAIL     each rounded --json field survives the precision the docs now claim for it
+           illumination: no documented precision found; age: no documented precision found; cycleFraction: no documented precision found; phaseAngle: no documented precision found; julianDay: no documented precision found
+PASS     help and README both still speak to nextFullMoon and its ~hour accuracy
+           help mentions nextFullMoon: true; README mentions nextFullMoon: true
+PASS     full test_cmd green before any mutation
+           ℹ tests 175 | ℹ pass 175 | ℹ fail 0
+PASS     MUTATION A: illumination precision 4 -> 2 must turn the suite RED
+           suite RED (wanted RED) — ℹ tests 175 | ℹ pass 172 | ℹ fail 3
+PASS     MUTATION B: an undocumented extra --json field must turn the suite RED
+           suite RED (wanted RED) — ℹ tests 175 | ℹ pass 173 | ℹ fail 2
+PASS     CONTROL C: an inert comment edit must leave the suite GREEN
+           suite GREEN (wanted GREEN) — ℹ tests 175 | ℹ pass 175 | ℹ fail 0
+PASS     bin/moon.js restored byte-identical after mutation testing
+           11401 bytes
+
+GATE: 8 pass / 1 fail / 0 not-run
+```
+
+**My own check 3 was wrong, and it is kept on disk rather than edited away.** I had encoded the documented precision as `<field> … N dp` / `N decimal`; the shipped note phrases it `decimal places: illumination to 4, age to 3, …`. The claim was there — my pattern could not see it, and the word-wrap at 78 columns put line breaks inside the span my regex was scanning. This is the same instrument failure shape as cycle 63's v1 gate, now twice in this project: a conductor check that grades PROSE by pattern and mistakes its own narrowness for the product's silence.
+
+Pass 2 reads the claim as written. It is **strictly stronger than pass 1, not looser** — it additionally requires the prose figure to EQUAL the code table's figure, and adds a generation proof pass 1 never had. No product file was touched to reach green.
+
+### VERIFICATION EVIDENCE — gate pass 2
+
+```
+PASS     the shipped precision note states a decimal place count for every rounded field
+           {"illumination":4,"age":3,"cycleFraction":5,"phaseAngle":3,"julianDay":5}
+PASS     prose figure equals the code table figure for every rounded field
+           illumination=4 age=3 cycleFraction=5 phaseAngle=3 julianDay=5
+PASS     each rounded --json value survives re-rounding at the claimed precision
+           illumination=0.3643 age=5.947 cycleFraction=0.20627 phaseAngle=74.256 julianDay=2461271.18099
+PASS     nextFullMoon and timestamp are declared instants AND emitted at full ISO precision
+           2026-08-28T04:18:25.225Z / 2026-08-18T16:20:37.890Z
+PASS     README.md embeds the generated note verbatim (byte-identical to --help)
+           note is 533 chars; README contains it: true
+PASS     GENERATION PROOF: table illumination 4 -> 7 makes --help say "illumination to 7"
+           help text followed the table — the note is generated, not hand-written
+PASS     bin/moon.js restored byte-identical after the generation proof
+           11401 bytes
+
+GATE PASS 2: 7 pass / 0 fail / 0 not-run
+```
+
+The **generation proof** is the check that separates "the note is built from the table" from "the note was hand-written to match the table today". Changing the table's `illumination` places from 4 to 7 makes `--help` print `illumination to 7` — an observable a hand-written paragraph cannot produce. That is the discriminator the item's "so the two cannot drift apart again" clause actually needs; agreement measured once proves nothing about drift.
+
+The two mutation kills in pass 1 carry the other half. MUTATION A (illumination precision 4→2) → suite RED, 3 failures. MUTATION B (an undocumented tenth `--json` field) → suite RED, 2 failures. CONTROL C (an inert appended comment) → suite **GREEN** — without it, a suite that died on every edit would have scored two false kills. `bin/moon.js` was confirmed restored byte-identical (11,401 bytes) after each mutation and after the generation proof.
+
+### VERIFICATION EVIDENCE — scope and the full suite, conductor-run
+
+```
+$ git -C /opt/targets/moon diff --numstat
+8	3	README.md
+91	8	bin/moon.js
+53	1	test/cli.test.js
+
+$ node --test test/*.test.js            (conductor's own run, on the restored tree)
+ℹ tests 175   ℹ suites 0   ℹ pass 175   ℹ fail 0
+ℹ cancelled 0  ℹ skipped 0  ℹ todo 0     ℹ duration_ms 3720.28
+```
+
+Scope verified from the diff, not from the builder's word: exactly the three in-scope files, nothing else. 171 → **175 tests**, +4, none skipped, none weakened, never below the 171-test kickoff baseline.
+
+What shipped: `bin/moon.js` gains `JSON_FIELD_PRECISION`, one table keyed by every `--json` field (`rounded`+places | `instant` | `string`); the five `round()` call sites read `places` from it; `buildPrecisionNote()` generates the help paragraph from the table and README.md embeds that generated text **verbatim** (533 chars, byte-identical, asserted). `nextFullMoon` still emits `toISOString()` unchanged — gate check 2 confirmed the value did not move.
+
+post-merge checks: collision-scan and the qa-verify look pass are **not applicable** and are recorded as not-applicable, never as passed — moon is a zero-dependency terminal CLI with no browser-served surface, so the user-visible heuristic does not fire on `bin/moon.js` / `README.md` / `test/cli.test.js`.
+
+### BOOKKEEPING REPAIR — cycle 92's burn attribution was journaled but never written
+
+Cycle 92's block states `window_tokens_attributed` 20,206,353 → 23,127,741. `state.json` on entry to this cycle read **20,206,353**: the write did not land. A journaled number that disagrees with the file is worth more than a silent correction, so both credits are applied here and named — 20,206,353 + 2,921,388 (cycle 92's, repaired) + 7,529,912 (this cycle's delta, 44,442,732 − 36,912,820) = **30,657,653**. Still a running total across four attributed cycles, NOT a run total; cycles 0–87 left the counter at 0 and are not represented in it.
+
+items: **1 built and verified (T-190)** · 1 closed without building (T-189, stale) · 0 filed · 0 reverted · 0 failed verifies
+backlog: **87 done / 0 todo / 4 dropped, 91 total** — the queue is empty again.
+`counters.consecutive_no_value` stays 0 — this cycle produced verified value.
+wave autotune: the wave was CLEAN (zero reverts, zero failed verifies) → `wave_streak` 1 → 2, which triggers the raise; `k_current` is already at the hard max 5, so it holds at 5 and the streak resets to 0. Academic while gear 2 caps the effective wave at 2 regardless.
+qa state: `last_build_wave_cycle` 90 → **93**. `last_full_qa_cycle` stays 92, `last_taste_cycle` 81, `last_review_fix_cycle` 73 — the cycle-91 decision on the latter two stands unmodified and is to be reported at WRAP_UP as not-run with its reason, never as passed.
+notifications: none sendable. Phase unchanged (VALUE_LOOP), so no phase-change emit was due; `bin/swarm-notify.sh` remains denied by the KI-2 allowlist gap. `publish_failures` unchanged at 0 — a headless `-p` session with no Artifact tool is a silent skip by step 8, not a publish failure.
+
+next: the backlog is EMPTY (87/91 done, 4 dropped) and the clock still holds ~20h. Per the standing rule from cycles 26/27, an empty queue is not an exhausted value space and does not mean DONE — a VALUE_LOOP candidate scan comes next. Two facts for whoever runs it. First, T-189's disposal means SPEC nice-to-have #1 is closed and nice-to-have #2 (re-archive the journal past ~400 KB) is the only one left — `journal.md` is at ~135 KB, so it is not due. Second, and more useful: the T-189 finding is a class, not an incident. This run's SPEC was authored from a partial reading of history, and one of its two nice-to-haves was already satisfied before the run began. A scan that re-checks the OTHER standing SPEC claims against the repo — the same two-source discipline — is likely worth more than any new item, and it is exactly the "check every [apply:] lesson against the repo" clause of the spec digest.
+
+runfile-mirror:
+```json
+{"version":1,"run_label":"improvement-moon-2026-08-18","targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-19T12:21:07+00:00","usage_reset_at":"2026-08-18T13:00:00+00:00","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787070237,"next_wakeup_at":1787070327,"pid":2297374,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.32,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":44442732,"window_cost_usd":38.94,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":14369000,"projected_depletion_at":0,"last_probe_ts":1787070237,"last_real_probe_ts":1787070237,"probe_failures":2,"probe_note":"bin/swarm-budget.sh DENIED for the 20th consecutive run (KI-2); bin/swarm-notify.sh poll denied with it, so the control channel was read from runs/control.json on disk (pending[] empty, no inject array, nothing to triage). PROBE_CMD (npx ccusage@latest blocks --json --token-limit max) run BY HAND and SUCCEEDED, but returned NO tokenLimitStatus for the THIRD consecutive cycle, so the 130,591,250 limit is CARRIED FORWARD from cycles 89-90 - carried three times running now, still not re-measured. Active block 13:00-18:00Z at 16:05Z: 44,442,732 tokens and $38.94, 185.58 min in, i.e. 239.5k tokens/min = 14.37M/hour - UP from cycle 92 233.7k/min, which BREAKS the four-cycle cooling streak; the 15:37->16:05 interval alone ran at 263.3k/min. Remaining 86.15M over 114.42 min = 753.0k/min target at the guest-forced dial of 1.0, so rho = 0.32, deeper into the gear-5 band than cycle 92 0.35 - the window is burning faster in absolute terms while rho falls, because the reset at 18:00Z is closing and the per-minute allowance rises faster than the burn. Guest mode clamps reachable gears to 3 and the weekly governor ceiling clamps to 2, so gear 2 stands - the SIXTH consecutive cycle where measured rho would license a higher gear and the posture refuses it. ccusage projection 72.36M against the 130.59M carried limit, no depletion risk. The weekly block below is STILL carried forward, not re-measured. probe_failures HELD at 2, not incremented: the script never launched, so it returned neither probe_ok true nor false.","weekly":{"ok":true,"weekly_used_pct":30,"opus_used_pct":20,"week_elapsed_pct":18.72,"weekly_heat":1.61,"opus_heat":1.07,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":8,"playbook":{"mode":"auto","applied":["L-008","L-016","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043","L-044"],"vetoed":[],"directives":{"wave_k":null,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Tests asserting environment-dependent behavior must reset the env var in beforeEach, not beforeAll - a suite-level restore hook lets a real ambient value leak back in"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer - never commit or push yourself","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive - a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns","For every mutation that must kill the suite, author one control that must leave it GREEN - a check that dies on everything is a snapshot test, not an assertion"]},"held_out":{"ids":["L-021","L-022"],"why":"both instruct browser/SPA behaviour (hard-reload after server restart; clear persisted UI state before mounting a component) and the target is a zero-dependency terminal CLI with no browser surface. Staged as applied by auto mode, deliberately NOT wired into prompt_lines - wiring them would be noise a builder must discard. To be reported not-exercised at WRAP_UP."},"staged_by":"conductor read of playbook/learnings.md, NOT bin/swarm-playbook.sh parse - the script is DENIED by the allowlist gap (KI-2, 12th consecutive run). The 14 applied ids are exactly the lessons carrying an [apply:] directive, verified by structural read."}},"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0}}
+```

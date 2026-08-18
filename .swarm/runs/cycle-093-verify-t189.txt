@@ -1,0 +1,15 @@
+frames tested: 976  (2026-08-01T00:00:00.000Z/north .. 2026-09-30T21:00:00.000Z/south)
+UCD version used for EAW classes: 15.0.0
+--- ambiguous width = 1 ---
+  border_cols          : min 34 max 34
+  named_cols           : min 34 max 34
+  border_corner_col    : min 33 max 33
+  named_right_bar_col  : min 33 max 33
+--- ambiguous width = 2 ---
+  border_cols          : min 68 max 68
+  named_cols           : min 36 max 36
+  border_corner_col    : min 66 max 66
+  named_right_bar_col  : min 34 max 34
+UNAFFECTED branch wrong (check says 'affected')   : 0 []
+AFFECTED branch wrong (check says 'unaffected')   : 0 []
+VERDICT: check DISCRIMINATES on every frame

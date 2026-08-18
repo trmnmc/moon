@@ -12,7 +12,7 @@ const assert = require('node:assert/strict')
 const { execFileSync, spawnSync } = require('node:child_process')
 const path = require('node:path')
 const fs = require('node:fs')
-const { HELP } = require('../bin/moon.js')
+const { HELP, JSON_FIELD_PRECISION, PRECISION_NOTE, round } = require('../bin/moon.js')
 const { parseArgs } = require('../src/args.js')
 
 const BIN = path.join(__dirname, '..', 'bin', 'moon.js')
@@ -230,6 +230,58 @@ test('--json payload keys, HELP fields, README table, and README example all agr
     'README field table disagrees with the actual payload keys')
   assert.deepEqual(new Set(exampleFields), payloadSet,
     'README fenced json example disagrees with the actual payload keys')
+})
+
+// T-190 — bin/moon.js's JSON_FIELD_PRECISION table is the single source of truth for
+// how much precision each --json field carries: the payload's round() calls read their
+// place-counts from it, and the HELP/README "Numeric fields are rounded..." paragraph
+// (PRECISION_NOTE) is generated from it. The four tests below pin all three together
+// structurally (reading the table, the live payload, and the actual documents) rather
+// than by re-typing prose, so a future edit to any one of them alone goes red:
+//   - a payload field with no table entry, or a table entry with no payload field
+//   - a rounded field whose emitted value carries more precision than its table entry
+//     claims
+//   - an "instant" field (nextFullMoon/timestamp) that stops being full-precision
+//     ISO-8601
+//   - HELP or README drifting from the paragraph the table actually generates
+
+test('the precision table\'s key set exactly matches the --json payload key set, both directions', () => {
+  const payloadKeys = new Set(Object.keys(JSON.parse(run(['--json']))))
+  const tableKeys = new Set(Object.keys(JSON_FIELD_PRECISION))
+  assert.deepEqual(tableKeys, payloadKeys,
+    'JSON_FIELD_PRECISION must document exactly the fields --json emits: neither more nor fewer')
+})
+
+test('every rounded --json field survives re-rounding at the precision the table claims for it', () => {
+  const payload = JSON.parse(run(['--json']))
+  const rounded = Object.entries(JSON_FIELD_PRECISION).filter(([, d]) => d.kind === 'rounded')
+  // If this comes back empty the loop below would vacuously pass and pin nothing.
+  assert.ok(rounded.length >= 5, 'expected the five documented rounded fields in the table')
+  for (const [name, d] of rounded) {
+    assert.equal(round(payload[name], d.places), payload[name],
+      `${name}=${payload[name]} carries more precision than the table's claimed ` +
+      `${d.places} decimal places — round() and the table have drifted apart`)
+  }
+})
+
+test('nextFullMoon and timestamp stay full-precision ISO-8601 instants, never rounded', () => {
+  const payload = JSON.parse(run(['--json']))
+  const instants = Object.entries(JSON_FIELD_PRECISION).filter(([, d]) => d.kind === 'instant')
+  assert.ok(instants.length >= 2, 'expected nextFullMoon and timestamp in the table as instant fields')
+  for (const [name] of instants) {
+    // toISOString() always carries millisecond precision: YYYY-MM-DDTHH:mm:ss.sssZ.
+    // A build that rounds/truncates the instant would not match this shape.
+    assert.match(payload[name], /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+      `${name} is documented as a full-precision ISO-8601 instant but is: ${payload[name]}`)
+  }
+})
+
+test('HELP and README.md both embed, verbatim, the precision paragraph generated from the table', () => {
+  assert.ok(PRECISION_NOTE.length > 100, 'PRECISION_NOTE came back suspiciously short or empty')
+  assert.ok(HELP.includes(PRECISION_NOTE),
+    'HELP text does not contain the generated precision paragraph verbatim — it has drifted from JSON_FIELD_PRECISION')
+  assert.ok(README.includes(PRECISION_NOTE),
+    'README.md does not contain the generated precision paragraph verbatim — it has drifted from JSON_FIELD_PRECISION')
 })
 
 test('--block draws a closed frame', () => {

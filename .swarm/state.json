@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "VALUE_LOOP",
-  "cycle": 92,
+  "cycle": 93,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -924,6 +924,21 @@
       "cycle": 92,
       "what": "T-175 is now confirmed CLOSED at the user-visible surface, not only at the unit level.",
       "why": "The two-arm proof at its build cycle was a unit-level mutation proof on detectHemisphere. This cycle ran the shipped CLI end-to-end and re-ran it independently of the executor: TZ=US/Samoa renders the disc row U+25D6 U+2588 U+2591 U+2591 U+2591, byte-identical to Pacific/Apia and Australia/Sydney, and distinct from Europe/London U+2591 U+2591 U+2591 U+2588 U+25D7. The documented FAIL SIGNATURE (Samoa matching London unmirrored) is verified ABSENT. Phase name and illumination are identical across all seven zones exercised, so TZ moves the limb and nothing else."
+    },
+    {
+      "cycle": 93,
+      "what": "T-190 judgment call, made by the conductor BEFORE dispatch: the DOCS move, the emitted nextFullMoon value does NOT.",
+      "why": "The acceptance offered two mutually exclusive fixes. Rounding the instant would not remove the misleading impression -- 2026-08-28T04:00:00.000Z still reads as exact -- while destroying information a --json consumer may legitimately diff. The defect is a false CLAIM, not a false value: precision and accuracy are different properties and the old help sentence conflated them. The gate was written to FAIL a build that rounded the value, so 'close it the other way' was not silently available."
+    },
+    {
+      "cycle": 93,
+      "what": "T-189 dropped as already-satisfied; SPEC nice-to-have #1 is closed and has been since cycle 63.",
+      "why": "Both the item and the SPEC bullet were written from cycle 62's disproof and neither noticed cycle 63's successful retry (commit def98fd, README.md:231-237). Conductor re-verified the shipped check over 976 frames across a window cycle 63 did not use: it discriminates on every one. Building a second check would have been rework dressed as progress. 'Nothing needed doing' is an outcome this run's SPEC explicitly allows."
+    },
+    {
+      "cycle": 93,
+      "what": "Gate pass 1 (sealed sha256 87d0ee17..b25d3) FAILED on its own instrument and the failure is kept on disk rather than edited away.",
+      "why": "Check 3 looked for '<field> N dp|decimal'; the shipped note phrases it 'decimal places: illumination to 4, age to 3, ...'. The claim was present, my pattern could not see it. Pass 2 reads the claim as written and is STRICTLY STRONGER -- it additionally requires the prose figure to equal the code table figure, and adds a generation proof. The product was not touched to reach green. Same failure shape as cycle 63's v1 gate; second time this instrument class has misjudged prose."
     }
   ],
   "known_issues": [
@@ -983,22 +998,22 @@
     "last_look_cycle": 76,
     "last_taste_cycle": 81,
     "last_review_fix_cycle": 73,
-    "last_build_wave_cycle": 90,
+    "last_build_wave_cycle": 93,
     "last_wrap_up_cycle": 84
   },
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 5,
-    "wave_streak": 1,
-    "window_tokens_attributed": 20206353
+    "wave_streak": 0,
+    "window_tokens_attributed": 30657653
   },
   "last_cycle": {
-    "cycle": 92,
-    "ts": "2026-08-18T15:56:00+00:00",
-    "work": "QA full pass (qa-verify contract, direct Agent dispatch): spec-only scenario author -> executor -> live-look",
-    "outcome": "VERIFIED. 3 scenarios: S1 pass (conductor re-ran it independently — T-175 confirmed closed end-to-end), S2 pass on runnable sub-checks with the 6h-later direction check reported NOT RUN, S3 fail adjudicated as an expectation defect against an abridged spec bullet, no item filed. Live-look returned ONE low finding, conductor-verified: --json nextFullMoon prints ms precision against a help text that scopes phase instants to roughly an hour. Filed T-190. Suite 171/171 across all 9 test files.",
-    "commit": "eff794e"
+    "cycle": 93,
+    "ts": "2026-08-18T16:23:57+00:00",
+    "work": "build-wave k=1 (direct Agent dispatch, sonnet) — T-190; plus conductor-run re-verification that closed T-189 as stale",
+    "outcome": "VERIFIED. T-190 done: --json precision policy now generated from a single table in bin/moon.js, help + README carry it verbatim, pinned by 4 new tests. Gate: 8/9 pass 1 (one instrument defect, corrected in pass 2: 7/7), mutation A + B both turned the suite RED, control C left it GREEN. Suite 171 -> 175, all green. T-189 dropped: the check it asked for already shipped at cycle 63 and was re-proved over 976 frames.",
+    "commit": ""
   },
   "run_label": "improve-3",
   "resolved_issues": [

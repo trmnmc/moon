@@ -11,6 +11,86 @@ const { detectHemisphere } = require('../src/hemisphere.js')
 const { parseArgs } = require('../src/args.js')
 const { renderLine, renderBlock } = require('../src/render.js')
 
+// T-190 — single source of truth for how much PRECISION each --json field carries.
+// The payload's round() calls below read their place-counts from here (no duplicated
+// numeric literals), and the HELP/README precision paragraph is generated from this
+// same table, so the two prose copies and the actual rounding cannot drift apart.
+//
+// kind: 'rounded' — a float, rounded to `places` decimal places.
+// kind: 'instant' — a full-precision ISO-8601 string. NOT rounded, on purpose: see
+//                    T-190 — rounding nextFullMoon would still read as exact while
+//                    destroying information a --json consumer may legitimately diff.
+//                    Precision and accuracy are different properties; `accuracyNote`
+//                    (when present) states what the ACCURACY actually is, independent
+//                    of how many digits the string carries.
+// kind: 'string'  — an exact value with no numeric precision to speak of.
+const JSON_FIELD_PRECISION = {
+  phase: { kind: 'string' },
+  illumination: { kind: 'rounded', places: 4 },
+  age: { kind: 'rounded', places: 3 },
+  cycleFraction: { kind: 'rounded', places: 5 },
+  phaseAngle: { kind: 'rounded', places: 3 },
+  hemisphere: { kind: 'string' },
+  nextFullMoon: {
+    kind: 'instant',
+    accuracyNote: "nextFullMoon's accuracy is roughly an hour regardless of how many " +
+      'digits the printed instant carries, because the phase-instant algorithm itself ' +
+      'is only good to about that.'
+  },
+  julianDay: { kind: 'rounded', places: 5 },
+  timestamp: { kind: 'instant' }
+}
+
+// Joins a list the way English prose does: "a", "a and b", "a, b, and c".
+function englishList (items) {
+  if (items.length <= 1) return items.join('')
+  if (items.length === 2) return `${items[0]} and ${items[1]}`
+  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`
+}
+
+// Greedy word-wrap to `width` columns, matching the manual wrapping used by the rest
+// of this file's HELP paragraphs — so generated and hand-written prose look the same.
+function wrap (text, width) {
+  const words = text.split(' ')
+  const lines = []
+  let line = ''
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word
+    if (line && candidate.length > width) {
+      lines.push(line)
+      line = word
+    } else {
+      line = candidate
+    }
+  }
+  if (line) lines.push(line)
+  return lines.join('\n')
+}
+
+// Builds the "Numeric fields are rounded..." paragraph straight from
+// JSON_FIELD_PRECISION, so bin/moon.js's HELP text and README.md can never assert a
+// rounding claim the table itself doesn't back up. Both documents embed this exact
+// string (see test/cli.test.js), so changing the table is the only way to change it.
+function buildPrecisionNote (table) {
+  const entries = Object.entries(table)
+  const rounded = entries.filter(([, d]) => d.kind === 'rounded')
+  const instants = entries.filter(([, d]) => d.kind === 'instant')
+
+  const roundedList = englishList(rounded.map(([name, d]) => `${name} to ${d.places}`))
+  const instantList = englishList(instants.map(([name]) => name))
+  const accuracyNotes = instants.map(([, d]) => d.accuracyNote).filter(Boolean).join(' ')
+
+  const sentence = 'Numeric fields are rounded to the precision the algorithm has ' +
+    `actually earned, not dumped as raw floats — decimal places: ${roundedList}. ` +
+    `${instantList} are different: both are ISO-8601 instants, emitted at full ` +
+    'precision, unrounded. Full precision is not the same as accuracy — ' +
+    `${accuracyNotes}`
+
+  return wrap(sentence, 78)
+}
+
+const PRECISION_NOTE = buildPrecisionNote(JSON_FIELD_PRECISION)
+
 const HELP = `moon — the current phase of the moon
 
 usage
@@ -48,8 +128,7 @@ where you are, pass --south or --north.
   julianDay     Julian Day of the observation instant
   timestamp     ISO-8601 instant the reading was computed for
 
-Numeric fields are rounded to the precision the algorithm has actually earned
-(phase instants are good to roughly an hour); they are not raw float dumps.
+${PRECISION_NOTE}
 
 No network access is ever performed.`
 
@@ -107,15 +186,19 @@ function main (argv) {
   const moon = computeMoon(now)
 
   if (opts.json) {
+    const P = JSON_FIELD_PRECISION
     const payload = {
       phase: moon.phaseName,
-      illumination: round(moon.illumination, 4),
-      age: round(moon.age, 3),
-      cycleFraction: round(moon.cycleFraction, 5),
-      phaseAngle: round(moon.phaseAngle, 3),
+      illumination: round(moon.illumination, P.illumination.places),
+      age: round(moon.age, P.age.places),
+      cycleFraction: round(moon.cycleFraction, P.cycleFraction.places),
+      phaseAngle: round(moon.phaseAngle, P.phaseAngle.places),
       hemisphere,
+      // T-190: emitted at full ISO-8601 precision, on purpose — see JSON_FIELD_PRECISION
+      // above. Rounding this would still read as exact while destroying information a
+      // --json consumer may legitimately diff; precision and accuracy are not the same.
       nextFullMoon: nextFullMoon(now).toISOString(),
-      julianDay: round(moon.julianDay, 5),
+      julianDay: round(moon.julianDay, P.julianDay.places),
       timestamp: now.toISOString()
     }
     process.stdout.write(JSON.stringify(payload) + '\n')
@@ -169,4 +252,4 @@ if (require.main === module) {
   process.exitCode = main(process.argv.slice(2))
 }
 
-module.exports = { main, HELP }
+module.exports = { main, HELP, JSON_FIELD_PRECISION, PRECISION_NOTE, round }
