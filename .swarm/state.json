@@ -988,7 +988,7 @@
     "ts": "2026-08-18T15:30:18+00:00",
     "work": "inline housekeeping (no dispatch) — journal re-archive at the SPEC ~400 KB threshold, plus the DONE determination",
     "outcome": "VERIFIED. Journal 418,997 -> 94,068 bytes; cycles 66-84 (24 blocks) moved verbatim to .swarm/journal-archive-run3-cycles-66-84.md. Independent gate against git HEAD: all 4,280 pre-archive body lines survive byte-for-byte in exactly one of the two files, run-3 and run-4 regions both IDENTICAL. Suite 171/171 before and after. One instrument defect caught pre-run (byte-accounting off-by-one: two join newlines, not one). DONE determination: definition of done fully met, but NOT DONE — T-189 (KI-5 reader-runnable check) passes the ratchet. Next cycle: QA full pass, then T-189.",
-    "commit": "pending — stamped by the cycle 91 addendum"
+    "commit": "071579b"
   },
   "run_label": "improve-3",
   "resolved_issues": [
