@@ -998,7 +998,7 @@
     "ts": "2026-08-18T15:56:00+00:00",
     "work": "QA full pass (qa-verify contract, direct Agent dispatch): spec-only scenario author -> executor -> live-look",
     "outcome": "VERIFIED. 3 scenarios: S1 pass (conductor re-ran it independently — T-175 confirmed closed end-to-end), S2 pass on runnable sub-checks with the 6h-later direction check reported NOT RUN, S3 fail adjudicated as an expectation defect against an abridged spec bullet, no item filed. Live-look returned ONE low finding, conductor-verified: --json nextFullMoon prints ms precision against a help text that scopes phase instants to roughly an hour. Filed T-190. Suite 171/171 across all 9 test files.",
-    "commit": ""
+    "commit": "eff794e"
   },
   "run_label": "improve-3",
   "resolved_issues": [
