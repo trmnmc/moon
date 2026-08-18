@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "BUILD",
-  "cycle": 87,
+  "cycle": 88,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -889,6 +889,21 @@
       "cycle": 86,
       "what": "T-182 was built on haiku rather than the sonnet the backlog item asked for, over that item's own written objection",
       "why": "Gear 2 (guest mode, weekly-governor ceiling 2) sets demote:true, and the rule demotes S-effort docs sonnet->haiku. T-182's notes had pre-argued for sonnet on the grounds that \"a cheap tier is likelier to helpfully fill in a plausible name\" for the copyright holder. The mechanical gear rule was followed and the risk was answered with a gate check instead of a model tier: check T-182c requires every rendered copyright line to be a placeholder. It passed - haiku rendered \"Copyright (c) <year> <legal holder>\" and refused the holder. The item's worry was reasonable and turned out not to bind here."
+    },
+    {
+      "cycle": 88,
+      "what": "T-184 kept at sonnet under a gear-2 posture whose demotion rung would have pushed a docs item sonnet->haiku",
+      "why": "The routing table defines the haiku band as `kind` docs/polish with `effort: \"S\"` — \"formatting, scaffolding, boilerplate\". T-184 is M-effort and its acceptance is gated on preserving a machine-checked structural contract in test/report-issues.test.js while moving ~570 lines. Applying the demotion rung here would land the item BELOW any tier the table would ever route it to, in a band explicitly scoped to S-effort boilerplate. Recording the counter-reading honestly so the retro can judge the call rather than inherit it: cycle 5 read the same rung as scoped to \"docs/polish items\" flatly, and under that reading T-184 demotes. I read the rung as bounded by the band it names. The outcome is one datapoint, not a settlement — the item passed 9/9 first attempt."
+    },
+    {
+      "cycle": 88,
+      "what": "T-186 NOT built this cycle despite a gear-2 cap of 2 and 22 hours of remaining clock; it is paired with the newly-filed T-187 as next cycle's k=2 wave",
+      "why": "Scoping T-186 turned up the same false attribution in a second file (REPORT.md:54), filed as T-187. The two are one finding in two disjoint files, and both must be judged against the same measurement record (.swarm/runs/cycle-087-verify-T-185.txt). Splitting them across cycles would mean authoring two gates over one piece of evidence and would let a corrected comment ship next to an uncorrected report row. Clock is not the scarce resource here — 22h remain against two S-effort items — so the pairing costs nothing and buys a single coherent gate. Recorded because it is a deliberate choice to end a cycle at one verified item when two were admissible."
+    },
+    {
+      "cycle": 88,
+      "what": "the cycle-88 gate was re-sealed mid-cycle (766c1c60 -> 0a236502) after its C8 check was found running a 7-file subset of the 9-file suite",
+      "why": "I enumerated the test files from memory instead of reading test/ from disk — the exact L-045 failure cycle 87 recorded committing one cycle earlier, reintroduced one cycle later. The gate caught itself: C8 parsed tests=171 at baseline and tests=148 under the gate, and a hardcoded list cannot explain a shrinking suite. The fix touched the SUBJECT ENUMERATION only — no assertion, no threshold, no arm — and made the check strictly more discriminating: it now globs test/*.test.js from disk, so adding a test file can never again silently shrink the measured suite. Both hashes are in the record so the diff, not my assurance, is the evidence. The pattern is now twice-observed and belongs in the WRAP_UP distillation: a gate's SUBJECTS must be read from disk, never listed from memory."
     }
   ],
   "known_issues": [
@@ -948,22 +963,22 @@
     "last_look_cycle": 76,
     "last_taste_cycle": 81,
     "last_review_fix_cycle": 73,
-    "last_build_wave_cycle": 87,
+    "last_build_wave_cycle": 88,
     "last_wrap_up_cycle": 84
   },
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 4,
-    "wave_streak": 0,
+    "wave_streak": 1,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "cycle": 87,
-    "ts": "2026-08-18T13:13:36+00:00",
-    "work": "build-wave k=2 (direct Agent dispatch for T-183; T-185 executed inline by the conductor, since its acceptance names the conductor as the one who must run the check)",
-    "outcome": "both VERIFIED. T-183 8/8 on sealed gate 25dc5a98. T-185 found a real defect the cycle-85 structural audit had recorded CLEAN: the KI-5 pin is not attributable under any glyph mutation. Filed T-186.",
-    "commit": "1fe6d8e"
+    "cycle": 88,
+    "ts": "2026-08-18T13:48:38+00:00",
+    "work": "build-wave k=1 (direct Agent dispatch, sonnet) — T-184, the run's last M-effort must-have: restructure REPORT.md and archive the forensics",
+    "outcome": "VERIFIED 9/9 on sealed gate 0a236502. REPORT.md 781 -> 209 lines, all four reader anchors inside the first 60, zero forensic headings remaining; 0 substantive lines lost, 4 lines of connective text added. Filed T-187 (same KI-5 misattribution, second file). Gate instrument defect caught and fixed mid-cycle.",
+    "commit": "pending"
   },
   "run_label": "improve-3",
   "resolved_issues": [

@@ -1,0 +1,22 @@
+  C0 HEAD: Known issues line 279, How to run it line 612, first forensic heading line 92, bytes 60774
+PASS  C0 defect present at HEAD (fix is non-vacuous)
+  C1 archive bytes = 39859
+PASS  C1 dated archive exists and is substantial (>15 KB)
+  C2 substantive HEAD lines orphaned = 0
+PASS  C2 every substantive HEAD line survives in REPORT.md or the archive
+  C3 found: what-it-is (names the CLI)
+  C3 found: how-to-run (a runnable command)
+  C3 found: what-is-verified
+  C3 found: known-issues heading
+PASS  C3 all four anchors within the first 60 lines
+  C4 new REPORT.md: Known issues line 45, first forensic heading line none
+PASS  C4 the reader reaches known-issues before any run change log / stop postmortem / ops findings
+PASS  C5 REPORT.md points at the archive by filename (archival, not disappearance)
+  C6 report-issues.test.js changed=false · assert calls 18 -> 18 · test blocks 6 -> 6
+PASS  C6 report-issues.test.js assertion and test-block counts did not decrease
+  C7 non-.swarm files changed: [REPORT.md]
+PASS  C7 blast radius confined to REPORT.md (+ the gate file, if fixed)
+  C8 subjects read from disk: 9 files [args.test.js, astro.test.js, cli.test.js, contracts.test.js, hemisphere.test.js, manifest.test.js, regressions.test.js, render.test.js, report-issues.test.js]
+  C8 parsed: tests=171 pass=171 fail=0
+PASS  C8 full suite green (fail=0, pass==tests, tests >= 171 — no test deleted)
+---- GATE: 9 passed, 0 failed ----

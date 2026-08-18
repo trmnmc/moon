@@ -1660,7 +1660,7 @@
       "priority": 4,
       "value": "M",
       "effort": "M",
-      "status": "todo",
+      "status": "done",
       "deps": [
         "T-183"
       ],
@@ -1673,7 +1673,7 @@
       "model": "sonnet",
       "attempts": 0,
       "traces_to": "SPEC must-have 4 -- REPORT.md is 60,774 bytes; its '## Known issues' table sits at line 279 and 'How to run it' near line 600",
-      "notes": "M-effort, justified: a structural move of ~500 lines out to an archive plus a reorder of survivors, mechanical but not one-line. deps T-183 because both touch REPORT.md and must not run concurrently (L-016: disjoint files is necessary, not sufficient -- here they are not even disjoint).\n\nGATE ANCHORS, measured by the planning agent and to be RE-CONFIRMED by the builder before moving anything: test/report-issues.test.js is structural, not prose-regex-bound. It needs (1) a line matching /^## Known issues \\((\\d+)\\)\\s*$/ followed -- after any number of non-'|' lines -- by a table headed exactly ['id','severity','status','issue'] whose row count equals the parenthesized N; (2) a line matching /^## Resolved issues\\s*$/ followed the same way by a table headed exactly ['id','severity','how it closed']. The sections need not be adjacent to each other or to anything else, so a reorder is free as long as both headings keep their exact text and both tables keep their exact header cells and column order.\n\nIf the move breaks that gate, the GATE IS FIXED, never weakened and never relabelled (SPEC must-have 4, hard rule 2)."
+      "notes": "M-effort, justified: a structural move of ~500 lines out to an archive plus a reorder of survivors, mechanical but not one-line. deps T-183 because both touch REPORT.md and must not run concurrently (L-016: disjoint files is necessary, not sufficient -- here they are not even disjoint).\n\nGATE ANCHORS, measured by the planning agent and to be RE-CONFIRMED by the builder before moving anything: test/report-issues.test.js is structural, not prose-regex-bound. It needs (1) a line matching /^## Known issues \\((\\d+)\\)\\s*$/ followed -- after any number of non-'|' lines -- by a table headed exactly ['id','severity','status','issue'] whose row count equals the parenthesized N; (2) a line matching /^## Resolved issues\\s*$/ followed the same way by a table headed exactly ['id','severity','how it closed']. The sections need not be adjacent to each other or to anything else, so a reorder is free as long as both headings keep their exact text and both tables keep their exact header cells and column order.\n\nIf the move breaks that gate, the GATE IS FIXED, never weakened and never relabelled (SPEC must-have 4, hard rule 2).\n\nDONE cycle 88. Sealed gate .swarm/gates/cycle-088-T-184.mjs (sha256 0a236502, re-sealed from 766c1c60 — see the cycle-88 journal block), 9/9. REPORT.md 60,774 bytes/781 lines -> 209 lines; the four anchors land at lines 5 (What was built), 25 (How to run it), 45 (Known issues), 59 (VERIFIED vs CLAIMED), and the new file contains no forensic heading at all. Forensics moved verbatim to .swarm/REPORT-ARCHIVE-2026-08-18.md (39,859 bytes). Archival proven in BOTH directions: 0 of HEAD's 546 substantive lines orphaned, and exactly 4 lines of new text added across the two files, all connective, all quantity-free. test/report-issues.test.js untouched and still 18 asserts / 6 test blocks."
     },
     {
       "id": "T-185",
@@ -1712,6 +1712,25 @@
       "attempts": 0,
       "traces_to": "SPEC must-have 2 - every violation of a recorded lesson filed with file and line. Filed from the cycle-87 T-185 audit.",
       "notes": "CONDUCTOR-FILED, cycle 87, from measurement not from reading. The comment block above the pin ends \"...so an unannounced glyph change fails the gate instead of drifting silently.\" That sentence is true of the SUITE and false of this test: with the pin skipped, substituting U+2592 for U+259A still fails 7 tests and U+2593 for U+2584 still fails 11. The pin does add something no other test does - the documented-partition equality and the two-class straddle assertion - and that is what the comment should claim. Do NOT weaken, skip or delete the test, and do not touch its assertions: this is a comment-truth fix only (hard rule 2)."
+    },
+    {
+      "id": "T-187",
+      "title": "REPORT.md's KI-5 row repeats the misattributed pin claim that T-186 corrects in test/render.test.js",
+      "kind": "docs",
+      "priority": 5,
+      "value": "M",
+      "effort": "S",
+      "status": "todo",
+      "deps": [],
+      "files_hint": [
+        "REPORT.md"
+      ],
+      "acceptance": "REPORT.md's KI-5 row no longer attributes to test/render.test.js:826 the property of making an unannounced glyph change fail the suite. It states what the pin uniquely establishes — that the Block Element set the disc actually draws equals the documented partition, and that the partition straddles two East Asian Width classes — and if it says a glyph change fails the suite at all, it attributes that to the exact-output tests, not to the pin. Any quantity it cites is sourced to .swarm/runs/cycle-087-verify-T-185.txt. The Known-issues table keeps its exact heading text, header cells and column order, and its data-row count stays 6.",
+      "packages": [],
+      "model": "haiku",
+      "attempts": 0,
+      "traces_to": "SPEC must-have 2 — every violation of a recorded lesson filed with file and line. Found at cycle 88 while scoping T-186.",
+      "notes": "CONDUCTOR-FILED, cycle 88. Found by grepping the T-185 finding's phrasing across the whole repo instead of trusting the one file T-186 named: the claim lives in TWO places, test/render.test.js:777 (T-186) and REPORT.md:54 (this item). README.md is CLEAN — grepped, no such claim there — so the scope is exactly those two files and no third sweep is warranted.\n\nREPORT.md:54 reads \"...checks it against the documented partition, so an unannounced glyph change now fails the suite instead of drifting silently.\" The consequent is true of the SUITE and the \"so\" attributes it to the pin, which the cycle-87 measurement refutes: with the pin skipped, U+2592->U+259A still fails 7 tests and U+2593->U+2584 still fails 11.\n\nPAIR WITH T-186 as one k=2 wave: same finding, disjoint files, and one measurement record (.swarm/runs/cycle-087-verify-T-185.txt) judges both. Comment/prose truth only — do NOT touch the pin test's body or assertions (hard rule 2)."
     }
   ]
 }
