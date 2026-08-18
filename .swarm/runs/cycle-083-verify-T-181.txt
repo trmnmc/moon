@@ -1,0 +1,67 @@
+cycle 83 — VERIFICATION GATE — T-181 (journal archival, SPEC nice-to-have #3)
+================================================================================================
+SPEC contract: "Archive the prior runs' journal tail so the live `.swarm/journal.md` (738 KB at
+kickoff) stays readable to a fresh session: append-only copy into a dated archive file, never a
+deletion, git history retains everything either way."
+
+Conductor-executed (not dispatched). Reason recorded in the cycle-83 journal block: the live
+journal is the conductor's own output medium and the RESUME path's primary artifact, it is
+written by the conductor at step 7 of the same cycle, and the task is pure mechanical file
+surgery with no claim to independently check. A botched builder edit here costs the run its
+memory; the downside is severe and asymmetric while the work is trivial.
+
+--- CUT POINT: located STRUCTURALLY, never by a hardcoded line number ------------------------
+Run 2 ends at `## cycle 66 | 2026-08-17T06:17:03+00:00 | moon | WRAP_UP (run END)`
+Run 3 begins at `## cycle 66-kickoff | 2026-08-17T16:12:20+00:00 | moon | PLAN`
+The script refuses to write at all if the `cycle 66-kickoff` marker is absent.
+
+--- ACCOUNTING (pre-write gate; the script refuses to write unless both are true) ------------
+original           : 1032714 bytes, 11145 lines, 66 blocks
+archive (runs 1-2) :  738064 bytes,  7688 lines, 49 blocks
+live    (run 3)    :  294649 bytes,  3457 lines, 17 blocks
+block headers conserved (order + text): true
+prefix + run3 reconstructs original exactly: true
+
+INDEPENDENT CORROBORATION OF THE CUT: the archived prefix measures 738064 bytes = 738 KB, and
+SPEC.md independently records the journal as "738 KB at kickoff" of run 3. Two unrelated
+sources agree the boundary landed exactly where run 3 began. This was not engineered — the
+figure was read off after the cut.
+
+--- POST-WRITE VERIFICATION vs GIT, not vs my own in-memory strings --------------------------
+Reconstructed the original from the two ON-DISK files and diffed against the committed copy:
+    git HEAD journal   : 1032714 bytes  sha256 c30a89161c89805e0fab110d
+    reconstructed      : 1032714 bytes  sha256 c30a89161c89805e0fab110d
+    BYTE-IDENTICAL     : true
+    original non-empty lines: 9743 | missing after archive: 0
+
+--- RESUME / dashboard surfaces still intact in the LIVE file --------------------------------
+    runfile-mirror blocks live : 13
+    cycle blocks live          : 17
+    last 2 block headers       : ## cycle 81 ... QA (taste) -> BUILD  ||  ## cycle 82 ... BUILD
+    newest mirror PARSES ok. run_label: moon-improve-3 | stop_at: 2026-08-18T16:02:34+00:00
+Confirmed no code depends on the journal: `grep -rln journal` over src/, bin/, test/ => empty.
+The dashboard consumes only the last 8 one-liners, which are run-3 blocks and remain live.
+
+--- RESULT ----------------------------------------------------------------------------------
+live journal 1032714 -> 295053 bytes (71.4% smaller); 3457 lines; 17 blocks retained.
+Nothing deleted: full text in the sibling archive, plus the pre-archive file in git at the
+cycle-82 commit. "Never a deletion" satisfied by relocation + two independent retentions.
+
+--- INSTRUMENT DEFECT IN MY OWN VERIFIER, named rather than buried ---------------------------
+My first verification script split the archive on the first occurrence of "\n---\n\n" to strip
+the header I had just added. That sequence also occurs INSIDE the journal body, so the split
+matched a separator thousands of lines too late and reported:
+    reconstructed : 495061 bytes  sha256 9f62152df5baf441b6afdb6b
+    BYTE-IDENTICAL: false
+    missing lines : 4876
+That read as catastrophic data loss. It was not: the ARCHIVE was already correct (the writer's
+own `endsWith(prefix)` check had returned true pre-write). The defect was in the verifier's
+split marker. Corrected by anchoring on the actual header/body JUNCTION ("\n---\n# journal —
+moon") rather than on a character sequence the payload is free to contain — the same class of
+bug as cycle 8's .trim(), cycle 9's sentence-scope, cycle 19's line-wrap blindness and cycle
+82's .swarm/ filter: MY regex narrower or looser than the text it measured. Fixing the
+instrument is not weakening the gate (step 6.5): the corrected verifier is strictly stronger,
+and it is what produced the byte-identical result above.
+
+GATE VERDICT: PASSED — byte-identical reconstruction, zero missing lines, all 66 block headers
+conserved, RESUME paths intact, 71.4% reduction achieved.

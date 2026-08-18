@@ -1570,6 +1570,41 @@
    ],
    "acceptance": "n/a -- dropped at triage, see notes.",
    "notes": "TASTE pass cycle 81, severity `minor`, after_n_uses 1. Conductor-reproduced (C5): the next-full-moon line carries no box character, i.e. it sits outside the frame, at a 3-space indent, after the closing rule. C6: `--block --compact` drops it cleanly, which is what makes it read as bolted on rather than composed. Agent's suggestion: a fourth detail row inside the frame, which the existing frame width already fits.\n\nTRIAGE (cycle 81, conductor): NOT DISPATCHED THIS RUN. The locked SPEC's taste note requires every item to trace to a recorded survivor, a failed doc re-verification, or the flag-interaction axis; this traces to none of the three, and the non-goals forbid new features. Status `dropped`, never deleted, and the full finding is parked in .swarm/ideas-ledger.md so a future run that IS allowed to change the product inherits it with the conductor's reproduction attached rather than re-deriving it."
+  },
+  {
+   "id": "T-180",
+   "title": "machine-check REPORT.md's known-issues and resolved-issues tables against .swarm/state.json",
+   "kind": "fix",
+   "status": "done",
+   "priority": 2,
+   "effort": "S",
+   "model": "sonnet",
+   "attempts": 0,
+   "deps": [],
+   "packages": [],
+   "files_hint": [
+    "test/report-issues.test.js"
+   ],
+   "acceptance": "a test parses BOTH REPORT.md issue tables and BOTH state.json issue arrays and asserts id sets, cross-table disjointness, severity agreement where both sides define one, and the '## Known issues (N)' heading count; parser fails loudly rather than passing vacuously on zero rows; survivors classified HOLE vs BOUNDARY before hardening (L-033); every assertion failable AND attributable by name (L-029).",
+   "notes": "Traces to SPEC.md's Nice-to-haves list, whose gate ('do not start these until every must-have is verified green') opened at cycle 80. VERIFIED at cycle 83: 6 new tests, suite 165 -> 171 conductor-run, REPORT.md byte-identical to HEAD (no drift existed to fix, and none was manufactured). Conductor mutation matrix 6/6 as predicted -- M1 severity drift, M2 row deletion, M3 stale heading count, M4 cross-table duplicate all DIED naming only tests in the new file; M5 (prose reworded, no id/severity/count touched) SURVIVED, which is the discriminator separating a real consistency checker from a REPORT.md snapshot test; M6 (heading renamed) crashed at module load, proving the parser fails loudly. Evidence: .swarm/runs/cycle-083-verify-T-180.txt."
+  },
+  {
+   "id": "T-181",
+   "title": "archive runs 1-2 of the journal so the live .swarm/journal.md stays readable to a fresh session",
+   "kind": "polish",
+   "status": "done",
+   "priority": 3,
+   "effort": "S",
+   "model": "conductor",
+   "attempts": 0,
+   "deps": [],
+   "packages": [],
+   "files_hint": [
+    ".swarm/journal.md",
+    ".swarm/journal-archive-through-2026-08-17.md"
+   ],
+   "acceptance": "runs 1 and 2 relocated VERBATIM into a dated sibling archive; live journal continues from run 3's kickoff; nothing deleted; the original reconstructible byte-for-byte from archive + live; RESUME's last-2-blocks and newest-runfile-mirror paths still served by the live file.",
+   "notes": "SPEC nice-to-have #3, same open gate as T-180. Conductor-executed rather than dispatched: the journal is the conductor's own output medium and the RESUME path's primary artifact, it is rewritten at step 7 of this same cycle, and there is no claim for an independent agent to check -- only mechanical file surgery whose downside (losing the run's memory) is severe and asymmetric. VERIFIED: 1032714 -> 295053 bytes live (71.4% smaller), 66/66 block headers conserved, reconstruction from disk BYTE-IDENTICAL to git HEAD (sha256 c30a89161c89805e0fab110d both sides), 0 of 9743 non-empty lines missing. Independent corroboration: the archived prefix is 738064 bytes and SPEC.md separately records the journal as '738 KB at kickoff', so the cut landed exactly on the run-3 boundary. Evidence: .swarm/runs/cycle-083-verify-T-181.txt."
   }
  ]
 }

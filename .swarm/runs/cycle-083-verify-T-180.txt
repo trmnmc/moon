@@ -1,0 +1,98 @@
+cycle 83 — VERIFICATION GATE — T-180 (REPORT.md <-> .swarm/state.json issue-table consistency)
+================================================================================================
+Gate authored by the conductor BLIND to the builder's implementation (gate script:
+/opt/swarm/runs/.c83-gate.js). Mutations applied to a scratch COPY of the working tree at
+/opt/swarm/runs/.c83-gate-tree; the real repo was never mutated by the gate.
+
+The gate's central question is not "did tests pass" but "does the new test actually DETECT
+drift, is the kill attributable to a NAMED new test, and would a degenerate implementation
+have passed anyway?" The last question is what M5 and M6 exist for.
+
+--- G0  BASELINE, independently measured (not taken from the builder or the journal) --------
+Clean clone of HEAD (cycle 82, 1819291) at /opt/swarm/runs/.c83-baseline:
+    ℹ tests 165
+    ℹ pass 165
+    ℹ fail 0
+Post-change, REAL repo, conductor-run `node --test test/*.test.js`:
+    ℹ tests 171
+    ℹ pass 171
+    ℹ fail 0
+    ℹ duration_ms 3293.444512
+=> +6 tests, 0 failures, floor of 148 respected. 165 is the conductor's OWN measurement.
+
+--- G4/G5  MUTATION MATRIX (6/6 as predicted) ----------------------------------------------
+[PASS] M1  expect=DIE actual=died
+      KI-4 severity low -> high in the Known-issues table (severity drift)
+        - severities agree between REPORT.md and state.json wherever both sides define one
+      => CLEAN SINGLE ATTRIBUTION
+
+[PASS] M2  expect=DIE actual=died
+      delete the KI-7 row from the Known-issues table (id-set drift)
+        - REPORT "Known issues" table ids match state.json known_issues[] ids
+        - the "## Known issues (N)" heading count matches the number of data rows in that table
+      => 2 assertions; structurally inseparable (deleting a row changes id set AND row count)
+
+[PASS] M3  expect=DIE actual=died
+      heading count "Known issues (5)" -> "(4)" (stale count)
+        - the "## Known issues (N)" heading count matches the number of data rows in that table
+      => CLEAN SINGLE ATTRIBUTION
+
+[PASS] M4  expect=DIE actual=died
+      add KI-8 to the Resolved table too (open AND resolved at once)
+        - REPORT "Resolved issues" table ids match state.json resolved_issues[] ids
+        - no id is listed in both of REPORT's Known-issues and Resolved-issues tables
+      => 2 assertions; inseparable given state's known/resolved sets are themselves disjoint
+
+[PASS] M5  expect=SURVIVE actual=survived        <-- THE DISCRIMINATOR
+      CONVERSE CONTROL: reword prose inside a description cell, changing no id/severity/count
+      ("Terminal font variance beyond width" -> "Terminal typeface variance beyond width")
+      failing tests: none
+      => This is the arm that matters. A REPORT.md SNAPSHOT test would have died here and
+         still passed M1-M4. Surviving M5 while dying on M1-M4 is what distinguishes a real
+         consistency checker from a checksum over the file.
+
+[PASS] M6  expect=DIE actual=died
+      PARSER SELF-CHECK: rename the heading so the table cannot be located
+        - test/report-issues.test.js  (crashes at module load, AssertionError)
+      => The parser fails LOUDLY rather than silently parsing zero rows and passing vacuously.
+
+FINAL: restored scratch copy re-runs green — exit 0 | tests 171 pass 171 fail 0
+
+--- G2  SCOPE -------------------------------------------------------------------------------
+`git status --porcelain` (whole working tree, both cycle-83 items):
+     M .swarm/journal.md                              <- conductor, T-181
+    ?? .swarm/journal-archive-through-2026-08-17.md   <- conductor, T-181
+    ?? test/report-issues.test.js                     <- builder,   T-180
+`git diff --stat HEAD -- REPORT.md` => EMPTY. REPORT.md is byte-identical to HEAD; the
+builder's claim that it reverted every experiment is confirmed, not taken on trust.
+src/, bin/, .swarm/state.json, .swarm/backlog.json, .swarm/SPEC.md: untouched.
+
+--- G3  ZERO DEPENDENCIES -------------------------------------------------------------------
+package.json diff vs HEAD: EMPTY
+dependencies:    undefined
+devDependencies: undefined
+package-lock.json: No such file or directory
+node_modules:      No such file or directory
+
+--- G6  HOLE/BOUNDARY CLASSIFICATION (L-033) ------------------------------------------------
+Present in the file header (lines 12-34) and restated at the assertion sites (138, 193):
+  HOLE     — Known-issues id set vs known_issues[]
+  HOLE     — Resolved-issues id set vs resolved_issues[]
+  HOLE     — an id in both REPORT tables at once
+  HOLE     — severity per id where BOTH sides define one
+  HOLE     — "(N)" heading count vs actual row count
+  BOUNDARY — resolved_issues[] carries NO severity field at all (independently confirmed by
+             the conductor: KI-1/KI-3/KI-6 all have severity === undefined). Skipped, not
+             invented, not forced to agree.
+  BOUNDARY — free-text `status` column / prose state.json fields: not a controlled
+             vocabulary, deliberately unparsed.
+
+--- INSTRUMENT DEFECT IN MY OWN GATE, named rather than buried ------------------------------
+My `failedNames()` regex also matched node's reporter SUMMARY line, so each mutation arm
+printed a spurious entry literally reading "failing tests:" alongside the real test names.
+Cosmetic only: every die/survive verdict keys on the process EXIT CODE, not on the parsed
+names, and the real test names were captured correctly in every arm. Recorded because this
+run's standing practice is to name instrument defects rather than let a reader assume the
+instrument was clean. It did not change any verdict and the bar was not moved.
+
+GATE VERDICT: PASSED — G1 G2 G3 G4 G5 G6 all pass, 6/6 mutation arms as predicted.
