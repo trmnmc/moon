@@ -1045,7 +1045,7 @@
     "ts": "2026-08-18T16:53:37+00:00",
     "work": "VALUE_LOOP standing-claim audit (inline conductor re-derivation, 4 passes) + one recall-only Explore agent (101 claims enumerated)",
     "outcome": "VERIFIED. 4 real defects found and FILED (T-191..T-194), 0 built — filing is this work type's output; the build wave is next cycle's. The conductor's own 15-claim mechanical sweep came back ZERO stale; all four defects came from the agent's 101-claim enumeration, because three of them are false RATIONALES carrying no number for a grep to catch. Suite 175/175 green with coverage proven arithmetically (9 files sum to 175). 4 conductor instrument defects found and fixed with the failing passes kept on disk. 1 prior-record error corrected (cycle 91's repo-root listing omitted .github). 1 agent suspicion refuted. NOT DONE: four candidates pass the ratchet.",
-    "commit": "PENDING"
+    "commit": "56c190e"
   },
   "run_label": "improve-3",
   "resolved_issues": [
