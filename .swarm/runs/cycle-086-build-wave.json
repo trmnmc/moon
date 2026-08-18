@@ -1,0 +1,59 @@
+{
+  "cycle": 86,
+  "ts": "2026-08-18T12:55:50+00:00",
+  "type": "build-wave",
+  "dispatch": "DIRECT Agent calls (Workflow review-gated in a -p session); no worktrees, disjoint file scopes",
+  "k": 2,
+  "k_derivation": "min(k_current 3, gear-2 cap 2)",
+  "items": [
+    {
+      "id": "T-175",
+      "model": "sonnet",
+      "scope": [
+        "src/hemisphere.js",
+        "test/hemisphere.test.js"
+      ],
+      "returned": {
+        "src_line": "'us/samoa', // legacy alias of Pacific/Pago_Pago - Pago Pago is 14d16' S",
+        "placed": "SOUTHERN_ZONES, legacy top-level aliases block, after 'nz-chat'",
+        "test": "5 assertions added inside the existing test('legacy top-level aliases') — US/Samoa south plus US/Pacific, US/Alaska, US/Hawaii, US/Eastern north",
+        "tally": "tests 171 / pass 171 / fail 0",
+        "l029_armA": "failing test named 'legacy top-level aliases', AssertionError north !== south at test/hemisphere.test.js:232:10",
+        "l029_armB": "CLAIMED BY REASONING, NOT RUN — the agent inferred from a pre-edit Read that the prior test file had no US/Samoa assertion"
+      },
+      "conductor_disposition": "accepted after the gate RAN arm B independently (14/14 green); the builder’s arm B was a claim, the gate made it a fact"
+    },
+    {
+      "id": "T-182",
+      "model": "haiku (gear-2 demotion from the sonnet the item requested)",
+      "scope": [
+        ".swarm/KI-8-OWNER-ACTION.md"
+      ],
+      "returned": {
+        "license": "MIT (package.json line 31)",
+        "private": "false (line 32)",
+        "license_file_check": "no LICENSE* at repo root",
+        "refusals": "no holder invented (placeholder <legal holder> only); no MIT body text, pointed at opensource.org/licenses/MIT",
+        "words": 278
+      },
+      "conductor_disposition": "accepted; gate checks T-182a-d all pass and the conductor read the file end to end. One judgment call recorded in the journal: line 19 illustrates the slot with labelled example holder KINDS, not an assertion about this repo"
+    }
+  ],
+  "gate": {
+    "file": "/opt/swarm/runs/gate-c86.mjs",
+    "sealed_before_dispatch": "5f3a77642146080bc7269e0e66a155c806ccc60976fdcff87e4247688ae71d8f",
+    "re_sealed_after_parser_fix": "d1a81a687cabe9560165e3f7074553b502a03bad0e0a3de13c7a581368a68841",
+    "why_re_sealed": "instrument defect: parsed TAP, Node v24.19.0 emits the spec reporter. Parsers only; no assertion, arm or threshold changed.",
+    "verdict": "8/8 PASS",
+    "evidence": ".swarm/runs/cycle-086-verify-gate.txt"
+  },
+  "outcome": {
+    "verified": [
+      "T-175",
+      "T-182"
+    ],
+    "reverted": [],
+    "failed_verifies": [],
+    "suite": "171/171"
+  }
+}
