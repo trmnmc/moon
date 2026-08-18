@@ -13,12 +13,20 @@ one: the run's work ended 2026-08-16 20:02 UTC when the weekly usage cap was exh
 cycle 65, but the session did not finally wrap up until 2026-08-17 06:27:39 UTC (last
 recorded heartbeat) (allocator auto-kickoff, guest pacing, dial 0.3) — cycles 48–65,
 **148/148 tests green**.
+**Improvement run 3:** 2026-08-17 16:12:20 → 2026-08-18 01:35 UTC (allocator auto-kickoff,
+thermostat pacing, dial 0.5) — cycles 66–84, **171/171 tests green**.
 **Target:** `/opt/targets/moon`
-**Outcome of run 2:** **STOPPED SHORT — the weekly usage cap ran out.** 14 items verified
-and every source file mutation-swept, but three measured holes are still open and the run
-had no clock to close them in: the cap was exhausted at 20:02 UTC on 2026-08-16 and every
-relaunch until the 05:00 reset died at HTTP 429. This was an interruption, not a decision —
-the contrast with run 1's deliberate early stop is the point. See "Why run 2 stopped".
+**Outcome of run 3:** **DONE, and it stopped early on purpose — ~14.4 hours of clock
+deliberately unspent.** Every must-have of all three specs is closed and re-verified from
+evidence rather than from backlog labels; the three holes run 2 measured and could not
+afford (T-153, T-155, T-156) are all closed; the one axis no sweep had covered — flag
+interactions — was enumerated, mutated, and its four HOLEs hardened. Nothing was left
+running. See "Why run 3 stopped", which is the section to read if you only read one.
+**Outcome of run 2 (for contrast):** **STOPPED SHORT — the weekly usage cap ran out.** 14
+items verified and every source file mutation-swept, but three measured holes were still
+open and the run had no clock to close them in: the cap was exhausted at 20:02 UTC on
+2026-08-16 and every relaunch until the 05:00 reset died at HTTP 429. This was an
+interruption, not a decision. Run 3 closed all three. See "Why run 2 stopped".
 
 ---
 
@@ -107,6 +115,102 @@ This is the strongest argument for the pass existing at all.
    exist, since npm publish is an explicit non-goal.
 7. **Two help lines ran to 84 columns** and wrapped on a default terminal.
 
+## What improvement run 3 changed (cycles 66–84)
+
+Run 3's job was the work run 2 measured and could not afford, plus the one axis no sweep had
+ever covered. **24 items were verified done across 19 cycles**, and the suite moved 148 →
+**171**. That test count is deliberately not the headline — the SPEC forbids reporting it as
+an outcome — so here is what it actually bought.
+
+### The three holes run 2 left open are closed (cycle 68)
+
+All three landed in a single wave, each with both arms of the failable/attributable proof in
+the journal:
+
+| item | what was unprotected | how it closed |
+|---|---|---|
+| **T-155** | No test compared any `--json` numeric field against an exact value, so `round()`'s **scale factor** was provably invisible to the suite — run 2's single most severe survivor, and never dispatchable there because it is M-effort and the allocator held gear 1 for all 18 cycles. | Exact values hand-derived from the SPEC's Domain rules, never read back out of the implementation. |
+| **T-153** | Nothing exercised `--block` together with `--compact`; the next-full-moon suppression on that branch was unexercised. | Pinned at `bin/moon.js:130`. |
+| **T-156** | The `moon: ` stderr prefix on usage errors was unpinned — `test/cli.test.js:306` used an unanchored `assert.match`. | Anchored on a structural property the stream owns, per L-043, not on prose. |
+
+T-155's closure immediately produced a second finding the pin could not cover: **`Math.ceil`
+survives the whole suite** where `round` is used, because at the sampled points the two agree
+exactly. Filed as **T-163** and closed at cycle 69 — the rounding *rule* is now pinned as well
+as the scale factor.
+
+### The uncovered axis: flag interactions (cycles 69–70)
+
+Every prior sweep mutated one behavior in one file. **T-157** (fable) enumerated the CLI's
+flag matrix and mutated the interaction branches — combinations, not single behaviors. Four
+survivors were classified **HOLE**, the rest **BOUNDARY**, and the classification was made
+*before* any test was written (L-033), because a survivor at a point where the observable is
+genuinely indiscriminable is the check being correct, and "hardening" it produces a check
+that false-rejects honest output. **T-158** then hardened exactly those four HOLEs, one
+two-arm-proven pin each. Every BOUNDARY call is recorded with its reasoning in the journal.
+
+### Product defects found by the review-fix pass (cycle 73) and fixed
+
+The run's one adversarial review pass produced three findings that were reproduced by an
+independent verifier and then fixed. All three are real user-facing behavior, not hygiene:
+
+1. **`bin/moon.js` crashed on a closed pipe** (T-165). Writing to stdout with no `error`
+   handler means `node bin/moon.js | head -1` dies with `EPIPE`. Fixed with a stream guard —
+   and the fix's *first* attempt was rejected by the conductor for a regression it introduced,
+   setting exit 0 on a closed pipe from either stream where README documents exit 2 for usage
+   errors. The exit-code contract was ruled on by the conductor **before dispatch**, precisely
+   so a builder could not settle a documentation-visible contract on its own.
+2. **`--block` drew a hair-thin crescent as three disconnected specks** (T-167). Reachable
+   roughly 20 h per lunation. Attempt 1 failed on exactly the judgment a cheaper model got
+   wrong; attempt 2 was routed to fable as correctness-core work and passed.
+3. **A date-dependent test** (T-166) hard-coded two spaces before the day number, which is
+   space-padded — green today, red on a single-digit date.
+
+### Doc truth: every line-cited and output-cited claim re-verified
+
+`README.md`, `.swarm/CONTRACTS.md` and `REPORT.md` all cite specific line numbers and paste
+captured command output, and line citations drift silently. All three were re-verified against
+the tree as it stands (T-159, T-160, T-161), with captures **regenerated by running the
+documented command**, never hand-edited. Four claims failed re-verification and were corrected
+rather than reworded: the `--help` text's mid-range description (T-168, which was wrong in the
+*shipped binary* as well as the README), an 18:15 UTC figure credited to the wrong Meeus series
+(T-169), a documented round-limb threshold that survived mutation (T-170), and a promise of a
+"single-line message" for every usage error that some errors broke (T-172). Run 2's own start
+time in this report was off by 17 minutes (T-164) and is corrected.
+
+### Two documents made self-checking rather than merely correct
+
+- **T-176** pinned the one place the two rendering surfaces *disagree*: the single-line form
+  and `--block` did not agree about whether the moon is visible at very low illumination. It
+  was pre-classified **BOUNDARY before any test existed**, so its fix is a pin plus a written
+  caveat — not a re-tune of `src/render.js`, which would have been a behavior change the
+  non-goals forbid.
+- **T-180** made this report's two issue tables machine-checked against `.swarm/state.json`.
+  The ids, the severities, the `## Known issues (N)` heading count, and the disjointness of
+  the two tables are now assertions in `test/report-issues.test.js`. **If you edit those
+  tables and the state file disagrees, the suite goes red.**
+
+### Housekeeping that will matter to the next session
+
+**T-181** archived runs 1–2 out of the live journal: 1,032,714 bytes → **294,649** (71.4%
+smaller) with the full text preserved in `.swarm/journal-archive-through-2026-08-17.md`. The
+cut point was located structurally, not by line number, and the reconstruction was verified
+**byte-identical against git**, not against the archiving script's own strings.
+
+### Thrash, stated plainly
+
+One reverted merge in the whole run (T-160, cycle 71 — it fixed 3 of 4 sub-goals and then
+re-asserted a false claim *and invented a mechanism for it*; committing the good three would
+have shipped a fabrication inside the one document whose premise is the VERIFIED-vs-CLAIMED
+distinction). Three items carry `attempts: 1` and **all three ended `done`**. Zero items
+blocked, zero at the attempt cap, zero merge conflicts.
+
+The dominant thrash source was not the builders — it was **the conductor's own verification
+instruments**, which failed in six separate cycles (72, 76, 80, 81, 82, 83), twice as *vacuous
+passes*, the dangerous direction. Every failure was repaired rather than worked around, every
+widening was paired with a strictly stronger assertion, and no repair moved a bar. The
+mechanism is one thing and it is named on the record: the conductor's regex or scope narrower
+or looser than the text it was measuring. See "Operational findings from run 3".
+
 ## What improvement run 2 changed (cycles 48–65)
 
 Run 2's job was measurement, not addition: find what the 145-test suite could not actually
@@ -179,7 +283,7 @@ now stands, so the two never collide.
 
 | id | severity | status | issue |
 |---|---|---|---|
-| KI-2 | medium | open, blocking — **worsening** | `settings.json` allowlist edit was denied at all three kickoffs, so `permissions.additionalDirectories` is `[]` and **`bin/swarm-budget.sh` and `bin/swarm-playbook.sh` are not allowlisted at any path**. `swarm-notify.sh` *is* reachable on this host — its relative allowlist entry matches whenever the conductor's cwd is the SWARM root, even though the macOS absolute entry does not match `/opt/swarm/bin/...`. Degraded across run 2: the budget probe (never invoked in 65 cycles) and the playbook append (hand-edited fallback for the second run running). The notification channel is not part of this gap — see the Run 2 stats table for what actually happened to it, which KI-2 does not explain. It is also masking the curator deadlock — see Operational findings 1, and fix the two together. Headless relaunches must pass `--add-dir`. SWARM tooling gap, not a product defect. |
+| KI-2 | medium | open, blocking — **root cause now conclusive; structurally unclosable by the swarm** | **Run 3 update (cycles 68–83, 13 further denials).** Cycle 83 killed the last standing hypothesis by re-attempting the probe at the **absolute** path `/opt/swarm/bin/swarm-budget.sh` — every prior attempt across three runs used the relative form — and it was refused identically. The cause was then read straight out of `SWARM/.claude/settings.json`: the allow list carries `Bash(bin/swarm-notify.sh:*)` plus a **stale macOS** `Bash(/Users/truman/Projects/SWARM/bin/swarm-notify.sh:*)`, and **no entry for `swarm-budget.sh` or `swarm-playbook.sh` at any path**. It is a missing entry, not a path-form mismatch, so no invocation form can ever succeed. Worse: the `Edit` that KICKOFF step 5 *explicitly authorises* to repair this was denied at all three kickoffs, so the one sanctioned repair path is itself blocked and **this issue cannot close from inside a run, in any mode**. Deliberately NOT routed around via `python3`/`node` (both allowlisted) — that would produce a green artifact over a boundary the user never granted. **The exact patch is six allow-list lines; see "Operational findings from run 3".** Original text follows. `settings.json` allowlist edit was denied at all three kickoffs, so `permissions.additionalDirectories` is `[]` and **`bin/swarm-budget.sh` and `bin/swarm-playbook.sh` are not allowlisted at any path**. `swarm-notify.sh` *is* reachable on this host — its relative allowlist entry matches whenever the conductor's cwd is the SWARM root, even though the macOS absolute entry does not match `/opt/swarm/bin/...`. Degraded across run 2: the budget probe (never invoked in 65 cycles) and the playbook append (hand-edited fallback for the second run running). The notification channel is not part of this gap — see the Run 2 stats table for what actually happened to it, which KI-2 does not explain. It is also masking the curator deadlock — see Operational findings 1, and fix the two together. Headless relaunches must pass `--add-dir`. SWARM tooling gap, not a product defect. |
 | KI-4 | low | open, unverified | Terminal font variance beyond width (ligatures, exotic fonts) remains unverified — no automated check can cover it; needs a human look. |
 | KI-5 | medium | pinned by test, not fixed | **Glyph width.** The disc mixes East Asian Width classes (`░` `▐` are Neutral; `▒ ▓ █ ▌ ▏ ▕` are Ambiguous). In terminals rendering ambiguous-width as double (CJK locales, iTerm2 setting, `xterm -cjk_width`) the disc is 5–9 columns instead of 5: the line jitters between nights, the two-line form stops aligning, and the `--block` frame does not close. Correct in default Western-locale terminals. `test/render.test.js:629` (`KI-5 pin: disc glyph set matches the documented East Asian Width partition`) derives the disc's actual glyph set from `renderLine`/`renderBlock` output and checks it against the documented partition, so an unannounced glyph change now fails the suite instead of drifting silently. The glyph-set redesign that would actually fix the width problem is still deferred — this is a pin, not a fix. |
 | KI-7 | low | bounded (sampled), not fixed | At epochs far outside normal use (empirically found around ±270,000 years) `phaseName` and `illumination` can contradict, since the ch.49 and ch.48 Meeus series diverge. `src/astro.js`'s exported `PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` (astro.js:71-74) declares the domain over which the two are known to stay consistent — the half-open range of calendar years **1000–3000** — and `test/astro.test.js:491` (`KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)`) strides **4000** deterministic points across that domain with zero band violations. This is a sampled bound, not a proof, and nothing enforces it at runtime. |
@@ -194,6 +298,78 @@ now stands, so the two never collide.
 | KI-6 | low | **`nextFullMoon()` now throws instead of returning an Invalid Date.** `src/astro.js:358` checks the constructed result with `Number.isNaN(result.getTime())` and throws a `TypeError` ("nextFullMoon result is outside the representable Date range") for inputs past the top of the JS `Date` range, matching the module's existing bad-input guard shape (`:281`, `:346`). Regression at `test/astro.test.js:294`. |
 
 ---
+
+## Why run 3 stopped
+
+**It finished, and then it stopped rather than manufacturing work.** Cycle 84 declared the
+target DONE at 01:35 UTC against a 16:02 stop — **~14.4 hours unspent**. That is a decision,
+and the case for it is below so you can disagree with it on the evidence.
+
+**What was verified before deciding, by running commands rather than reading labels:**
+
+```
+node --test test/*.test.js   ->  tests 171  pass 171  fail 0
+package.json                 ->  dependencies undefined, devDependencies undefined
+repo root                    ->  no node_modules, no package-lock.json, no yarn.lock
+```
+
+Against the definition of done: T-153/T-155/T-156 each closed with two-arm proofs (cycle 68);
+the flag-interaction matrix enumerated with every survivor classified HOLE or BOUNDARY and its
+reasoning recorded (cycles 69–70); every line-cited and output-cited doc claim re-verified with
+four stale ones corrected and captures regenerated (cycles 70–78); KI-2 re-measured with the
+exact refusal on record (cycles 71, 83); suite green and never below the 148-test baseline; no
+dependency of any kind. **Every box is closed.**
+
+**Every source of authorized work was searched, not just the backlog.** This is the part
+worth stating, because cycle 83 caught the previous cycle getting it wrong: a drained backlog
+means the *queue* is empty, never that the *spec* is satisfied.
+
+| source | state at cycle 84 |
+|---|---|
+| Backlog | 1 `todo` item, **T-175**, which carries a recorded DO-NOT-BUILD verdict on traceability grounds (see below). Everything else `done` or `dropped`. |
+| SPEC.md must-haves | all closed at cycle 80 |
+| SPEC.md **Nice-to-haves** | exhausted at cycle 83 — #1 was found already shipped at run 2 cycle 63, #2 became T-180, #3 became T-181 |
+| Run 2's spec (still binding) | must-haves closed; T-116/T-130/T-139 all `done` |
+| Run 1's spec (still binding) | must-haves closed (KI-1, KI-5, KI-6, KI-7) |
+| Step-4 pass list | design ✅ plan ✅ build ✅ review-fix (c73) ✅ full QA (c76) ✅ taste (c81) ✅ — only POLISH never ran |
+| Known issues | KI-2 needs a human; KI-4 needs a human; KI-5's real fix is a glyph-set redesign the non-goals forbid; KI-7 is bounded and documented; KI-8 needs the owner's copyright line |
+| Taste-pass findings | 4 found at cycle 81, 1 filed and built (T-176), 3 parked in `.swarm/ideas-ledger.md` as out of scope |
+
+**POLISH was weighed and rejected on the merits, not skipped.** It is the one step-4 pass
+this run never ran, and the two-question ratchet is "would the target user notice?" and
+"would they still care after 10 minutes?" A docs-polish pass fails both here: this run spent
+six items re-verifying every doc claim in the repo, so the prose a polish agent would rewrite
+is currently *verified true*, and rewriting verified prose is how you get an unverified claim
+back — exactly the failure T-160 was reverted for at cycle 71. The spec names
+diminishing-return churn as this run's chief risk and forbids any item that traces to none of
+its three permitted sources. POLISH traces to none.
+
+**The pacing evidence points the same way.** The weekly governor clamped the gear to 2 for
+most of the run and blocked promotion for all of it: `weekly_used_pct` 19.0 against
+`week_elapsed_pct` 12.2 is a **weekly_heat of 1.56, still 20% over the 1.3 trigger**, on the
+last reading taken. Spending 14 more hours on work the spec forbids, while already running
+above the weekly pace, would be wrong twice over.
+
+**The one item left `todo`, and why it was not quietly built.** **T-175** —
+`detectHemisphere('US/Samoa')` returns north for a 14°S location, the one southern legacy
+alias missing from the defensive alias layer. Found by the cycle-76 QA sweep across every
+canonical zone and every Link in the host tzdata; conductor-reproduced at the unit level. It
+is **not user-observable on this host**: with `TZ=US/Samoa`, ICU canonicalises to
+`Pacific/Pago_Pago` before detection runs and the live binary prints `south`. It would surface
+only on a runtime whose `Intl` reports the raw legacy name. It was first filed as a failed
+doc re-verification against this report's "all 418 zones" claim — and that framing was
+**measured and withdrawn** by the conductor, because `Intl.supportedValuesOf('timeZone')` is
+exactly 418 on this host and contains no legacy aliases at all, so the claim is true as scoped
+and the alias table simply has a gap. With the doc-falsity framing gone it traces to none of
+the spec's three permitted sources, so it was left filed rather than built. It is a clean,
+fully-measured pick-up for any run that is allowed to touch it.
+
+**What an unspent 14 hours would have been worth is a real question, and the honest answer is
+"the ideas ledger".** `.swarm/ideas-ledger.md` holds three product ideas the taste pass rated
+highly and this run's non-goals forbade — a relative countdown on the next-full-moon line, a
+`--date` flag, and moving `--block`'s dangling next-full-moon line inside the frame. All three
+are *features*. None could be built tonight. They are the argument for giving this repo a
+feature run rather than a fourth housekeeping run.
 
 ## Why run 2 stopped
 
@@ -273,6 +449,67 @@ finished at 79.0% against 73.79% of the week elapsed, and premium sat at 96%. St
 with wall-clock unspent while the weekly runs slightly hot is the correct trade.
 
 ---
+
+## Operational findings from run 3 (SWARM tooling, not the product)
+
+Per hard rule 5, none of this was fixed live. All of it is a morning action for a human.
+
+**1. KI-2 is now root-caused conclusively, and the fix is six lines.** Add to the `allow`
+list in `/opt/swarm/.claude/settings.json`:
+
+```
+Bash(/opt/swarm/bin/swarm-budget.sh:*)
+Bash(/opt/swarm/bin/swarm-playbook.sh:*)
+Bash(/opt/swarm/bin/swarm-notify.sh:*)
+Bash(bin/swarm-budget.sh:*)
+Bash(bin/swarm-playbook.sh:*)
+Bash(bin/swarm-notify.sh:*)
+```
+
+and delete the stale macOS entry `Bash(/Users/truman/Projects/SWARM/bin/swarm-notify.sh:*)`,
+which cannot match on this host. The full handoff patch is on disk at
+`.swarm/runs/cycle-071-verify-T162.txt`. **The mechanism is settled, not inferred:** the
+allowlist matches the literal leading command token, `swarm-notify.sh` works *only* in the
+bare-relative form with cwd `/opt/swarm`, and the other two scripts have no entry in any form.
+Cycle 33 established this by controlled comparison — same shell, same cwd, same invocation
+shape, opposite outcomes — and cycle 83 closed the last alternative by testing the absolute
+path. Thirteen denials this run, ~47 across three runs.
+
+**2. The one thing that makes KI-2 worse than a config typo: the sanctioned repair is
+blocked too.** SKILL.md KICKOFF step 5 explicitly authorises the conductor to edit the allow
+list at kickoff — it is one of exactly two carve-outs in the self-modification fence. That
+`Edit` call was **denied at all three kickoffs**. So no number of future runs can fix this;
+it needs a human or an interactive session. The conductor deliberately did *not* route around
+the denial using `python3` or `node`, both of which are allowlisted and could trivially have
+written the file: doing so would have produced a green artifact over a permission boundary the
+user never granted.
+
+**3. What KI-2 actually cost this run, measured rather than asserted.** The budget probe never
+ran, so `window_tokens`, `tokens_per_hour` and `projected_depletion_at` are structurally `0`
+and **ρ was never measured** — every gear this run rests on `runs/allocator.json` posture plus
+the evidence rule (no burn data lands cruise, never crawl and never overdrive). The playbook
+parser never ran, so `playbook/learnings.md` was parsed by hand for the third consecutive run
+and the `record-applied` ledger line could not be written for the third consecutive run. The
+WRAP-UP `append` was denied for the 8th consecutive time and the distillation was hand-written
+(`playbook/DROP-RATIONALE-2026-08-18.md`). **The notification channel is not part of this gap**
+— `swarm-notify.sh` is reachable in the bare-relative form and 25 sends are logged this run.
+
+**4. The conductor's verification instruments are the run's real weak point, and the fix is
+already demonstrated.** Six cycles (72, 76, 80, 81, 82, 83) had a gate that failed *as an
+instrument* rather than as a finding — cycle 72's v1 returned 12 failures against the builder
+tree of which zero were real, and cycles 80 and 81 each produced a **vacuous pass**, which is
+the direction that ships unverified work under a green label. The mechanism is a single
+recurring one, named at cycle 83: the conductor's regex or scope narrower or looser than the
+text it measured. **Cycle 77 shows the fix works**: it smoke-ran both sealed gates against
+unmodified HEAD *before* dispatch and caught four instrument defects, two of them false
+passes. Sealing a gate by hash (L-042) proves the check predated the work; it does not prove
+the check runs. Both halves are now in the playbook.
+
+**5. `cd` does not persist across the conductor's shell calls, and a notify send from the
+wrong cwd fails silently-ish.** `swarm-notify.sh` resolves only as a bare relative path from
+`/opt/swarm`, so a cycle whose working directory has drifted to the target repo gets exit 127
+instead of a push. Caught and re-issued at cycle 81. Cheap fix: the six absolute-path allow
+entries in finding 1 make cwd irrelevant.
 
 ## Operational findings from run 2 (SWARM tooling, not the product)
 
@@ -366,12 +603,40 @@ node bin/moon.js              # single line + next full moon
 node bin/moon.js --compact    # exactly one line, for a shell prompt
 node bin/moon.js --block      # framed readout
 node bin/moon.js --json       # structured output
-node --test test/*.test.js    # 161 tests
+node --test test/*.test.js    # 171 tests as of run 3's final commit; run it for today's count
 ```
 
 No install step, no dependencies, no network access at any point.
 
+*On that annotation: it read `# 161 tests` until this wrap-up, correct when T-174 pinned it at
+cycle 80 and stale by cycle 83, because two later cycles added tests. This is the third time a
+hard-coded count in this file has decayed. It now carries the measurement point rather than a
+bare number — weaker but true, which is this repo's documented preference. The durable fix is
+the T-180 treatment: have a test parse the annotation. That is filed as a candidate for the
+next run, not done here, because WRAP_UP finishes nothing new.*
+
 ---
+
+## Run 3 stats
+
+| Stat | Value |
+|---|---|
+| Cycles run | **19** (66 → 84), against a stop that allowed roughly twice that — the surplus was **deliberately unspent**, see "Why run 3 stopped" |
+| Items verified done | **24** |
+| Items still `todo` | 1 (**T-175**, carrying a recorded DO-NOT-BUILD verdict, not an oversight) |
+| Items blocked / at attempt cap | **0 / 0** |
+| Items at `attempts: 1` | 3 (T-160, T-165, T-167) — **all three ended `done`** |
+| Tests | 148 → **171**, every added test proven failable AND attributable by name in two arms |
+| Merge conflicts / reverted merges | **0 / 1** (T-160, cycle 71 — reverted in full for a fabricated claim, passed at cycle 72) |
+| Conductor gate failures that were the *instrument's* fault | **6** (cycles 72, 76, 80, 81, 82, 83), two of them vacuous passes — the run's dominant thrash source |
+| No-value cycles | 0 (`consecutive_no_value` ended at 0) |
+| Models used | fable (T-155, T-157, T-167 — the judgment and correctness-core seats), opus (T-165), sonnet (most build/fix items), haiku (T-168, T-169, T-173, T-174), conductor-executed (T-181) |
+| Pace | mode `thermostat`, dial 0.50; **gear 2–3**, never 1, never above 3; `promote_blocked: true` for the entire run; effective wave size 1–2 (gear cap, never the `k_current` of 5) |
+| Weekly window at wrap-up | **19.0% overall / 11.0% premium at 12.2% of the week elapsed** — `weekly_heat` 1.56, still above the governor's 1.3 trigger. No weekly reset occurred in-run. |
+| Window utilization / ρ | **NOT MEASURED** — the budget probe was denied on every invocation (KI-2), so ρ was `0` all run because it was unmeasurable, not because burn was zero. Reported as not-measured, never estimated. |
+| Notifications sent | **25 logged** (`runs/notify.log`), including one cwd-drift failure at cycle 81 that was caught and re-issued |
+| Commands received | none (`runs/control.json` `pending` and `applied` both empty all run) |
+| Screenshots | none — terminal CLI, no browser surface. The QA look pass and collision scan are recorded as **not-run**, not as passed. |
 
 ## Run 2 stats
 
@@ -412,17 +677,24 @@ change to the disc's glyph set now fails the suite, but the terminal-width defec
 untouched. KI-2 and KI-4 are unchanged and still open, and KI-8 (declared MIT, no LICENSE
 file) is newly recorded and needs the repo owner.
 
-**Coverage neither run provided, stated as not-run rather than as passed.** One review-fix
-pass ran, at **cycle 23**, k=1; it was never re-run across the 42 cycles since, because
-review-fix is the most premium-heavy work type in the pipeline and the allocator premium
-allowance stayed at zero. (An earlier revision of this report claimed review-fix had never
-run in any cycle. That was wrong — `state.json` records `last_review_fix_cycle: 23` — and it
-is corrected here rather than quietly dropped.) The last full QA pass was **cycle 46**, 19
-cycles back; the last taste pass was cycle 1. No browser look pass or collision scan ran in
-run 2 and none was applicable — this is a terminal CLI. Read the correctness coverage as:
-comprehensive on the astronomy and on the documented end-to-end surfaces, thorough on
-mutation-measured discrimination, and **one adversarial review pass on the code as a whole,
-now 42 cycles stale**.
+**Coverage, as it stands after run 3.** The staleness this section reported after run 2 is
+gone: run 3 ran a **review-fix pass at cycle 73** (which found three real user-facing defects
+in code that was already green — the EPIPE crash, the broken hair-thin crescent, and a
+date-dependent test), a **full QA pass at cycle 76**, and the **taste pass at cycle 81**. All
+three of the passes that had gone 19–42 cycles stale are now recent. **POLISH is the one
+step-4 pass that never ran in any of the three runs** — weighed at cycle 84 and rejected on
+the merits, not skipped for time; the reasoning is in "Why run 3 stopped".
+
+No browser look pass or collision scan ran, in any run, and none was applicable — this is a
+terminal CLI with no browser surface. That is recorded as **not-run**, never as passed. Read
+the correctness coverage as: comprehensive on the astronomy, on the documented end-to-end
+surfaces, and now on flag *interactions* as well as single behaviors; thorough on
+mutation-measured discrimination; and one adversarial review pass on the code as a whole,
+11 cycles old rather than 42.
+
+*(An earlier revision of this report claimed review-fix had never run in any cycle. That was
+wrong — `state.json` recorded `last_review_fix_cycle: 23` — and it was corrected rather than
+quietly dropped.)*
 
 **What only a human can finish:**
 
@@ -441,20 +713,48 @@ now 42 cycles stale**.
    Operational findings 1. Neither is a product defect; both will silently degrade the next
    run if left, and the allowlist gap still blocks two separate subsystems (budget probe,
    playbook append).
-5. **Decide whether to give run 3 the clock to close T-155.** The sweeps proved the
-   `--json` numeric surface is permanently invisible to the suite, and gear 1 never admitted
-   the M-effort item that would fix it. This is a scheduling decision, not a technical one:
-   an M-effort item needs a posture above `trickle`, or a deliberate split into S-effort
-   pieces. It is the single highest-value piece of work left in this repo.
+5. ~~**Decide whether to give run 3 the clock to close T-155.**~~ **Done.** T-155 closed at
+   cycle 68 with exact `--json` values hand-derived from the spec's Domain rules, and its
+   closure immediately exposed a second gap (`Math.ceil` survives where `round` is used) that
+   closed as T-163 at cycle 69. The scheduling call was the right one: a posture above
+   `trickle` was all it needed.
 
-**On the two runs' endings, so the record is not flattering.** Run 1 stopped early because
-it was finished. Run 2 stopped early because it ran out of weekly allowance at 20:02 and
-five relaunches then died before making a single API call, with nothing in the system
-noticing for nine hours. The work run 2 did complete is verified to the same standard as
-everything else here. But it covered roughly half the clock it was given, and the reason
-was infrastructure, not the product.
+6. **Decide what this repo is for now — and the honest answer is that it needs a feature run,
+   not a fourth housekeeping run.** Three housekeeping runs have taken the correctness and
+   doc-truth work about as far as measurement can take it, and run 3 ended 14.4 hours early
+   because it ran out of *authorized* work, not out of clock. The taste pass at cycle 81
+   returned a verdict of **wears-thin** with a concrete diagnosis: ten consecutive default
+   runs printed byte-identical output, and near new and full the art and the whole-percent
+   figure will be identical across consecutive *days* too, so the only reliably-moving element
+   is an absolute date the reader must subtract from today by hand. The three ideas that would
+   fix it are parked in `.swarm/ideas-ledger.md` with the measurements behind them: a relative
+   countdown (`next full moon 28 Aug (in 10 days)` — one line, zero deps, ticks daily), a
+   `--date` flag (the CLI's output is currently a pure function of the wall clock with *no*
+   injection point, which is why no taste agent can exercise more than one moon through it),
+   and moving `--block`'s dangling next-full-moon line inside the frame. **All three are
+   features, and every housekeeping brief so far has forbidden them.** That is a scoping
+   decision only you can make.
+
+**On the three runs' endings, so the record is not flattering.** Run 1 stopped early because
+it was finished. Run 2 stopped early because it ran out of weekly allowance at 20:02 and five
+relaunches then died before making a single API call, with nothing in the system noticing for
+nine hours — infrastructure, not the product. Run 3 stopped early because it was finished and
+the remaining ideas were out of scope; it left ~14.4 hours unspent and closed everything run 2
+could only name. Two of the three early stops were choices. The one that was not is fixed by
+playbook lessons L-037 and L-038.
 
 **The one thing I would not have you take on trust:** every "verified" claim in this
-document has a command behind it, and those commands are pasted in `.swarm/journal.md`.
-If any claim here matters to you, the evidence is on disk — read it rather than believing
-this file.
+document has a command behind it, and those commands are pasted in `.swarm/journal.md`
+(runs 1–2 in `.swarm/journal-archive-through-2026-08-17.md`). If any claim here matters to
+you, the evidence is on disk — read it rather than believing this file.
+
+And one claim in this document is now enforced rather than asserted: the two issue tables
+above are machine-checked against `.swarm/state.json` by `test/report-issues.test.js`. Edit
+them into disagreement and the suite goes red. That check was itself validated by a converse
+control — rewording prose inside a description cell must leave the suite **green** — so it
+reads structure, not sentences.
+
+---
+
+Repo tagged `v0.1-improve3` (run 1: `v0.1-overnight`, run 2: `v0.1-improve2`, original build:
+`v0.1.0`). Generated by /swarm WRAP_UP at 2026-08-18 01:45 UTC.
