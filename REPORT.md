@@ -276,7 +276,7 @@ does not "harden" it into false-rejecting honest output (T-139 family).
 
 ---
 
-## Known issues (5)
+## Known issues (6)
 
 The `severity` column is severity only. A separate `status` column carries how each issue
 now stands, so the two never collide.
@@ -287,6 +287,7 @@ now stands, so the two never collide.
 | KI-4 | low | open, unverified | Terminal font variance beyond width (ligatures, exotic fonts) remains unverified — no automated check can cover it; needs a human look. |
 | KI-5 | medium | pinned by test, not fixed | **Glyph width.** The disc mixes East Asian Width classes (`░` `▐` are Neutral; `▒ ▓ █ ▌ ▏ ▕` are Ambiguous). In terminals rendering ambiguous-width as double (CJK locales, iTerm2 setting, `xterm -cjk_width`) the disc is 5–9 columns instead of 5: the line jitters between nights, the two-line form stops aligning, and the `--block` frame does not close. Correct in default Western-locale terminals. `test/render.test.js:629` (`KI-5 pin: disc glyph set matches the documented East Asian Width partition`) derives the disc's actual glyph set from `renderLine`/`renderBlock` output and checks it against the documented partition, so an unannounced glyph change now fails the suite instead of drifting silently. The glyph-set redesign that would actually fix the width problem is still deferred — this is a pin, not a fix. |
 | KI-7 | low | bounded (sampled), not fixed | At epochs far outside normal use (empirically found around ±270,000 years) `phaseName` and `illumination` can contradict, since the ch.49 and ch.48 Meeus series diverge. `src/astro.js`'s exported `PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` (astro.js:71-74) declares the domain over which the two are known to stay consistent — the half-open range of calendar years **1000–3000** — and `test/astro.test.js:491` (`KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)`) strides **4000** deterministic points across that domain with zero band violations. This is a sampled bound, not a proof, and nothing enforces it at runtime. |
+| KI-9 | medium | open, needs a human — found at cycle 84 | **The watchdog never armed for any of the three improvement runs, and the record says so in its own log.** `bin/swarm-watchdog.sh:275-285` exits `all-done` if `REPORT.md` exists in every target — unconditionally, with no reference to target status, cycle number, or run start time. On a first-build run that file cannot exist before wrap-up, so the check is the safety net cycle.md intends. On an **improvement** run over a shipped repo it always exists, so the guard fires on the watchdog's very first firing and never stops. Measured: run 3 kicked off 16:12:20Z; the next watchdog firing at 16:37:17Z logged `decision=all-done detail=reports-present`, as did all 20 firings through wrap-up. `REPORT.md` has been in this repo since run 1's wrap-up commit `9bc8a0f`, so runs 2 and 3 were both unprotected end to end. **Severity is medium rather than high, and the reason matters:** on the VPS the actual firing mechanism is `bin/swarm-pacer.sh`, which spawns a cycle whenever `heartbeat.next_wakeup_at` is due, so a dead conductor still gets recovered on the next pacer tick. What three runs lost is the *redundant* layer — stale-heartbeat detection, PID identity check, kill, relaunch — not all recovery. **What would settle it:** gate the `REPORT.md` branch on evidence the file belongs to *this* run (mtime at or after the runfile's creation), or require every target's status to be `done`/`stalled` alongside it, or drop the file check now that `wrap_up_complete` has proven itself across 33 recorded `run-complete` decisions. One condition in one file; hard rule 5 forbids doing it from inside a run. |
 | KI-8 | low | open, needs the repo owner | `package.json` declares `"license": "MIT"` and `"private": false`, but **there is no LICENSE file at the repo root** (re-verified at cycle 47). A repo that declares a license without shipping its text is legally ambiguous to the next person who wants to reuse it. Deliberately not fixed here: the MIT body needs a copyright line naming a legal person, which is the owner's decision and not one a build agent or the conductor may invent. **What would settle it:** the owner supplies `Copyright (c) <year> <holder>`; wrapping the standard MIT body around it is then a one-file mechanical change. |
 
 ## Resolved issues
@@ -505,7 +506,20 @@ unmodified HEAD *before* dispatch and caught four instrument defects, two of the
 passes. Sealing a gate by hash (L-042) proves the check predated the work; it does not prove
 the check runs. Both halves are now in the playbook.
 
-**5. `cd` does not persist across the conductor's shell calls, and a notify send from the
+**5. The watchdog never armed for this run, or for either of the other two improvement runs
+— filed as KI-9.** Found at wrap-up, while trying to disarm it: the log showed
+`decision=all-done detail=reports-present` on every one of its 21 firings since kickoff. The
+DONE-guard's `REPORT.md`-exists branch is a correct safety net for a first-build run and a
+permanent short-circuit for an improvement run. Full mechanism, measurements and three
+candidate fixes are in the KI-9 row above. Related and worth fixing in the same change: this
+wrap-up could not run `systemctl disable --now swarm-watchdog.timer` either — polkit refused
+without interactive authentication — so the timer is **still enabled**. That is harmless here
+because both the watchdog and the pacer key their DONE-guards on `wrap_up_complete`, which is
+now `true`, and the pacer's guard is the one that actually stops cycles from spawning. But it
+means "the watchdog was disarmed" would be a false claim, so: it was not disarmed, it was
+*already inert*, and it is now additionally gated by the flag.
+
+**6. `cd` does not persist across the conductor's shell calls, and a notify send from the
 wrong cwd fails silently-ish.** `swarm-notify.sh` resolves only as a bare relative path from
 `/opt/swarm`, so a cycle whose working directory has drifted to the target repo gets exit 127
 instead of a push. Caught and re-issued at cycle 81. Cheap fix: the six absolute-path allow
@@ -708,6 +722,13 @@ quietly dropped.)*
    only one who can say whether it landed.
 3. **Settle KI-8.** Supply the copyright holder line and the LICENSE file follows
    mechanically. Until then the repo declares a license it does not ship.
+4b. **Fix the watchdog's DONE-guard (KI-9), ideally in the same sitting as KI-2.** It is one
+   condition in `bin/swarm-watchdog.sh`, and until it changes, every future improvement run on
+   any already-shipped repo will run with its crash-recovery redundancy silently switched off.
+   The pacer still covers the common case, which is why this is medium and not high — but the
+   layer that exists specifically for "the conductor died and its heartbeat went stale" has not
+   run in three consecutive runs, and nothing surfaced that until someone read the log.
+
 4. **Fix the SWARM allowlist (KI-2) and cull the playbook in the same change.** Run 2
    established that doing the first without the second makes the playbook *inert* — see
    Operational findings 1. Neither is a product defect; both will silently degrade the next

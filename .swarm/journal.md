@@ -3797,3 +3797,47 @@ next: **nothing. The run is over.** `wrap_up_complete = true`, target status `do
   each forbidden by every brief so far.
 
 runfile-mirror: {"version":1,"targets":[{"path":"/opt/targets/moon","status":"done","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00","usage_reset_at_note":"ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed","model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3","heartbeat":{"ts":1787017340,"next_wakeup_at":0,"pid":2051241,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"thermostat","dial":0.5},"budget":{"source":"clock+allocator","gear":2,"gear_target":2,"ratio":0,"mode":"thermostat","k_cap":2,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1787017340,"last_real_probe_ts":1787015297,"probe_failures":13,"gear_evidence":"cycle 84 (WRAP_UP): the real probe was NOT due (last_real_probe_ts 1318 s old at cycle open, inside the 1800 s re-probe window) and probe_failures is 13, well past the >=3 threshold that stops invoking it. So no probe attempt was made this cycle and probe_failures stays 13 -- a 14th refusal would have added no information now that cycle 83 established the root cause conclusively. Gear rests on a REAL allocator reading: runs/allocator.json ok:true source:probe, posture NORMAL, allow_premium_pct 8.516 (up from 8.329), weekly_used_pct 19.0 at week_elapsed_pct 12.2 -> weekly_heat 1.5574. NOTE: this is the FIRST DECREASING reading of the run (81: 1.5666, 83: 1.5886, 84: 1.5574) and the mechanism is benign -- weekly_used_pct held flat at 19.0 while week_elapsed_pct advanced 11.96 -> 12.2, so the denominator grew. It is not evidence of the governor relaxing; heat is still 20% over the 1.3 trigger. Ceiling 2, promote BLOCKED. opus_heat 0.9016, below its 1.2 trigger, so opus is not the binding constraint. Window rho remains UNMEASURED (probe denied), so the evidence rule lands cruise 3 and the governor clamps to 2. Applied gear 2, unchanged; hysteresis did not bind.","weekly":{"ok":true,"weekly_used_pct":19,"opus_used_pct":11,"week_elapsed_pct":12.2,"weekly_heat":1.5574,"opus_heat":0.9016,"ceiling":2,"promote_blocked":true,"source":"REAL: runs/allocator.json ok=true source=probe, read at cycle 84 open. Heat + ceiling computed by hand because bin/swarm-budget.sh is denied (KI-2)."}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":true,"cycles_since_recycle":18,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043"],"vetoed":[],"source":"learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)","not_wired":{"ids":["L-011","L-018","L-020","L-021","L-022"],"why":"all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."},"ledger_line_blocked":"record-applied could not run (KI-2) -- third consecutive run","directives":{"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"reviewer":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
+
+### cycle 84 addendum | KI-9 — the watchdog was inert for all three improvement runs
+
+Found while executing WRAP_UP step 7, trying to disarm the watchdog. `systemctl disable --now
+swarm-watchdog.timer` was refused (polkit: "Interactive authentication required"), so the log
+was read to confirm the DONE-guard would hold instead. It already had been holding — for the
+whole run:
+
+```
+$ grep "2026-08-17T16:" runs/watchdog.log | head -4
+2026-08-17T16:07:07+0000 decision=no-run   detail=runfile-missing:/opt/swarm/runs/current.json
+2026-08-17T16:37:17+0000 decision=all-done detail=reports-present     <- run 3 kicked off 16:12:20
+$ grep -o "decision=[a-z-]*" runs/watchdog.log | sort | uniq -c
+    144 decision=all-done      3 decision=fresh      5 decision=no-run     33 decision=run-complete
+```
+
+Every one of the 21 firings from kickoff to wrap-up logged `all-done reports-present`. The
+watchdog **never armed for this run**, and `REPORT.md` has been in the repo since run 1's
+wrap-up commit `9bc8a0f`, so runs 2 and 3 were both unprotected end to end.
+
+Mechanism read directly out of `bin/swarm-watchdog.sh:275-285` (reading is permitted; hard rule
+5 fences writes): after the `wrap_up_complete` check, it loops `targets[].path` and exits
+`all-done` if `REPORT.md` is present in each — **unconditionally**, with no reference to target
+status, cycle number, or run start time. cycle.md WRAP_UP step 6 calls this file check "the
+safety net for a lost flag write", which it is on a FIRST-BUILD run where `REPORT.md` cannot
+exist before wrap-up. On an IMPROVEMENT run it always exists, so the safety net is a permanent
+short-circuit.
+
+Severity **medium, not high**, and the reason is worth stating rather than inflating the
+finding: on the VPS the actual firing mechanism is `bin/swarm-pacer.sh`, which spawns a cycle
+whenever `heartbeat.next_wakeup_at` is due, so a dead conductor is still recovered on the next
+pacer tick. What three runs lost is the REDUNDANT layer — stale-heartbeat detection, PID
+identity check, kill, relaunch — not all recovery.
+
+Filed as **KI-9** in `state.json` and in REPORT.md's known-issues table. **And T-180's check
+validated that edit too**: adding a sixth issue required the `## Known issues (N)` heading to
+move 5 -> 6 in lockstep with the row count and the state.json id set, and the suite stayed
+green at 171/171. Second time in one cycle that yesterday's item caught this cycle's work.
+
+Honest correction to the WRAP_UP record: the watchdog was **not disarmed** — the timer is still
+enabled because the conductor cannot authenticate to systemd. It was already inert, and is now
+additionally gated by `wrap_up_complete=true`, which BOTH the watchdog (`:270`) and the pacer
+(`:183`) check. No further cycles will spawn. Saying "disarmed" would have been a rendered pass
+over a check that did not run.
