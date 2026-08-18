@@ -1,0 +1,26 @@
+# ground truth re-derived at run time
+  last_review_fix_cycle = 73   live cycle = 96   true age = 23
+  v0.1-improve3..HEAD = 26 commits   REPORT.md last committed 2026-08-18T17:28:40+00:00
+
+PASS  G1a T-193 true now  no age figure; self-dates via "cycle 73"
+PASS  G1b T-193 survives clock advance to cycle 150  no age figure; self-dates via "cycle 73"
+PASS  G1c control — predicate fires on HEAD  HEAD correctly fails: bare age 11 with neither measurement point nor cycle-73 citation
+PASS  G1d falsified literal removed  "11 cycles old" absent from working tree
+PASS  G1e control — falsified literal present at HEAD  "11 cycles old" present at HEAD
+PASS  G2a T-194 true now  no falsified generation stamp; tag claim does not imply HEAD sits at the tag
+PASS  G2b T-194 survives four further edits  no falsified generation stamp; tag claim does not imply HEAD sits at the tag
+PASS  G2c control — predicate fires on HEAD  HEAD correctly fails: trailer states 2026-08-18T01:45 as the write time; REPORT.md was last committed 2026-08-18T17:28, and the stamp is not scoped to its run with later edits acknowledged
+PASS  G2d falsified stamp removed  the 01:45 generation claim is gone
+PASS  G2e control — falsified stamp present at HEAD  the 01:45 claim is present at HEAD
+PASS  G3a heading count unchanged  9 -> 9
+PASS  G3b table-line count unchanged  29 -> 29
+PASS  G3c no issue-table row edited  0 table lines changed
+PASS  G3d only REPORT.md touched outside .swarm  none
+
+# 14/14 checks passed
+# GATE PASSED
+run 2 ran               : 65 cycles      (REPORT KI-2 row: "never invoked in 65 cycles")
+review-fix cycle then   : 23             (REPORT correction note, line ~138)
+staleness run 2 measured: 65 - 23 = 42
+figure asserted in prose: 42
+G4 PASS — attribution of "42" to the review pass is confirmed
