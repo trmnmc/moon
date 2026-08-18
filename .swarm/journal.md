@@ -1111,3 +1111,95 @@ runfile-mirror:
 ```json
 {"version": 1, "run_label": "improvement-moon-2026-08-18", "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-19T12:21:07+00:00", "usage_reset_at": "2026-08-18T13:00:00+00:00", "model_policy": "value-routing", "auth_mode": "subscription", "heartbeat": {"ts": 1787075518, "next_wakeup_at": 1787075608, "pid": 2319957, "limp": false, "degraded_tiers": []}, "pacing": {"mode": "guest", "dial": 0.3}, "budget": {"source": "probe", "gear": 2, "gear_target": 2, "ratio": 0.103, "mode": "guest", "k_cap": 2, "promote": false, "demote": true, "window_tokens": 73798227, "window_cost_usd": 63.34, "api_cap_usd": null, "api_spend_usd": 0, "tokens_per_hour": 16090000, "projected_depletion_at": 0, "last_probe_ts": 1787075278, "last_real_probe_ts": 1787075278, "probe_failures": 2, "probe_note": "bin/swarm-budget.sh DENIED for the 23rd consecutive run (KI-2). PROBE_CMD run BY HAND and SUCCEEDED. Active block 13:00-18:00Z read at 17:39Z: 73,798,227 tokens / $63.34, 268.2k tokens/min = 16.09M/hour \u2014 a FOURTH consecutive rise. tokenLimitStatus: limit 130,591,250 (fifth cycle at that figure), 60.8% used, projection 79.43M, status ok \u2014 no depletion risk. Remaining 56.79M over the 21.8 min to the 18:00Z reset = 2,608.8k/min allowance at the guest-forced dial of 1.0, so rho = 0.103 \u2014 deeper into the gear-5 band than cycle 95 0.156, and again burn ROSE while rho FELL because the closing reset raises the per-minute allowance faster than the burn rises. Guest clamps to 3; the weekly governor clamps to 2, so gear 2 stands \u2014 the NINTH consecutive cycle where measured rho would license a higher gear. Weekly block RE-MEASURED from a fresh allocator.json (week_elapsed 21.81, weekly_used 36.0): weekly_heat 1.651 > 1.3 -> ceiling 2 + promote block. probe_failures HELD at 2: the script never launched, so it returned neither probe_ok true nor false. NEW: the absolute-path form of swarm-notify.sh was denied while the relative form succeeded in the same cycle \u2014 live confirmation of the KI-2 leading-token root cause, not a new defect.", "weekly": {"ok": true, "weekly_used_pct": 36.0, "opus_used_pct": 24, "week_elapsed_pct": 21.81, "weekly_heat": 1.651, "opus_heat": 1.1, "ceiling": 2, "promote_blocked": true}}, "watchdog": {"mode": "normal", "plist_loaded": true, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "caffeinate_pid": 0, "wrap_up_complete": false, "cycles_since_recycle": 11, "playbook": {"mode": "auto", "applied": ["L-008", "L-016", "L-020", "L-021", "L-022", "L-024", "L-026", "L-029", "L-031", "L-033", "L-034", "L-042", "L-043", "L-044"], "vetoed": [], "directives": {"wave_k": null, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself", "The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test", "Tests asserting environment-dependent behavior must reset the env var in beforeEach, not beforeAll - a suite-level restore hook lets a real ambient value leak back in"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself", "The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.", "When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive - a kill you cannot attribute is not evidence.", "Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.", "Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test", "Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns", "For every mutation that must kill the suite, author one control that must leave it GREEN - a check that dies on everything is a snapshot test, not an assertion"]}, "held_out": {"ids": ["L-021", "L-022"], "why": "both instruct browser/SPA behaviour (hard-reload after server restart; clear persisted UI state before mounting a component) and the target is a zero-dependency terminal CLI with no browser surface. Staged as applied by auto mode, deliberately NOT wired into prompt_lines - wiring them would be noise a builder must discard. To be reported not-exercised at WRAP_UP."}, "staged_by": "conductor read of playbook/learnings.md, NOT bin/swarm-playbook.sh parse - the script is DENIED by the allowlist gap (KI-2, 12th consecutive run). The 14 applied ids are exactly the lessons carrying an [apply:] directive, verified by structural read."}}, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}}
 ```
+
+## cycle 97 | 2026-08-18T17:58:45+00:00 | moon | VALUE_LOOP -> DONE -> WRAP_UP
+
+work: **VALUE_LOOP done-check (inline conductor re-derivation, no dispatch) -> target DECLARED DONE -> WRAP_UP.** Backlog was EMPTY on entry for the second consecutive cycle. Per cycle 96's handoff the honest next move was a fresh value pass rather than manufactured work; this cycle ran it, and it came back clean.
+
+orient: tree CLEAN at ba1fb48, no salvage needed. Control channel: `bin/swarm-notify.sh poll` ran, `runs/control.json` pending[] and applied[] both EMPTY, no `inject` array. Nothing to apply. Backlog on entry: 91 done / 0 todo / 4 dropped.
+
+budget: `bin/swarm-budget.sh` DENIED for the **25th consecutive run** (KI-2) — as was `bin/swarm-playbook.sh append` later in this same cycle. PROBE_CMD run BY HAND and SUCCEEDED. Active block 13:00-18:00Z read at 17:58Z: 80,333,070 tokens / $69.30, 272.5k tokens/min = 16.35M/hour. tokenLimitStatus: limit 130,591,250, 61.7% used, projection 80.6M, status ok. Weekly RE-MEASURED from a fresh allocator.json (week_elapsed 22, weekly_used 37): weekly_heat 1.682 > 1.3 -> ceiling **gear 2** + promote blocked, the TENTH consecutive cycle where measured rho would license a higher gear. `probe_failures` HELD at 2: the script never launched, so it returned neither probe_ok true nor false.
+
+re-anchor: cycle 97 is not a 5th cycle, but the backlog being empty made a full SPEC re-read the right call anyway — the question this cycle had to answer was a spec question, not a queue question.
+
+### The determination: definition of done, re-derived at run time
+
+Hard rule 2 applies to the DONE call exactly as to a build item. Every clause was re-derived from the repo this cycle rather than read back out of the journal.
+
+VERIFICATION EVIDENCE — suite, baseline, dependency non-goals:
+```
+$ node --test test/*.test.js
+ℹ tests 175   ℹ pass 175   ℹ fail 0   (baseline was 171 at kickoff)
+$ node -e 'const p=require("./package.json"); ...'
+dependencies: undefined      devDependencies: undefined
+$ ls node_modules package-lock.json npm-shrinkwrap.json yarn.lock
+ls: cannot access 'node_modules': No such file or directory      (all four absent)
+```
+
+VERIFICATION EVIDENCE — must-have #5, every `file:line` citation in README.md and REPORT.md re-derived against the line it points at:
+```
+ok | REPORT.md:54  | test/render.test.js:829 | test('KI-5 pin: disc glyph set matches the documented East Asian Width partition'
+ok | REPORT.md:55  | astro.js:71-74          | const PHASE_ILLUMINATION_CONSISTENCY_DOMAIN = {
+ok | REPORT.md:55  | test/astro.test.js:491  | test('KI-7: phaseName/illumination band discriminator holds across the declared
+ok | REPORT.md:100 | src/astro.js:358        | throw new TypeError('nextFullMoon result is outside the representable Date range')
+ok | REPORT.md:100 | test/astro.test.js:294  | // KI-6 regression: a valid input Date whose resulting full-moon instant falls
+--- citations: 6   unresolved-in-repo: 1 (bin/swarm-watchdog.sh:275-285, a SWARM path)
+$ sed -n '275,285p' /opt/swarm/bin/swarm-watchdog.sh
+    if [ "$ALL_REPORTS" = "1" ]; then
+        log_decision "all-done" "reports-present"     <- exactly the unconditional guard KI-9 describes
+```
+All six true. README.md carries zero `file:line` citations, so it has nothing of this class to rot.
+
+### The one claim that took real work: "171 tests as of run 3's final commit"
+
+REPORT.md:33 pins a count to a fixed historical commit. Checking it needs the suite RUN at `11c1936`, and that revision cannot be executed here: `tar` is not allowlisted, and extracting the archive via node instead was DECLINED — that is the KI-2 discipline (never produce a green artifact over a boundary the user never granted), not a technicality.
+
+So it was derived, and **the first two derivations failed their own control** — recorded because the failure is the useful part:
+```
+method 1  grep -c '^test('          HEAD -> 167   but measured runtime truth is 175   FAIL
+method 2  grep -c '^\s*test('       HEAD -> 168   still not 175                       FAIL
+```
+The counter was NOT patched until it agreed. The cause was found instead: 7 of the 175 tests are GENERATED by a loop over `.swarm/CONTRACTS.md` citations (`test/contracts.test.js:420`), which a static count cannot see.
+```
+method 3  static(168) - 1 loop stub + 8 generated = 175   == measured 175   CONTROL PASSES
+$ node --test test/contracts.test.js  ->  11 tests, of which 8 are 'CONTRACTS.md citation ...'
+```
+Only then applied to the older revision, with the generator's inputs proven unchanged across the range:
+```
+$ git diff --stat 11c1936 HEAD -- .swarm/CONTRACTS.md      (empty — byte-identical)
+$ git diff --stat 11c1936 HEAD -- test/
+  test/cli.test.js | 54 +++-   test/hemisphere.test.js | 7 +++   test/render.test.js | 11 +-
+  added test( lines: 4, ALL in cli.test.js; hemisphere gained assertions inside an existing
+  test (count 14 both revisions); render.test.js's diff is comment-only
+  static at 11c1936 = 164  ->  164 - 1 + 8 = 171
+```
+**171 CONFIRMED.** The claim is true, and it is immune to future decay because it names a fixed commit rather than the current tree.
+
+VERIFICATION EVIDENCE — must-have #2, the `[apply:]` lessons, spot-checked against the repo rather than trusted from cycles 85/87:
+```
+L-045 (derive counts at run time): grep for hardcoded numeric expectations in test/*.test.js
+      -> every hit is a pinned Date.UTC astronomical epoch (astro.test.js:100,120,122,142,...).
+         Zero hardcoded count-of-things assertions. CLEAN.
+L-043 (never assert against prose by regex): the only doc-regex assertions are
+      test/report-issues.test.js:66-90 — findIndex on a '## Heading', deepStrictEqual on the
+      table HEADER CELLS, and a '^\|[\s:-]+\|' separator-shape check, each failing loudly
+      rather than silently returning zero rows. Structure, not sentences. CLEAN.
+```
+
+### Why DONE, and the argument against it
+
+The journal's own strongest counter-argument is at cycle 94: *"each time this target has been declared one cycle away from DONE, the next honest look found real work."* True three times (cycles 91, 93, 94). It is answered on the merits rather than waved off: those looks found ROTTING DOC CLAIMS, and the systematic sweep for that class ran at cycle 94, filed four, and closed all four at cycles 95-96. **This cycle re-ran that same class of look independently and found ZERO.** Converged, with a clean independent measurement — not "we ran out of ideas".
+
+Every remaining known issue is out of scope by the locked SPEC, and each for a reason, not by omission: KI-5's real fix is a glyph-set redesign (named non-goal); KI-7's would mean rewriting the astronomy core (named non-goal); KI-4 needs a human looking at their own terminal; KI-8 needs the owner, and the ask was written at cycle 86; KI-2 and KI-9 are SWARM tooling and hard rule 5 fences a run from repairing itself. Nice-to-have #1 has been satisfied since cycle 63 (cycle 93's finding); nice-to-have #2 (re-archive the journal past ~400 KB) is not due — `journal.md` measured 234,799 bytes.
+
+Pacing supports the same call: the weekly governor has clamped every cycle of this run (weekly_heat 1.68 against a 1.3 threshold, 37% of the week used at 22% elapsed). Spending 18 more hours on a target with an empty backlog and a clean audit is precisely what the governor exists to prevent.
+
+items: **0 built · 0 filed · 0 reverted · 0 failed verifies · definition of done re-derived clean on every clause.**
+
+### WRAP_UP
+
+- RETRO written to `.swarm/RETRO.md` (run 3's preserved at `.swarm/RETRO-improve-2026-08-17.md`). Honest headline: zero reverts and zero failed verifies across all eight build waves and 13 verified items, against ~4 cycles lost to a SPEC nice-to-have that had been satisfied 22 cycles before kickoff, and 7 conductor instrument defects all of the same family.
+- REPORT.md gained a run-4 section — what changed, why it stopped, what was deliberately not touched — and the trailer now names `v0.1-improve4`. Suite re-run after the edit: **175/175, the report-issues gate untouched and unweakened.**
+- DISTILL: 5 candidates -> `runs/wrapup-candidates.md`. `bin/swarm-playbook.sh append` DENIED (KI-2, 25th consecutive), so the documented HAND-EDIT fallback was used: **zero new ids, zero drops**, five semantic merges (L-043 green-over-a-dead-region; L-041 validate-the-instrument; L-042 simulate-the-future; L-045 re-verify-inherited-SPEC-items; L-016 collide-then-dispatch-sequentially). File verified after the edit: 20 lessons, cap intact, next_id still 46.
+
+backlog: 91 done / 0 todo / 4 dropped, unchanged — this cycle filed nothing because it found nothing.
