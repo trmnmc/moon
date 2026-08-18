@@ -4207,4 +4207,4 @@ CORRECTION 1 — the wakeup prose. The block above first stated "+900s" for a wa
 
 CORRECTION 2 — the `probe_note` clock. The note is written as of the probe (14:09Z), while the runfile's `last_probe_ts` records the persist moment. Both are accurate to what they measure; stating it here so a resume does not read the 69-minute elapsed figure as if it were computed at persist time.
 
-commit: PENDING (stamped by the addendum's own follow-up, as at cycles 85-88)
+commit: 03de853
