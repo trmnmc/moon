@@ -1,0 +1,16 @@
+      S1 pin test read from disk: test/render.test.js:829
+      S1 pin title read from disk: KI-5 pin: disc glyph set matches the documented East Asian Width partition
+PASS  C1 exactly one KI-5 row in REPORT.md
+PASS  C2 row cites the pin by live line AND exact title: `test/render.test.js:829` (`KI-5 pin: disc glyph set matches the documented East Asian Width partition`)
+      C3 cited line number(s) 829 vs live declaration at 829
+PASS  C3 every cited line number equals the live declaration line
+PASS  C4 row minus the inserted title is byte-identical to HEAD (no other cell changed)
+      C5 heading "## Known issues (6)" · rows 8 -> 8
+PASS  C5 known-issues heading, header, separator and row count all unchanged
+      C6 non-.swarm files changed: [REPORT.md]
+PASS  C6 blast radius confined to REPORT.md
+      C7 subjects read from disk: 9 files [args, astro, cli, contracts, hemisphere, manifest, regressions, render, report-issues]
+      C7 parsed: tests=171 pass=171 fail=0
+PASS  C7 suite green and never below the 171-test kickoff baseline
+PASS  C8 control row KI-4 is byte-identical to HEAD (gate discriminates a cell, not a file)
+---- GATE: 8 passed, 0 failed ----
