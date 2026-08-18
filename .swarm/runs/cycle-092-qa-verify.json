@@ -1,0 +1,49 @@
+{
+  "mode": "full",
+  "run_label": "improvement-moon-2026-08-18",
+  "timestamp": 1787067433,
+  "dispatch": "direct Agent calls (headless -p session; Workflow tool review-gated) — author fable/high, executor sonnet/medium, look fable",
+  "scenarios": [
+    {
+      "id": "S1",
+      "title": "T-175: US/Samoa hemisphere — southern identity arm and northern mirror arm"
+    },
+    {
+      "id": "S2",
+      "title": "Astronomy is TZ-invariant and the printed name/illumination pair sits in its consistency band"
+    },
+    {
+      "id": "S3",
+      "title": "Output contract: deterministic within a window, 5-code-point disc, spec-pure byte stream"
+    }
+  ],
+  "results": [
+    {
+      "scenario_id": "S1",
+      "status": "pass",
+      "conductor_verdict": "PASS — re-run independently by the conductor"
+    },
+    {
+      "scenario_id": "S2",
+      "status": "pass",
+      "conductor_verdict": "PASS on runnable sub-checks; the 6h-later direction check is NOT RUN, reported as not-run"
+    },
+    {
+      "scenario_id": "S3",
+      "status": "fail",
+      "conductor_verdict": "EXPECTATION defect, not a product defect — see the cycle-92 decision; no backlog item filed"
+    }
+  ],
+  "look": {
+    "findings": [
+      {
+        "severity": "low",
+        "where": "bin/moon.js --json, nextFullMoon",
+        "expected": "instant rounded to the precision the algorithm earned (help: phase instants good to roughly an hour)",
+        "found": "toISOString() millisecond precision: 2026-08-28T04:18:25.225Z — the only field escaping the rounding policy"
+      }
+    ]
+  },
+  "agents_used": 3,
+  "dead_agents": []
+}

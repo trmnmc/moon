@@ -1,0 +1,34 @@
+{
+  "samoa": {
+    "content": "◖█░░░  36%  waxing crescent\n            next full moon  27 Aug\n",
+    "discLines": [
+      "◖█░░░  36%  waxing crescent"
+    ],
+    "pct": "36",
+    "name": "waxing crescent"
+  },
+  "apia": {
+    "content": "◖█░░░  36%  waxing crescent\n            next full moon  28 Aug\n",
+    "discLines": [
+      "◖█░░░  36%  waxing crescent"
+    ],
+    "pct": "36",
+    "name": "waxing crescent"
+  },
+  "sydney": {
+    "content": "◖█░░░  36%  waxing crescent\n            next full moon  28 Aug\n",
+    "discLines": [
+      "◖█░░░  36%  waxing crescent"
+    ],
+    "pct": "36",
+    "name": "waxing crescent"
+  },
+  "london": {
+    "content": "░░░█◗  36%  waxing crescent\n            next full moon  28 Aug\n",
+    "discLines": [
+      "░░░█◗  36%  waxing crescent"
+    ],
+    "pct": "36",
+    "name": "waxing crescent"
+  }
+}

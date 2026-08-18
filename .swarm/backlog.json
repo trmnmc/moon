@@ -1771,6 +1771,23 @@
       ],
       "acceptance": "README.md's KI-5 prose carries a one-line command a reader can paste, whose output DIFFERS visibly in an affected terminal and not otherwise. The observable must be verified to actually differ before it ships (the SPEC's standing condition on this nice-to-have, and the exact condition cycle 62's attempt failed). No new flag, no source change, no glyph-set change: README.md only.",
       "notes": "SPEC nice-to-have #1. Cycle 62's attempt was DISPROVED at the gate: top-right vs bottom-right corner alignment cannot differ under the failure mode, because all six frame glyphs are EAW Ambiguous and both borders scale together. The new premise is the opposite and is already machine-pinned at test/render.test.js:785-792 — the disc glyph set STRADDLES the partition (Neutral: U+2591 and U+2590; Ambiguous: U+2592 U+2593 U+2588 U+258C U+258F U+2595). Sharpest pair: U+258C (Ambiguous) vs U+2590 (Neutral), two half-block glyphs a reader expects to be identical-width mirror images, on opposite sides of the class boundary. Equal counts of each on two rows differ in width iff the terminal renders Ambiguous as double — a discriminator an unaffected terminal cannot produce, not a comparison against a remembered value. files_hint excludes REPORT.md deliberately so test/report-issues.test.js's table anchors stay untouched."
+    },
+    {
+      "id": "T-190",
+      "title": "--json nextFullMoon prints millisecond precision while the help text scopes phase instants to roughly an hour — the one output field that escapes the stated rounding policy",
+      "kind": "fix",
+      "status": "todo",
+      "priority": 2,
+      "effort": "S",
+      "model": "haiku",
+      "attempts": 0,
+      "deps": [],
+      "packages": [],
+      "files_hint": [
+        "bin/moon.js"
+      ],
+      "acceptance": "Either the emitted instant carries no more precision than the docs claim is earned, or the help/README claim is made precise about which fields the rounding policy covers — decided as a judgment call, not both. Whichever side moves, a check pins it so the two cannot drift apart again, and the --json key set is unchanged (no new field, no removed field).",
+      "source": "cycle-92 QA full pass, live-look finding (low). Conductor-verified independently: nextFullMoon stable at 2026-08-28T04:18:25.225Z across runs while illumination/age/cycleFraction/phaseAngle/julianDay are all rounded."
     }
   ]
 }

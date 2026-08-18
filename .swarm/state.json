@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "VALUE_LOOP",
-  "cycle": 91,
+  "cycle": 92,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -914,6 +914,16 @@
       "cycle": 91,
       "what": "The three-pass gate for improvement run 4: review-fix satisfied in substance, QA full QUEUED, TASTE deliberately not re-run",
       "why": "state.json.qa records last_review_fix_cycle 73 / last_full_qa_cycle 76 / last_taste_cycle 81 — all RUN-3 cycles, so run 4 has strictly run none of the three. review-fix: all six run-4 items passed a sealed, independently-authored, baseline-armed gate, two caught by their own baseline arm pre-dispatch; a reviewer pass over twice-gated doc edits is churn under the two-source rule. QA full: NOT satisfied and worth one cycle — T-175 changed src/hemisphere.js, the only source change this run and a user-visible wrong answer; queued as the next cycle work ahead of T-189. TASTE: run 3 cycle 81 returned exactly three findings (T-177/T-178/T-179), all dropped as features this run non-goals forbid by name, and the user-visible surface has changed since by exactly one timezone hemisphere; re-running would re-derive forbidden findings. Reported at WRAP_UP as not-run with this reason, never as passed."
+    },
+    {
+      "cycle": 92,
+      "what": "QA scenario S3 FAILED as authored, and the failure is an EXPECTATION defect, not a product defect. No backlog item filed against it.",
+      "why": "S3 asserted every disc code point is drawn from the 8-glyph set the SPEC domain rules enumerate. The live disc renders U+25D6/U+25D7 (round-limb) too, so the assertion fails. But the spec's domain-rules bullet is an ABRIDGEMENT of README.md:245-249, which documents both round-limb glyphs by name, states their EAW class as Neutral, and cites the audit script that measured it; test/render.test.js pins them separately as UNDOCUMENTED_DISC_GLYPHS with a comment saying exactly why they sit outside the Block Element partition. The authoritative sources are complete and correct; the scenario author was spec-only BY DESIGN and inherited the abridgement. Recorded as a fail with its evidence rather than re-labelled a pass (hard rule 2), and no fix is filed because there is no defect to fix. SPEC.md is frozen at kickoff and is not edited mid-run."
+    },
+    {
+      "cycle": 92,
+      "what": "T-175 is now confirmed CLOSED at the user-visible surface, not only at the unit level.",
+      "why": "The two-arm proof at its build cycle was a unit-level mutation proof on detectHemisphere. This cycle ran the shipped CLI end-to-end and re-ran it independently of the executor: TZ=US/Samoa renders the disc row U+25D6 U+2588 U+2591 U+2591 U+2591, byte-identical to Pacific/Apia and Australia/Sydney, and distinct from Europe/London U+2591 U+2591 U+2591 U+2588 U+25D7. The documented FAIL SIGNATURE (Samoa matching London unmirrored) is verified ABSENT. Phase name and illumination are identical across all seven zones exercised, so TZ moves the limb and nothing else."
     }
   ],
   "known_issues": [
@@ -969,7 +979,7 @@
     }
   ],
   "qa": {
-    "last_full_qa_cycle": 76,
+    "last_full_qa_cycle": 92,
     "last_look_cycle": 76,
     "last_taste_cycle": 81,
     "last_review_fix_cycle": 73,
@@ -984,11 +994,11 @@
     "window_tokens_attributed": 20206353
   },
   "last_cycle": {
-    "cycle": 91,
-    "ts": "2026-08-18T15:30:18+00:00",
-    "work": "inline housekeeping (no dispatch) — journal re-archive at the SPEC ~400 KB threshold, plus the DONE determination",
-    "outcome": "VERIFIED. Journal 418,997 -> 94,068 bytes; cycles 66-84 (24 blocks) moved verbatim to .swarm/journal-archive-run3-cycles-66-84.md. Independent gate against git HEAD: all 4,280 pre-archive body lines survive byte-for-byte in exactly one of the two files, run-3 and run-4 regions both IDENTICAL. Suite 171/171 before and after. One instrument defect caught pre-run (byte-accounting off-by-one: two join newlines, not one). DONE determination: definition of done fully met, but NOT DONE — T-189 (KI-5 reader-runnable check) passes the ratchet. Next cycle: QA full pass, then T-189.",
-    "commit": "071579b"
+    "cycle": 92,
+    "ts": "2026-08-18T15:56:00+00:00",
+    "work": "QA full pass (qa-verify contract, direct Agent dispatch): spec-only scenario author -> executor -> live-look",
+    "outcome": "VERIFIED. 3 scenarios: S1 pass (conductor re-ran it independently — T-175 confirmed closed end-to-end), S2 pass on runnable sub-checks with the 6h-later direction check reported NOT RUN, S3 fail adjudicated as an expectation defect against an abridged spec bullet, no item filed. Live-look returned ONE low finding, conductor-verified: --json nextFullMoon prints ms precision against a help text that scopes phase instants to roughly an hour. Filed T-190. Suite 171/171 across all 9 test files.",
+    "commit": ""
   },
   "run_label": "improve-3",
   "resolved_issues": [
