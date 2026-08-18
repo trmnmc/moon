@@ -953,7 +953,7 @@
     "ts": "2026-08-18T12:43:47+00:00",
     "work": "KICKOFF (improvement run 4, allocator TRICKLE auto-kickoff) + inline PLAN",
     "outcome": "5 items filed covering all 6 must-haves; 4-lesson conformance audit returned ZERO violations (2 conductor-verified, 2 agent-claimed); 1 stale doc citation found by the conductor that the planning agent had marked CURRENT",
-    "commit": "stamped by addendum"
+    "commit": "869182f"
   },
   "run_label": "improve-3",
   "resolved_issues": [

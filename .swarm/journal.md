@@ -3906,7 +3906,7 @@ backlog: 5 todo covering all 6 must-haves — T-175(p1,S,sonnet) T-182(p2,S,sonn
 next wave (k = min(k_current 3, gear-2 cap 2) = 2): T-175 + T-182 — pairwise-disjoint
   files_hint (src/hemisphere.js+test/hemisphere.test.js vs .swarm/KI-8-OWNER-ACTION.md).
   T-183 and T-184 both touch REPORT.md and are sequenced by deps, never paired (L-016).
-commit: stamped by addendum
+commit: 869182f "cycle 85: KICKOFF improvement run 4 + inline PLAN [5 items filed, 0 lesson violations, 1 stale citation found]"
 next wakeup: 1787057117 (+90s)
 runfile-mirror:
 ```json
