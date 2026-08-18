@@ -1500,6 +1500,75 @@
    ],
    "acceptance": "detectHemisphere('US/Samoa') returns 'south', with a test proven failable and attributable BY NAME in two arms (L-029). NOT buildable on this run -- see the traceability verdict in notes.",
    "notes": "FOUND AT CYCLE 76 by the QA look pass (full-tzdb sweep: exactly 1 mismatch across every canonical zone in zone1970.tab and every Link in tzdata.zi). Conductor reproduced it at the unit level in gate check G6: detectHemisphere('US/Samoa') -> north, while Pago Pago is 14.28 S. The omission is one ROW, not a missing layer -- the sibling legacy aliases NZ, Brazil/East, Chile/Continental and Pacific/Samoa (the SAME islands, the other alias) all correctly return south.\n\nNOT USER-OBSERVABLE ON THIS HOST: with TZ=US/Samoa, ICU canonicalises to Pacific/Pago_Pago before detection ever runs, and the live binary prints hemisphere 'south'. It would only surface on a runtime whose Intl reports the raw legacy name.\n\nCONDUCTOR CORRECTION TO MY OWN FIRST FRAMING, recorded because I had drafted the wrong version: I first filed this as a FAILED DOC RE-VERIFICATION against REPORT.md:55 (\"validated against all 418 zones in the host IANA database\"), reasoning that a zone the table gets wrong falsifies the claim. Measuring settled it the other way. Intl.supportedValuesOf('timeZone').length is EXACTLY 418 on this host -- that is unambiguously where the figure came from -- and that set contains NO legacy aliases at all: not US/Samoa, not Pacific/Samoa, not NZ. So REPORT.md:55 is TRUE AS SCOPED, and the alias layer exists precisely for names outside the 418. The doc is fine; the table has a gap.\n\nTRACEABILITY VERDICT -- DO NOT BUILD THIS RUN. With the doc-falsity framing withdrawn, this traces to NONE of the three sources SPEC.md's taste note permits: it is not a survivor already on record from a prior sweep, not a doc claim that failed re-verification, and not on the flag-interaction axis. The taste note's rule is explicit -- \"an item that traces to none of those three does not get built, however tidy it would be\" -- and the run's named risk is diminishing-return churn. Filed rather than dropped so a future run inherits the measurement instead of re-deriving it; same disposition shape as T-116."
+  },
+  {
+   "id": "T-176",
+   "title": "the one-line and --block surfaces DISAGREE about whether the moon is visible across a 0.66%-wide illumination band -- an unpinned cross-surface boundary",
+   "kind": "fix",
+   "status": "todo",
+   "priority": 1,
+   "effort": "S",
+   "model": "sonnet",
+   "attempts": 0,
+   "deps": [],
+   "packages": [],
+   "files_hint": [
+    "test/render.test.js"
+   ],
+   "acceptance": "A test pins the cross-surface visibility boundary between renderLine and renderBlock as DELIBERATE, so it can never drift silently: it must fail if either surface's low-k threshold moves. Proven failable AND attributable BY NAME in two arms (L-029). The boundary is CLASSIFIED IN WRITING as BOUNDARY-not-HOLE before any test is written (L-033), and the classification argument is recorded in the item notes. NO change to src/render.js: this run does not re-tune shipped rendering.",
+   "notes": "FOUND AT CYCLE 81 by the TASTE pass (fable seat, verdict `wears-thin`), which rated it `minor` on experience grounds. The conductor re-derived it independently and it is the one taste finding that is IN SCOPE.\n\nMEASURED (gate v2, .swarm/runs/cycle-081-verify-taste.txt):\n  - blockArt first shows a lit cell at k = 0.0007\n  - lineArt shows nothing lit until  k = 0.00655\n  - so across a band 0.00585 wide in k -- 0.66 percentage points of illumination -- `moon --block` draws a visible hairline arc on all five disc rows while plain `moon` prints five dark cells labelled `0%  waxing crescent`. Reproduced at k=0.004: line disc \"...\" (0 lit cells) vs block disc 5 lit cells, one per row.\n\nWHY IT IS IN SCOPE where the other three taste findings are not: it traces to must-have #4, the flag-interaction axis. Every prior sweep mutated ONE behavior in ONE file; this is a disagreement BETWEEN two flag-selected surfaces, which is exactly the uncovered axis. And the repo already asserts a cross-surface consistency contract -- the existing test `renderBlock reports the same phase and illumination as renderLine` -- but only over the phase and illumination FIELDS. The ART is unpinned across surfaces, which is the hole in a contract the repo has already chosen to make.\n\nPRE-CLASSIFIED BOUNDARY, NOT HOLE (L-033, done before any test exists, and the reason the acceptance forbids touching src/render.js): the one-liner has 5 cells across the whole disc, the block has 12 columns, so the block has ~2.4x the horizontal resolution and CAN resolve a crescent the line genuinely cannot. render.js documents this in its own terms -- the outer cell goes dark below cover 0.02, and `A crescent thinner than a sixth of a cell rounds away to the dark shade`. Raising lineArt's threshold to make the hairline hold longer (the taste agent's suggestion) would make the one-liner claim light in a cell whose computed cover is under 2%, i.e. harden a check into false-reporting. So the correct output is a PIN plus a written caveat, not a re-tune. Same disposition, and the same reasoning, as this run's KI-5 call: pinning a measured boundary in a test converts a prose-only caveat into a machine-checked one at S-effort, and the defect can no longer drift silently.\n\nOPEN QUESTION FOR THE BUILDER, stated so it is not silently resolved: whether the `0%` LABEL on a line that the block shows as lit is part of the same boundary or a separate claim. The conductor's read is that it is the same one -- whole-percent rounding is documented and earned -- but the test should pin the label alongside the art so both move together or not at all."
+  },
+  {
+   "id": "T-177",
+   "title": "TASTE (notable): the daily glance has no element guaranteed to change -- ten consecutive runs are byte-identical",
+   "kind": "polish",
+   "status": "dropped",
+   "priority": 50,
+   "effort": "S",
+   "model": "sonnet",
+   "attempts": 0,
+   "deps": [],
+   "packages": [],
+   "files_hint": [
+    "src/render.js"
+   ],
+   "acceptance": "n/a -- dropped at triage, see notes.",
+   "notes": "TASTE pass cycle 81, severity `notable`, after_n_uses 10. Conductor-reproduced (C1): 10 consecutive `node bin/moon.js` runs produced exactly 1 distinct rendering, \"\\u2591\\u2591\\u2591\\u2593\\u25d7  30%  waxing crescent\" plus \"next full moon  28 Aug\". Near new and full the art and the whole-percent field will be identical across consecutive days as well, leaving an absolute date as the only moving element. Agent's suggestion: a relative countdown, `(in 10 days)`.\n\nTRIAGE (cycle 81, conductor): NOT DISPATCHED THIS RUN. The locked SPEC's taste note requires every item to trace to a recorded survivor, a failed doc re-verification, or the flag-interaction axis; this traces to none of the three, and the non-goals forbid new features. Status `dropped`, never deleted, and the full finding is parked in .swarm/ideas-ledger.md so a future run that IS allowed to change the product inherits it with the conductor's reproduction attached rather than re-deriving it."
+  },
+  {
+   "id": "T-178",
+   "title": "TASTE (notable): no --date flag, no env override -- the product can show exactly one moon per calendar day",
+   "kind": "polish",
+   "status": "dropped",
+   "priority": 51,
+   "effort": "M",
+   "model": "sonnet",
+   "attempts": 0,
+   "deps": [],
+   "packages": [],
+   "files_hint": [
+    "src/args.js",
+    "bin/moon.js"
+   ],
+   "acceptance": "n/a -- dropped at triage, see notes.",
+   "notes": "TASTE pass cycle 81, severity `notable`, after_n_uses 2. Conductor-verified premise (C4a/C4b/C4c): no `--date` literal anywhere in bin/moon.js or src/*.js, ZERO `process.env` references in the source, `faketime` absent from the host. C4d confirms TZ *does* move the hemisphere, so the limitation is specifically about the DATE, not about inputs generally. Consequence worth inheriting: the CLI's output is a pure function of the wall clock with no injection point, which is why a taste agent can only see ten different moons through src/render.js and never through the CLI.\n\nTRIAGE (cycle 81, conductor): NOT DISPATCHED THIS RUN. The locked SPEC's taste note requires every item to trace to a recorded survivor, a failed doc re-verification, or the flag-interaction axis; this traces to none of the three, and the non-goals forbid new features. Status `dropped`, never deleted, and the full finding is parked in .swarm/ideas-ledger.md so a future run that IS allowed to change the product inherits it with the conductor's reproduction attached rather than re-deriving it. Additionally: a new flag is named explicitly in the non-goals."
+  },
+  {
+   "id": "T-179",
+   "title": "TASTE (minor): --block's next-full-moon line is printed outside the closed frame at an indent that aligns with nothing",
+   "kind": "polish",
+   "status": "dropped",
+   "priority": 52,
+   "effort": "S",
+   "model": "haiku",
+   "attempts": 0,
+   "deps": [],
+   "packages": [],
+   "files_hint": [
+    "src/render.js"
+   ],
+   "acceptance": "n/a -- dropped at triage, see notes.",
+   "notes": "TASTE pass cycle 81, severity `minor`, after_n_uses 1. Conductor-reproduced (C5): the next-full-moon line carries no box character, i.e. it sits outside the frame, at a 3-space indent, after the closing rule. C6: `--block --compact` drops it cleanly, which is what makes it read as bolted on rather than composed. Agent's suggestion: a fourth detail row inside the frame, which the existing frame width already fits.\n\nTRIAGE (cycle 81, conductor): NOT DISPATCHED THIS RUN. The locked SPEC's taste note requires every item to trace to a recorded survivor, a failed doc re-verification, or the flag-interaction axis; this traces to none of the three, and the non-goals forbid new features. Status `dropped`, never deleted, and the full finding is parked in .swarm/ideas-ledger.md so a future run that IS allowed to change the product inherits it with the conductor's reproduction attached rather than re-deriving it."
   }
  ]
 }

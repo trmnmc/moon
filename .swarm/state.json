@@ -2,8 +2,8 @@
  "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
  "project_dir": "/opt/targets/moon",
  "created_at": "2026-08-14T11:36:00+00:00",
- "phase": "QA",
- "cycle": 80,
+ "phase": "BUILD",
+ "cycle": 81,
  "run_cmd": "node bin/moon.js",
  "test_cmd": "node --test test/*.test.js",
  "preview": {
@@ -784,6 +784,26 @@
    "cycle": 80,
    "what": "With T-173 and T-174 verified, EVERY SPEC must-have is closed and the backlog's only remaining todo is T-175, which this run's own record forbids building. The target was NOT declared done, and cycle 81 must not read the drained backlog as an exhausted value space.",
    "why": "T-153/T-155/T-156 (done), T-157 flag-interaction matrix and T-158 HOLE hardening (done), T-159/T-160/T-161 doc re-verification (done), T-162 KI-2 re-measure (done) cover the must-have list clause by clause. But cycle 26 already named the trap in the other direction: an EMPTY QUEUE IS NOT AN EXHAUSTED VALUE SPACE, and cycle 27 then proved it by finding a ratchet-PASSING candidate (T-123) in a scan of a backlog that looked drained. Two gates stand between here and DONE and neither has been run: the TASTE pass (queued above) and a VALUE_LOOP candidate scan. ~17h remain to stop_at, so nothing forces the shortcut. Recorded also as a guard for a fresh session re-orienting from disk: T-175 sitting as the sole `todo` is NOT pending work -- its own notes carry a DO-NOT-BUILD verdict on traceability grounds, and it is filed rather than dropped only so a future run inherits the measurement instead of re-deriving it."
+  },
+  {
+   "cycle": 81,
+   "what": "three of the four taste findings REJECTED as out of scope and parked in ideas-ledger.md; only the fourth (cross-surface visibility disagreement) filed as work",
+   "why": "the taste seat is a mandated gate whose findings are meant to reach the backlog, but this run's locked taste note requires every item to trace to a recorded survivor, a failed doc re-verification, or the flag-interaction axis -- and the SPEC did not anticipate the taste pass as a fourth source. That tension is real and is resolved HERE rather than left implicit. The two `notable` findings (a relative next-full-moon countdown; a --date flag) are both new user-visible behaviour, which the non-goals forbid outright, and the `minor` block-layout finding is a change to shipped output tracing to none of the three sources. Filing them as todo would have produced items no cycle of this run is permitted to build -- the definition of churn the spec digest names as this run's chief risk. They are `dropped` rather than deleted and reproduced in full in the ideas ledger WITH the conductor's own verification attached, so a future feature run inherits measurements instead of re-deriving them. Recorded because the honest cost is explicit: this run declined the strongest product idea it produced, and said so."
+  },
+  {
+   "cycle": 81,
+   "what": "T-176 pre-classified BOUNDARY, not HOLE (L-033), BEFORE any test exists -- so its acceptance forbids touching src/render.js and requires a pin plus a written caveat instead of the taste agent's suggested re-tune",
+   "why": "the one-liner resolves the disc in 5 cells, the block in 12 columns, so the block genuinely CAN see a crescent the line cannot; render.js documents the mechanism in its own terms (outer cell dark below cover 0.02, `a crescent thinner than a sixth of a cell rounds away to the dark shade`). Raising lineArt's threshold so the hairline holds longer -- what the taste agent proposed -- would make the one-liner claim light in a cell whose computed cover is under 2%: hardening a check into false-reporting, which is exactly the failure mode L-033 exists to prevent. The correct output for a BOUNDARY is documentation plus a pin, and the run already has precedent for that shape in the KI-5 call (pin the measured widths, do not redesign the glyph set). What makes it in-scope at all is must-have #4: the repo already asserts a cross-surface consistency contract in `renderBlock reports the same phase and illumination as renderLine`, but only over the FIELDS -- the art is unpinned, and that is a hole in a contract the repo itself chose to make."
+  },
+  {
+   "cycle": 81,
+   "what": "the conductor's own cycle-81 verification gate v1 was a VACUOUS PASS and was replaced with a strictly stronger v2; v1 is kept on disk unrepaired as the record",
+   "why": "sixth instance this run of my instrument being narrower than what it measures (cycles 8, 9, 19, 29, 80). v1 defined `lit` as `not the dark shade and not whitespace` over the WHOLE rendered string, so the `0%` label counted as light and the check reported `lit` for an all-dark disc; and it guessed renderLine's signature as `(k)` when it takes a MoonState, so every arm silently rendered k=0. Two independent ways to measure nothing, and their combination produced a control that PASSED. Per the standing precedent every widening was paid for with a STRICTLY STRONGER check: the disc is now extracted structurally (the documented fixed-width 5-cell prefix; the inner span of the framed rows) so no label text can reach the detector, `lit` is defined against the module's own glyph vocabulary read out of the source, the detector carries a TWO-SIDED control (it must see light at k=0.5 AND darkness at k=0.0, so a stuck-lit and a stuck-dark detector both fail loudly), and the contiguity counter carries a NEGATIVE control on a hand-broken row. The generalizable form, and it is sharper than cycle 80's: a one-sided control cannot distinguish a working detector from one that is stuck in the direction the control tests."
+  },
+  {
+   "cycle": 81,
+   "what": "the step-0 PID walk in cycle.md matched the WRONG process and was corrected mid-step; the conductor PID recorded is 2017145, not the bash wrapper 2017390",
+   "why": "cycle.md's PID rule says walk up until `ps -o command=` matches the claude binary. Implemented as a substring test for `claude`, it matches on the FIRST hop every time on this host, because the bash wrapper's command line contains `/home/swarm/.claude/shell-snapshots/...`. The recorded PID would then have been a short-lived bash process, and the watchdog's identity check (it kills only a claude-shaped command) would have found a dead or reused PID at exactly the moment it was trying to recover a hung conductor. Fixed by matching the BINARY TOKEN (argv[0] is `claude` or ends in `/claude`) rather than the substring. Caught only because cycle 80's lesson was applied literally -- the heartbeat write was verified by READING THE STATE BACK, and the read-back printed the command line of the PID it had just stored. A write-and-move-on would have stored the wrong PID silently. This is a SWARM-side defect in reference/cycle.md, not a target defect; hard rule 5 forbids editing it mid-run, so it goes to the morning report."
   }
  ],
  "known_issues": [
@@ -833,7 +853,7 @@
  "qa": {
   "last_full_qa_cycle": 76,
   "last_look_cycle": 76,
-  "last_taste_cycle": 1,
+  "last_taste_cycle": 81,
   "last_review_fix_cycle": 73,
   "last_build_wave_cycle": 80
  },
@@ -845,10 +865,10 @@
   "window_tokens_attributed": 0
  },
  "last_cycle": {
-  "cycle": 80,
-  "ts": "2026-08-17T23:06:00+00:00",
-  "work": "build-wave k=2 (T-173, T-174)",
-  "outcome": "2 verified, 0 reverted"
+  "cycle": 81,
+  "ts": "2026-08-18T00:17:55+00:00",
+  "work": "TASTE pass (qa-verify mode taste, 1 fable seat, direct Agent dispatch)",
+  "outcome": "verdict wears-thin; 4 findings, all 4 conductor-reproduced; 1 filed in scope (T-176), 3 dropped + parked"
  },
  "run_label": "improve-3",
  "resolved_issues": [

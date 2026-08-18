@@ -1,0 +1,69 @@
+{
+  "mode": "taste",
+  "run_label": "improve-3",
+  "cycle": 81,
+  "timestamp": "2026-08-18T00:17:55+00:00",
+  "dispatch": "DIRECT Agent call, not Workflow — this is a pacer-spawned headless -p session, where the Workflow tool is review-gated (SKILL.md, retired-headless-degraded paragraph). One fable judgment seat, effort high, which is exactly the qa-verify.js taste-mode shape (ONE agent, no look stage).",
+  "brief_deviation": "qa-verify.js's serverBrief and browseBrief are both browser/dev-server shaped and inapplicable to a terminal CLI. Substituted a CLI-shaped equivalent (run node bin/moon.js directly; evidence is captured stdout/stderr; no screenshots). Everything else — the taste rules, the severity vocabulary, the verdict vocabulary, the ten-uses requirement, the qa prompt_lines from the playbook — was passed verbatim.",
+  "models": { "taste": "fable" },
+  "agents_used": 1,
+  "dead_agents": [],
+  "taste": {
+    "verdict": "wears-thin",
+    "minutes_used": 15,
+    "flows_exercised": [
+      "default line (x10 consecutive runs)",
+      "--block",
+      "--compact",
+      "--block --compact combined",
+      "--json (repeated, checked numeric tick)",
+      "--help",
+      "--south vs --north side by side",
+      "conflicting --north --south (last wins, silent)",
+      "unknown flag --wibble (error surface, exit 2)",
+      "hemisphere inference via TZ (Sydney, Johannesburg, Kiritimati, UTC)",
+      "full-cycle art sweep k=0..1 waxing+waning, both hemispheres, via src/render.js — faketime is not installed and bin/moon.js calls new Date() with no env var or --date input, so the CLI itself can show exactly ONE dated moon per day"
+    ],
+    "boredom_findings": [
+      {
+        "where": "default line, daily returning-user loop",
+        "after_n_uses": 10,
+        "what_gets_stale": "Ten consecutive runs printed the byte-identical pair '░░░▓◗  30%  waxing crescent' / 'next full moon  28 Aug'. Nothing human-visible moves within a session, and near new/full the 5-cell art and whole-percent field will also be identical across consecutive DAYS. The only element guaranteed to differ tomorrow is the absolute date, which the user must do mental math against.",
+        "suggestion": "Append a relative countdown: 'next full moon  28 Aug (in 10 days)'.",
+        "severity": "notable"
+      },
+      {
+        "where": "whole product, first-time user's second question",
+        "after_n_uses": 2,
+        "what_gets_stale": "The follow-up after the first reading — 'what will it be Friday?' — dead-ends. No --date flag, no env override, faketime absent, so exploration is impossible.",
+        "suggestion": "A --date <iso> flag reusing the existing astro path, still zero-dep.",
+        "severity": "notable"
+      },
+      {
+        "where": "--block output, next-full-moon line",
+        "after_n_uses": 1,
+        "what_gets_stale": "'next full moon  28 Aug' dangles OUTSIDE and below the closed box at a 3-space indent that aligns with nothing in the frame. It reads like a row that fell out of the table, and it is the block's most interesting fact.",
+        "suggestion": "Make it a fourth detail row inside the frame.",
+        "severity": "minor"
+      },
+      {
+        "where": "one-line art, low illumination",
+        "after_n_uses": 3,
+        "what_gets_stale": "The one-liner's glyph ramp at low k is far steeper than the block's: 3% hairline, 8% reads as a half-lit edge, 18% reads near-quarter, while the block at the same k keeps a faithful thin arc. At k=0.004 the line shows an all-dark disc labeled 'waxing crescent 0%' while the block still draws a hairline — the two surfaces disagree about whether the moon is visible.",
+        "suggestion": "Hold the hairline glyph longer in lineArt, and let the low-k line borrow the block's hairline guard.",
+        "severity": "minor"
+      }
+    ],
+    "screenshots": [],
+    "artifacts": [
+      "/opt/targets/moon/.swarm/runs/improve-3-taste-line-sweep.txt",
+      "/opt/targets/moon/.swarm/runs/improve-3-taste-block-sweep.txt"
+    ]
+  },
+  "conductor_gate": {
+    "file": "/opt/targets/moon/.swarm/runs/cycle-081-verify-taste.txt",
+    "script": "/opt/swarm/runs/c081-gate-v2.mjs",
+    "verdict": "PASS — every spot-checked claim reproduced independently",
+    "note": "gate v1 (/opt/swarm/runs/c081-gate.mjs) was VACUOUS and is retained unrepaired as the record of the miss; v2 replaced it with a two-sided detector control and a negative contiguity control."
+  }
+}

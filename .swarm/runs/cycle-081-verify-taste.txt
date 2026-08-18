@@ -1,0 +1,35 @@
+     vocabulary read from source: LINE_CELLS=5 BLOCK_ROWS=5 DARK="░" LIT="▒▓█▕▏▐▌◗◖"
+ok   CTRL: two-sided detector control — line lit@0.5=3 dark@0.0=0 | block lit@0.5=24 dark@0.0=0
+     CTRL line disc @0.5 = "░░▓█◗"   @0.0 = "░░░░░"
+     C7 line disc  @0.004 = "░░░░░"  (lit cells: 0)
+     C7 block disc @0.004 =
+        |            ░░░░░░░░▕           |  lit=1
+        |           ░░░░░░░░░░▕          |  lit=1
+        |          ░░░░░░░░░░░▕          |  lit=1
+        |           ░░░░░░░░░░▕          |  lit=1
+        |            ░░░░░░░░▕           |  lit=1
+ok   C7: REPRODUCED — at k=0.004 the line disc is ALL DARK (0 lit) while the block draws 5 lit cell(s). The two surfaces disagree about visibility.
+ok   C7b: the line labels it "0%" while the block shows light — "░░░░░   0%  waxing crescent"
+ok   C7c: the disagreement is a BAND, not one lucky point — block first lights at k=0.0007, line not until k=0.00655 (band width 0.00585 in k, i.e. 0.66% illumination before the one-liner shows anything)
+     C7d one-line disc across the low band (waxing, north):
+        k=0.01  line="░░░░▕"   block row2="          ░░░░░░░░░░░▕          "
+        k=0.03  line="░░░░▕"   block row2="          ░░░░░░░░░░░▒          "
+        k=0.05  line="░░░░▐"   block row2="          ░░░░░░░░░░░▓          "
+        k=0.08  line="░░░░▐"   block row2="          ░░░░░░░░░░░█          "
+        k=0.12  line="░░░░▐"   block row2="          ░░░░░░░░░░▒█          "
+        k=0.18  line="░░░▒◗"   block row2="          ░░░░░░░░░▒██          "
+        k=0.25  line="░░░▒◗"   block row2="          ░░░░░░░░░███          "
+        k=0.5   line="░░▓█◗"   block row2="          ░░░░░░██████          "
+ok   C7d: ramp reproduced — 3%="▕" (hairline) 8%="▐" (HALF) 18%="◗" (ROUND LIMB), exactly as the taste agent described
+ok   C8-ctrl: NEGATIVE control — the run-counter reports 2 runs on a hand-broken row "░▓░░▓░" (must be 2)
+        C8 row0 |            ░░░░░░░▕            |  lit=1 runs=1
+        C8 row1 |           ░░░░░░░░░░▕          |  lit=1 runs=1
+        C8 row2 |          ░░░░░░░░░░░▕          |  lit=1 runs=1
+        C8 row3 |           ░░░░░░░░░░▕          |  lit=1 runs=1
+        C8 row4 |            ░░░░░░░▕            |  lit=1 runs=1
+ok   C8: thin crescent at k=0.001 is CONTIGUOUS — 5/5 rows lit, 0 with disconnected specks
+ok   C8b: the southern thin crescent is the exact handed mirror of the northern one
+ok   C9-parse: the suite summary was actually parsed (tests/pass/fail all found)
+ok   C9: test_cmd green — tests 161 / pass 161 / fail 0
+
+GATE C81-TASTE v2: PASS — every taste claim spot-checked reproduced

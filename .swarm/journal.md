@@ -10811,3 +10811,186 @@ corrected runfile-mirror:
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00","usage_reset_at_note":"ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed","model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3","heartbeat":{"ts":1787007991,"next_wakeup_at":1787008081,"pid":2007326,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"thermostat","dial":0.5},"budget":{"source":"clock+allocator","gear":2,"gear_target":2,"ratio":0.0,"mode":"thermostat","k_cap":2,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0.0,"api_cap_usd":null,"api_spend_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1787007991,"last_real_probe_ts":1787007991,"probe_failures":11,"gear_evidence":"cycle 80: the REAL probe was due (last_real_probe_ts 1934 s old, past the 1800 s window) and was re-attempted in the bare-relative form `bin/swarm-budget.sh` with cwd=/opt/swarm. DENIED again (KI-2, twelfth consecutive cycle). The controlled comparison was reproduced a THIRD time in the same shell and the same cycle: `bin/swarm-notify.sh poll` -- byte-identical invocation shape, same directory, same argument style -- SUCCEEDED. So the refusal is specific to the swarm-budget.sh allowlist entry and is not a property of relative paths, of bin/, or of the sandbox. probe_failures 10 -> 11; last_real_probe_ts RESTAMPED because this was a genuine attempt, not a clock run. Gear computed by hand from a pacer-fresh runs/allocator.json (refreshed 22:53:48Z): weekly_used 16.0 pct at week_elapsed 10.65 pct -> weekly_heat 1.5023, UP from 1.4535 at cycle 79 -- the one-cycle cooling seen last cycle did NOT continue, and the heat is back above its cycle-78 level. Still far over the 1.3 ceiling trigger. opus_used 9 pct -> opus_heat 0.8451. Ceiling 2, promote BLOCKED. Window rho UNMEASURED (no burn probe), so the evidence rule lands cruise 3 and the governor clamps to 2. Applied gear 2, unchanged; hysteresis did not bind. MATERIAL CHANGE WORTH FLAGGING: the allocator POSTURE flipped trickle -> NORMAL this cycle (allow_premium_pct 0 -> 9.307, allow_overall_pct 0 -> 2.307, dial 0.30 -> 0.31). Eleven cycles of this run deferred premium work on the strength of a 0 pct premium allowance; that constraint has lifted. It does NOT move the gear (the weekly governor, not the posture, is what clamps to 2) and it is moot for review-fix, which already ran at cycle 73 -- but it is exactly the condition the queued TASTE pass needs, since its single agent is a fable judgment seat that the fable guard forbids demoting in any gear.","weekly":{"ok":true,"weekly_used_pct":16.0,"opus_used_pct":9,"week_elapsed_pct":10.65,"weekly_heat":1.5023,"opus_heat":0.8451,"ceiling":2,"promote_blocked":true,"source":"runs/allocator.json ok=true source=probe (pacer-refreshed 22:53:48Z); heat + ceiling computed by hand because bin/swarm-budget.sh is denied (KI-2)"}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":14,"artifact":{"file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043"],"vetoed":[],"source":"learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)","not_wired":{"ids":["L-011","L-018","L-020","L-021","L-022"],"why":"all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."},"ledger_line_blocked":"record-applied could not run (KI-2) -- third consecutive run","directives":{"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"reviewer":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
 ```
 
+
+## cycle 81 — 2026-08-18T00:17:55+00:00 — TASTE pass — wears-thin, 4 findings, all 4 reproduced
+
+work: the TASTE gate (qa-verify `mode: "taste"`), queued IN WRITING by cycle 80 rather than left to
+  this session's judgement. `qa.last_taste_cycle` was 1 — run 1, cycle 1 — so the taste seat had
+  never been exercised on this run while review-fix (73) and full QA (76) both had, and cycle.md
+  step 4 requires all three before POLISH. The trigger was specific: cycle 79 landed T-167, which
+  changed the product's VISUAL CORE (a hair-thin crescent that drew as three disconnected specks
+  now draws as a contiguous arc), and the only thing that had ever looked at it was a 40,000-render
+  machine sweep counting broken arcs. Nobody had USED the product since its rendering changed.
+
+dispatch: DIRECT Agent call, not Workflow — this is a pacer-spawned headless `-p` session, where
+  the Workflow tool is review-gated (SKILL.md, the paragraph that retired HEADLESS-DEGRADED mode).
+  ONE fable judgment seat at effort high, which is exactly qa-verify.js's taste shape anyway (one
+  agent, no look stage), so nothing was lost to the fallback. The fable guard forbids demoting a
+  judgment seat in any gear, and the allocator's trickle -> normal flip at cycle 80
+  (`allow_premium_pct` 0 -> 8.962) is what made that affordable — the condition cycle 80 predicted
+  this pass needed, met.
+brief deviation, stated because it is a deviation: qa-verify.js's `serverBrief` and `browseBrief`
+  are both dev-server/browser shaped and inapplicable to a terminal CLI. I substituted a CLI-shaped
+  equivalent (run `node bin/moon.js` directly, evidence is captured stdout/stderr, no screenshots).
+  The taste RULES, the severity and verdict vocabularies, the ten-uses requirement and the qa
+  `prompt_lines` from the playbook were all passed verbatim.
+
+VERDICT: `wears-thin` — interesting at first, stale by ten. Not `fundamental`, so no decision
+  re-aiming the remaining clock at depth items is owed (cycle.md step 4).
+  What the seat said still delights at use 10+: the `--help` CAUTION notes on `cycleFraction` and
+  `phaseAngle` (they pre-empt exactly the two mistakes a scripting user would make), the one-line
+  error with exit 2, and the hemisphere differentiator being genuinely VISIBLE at every k but the
+  extremes. What wears: the absence of any daily-changing element and any way to look ahead.
+
+INSTRUMENT REPAIR — my own gate v1 was a VACUOUS PASS, sixth instance this run (8, 9, 19, 29, 80):
+  v1 defined "lit" as *not the dark shade and not whitespace* over the WHOLE rendered string, so
+  the `0%` label counted as light and the check reported "lit" for an all-dark disc; and it guessed
+  `renderLine(k)` when the function takes a MoonState, so every arm silently rendered k=0. Two
+  independent ways of measuring nothing, whose combination produced a control that PASSED.
+  Per this run's standing precedent every widening was paid for with a STRICTLY STRONGER check:
+   - the disc is extracted STRUCTURALLY — the module's documented fixed-width 5-cell prefix for the
+     line, the inner span of the framed rows for the block — so no label text can reach the detector;
+   - "lit" is defined against the module's own glyph vocabulary, READ OUT OF THE SOURCE at run time;
+   - the detector carries a TWO-SIDED control: it must see light at k=0.5 AND darkness at k=0.0, so
+     a stuck-lit detector and a stuck-dark detector both fail loudly;
+   - the contiguity counter carries a NEGATIVE control on a hand-broken row (must report 2 runs).
+  Generalizable, and sharper than cycle 80's version of the same lesson: **a one-sided control
+  cannot distinguish a working detector from one stuck in the direction the control tests.**
+  v1 is kept on disk unrepaired at /opt/swarm/runs/c081-gate.mjs as the record of the miss.
+  A second, smaller instrument bug in the same gate: C9 parsed the suite summary as TAP
+  (`# tests N`) when node --test prints `ℹ tests N` here, so it reported "tests ? / fail ?" and
+  FAILED — because it had parsed nothing, not because the suite was red. Repaired to accept both
+  forms AND to assert the parse succeeded, so a future format change can never read as a pass.
+
+VERIFICATION EVIDENCE — gate C81-TASTE v2, full output .swarm/runs/cycle-081-verify-taste.txt
+  (agent returns are claims; every line below is the conductor's own re-derivation)
+    ok CTRL: two-sided detector control — line lit@0.5=3 dark@0.0=0 | block lit@0.5=24 dark@0.0=0
+    ok C0 : agent left the repo untouched outside .swarm/runs/ (v1 check, still valid)
+    ok C1 : 10 consecutive default runs -> 1 distinct rendering "░░░▓◗  30%  waxing crescent"
+    ok C2 : --south art is the HANDED MIRROR of --north — north "░░░▓◗" south "◖▓░░░" (not merely different)
+    ok C3 : unknown flag exits 2; stderr carries the "moon: " prefix
+    ok C4 : no --date literal in source; ZERO process.env refs; faketime absent — but TZ DOES move hemisphere
+    ok C5 : the next-full-moon line carries no box char, i.e. it sits OUTSIDE the closed frame
+    ok C6 : --block --compact drops that line
+    ok C7 : at k=0.004 the line disc is ALL DARK (0 lit) while the block draws 5 lit cells, one per row
+    ok C7b: the line labels it "░░░░░   0%  waxing crescent" while the block shows light
+    ok C7c: it is a BAND not a lucky point — block first lights at k=0.0007, line not until k=0.00655
+    ok C7d: ramp reproduced — 3%="▕" hairline, 8%="▐" HALF, 18%="◗" ROUND LIMB, exactly as described
+    ok C8-ctrl: negative control — the run-counter reports 2 on a hand-broken row "░▓░░▓░"
+    ok C8 : thin crescent at k=0.001 is CONTIGUOUS — 5/5 rows lit, 0 with disconnected specks
+    ok C8b: the southern thin crescent is the exact handed mirror of the northern one
+    ok C9 : test_cmd (conductor-run) — tests 161 / pass 161 / fail 0
+    GATE C81-TASTE v2: PASS
+
+CYCLE-79 GETS ITS FIRST HUMAN-SHAPED LOOK, and it holds: C8 re-derives contiguity from the render
+  module with a negative control attached — five lit rows at k=0.001, every one a single unbroken
+  run, and the southern render an exact handed mirror. The change that only a machine had ever seen
+  is confirmed by an independent instrument.
+
+TRIAGE — 4 findings, 1 filed as work, 3 dropped and parked. The honest cost stated plainly:
+  this run declined the strongest product idea it produced.
+  The tension is real and was resolved explicitly rather than left implicit: the taste seat is a
+  MANDATED gate whose findings are meant to reach the backlog, but this run's locked taste note
+  requires every item to trace to a recorded survivor, a failed doc re-verification, or the
+  flag-interaction axis — and the SPEC never anticipated the taste pass as a fourth source.
+  - T-177 `notable` DROPPED + parked — the daily glance has no element guaranteed to change (C1:
+    ten runs, one rendering; near new and full the art and whole-percent field repeat across DAYS
+    too, leaving an absolute date as the only mover). Suggested `next full moon 28 Aug (in 10 days)`.
+    New user-visible output; non-goals forbid it.
+  - T-178 `notable` DROPPED + parked — no `--date`, no env override, one moon per calendar day
+    (C4). A new flag is named explicitly in the non-goals. The MEASUREMENT is worth inheriting
+    though: the CLI's output is a pure function of the wall clock with NO injection point, which is
+    why no taste agent can ever exercise ten different moons through the CLI, only through
+    src/render.js directly.
+  - T-179 `minor` DROPPED + parked — `--block`'s next-full-moon line dangles outside the closed
+    frame (C5/C6). A layout change to shipped output, tracing to none of the three sources.
+  All three are `dropped`, never deleted, and reproduced IN FULL in .swarm/ideas-ledger.md WITH the
+  conductor's verification attached, so a future run that IS allowed to change the product inherits
+  measurements instead of re-deriving them.
+
+  - **T-176 FILED, priority 1, S-effort, sonnet** — the one finding that is in scope. The one-line
+    and `--block` surfaces DISAGREE about whether the moon is visible across a 0.66-point band of
+    illumination: the block first lights at k=0.0007, the line not until k=0.00655, so in between
+    `moon --block` draws a visible hairline on all five disc rows while plain `moon` prints five
+    dark cells labelled `0%  waxing crescent`.
+    IN SCOPE because it traces to must-have #4, the flag-interaction axis: every prior sweep mutated
+    one behaviour in one file, and this is a disagreement BETWEEN two flag-selected surfaces — the
+    uncovered axis by definition. And it is a hole in a contract the repo ALREADY CHOSE to make:
+    the existing test `renderBlock reports the same phase and illumination as renderLine` pins the
+    two surfaces against each other over the FIELDS, but the ART is unpinned.
+    PRE-CLASSIFIED **BOUNDARY, not HOLE** (L-033) before any test exists, which is why its
+    acceptance forbids touching src/render.js: the line resolves the disc in 5 cells and the block
+    in 12 columns, so the block genuinely CAN see a crescent the line cannot, and render.js
+    documents the mechanism in its own terms (outer cell dark below cover 0.02; "a crescent thinner
+    than a sixth of a cell rounds away to the dark shade"). Raising lineArt's threshold — the taste
+    agent's suggested fix — would make the one-liner claim light in a cell whose computed cover is
+    under 2%: hardening a check into false-reporting, exactly what L-033 exists to prevent. The
+    correct output for a BOUNDARY is a pin plus a written caveat, the same disposition and the same
+    reasoning as this run's KI-5 call.
+
+VALUE_LOOP scan, owed by cycle 80's note and not skipped: the taste pass IS this cycle's candidate
+  scan, and it found one candidate that clears the two-question ratchet. Would the target user
+  notice? This run's stated audience is "the next person to change this code" — a machine-checked
+  boundary is precisely what that reader notices, and its absence is what lets the divergence drift.
+  Still care after 10 minutes? A pin outlives the session; a prose caveat does not. T-175 remains
+  `todo` with its recorded DO-NOT-BUILD verdict on traceability grounds — filed rather than dropped
+  so a future run inherits the measurement, and NOT pending work.
+
+phase: QA -> BUILD (T-176 is the next dispatch).
+wave autotune: not a build wave — `k_current` 5 and `wave_streak` 0 both unchanged.
+counters: `consecutive_no_value` stays 0. This cycle produced a reproduced measurement no prior
+  sweep had found (the 0.66-point disagreement band) plus an in-scope item; that is verified value
+  even though no backlog item moved to done.
+
+control: `bin/swarm-notify.sh poll` ran clean; control.json pending=[] applied=[], no inject array.
+  Nothing to apply.
+
+budget: gear 2 (unchanged). The REAL probe was due (`last_real_probe_ts` 4361 s old, well past the
+  1800 s window) and was re-attempted as `bin/swarm-budget.sh` from cwd=/opt/swarm — DENIED again,
+  KI-2, the THIRTEENTH consecutive cycle. The controlled comparison holds a FOURTH time in the same
+  shell and cycle: `bin/swarm-notify.sh poll`, byte-identical invocation shape, same directory,
+  same argument style, SUCCEEDED. probe_failures 11 -> 12; `last_real_probe_ts` restamped because
+  this was a genuine attempt, not a clock run.
+  Hand-computed from a pacer-fresh runs/allocator.json (mtime 00:17:47Z, 8 s before cycle open):
+  weekly_used 18.0 pct at week_elapsed 11.49 pct -> weekly_heat 1.5666, UP again from 1.5023 at
+  cycle 80 and from 1.4535 at cycle 79 — three readings, monotonically hotter, and still far over
+  the 1.3 ceiling trigger. opus_used 10 pct -> opus_heat 0.8703. Ceiling 2, promote BLOCKED. Window
+  rho UNMEASURED (no burn probe), so the evidence rule lands cruise 3 and the governor clamps to 2.
+  Applied gear 2; hysteresis did not bind. Posture remains `normal` (allow_premium_pct 8.962), which
+  is what paid for this cycle's fable seat.
+
+SWARM-SIDE DEFECT FOUND, journaled not fixed (hard rule 5) — **cycle.md's step-0 PID walk matches
+  the wrong process on this host.** The rule says walk up until `ps -o command=` matches the claude
+  binary. Implemented as a substring test for `claude`, it matches on the FIRST hop every time here,
+  because the bash wrapper's command line contains `/home/swarm/.claude/shell-snapshots/...`. The
+  heartbeat would then carry a short-lived bash PID (2017390), and the watchdog's identity check —
+  which deliberately kills only a claude-shaped command — would find a dead or reused PID at exactly
+  the moment it was trying to recover a hung conductor. Corrected in this cycle's own heartbeat by
+  matching the BINARY TOKEN (argv[0] is `claude` or ends in `/claude`): the recorded PID is 2017145,
+  verified by reading back `ps -o command=` on it —
+  `claude -p /swarm cycle --output-format json --permission-mode acceptEdits --add-dir /opt/targets/moon`.
+  Caught ONLY because cycle 80's lesson was applied literally: the heartbeat write was verified by
+  READING THE STATE BACK, and the read-back printed the command line of the PID it had just stored.
+  A write-and-move-on would have stored the wrong PID silently. Fix belongs in
+  reference/cycle.md step 0; hard rule 5 forbids the swarm applying it, so it goes to the morning
+  report alongside KI-2's four allow-list lines.
+  Note the recursion, which is the interesting part: cycle 80's candidate lesson was "a step whose
+  only evidence is its own side effect must be verified by reading the state back". Applying it
+  once, on the very next cycle, caught a defect of a completely different kind in the same step.
+
+heartbeat: left at the worst-case 2700 s lease rather than re-touched down to qa-verify (taste)'s
+  900 s budget after step 4 picked the work. Deliberate and recorded: a LONGER lease is never a
+  staleness hazard, only a slower recovery, and cycle.md's own admission-control note already
+  establishes that the re-touch uses the full wave budget precisely so an overrun is not read as
+  stale. Flagged so it does not read as a skipped step.
+
+next: cycle 82 builds **T-176** — pin the cross-surface visibility boundary as deliberate, test
+  only, no src/render.js change, failable and attributable BY NAME in two arms (L-029). ~15.5 h
+  remain to stop_at, so nothing forces a shortcut. The three parked findings must NOT be quietly
+  resurrected by a later cycle reading the ideas ledger as a work queue; they are out of scope for
+  this run by a recorded decision, and only a new SPEC can change that.
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-18T16:02:34+00:00","usage_reset_at":"2026-08-17T21:00:00+00:00","usage_reset_at_note":"ESTIMATED 5h boundary -- the ccusage probe was DENIED at kickoff (KI-2), so no block start was observed","model_policy":"value-routing","auth_mode":"subscription","run_label":"moon-improve-3","heartbeat":{"ts":1787013138,"next_wakeup_at":1787015052,"pid":2017145,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"thermostat","dial":0.5},"budget":{"source":"clock+allocator","gear":2,"gear_target":2,"ratio":0.0,"mode":"thermostat","k_cap":2,"promote":false,"demote":true,"window_tokens":0,"window_cost_usd":0.0,"api_cap_usd":null,"api_spend_usd":0.0,"tokens_per_hour":0,"projected_depletion_at":0,"last_probe_ts":1787013138,"last_real_probe_ts":1787013138,"probe_failures":12,"gear_evidence":"cycle 81: the REAL probe was due (last_real_probe_ts 4361 s old, past the 1800 s window) and was re-attempted as `bin/swarm-budget.sh` from cwd=/opt/swarm. DENIED again (KI-2, THIRTEENTH consecutive cycle). The controlled comparison holds a FOURTH time in the same shell and cycle: `bin/swarm-notify.sh poll` -- byte-identical invocation shape, same directory, same argument style -- SUCCEEDED. probe_failures 11 -> 12; last_real_probe_ts RESTAMPED because this was a genuine attempt. Gear computed by hand from a pacer-fresh runs/allocator.json (mtime 00:17:47Z, 8 s before cycle open): weekly_used 18.0 pct at week_elapsed 11.49 pct -> weekly_heat 1.5666, UP again from 1.5023 at cycle 80 and 1.4535 at cycle 79 -- three readings, monotonically hotter, still far over the 1.3 ceiling trigger. opus_used 10 pct -> opus_heat 0.8703. Ceiling 2, promote BLOCKED. Window rho UNMEASURED (no burn probe), so the evidence rule lands cruise 3 and the governor clamps to 2. Applied gear 2, unchanged; hysteresis did not bind. Posture remains `normal` (allow_premium_pct 8.962, dial 0.30) -- that is what paid for this cycle's fable taste seat, the judgment seat the fable guard forbids demoting in any gear.","weekly":{"ok":true,"weekly_used_pct":18.0,"opus_used_pct":10,"week_elapsed_pct":11.49,"weekly_heat":1.5666,"opus_heat":0.8703,"ceiling":2,"promote_blocked":true,"source":"runs/allocator.json ok=true source=probe (pacer-refreshed, mtime 00:17:47Z); heat + ceiling computed by hand because bin/swarm-budget.sh is denied (KI-2)"}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":15,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-011","L-016","L-018","L-020","L-021","L-022","L-024","L-026","L-029","L-031","L-033","L-034","L-042","L-043"],"vetoed":[],"source":"learnings.md parsed BY HAND -- bin/swarm-playbook.sh parse DENIED (KI-2)","not_wired":{"ids":["L-011","L-018","L-020","L-021","L-022"],"why":"all five instruct browser/React/SPA behaviour (component-mount tests, live look passes, hard-reloads, persisted UI state, .env key leakage). moon is a zero-dependency terminal CLI with no browser surface and no env-var-dependent behaviour, so wiring them into prompt_lines would be noise a builder has to discard. Staged as applied for the ledger, deliberately kept out of prompt_lines -- same call run 2 made and reported as not-exercised."},"ledger_line_blocked":"record-applied could not run (KI-2) -- third consecutive run","directives":{"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"reviewer":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file"],"qa":["The conductor is the SOLE committer -- never commit or push yourself","The conductor seals its verification gate by hash before dispatch -- do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive -- a kill you cannot attribute is not evidence.","Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps.","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}}
+```
