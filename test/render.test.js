@@ -239,6 +239,116 @@ test('renderLine: a hair-thin 0.65%-illuminated crescent still shows a hairline 
 });
 
 // ---------------------------------------------------------------------------
+// T-176 pin — renderLine and renderBlock disagree about visibility across a
+// ~0.66%-wide illumination band (BOUNDARY, not HOLE — do not "fix" this by
+// touching src/render.js)
+//
+// Measured band: blockArt draws its first lit sub-sample at illumination
+// k ≈ 0.000689; lineArt's outer cell stays dark (cover < 0.02, no rescue
+// path) until k ≈ 0.006516. Between those two points `moon --block` draws a
+// visible hairline arc on every disc row while plain `moon` prints a fully
+// dark disc labelled "0%". This is a genuine resolution difference, not the
+// same threshold expressed two ways: the one-liner resolves the whole disc
+// in DISC_CELLS=5 cells; the block spreads the same disc across BLOCK_COLS=12
+// columns (~2.4x the horizontal resolution) with a rescue guard
+// (firstLit/lastLit, `cover > 0` — see src/render.js) that keeps a
+// contiguous crescent from breaking into specks. The block can legitimately
+// resolve a sliver the line's honest per-cell cover computation rounds to
+// zero. Raising lineArt's `cover < 0.02` cut so its hairline held as long as
+// the block's would make the one-liner claim light in a cell whose computed
+// cover is under 2% — hardening a check into false-reporting, which is
+// exactly what src/render.js's own comment on that cut rules out ("A
+// crescent thinner than a sixth of a cell rounds away to the dark shade").
+// So: pin the disagreement as deliberate, on both edges of the band, and
+// pin the "0%" label the line prints throughout the dark part of the band
+// right alongside it — whole-percent rounding is separately documented and
+// earned (see "illumination is printed as a whole percent" above), so a "0%"
+// line next to a lit block is part of THIS boundary, not a second claim
+// needing its own fix.
+// ---------------------------------------------------------------------------
+
+test('T-176: below the block\'s first-lit k (~0.000689), renderLine and renderBlock are both fully dark', () => {
+  const moon = state('waxing crescent', 0.005513564655887185, 0.0003);
+  assert.equal(renderLine(moon, 'north'), '░░░░░   0%  waxing crescent');
+  const rows = renderBlock(moon, 'north').split('\n').slice(1, 6);
+  assert.deepEqual(rows, [
+    '│            ░░░░░░░░            │',
+    '│           ░░░░░░░░░░           │',
+    '│          ░░░░░░░░░░░░          │',
+    '│           ░░░░░░░░░░           │',
+    '│            ░░░░░░░░            │',
+  ]);
+  for (const row of rows) {
+    assert.equal(litness(row.slice(1, -1).trim()), 0, `expected a fully dark block row, got ${JSON.stringify(row)}`);
+  }
+});
+
+test('T-176: inside the band, renderLine reports a dark "0%" disc while renderBlock is visibly lit on every row', () => {
+  // k=0.001 and k=0.004: both round to a "0%" label (k < 0.005) and both sit
+  // inside the measured band (0.000689 < k < 0.006516), so the line's outer
+  // cell cover is exactly 0 (a grid-quantization fact, not a near-miss — see
+  // the k=0.006 case below) while every block row carries a real, non-zero
+  // sub-sample of light via the firstLit/lastLit hairline rescue.
+  for (const [cycleFraction, k, expectedLine, expectedBlockRows] of [
+    [
+      0.01006752081668875, 0.001, '░░░░░   0%  waxing crescent',
+      [
+        '│            ░░░░░░░▕            │',
+        '│           ░░░░░░░░░░▕          │',
+        '│          ░░░░░░░░░░░▕          │',
+        '│           ░░░░░░░░░░▕          │',
+        '│            ░░░░░░░▕            │',
+      ],
+    ],
+    [
+      0.02014513018072064, 0.004, '░░░░░   0%  waxing crescent',
+      [
+        '│            ░░░░░░░░▕           │',
+        '│           ░░░░░░░░░░▕          │',
+        '│          ░░░░░░░░░░░▕          │',
+        '│           ░░░░░░░░░░▕          │',
+        '│            ░░░░░░░░▕           │',
+      ],
+    ],
+  ]) {
+    const moon = state('waxing crescent', cycleFraction, k);
+    assert.equal(renderLine(moon, 'north'), expectedLine, `k=${k}`);
+    const rows = renderBlock(moon, 'north').split('\n').slice(1, 6);
+    assert.deepEqual(rows, expectedBlockRows, `k=${k}`);
+    for (const row of rows) {
+      assert.ok(litness(row.slice(1, -1).trim()) > 0, `k=${k}: expected every block row lit, got ${JSON.stringify(row)}`);
+    }
+  }
+});
+
+test('T-176: still inside the band at k=0.006, renderLine stays dark (cover 0.0141 < 0.02) while renderBlock stays lit', () => {
+  // Past the "0%" rounding edge (k >= 0.005 rounds to "1%"), still short of
+  // lineArt's own first-lit k (~0.006516): the outer cell's cover is the
+  // smallest non-zero value that grid produces, 10/71 ~= 0.01408, which is
+  // real light that still falls under the 0.02 dark cut. A mutant that
+  // *lowers* the cut to 0.01 or below lets this cell through as lit, which
+  // is exactly the kind of drift this test exists to catch — moving either
+  // surface's threshold, in either direction, is supposed to fail a T-176
+  // test, not just the ones that widen a cut.
+  const moon = state('waxing crescent', 0.02468090075063357, 0.006);
+  const line = renderLine(moon, 'north');
+  assert.equal(disc(line), '░░░░░', `expected a dark line disc at k=0.006, got ${JSON.stringify(line)}`);
+  const rows = renderBlock(moon, 'north').split('\n').slice(1, 6);
+  for (const row of rows) {
+    assert.ok(litness(row.slice(1, -1).trim()) > 0, `expected every block row lit, got ${JSON.stringify(row)}`);
+  }
+});
+
+test('T-176: at/above the line\'s first-lit k (~0.006516), both renderLine and renderBlock are lit', () => {
+  const moon = state('waxing crescent', 0.028508599718396005, 0.008);
+  assert.equal(renderLine(moon, 'north'), '░░░░▕   1%  waxing crescent');
+  const rows = renderBlock(moon, 'north').split('\n').slice(1, 6);
+  for (const row of rows) {
+    assert.ok(litness(row.slice(1, -1).trim()) > 0, `expected every block row lit, got ${JSON.stringify(row)}`);
+  }
+});
+
+// ---------------------------------------------------------------------------
 // No emoji
 // ---------------------------------------------------------------------------
 

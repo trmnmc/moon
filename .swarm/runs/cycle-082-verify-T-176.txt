@@ -1,0 +1,31 @@
+PASS  G2-scope
+        changed = ["test/render.test.js"] (must be exactly ["test/render.test.js"])
+PASS  G1-suite
+        node --test exit=0  
+PASS  G3-band
+        re-measured firstBlock=0.0006895 firstLine=0.006516 (width 0.00583; recorded 0.0007 / 0.00655)
+PASS  G6-added
+        added: [
+ "T-176: below the block\\'s first-lit k (~0.000689), renderLine and renderBlock are both fully dark",
+ "T-176: inside the band, renderLine reports a dark \"0%\" disc while renderBlock is visibly lit on every row",
+ "T-176: still inside the band at k=0.006, renderLine stays dark (cover 0.0141 < 0.02) while renderBlock stays lit",
+ "T-176: at/above the line\\'s first-lit k (~0.006516), both renderLine and renderBlock are lit"
+]
+PASS  LINE: lineArt outer-cell cut 0.02 -> 0.0001 [attribution: pre-cycle suite must SURVIVE]
+        pre-cycle suite exit=0 (0 = mutant survives => a later kill is attributable)
+PASS  LINE: lineArt outer-cell cut 0.02 -> 0.0001 [failability: new suite must DIE]
+        exit=1; killed-by-new-test=["T-176: still inside the band at k=0.006, renderLine stays dark (cover 0.0141 < 0.02) while renderBlock stays lit","T-176: still inside the band at k=0.006, renderLine stays dark (cover 0.0141 < 0.02) while renderBlock stays lit"]; all-failing=["T-176: still inside the band at k=0.006, renderLine stays dark (cover 0.0141 < 0.02) while renderBlock stays lit","failing tests:","T-176: still inside the band at k=0.006, renderLine stays dark (cover 0.0141 < 0.02) while renderBlock stays lit"]
+PASS  BLOCK-a: blockArt allDark hairline rescue disabled entirely [attribution: pre-cycle suite must SURVIVE]
+        pre-cycle suite exit=1 (0 = mutant survives => a later kill is attributable) [reported only — this mutation is not the attribution arm]
+PASS  BLOCK-a: blockArt allDark hairline rescue disabled entirely [failability: new suite must DIE]
+        exit=1; killed-by-new-test=["T-176: inside the band, renderLine reports a dark \"0%\" disc while renderBlock is visibly lit on every row","T-176: still inside the band at k=0.006, renderLine stays dark (cover 0.0141 < 0.02) while renderBlock stays lit","T-176: inside the band, renderLine reports a dark \"0%\" disc while renderBlock is visibly lit on every row","T-176: still inside the band at k=0.006, renderLine stays dark (cover 0.0141 < 0.02) while renderBlock stays lit"]; all-failing=["T-176: inside the band, renderLine reports a dark \"0%\" disc while renderBlock is visibly lit on every row","T-176: still inside the band at k=0.006, renderLine stays dark (cover 0.0141 < 0.02) while renderBlock stays lit","T-176: at/above the line's first-lit k (~0.006516), both renderLine and renderBlock are lit","renderBlock: a hair-thin crescent stays continuous down the limb","renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks","renderBlock: the hairline arc stays contiguous across the thin-crescent band","failing tests:","T-176: inside the band, renderLine reports a dark \"0%\" disc while renderBlock is visibly lit on every row","T-176: still inside the band at k=0.006, renderLine stays dark (cover 0.0141 < 0.02) while renderBlock stays lit","T-176: at/above the line's first-lit k (~0.006516), both renderLine and renderBlock are lit","renderBlock: a hair-thin crescent stays continuous down the limb","renderBlock: a hairline crescent forms a contiguous arc, not disconnected specks","renderBlock: the hairline arc stays contiguous across the thin-crescent band"]
+PASS  BLOCK-b: blockArt hairline rescue gated to k >= 0.0015 (block low-k threshold moves) [attribution: pre-cycle suite must SURVIVE]
+        pre-cycle suite exit=0 (0 = mutant survives => a later kill is attributable)
+PASS  BLOCK-b: blockArt hairline rescue gated to k >= 0.0015 (block low-k threshold moves) [failability: new suite must DIE]
+        exit=1; killed-by-new-test=["T-176: inside the band, renderLine reports a dark \"0%\" disc while renderBlock is visibly lit on every row","T-176: inside the band, renderLine reports a dark \"0%\" disc while renderBlock is visibly lit on every row"]; all-failing=["T-176: inside the band, renderLine reports a dark \"0%\" disc while renderBlock is visibly lit on every row","failing tests:","T-176: inside the band, renderLine reports a dark \"0%\" disc while renderBlock is visibly lit on every row"]
+PASS  G7-label
+        an added test asserts the 0% label inside the band
+PASS  G8-caveat
+        the added lines carry a BOUNDARY-not-HOLE classification naming the resolution argument
+
+--- GATE VERDICT: PASSED ---
