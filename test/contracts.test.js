@@ -579,7 +579,14 @@ for (const { file, promises } of CHECKED_FILES) {
       );
     });
 
-    for (const citedLine of citedLines(raw)) {
+    // De-duplicated to distinct cited lines: citedLines(raw) returns one entry per
+    // citation OCCURRENCE (e.g. regressions.test.js cites README:174 four times for
+    // this one promise), and emitting a test per occurrence produced multiple tests
+    // with the byte-identical name below. One test per DISTINCT cited line is enough -
+    // a drifted citation still fails (every occurrence of that line would fail
+    // identically), and two occurrences naming genuinely different lines still each
+    // get their own distinctly-named test since they remain distinct Set members.
+    for (const citedLine of new Set(citedLines(raw))) {
       // Failure-closed case 1: the promise is still IN README.md, but not at the line
       // the citation names - it moved. Message always names both the cited line and
       // the actual line, so it can't be confused with case 2 above.
