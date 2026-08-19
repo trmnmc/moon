@@ -2040,3 +2040,36 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"done","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-20T21:43:47Z","usage_reset_at":"2026-08-19T23:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787182506,"next_wakeup_at":1787182506,"pid":2691343,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":1.33,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":80174646,"window_cost_usd":56.91292244999998,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":18335925,"projected_depletion_at":1787194287,"last_probe_ts":1787181775,"last_real_probe_ts":1787181775,"probe_failures":0,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":39.5,"weekly_heat":2.53,"opus_heat":2.53,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":true,"cycles_since_recycle":5,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-016","L-024","L-026","L-029","L-031","L-033","L-034","L-039","L-041","L-042","L-043","L-044","L-045","L-046"],"vetoed":[],"note":"staged by DIRECT READ of playbook/learnings.md at kickoff. bin/swarm-playbook.sh parse was re-executed at kickoff under its EXACT absolute-path form (/opt/swarm/bin/swarm-playbook.sh parse - no compound, no env prefix) per L-039 and was DENIED; /opt/swarm/.claude/settings.json was then read directly and carries no entry for that script in any form. KI-2, 5th consecutive kickoff. L-021/L-022 are browser/SPA lessons and are deliberately NOT wired into prompt_lines for this zero-dependency terminal-CLI target.","directives":{"wave_k":2,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","For any item whose acceptance names a domain capability, the check must exercise it through the OUTERMOST layer a user touches (bin/moon.js as a spawned process), not only through src/* imported directly"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive - a kill you cannot attribute is not evidence.","For every mutation that must kill the suite, author one control that must leave it GREEN - a check that dies on everything is a snapshot test, not an assertion","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}},"run_label":"improve-5 (2026-08-19)"}
 ```
+
+## cycle 102 addendum | 2026-08-19T23:55:00+00:00 | moon | WRAP_UP — completion record, and two steps that did not fully succeed
+
+WRAP_UP steps completed: verified work committed (3225e46) and pushed; RETRO.md written;
+4 candidate lessons distilled and manually merged into the playbook; REPORT.md replaced its
+run-4 tail with a combined runs 4-5 section (25586 bytes, under the 26469 ceiling) with the
+run-4 text archived verbatim to .swarm/REPORT-ARCHIVE-2026-08-18.md; tag v0.1-improve5
+pushed; final dashboard rendered (25433 bytes, DONE / cycle 102, notify line correct);
+runfile wrap_up_complete=true and target status done; control channel archived to
+control.json.1787182900 and notify.log.1787182900; wrap-up push sent.
+
+NOT fully successful, reported as such rather than as passed:
+
+1. **Watchdog disarm is PARTIAL.** `systemctl disable --now swarm-watchdog.timer` failed with
+   "Interactive authentication required" — the disarm needs root and this session is not
+   privileged; `sudo -n` was denied by the permission layer. The timer is still ACTIVE.
+   Mitigating, and verified rather than assumed: the watchdog's DONE-guard already reads
+   `all-done / reports-present` on every firing (runs/watchdog.log, 22:18Z through 23:18Z),
+   and `wrap_up_complete` is now true as well, so it will not relaunch. This is the same
+   partial disarm run 4 reported at cycle 97; it is a privilege gap, not a logic gap.
+
+2. **Project screenshot SKIPPED.** `project-registry.js resolve` returned slug `moon` and URL
+   https://swarm.fenley.ai/projects/moon, but the browse CLI lives outside this session's
+   working-directory fence (/opt/swarm and /opt/targets/moon only), so it could not even be
+   probed. Logged as `project screenshot skipped: moon: browse CLI unreachable from this
+   session's directory fence`. Best-effort by contract — it delayed nothing.
+
+No further wakeups. Verified at the mechanism rather than trusted: `bin/swarm-pacer.sh` tests
+`.wrap_up_complete` at line 183 and exits `run-complete` BEFORE it reaches the
+`next_wakeup_at` due-check at line 229, so the heartbeat stamp cannot cause a respawn.
+
+Run closed: 5 cycles (98-102), 4 items built and verified, 0 reverted, 0 blocked, ~22.3h of
+authorized clock unspent by decision.
