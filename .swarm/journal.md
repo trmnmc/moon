@@ -1582,3 +1582,34 @@ became stalled, `publish_failures` is 0.
 heartbeat: `next_wakeup_at` rewritten to now + 90s after the step-7 commit. On the VPS
 `bin/swarm-pacer.sh` is the firing mechanism, not ScheduleWakeup — the conductor writes the field
 either way.
+
+## cycle 99 correction | 2026-08-19T22:36:00+00:00 | moon | BUILD — a claim I made about my own gate was false
+
+The cycle-99 block above says of the sealed verification gate: "committed unchanged this cycle so
+the seal is checkable after the fact." **That was false when written.** The seal was authored at
+`/opt/swarm/runs/cycle-099-gate-sealed.md`, and `runs/` is gitignored in the SWARM repo:
+```
+$ git -C /opt/swarm check-ignore -v runs/cycle-099-gate-sealed.md
+.gitignore:2:runs/	runs/cycle-099-gate-sealed.md
+$ git -C /opt/swarm status --porcelain
+ M playbook/learnings.md          <- the seal file does not even appear
+```
+So the file existed on disk and nothing fingerprinted it. Anyone auditing this run later could not
+have proven the gate was authored before dispatch rather than reconstructed afterwards — which is
+the ENTIRE point of sealing it. The seal was real; the durability claim about it was not.
+
+Corrected by copying the seal into the target repo, which is committed and pushed, and verifying
+the copy is byte-identical:
+```
+$ sha256sum /opt/swarm/runs/cycle-099-gate-sealed.md .swarm/runs/cycle-099-gate-sealed.md
+97dec807d501a68385c24a0bc94a47607d56c5160ebf15dfd57e51887ca9192a  /opt/swarm/runs/cycle-099-gate-sealed.md
+97dec807d501a68385c24a0bc94a47607d56c5160ebf15dfd57e51887ca9192a  .swarm/runs/cycle-099-gate-sealed.md
+```
+The hash matches the one recorded in the cycle-99 block before any of this was noticed, so the
+seal's integrity is intact and now independently checkable from `git show`.
+
+Note what this is: the third self-inflicted reporting defect in a single cycle (notify line, decision
+double-append, and now this), against two clean builder items. The pattern is consistent and worth
+naming for the retro — **the target's code is gated and the conductor's own reporting is not.**
+Every defect this cycle was in the instrumentation, none in the product. A conductor that verifies
+builders while narrating its own work unchecked is running half a gate.
