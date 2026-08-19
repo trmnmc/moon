@@ -485,7 +485,7 @@ test('--json ignores --block and --compact and still emits the plain --json payl
 })
 
 // T-158 C5: the line-mode compact guard (bin/moon.js:133) must suppress the next-full-
-// moon line regardless of a hemisphere override — README:75/:89 commit --compact to
+// moon line regardless of a hemisphere override — README:76/:90 commit --compact to
 // exactly one line unconditionally, and the MOTD/prompt use case is exactly a
 // southern-hemisphere user writing `moon --compact --south`. The T-157 matrix found this
 // HOLE (M09 survived): a mutant that re-enabled the second line whenever a hemisphere

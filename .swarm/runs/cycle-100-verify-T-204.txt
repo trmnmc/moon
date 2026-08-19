@@ -1,0 +1,185 @@
+CYCLE 100 — VERIFICATION EVIDENCE — item T-204 — target: moon
+Gate authored and sealed BEFORE dispatch: sha256
+c4ad90386bb47ab3a857d60d1d536b2f8a38f5aa4116dea48f0f6cbdff60be5c
+(sealed copy committed alongside this file as cycle-100-gate-sealed.md)
+
+All output below is the conductor's own, produced by the conductor running the commands.
+The builder's report was treated as a claim throughout and independently re-derived.
+
+===============================================================================
+BASELINE (pre-dispatch, conductor-measured)
+===============================================================================
+$ node --test test/*.test.js
+  tests 180 / pass 180 / fail 0
+README.md 255 lines, REPORT.md 261 lines, no lockfile, no node_modules
+
+Item premise re-measured by the conductor, NOT taken from T-204's filing note:
+  README.md:75 = "| `--block` | multi-line framed readout instead of the single line |"
+  README.md:76 = "| `--compact` | suppress the next-full-moon line, leaving exactly one line |"
+  README.md:89 = ""                                                        <- BLANK
+  README.md:90 = "`--compact` gives exactly one line with no trailing whitespace..."
+  README.md:81 = "`--south` and `--north` are last-one-wins, ..."
+  cli.test.js:488 cited README:75/:89  -> BOTH ONE LINE STALE  (confirmed)
+  cli.test.js:534 cited README:81      -> resolves correctly, left untouched
+
+===============================================================================
+C1 SCOPE / C10 DEPS / C11 NO DOC GROWTH                                   PASS
+===============================================================================
+$ git status --porcelain
+ M test/cli.test.js
+ M test/contracts.test.js
+$ git diff --stat HEAD -- src bin README.md REPORT.md package.json .swarm/CONTRACTS.md
+(empty — all byte-identical to HEAD)
+no package-lock.json, no node_modules, no .scratch-* residue.
+README.md was NOT edited: the citation was stale, the doc was correct, and the gate
+fixed the direction in advance so "edit README to match the stale citation" could not
+pass as a repair.
+
+===============================================================================
+C2 SUITE GREEN                                                            PASS
+===============================================================================
+$ node --test test/*.test.js
+  tests 190 / pass 190 / fail 0        (baseline 180; SPEC floor 175)
+
+===============================================================================
+C3 CITATION TRUTH — conductor's INDEPENDENT re-derivation                 PASS
+===============================================================================
+Own extractor, handling this file's compound `README:N/:M` shorthand that a naive
+/README:(\d+)/g would silently truncate to just N:
+  P1 --compact table row   -> README.md:76
+  P2 --compact prose       -> README.md:90
+  P3 last-one-wins         -> README.md:81
+  cli.test.js:488  "README:76/:90"
+  cli.test.js:534  "README:81"
+  expected (from README): [76,81,90]
+  cited    (from test)  : [76,81,90]
+  C3 PASS — sets are equal
+
+===============================================================================
+C4 FAILABILITY ARM A (L-029) — the mutation goes RED, new test named      PASS
+===============================================================================
+MUT-1 is deliberately ISOLATED: insert a blank line above "## Options" AND delete the
+blank line at 168 (between two body paragraphs — no heading, table or fence touched).
+Net effect: P1/P2/P3 shift +1; README:174, cited by the PRE-EXISTING regressions gate,
+does not move. Without this compensation the mutation would trip both gates and arm B
+would be unprovable.
+
+  exit-code promise still at README.md:174  <- isolation confirmed
+
+$ node --test test/*.test.js          # MUT-1 applied
+✔ test/regressions.test.js's README:174 citation ... (x4, all GREEN — unmoved)
+✖ test/cli.test.js's README:76 citation points at the "--compact table row (Options table)" promise
+✖ test/cli.test.js's README:90 citation points at the "--compact prose sentence (In your prompt or MOTD)" promise
+✖ test/cli.test.js's README:81 citation points at the "last-one-wins sentence (--south/--north)" promise
+  tests 190 / pass 187 / fail 3
+  AssertionError: test/cli.test.js cites README:76 for the "--compact table row (Options
+  table)" promise ("| `--compact` | suppress the next-full-moon line, leaving exactly one
+  line |"), but that promise actually lives at README.md:77 now - the citation has drifted
+
+EXACTLY 3 failures, ALL of them the new gate, each named, each message naming the file,
+the cited line, the actual line and the promise literal. Nothing else in the suite moved.
+
+===============================================================================
+C5 FAILABILITY ARM B (attributability)                                    PASS
+===============================================================================
+MUT-6 = MUT-1 + excision of the `test/cli.test.js` element from CHECKED_FILES (the
+minimal removal of exactly the coverage this item added).
+$ node --test test/*.test.js
+  tests 183 / pass 183 / fail 0        <- GREEN
+Delete this item's coverage and the decay ships silently. Arm B fully met — unlike
+cycle 99's T-201 surface 2, where arm B was honestly reported NOT MET.
+
+===============================================================================
+C6 CONVERSE CONTROL (L-044) — a mutation that must leave the suite GREEN  PASS
+===============================================================================
+MUT-2: append a blank line at EOF, after every cited line. Moves nothing.
+$ node --test test/*.test.js
+  tests 190 / pass 190 / fail 0        <- GREEN
+The gate is an assertion about citations, not a snapshot that dies on any README edit.
+
+===============================================================================
+C7 DECLARED SCOPE, NOT A BLIND SCAN — both arms required                  PASS
+===============================================================================
+Why this check exists, measured: test/contracts.test.js contains `README:171` in its own
+comments narrating T-203's history. A blind scan of test/ would flag it and be wrong.
+
+(a) MUT-5a: fake token README:9999 in a comment in an UNDECLARED file
+    tests 190 / pass 190 / fail 0      <- GREEN (no false positive)
+(b) MUT-5b: the same fake token in a comment in a DECLARED file
+    tests 191 / pass 190 / fail 1      <- RED
+    ✖ test/cli.test.js's README:9999 citation points at the "last-one-wins sentence
+      (--south/--north)" promise
+(a) alone would also pass for a gate that checks nothing; (b) is what makes it evidence.
+
+===============================================================================
+C8 ZERO-CITATION GUARD — fails CLOSED                                     PASS
+===============================================================================
+MUT-3: strip every README: token out of cli.test.js.
+  tests 187 / pass 186 / fail 1
+  ✖ test/cli.test.js still has README:N citations for its declared promises
+A discovery loop that finds nothing and passes silently is the fails-OPEN shape this
+run exists to audit. It fails closed.
+
+===============================================================================
+C9 PROMISE-EXISTS GUARD — L-043's fails-OPEN clause, the run's must-have  PASS
+===============================================================================
+MUT-4: reword P1 so the pinned literal is GONE from README entirely (not moved).
+  tests 190 / pass 188 / fail 2
+  ✖ README.md still makes the "--compact table row (Options table)" promise test/cli.test.js relies on
+    AssertionError: could not find the "--compact table row (Options table)" promise
+    ("| `--compact` | suppress the next-full-moon line, leaving exactly one line |")
+    ANYWHERE in README.md - it was reworded or deleted, but test/cli.test.js still cites it
+
+The message is DISTINCT from case 1's "the citation has drifted". "The sentence moved"
+and "the sentence is gone" are different failures and the gate does not conflate them.
+This is precisely L-043's fails-OPEN clause satisfied by construction, on a surface this
+run was chartered to audit.
+
+===============================================================================
+C12 / C12b REPO-WIDE CITATION RE-RESOLVE (cycle 99's check G11, re-run)   PASS
+===============================================================================
+11 README:N tokens across test/. The 6 in CHECKED_FILES all resolve (C3 + suite).
+The 5 in contracts.test.js are narrative.
+
+CONDUCTOR INSTRUMENT DEFECT — the NINTH on this target, same class as cycles 8, 9, 19
+and 29 (my regex narrower than the prose it measures). My first C12 classifier used a
+heuristic (/drifted|now lives|cited README/) and mislabelled three tokens LIVE:
+  contracts.test.js:430  "// T-203 (original): test/regressions.test.js cites README:171 four times for the"
+  contracts.test.js:445  "// this very file's comments above contain the literal token \"README:171\" twice"
+  contracts.test.js:487  "// Bare `README:N` tokens, e.g. \"README:171's only\" - every one of them"
+Hand-read: all three are narrative — history, a self-reference, and an e.g. example.
+Per the standing precedent the repair is paid for with a STRONGER assertion, not a
+widened heuristic. C12b replaces the judgment call with a mechanical one:
+
+  every README:N token in a file NOT on CHECKED_FILES must sit on a COMMENT line
+  -> tokens scanned: 11 | violations: 0 | C12b PASS
+
+The substantive conclusion never changed: no LIVE citation fails to resolve, and no
+live citation points at a blank line. Only my labels were wrong, and they are corrected
+here rather than quietly re-run until they agreed with me.
+
+===============================================================================
+C13 NAMED SURFACE — PARTIAL, and the residual is filed, not absorbed
+===============================================================================
+The item lands +10 tests (180 -> 190). Arm B isolates the split: 7 are this item's new
+cli.test.js coverage (1 zero-citation guard + 3 promise-exists + 3 citation-resolves),
+each closing a surface named in its own source comment. PASS for those 7.
+
+The other 3 are NOT new coverage. Generalizing the loop silently changed the
+PRE-EXISTING regressions gate from one test per DISTINCT cited line (a Set) to one per
+citation OCCURRENCE (an array), so README:174's four citations now emit four
+indistinguishable tests:
+  total passing tests: 190 | distinct names: 187
+    x4  test/regressions.test.js's README:174 citation points at the "exit-code promise" promise
+Detection power is identical either way — when two citations differ, the Set already
+distinguished them. So this is test-count inflation closing nothing, against a SPEC that
+says in terms "test COUNT is never an outcome".
+
+Not used to fail the item: T-204's acceptance is the citation fix plus the widening, and
+both are proven above. Not conductor-patched either (cycle 7 precedent: a conductor
+editing the artifact leaves nothing independent checking the conductor). Filed as T-205.
+
+===============================================================================
+VERDICT: T-204 PASS. 13 gate checks, 12 clean, C13 partial with the residual filed.
+Suite 180 -> 190 green. 0 reverts, 0 failed verifies.
+===============================================================================

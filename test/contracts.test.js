@@ -424,19 +424,37 @@ for (const citation of citations.values()) {
 }
 
 // ---------------------------------------------------------------------------
-// T-203: `README:N` citations OUTSIDE CONTRACTS.md rot too, and none of the citation
-// machinery above ever looks past CONTRACTS.md. test/regressions.test.js cites
-// README:171 four times for the exit-code promise "Errors go to stderr and exit `2`;
-// normal output goes to stdout. Safe to pipe." - that citation drifted stale (the
-// sentence now lives at README.md:174) with nothing in the suite able to notice.
+// T-203/T-204: `README:N` citations OUTSIDE CONTRACTS.md rot too, and none of the
+// citation machinery above ever looks past CONTRACTS.md.
 //
-// Fixed the same way CONTRACTS.md's citations are checked above: pin the exact
-// sentence text (a literal substring search, not a regex over free-form prose - it can
-// only ever match the one sentence that actually makes this promise), locate where it
-// really lives in the current README.md, and assert every `README:N` citation found in
-// regressions.test.js still points there. Deliberately scoped to regressions.test.js
-// only (not every test file): test/cli.test.js has its own README:N citations for
-// unrelated promises on unrelated lines, out of scope for this item.
+// T-203 (original): test/regressions.test.js cites README:171 four times for the
+// exit-code promise "Errors go to stderr and exit `2`; normal output goes to stdout.
+// Safe to pipe." - that citation drifted stale (the sentence now lives at
+// README.md:174) with nothing in the suite able to notice. Fixed the same way
+// CONTRACTS.md's citations are checked above: pin the exact sentence text (a literal
+// substring search, not a regex over free-form prose - it can only ever match the one
+// sentence that actually makes this promise), locate where it really lives in the
+// current README.md, and assert every `README:N` citation found in the test file
+// still points there. T-203 deliberately scoped this to regressions.test.js only.
+//
+// T-204 (this widening): that scope boundary let test/cli.test.js's OWN README:N
+// citations rot unseen - and they did. cli.test.js:488 cited README:75/:89 for the
+// --compact commitment; the table row is actually at README.md:76 and the prose is at
+// README.md:90, both one line stale. Widened below to a DECLARED LIST of checked
+// files (CHECKED_FILES) - never a blind scan of test/. That matters here specifically:
+// this very file's comments above contain the literal token "README:171" twice
+// (narrating T-203's own history), which is narrative, not a live citation, and a
+// blind directory scan would wrongly flag it.
+//
+// Unlike regressions.test.js (one promise, four citations of the same line),
+// cli.test.js makes THREE promises on three different README lines:
+//   - the --compact table row (Options table)             -> README.md:76
+//   - the --compact prose sentence (In your prompt or MOTD) -> README.md:90
+//   - the --south/--north last-one-wins sentence            -> README.md:81
+// cli.test.js:488 cites the first two together using this repo's "README:N/:M"
+// shorthand; cli.test.js:534 cites the third alone as plain "README:N". Both citation
+// forms are discovered below, each promise pinned as its own exact literal so a citation
+// can only ever be checked against the one sentence/row that actually makes its promise.
 // ---------------------------------------------------------------------------
 
 const README_PATH = path.join(ROOT, 'README.md');
@@ -447,61 +465,139 @@ const README_RAW = fs.readFileSync(README_PATH, 'utf8');
 // could also match some other sentence about exit codes.
 const EXIT_CODE_PROMISE = 'Errors go to stderr and exit `2`; normal output goes to stdout. Safe to pipe.';
 
-const exitCodePromiseIdx = README_RAW.indexOf(EXIT_CODE_PROMISE);
-
-// The 1-indexed line the promise sentence actually lives on right now, or null if the
-// sentence can no longer be found at all anywhere in README.md (rot stronger than a
-// mere line shift - the promise itself was reworded or removed).
-const actualExitCodePromiseLine =
-  exitCodePromiseIdx === -1 ? null : README_RAW.slice(0, exitCodePromiseIdx).split('\n').length;
-
-const REGRESSIONS_PATH = path.join(ROOT, 'test', 'regressions.test.js');
-const REGRESSIONS_RAW = fs.readFileSync(REGRESSIONS_PATH, 'utf8');
-
-// Every distinct line number cited as `README:N` in regressions.test.js (a bare token,
-// like CONTRACTS.md's `path:N` form above but without backticks - that's how this repo
-// actually spells it in that file, apostrophe-s suffix and all: "README:171's only").
-const readmeCitationLines = new Set();
-{
-  const re = /README:(\d+)/g;
-  let m;
-  while ((m = re.exec(REGRESSIONS_RAW))) readmeCitationLines.add(Number(m[1]));
+// The 1-indexed line a pinned promise literal actually lives on right now, or null if
+// it can no longer be found anywhere in README.md at all (rot stronger than a mere
+// line shift - the promise itself was reworded or removed).
+function actualLineOf(promiseLiteral) {
+  const idx = README_RAW.indexOf(promiseLiteral);
+  return idx === -1 ? null : README_RAW.slice(0, idx).split('\n').length;
 }
 
-// A silent zero-citation pass here would be exactly as misleading as it would be for
-// the CONTRACTS.md discovery loop above: this test file was written against four
-// README:N citations in regressions.test.js, all resolving to one distinct line.
-test('test/regressions.test.js still has README:N citations for the exit-code promise', () => {
-  assert.ok(
-    readmeCitationLines.size >= 1,
-    `found ${readmeCitationLines.size} README:N citation(s) in test/regressions.test.js (expected >= 1) - ` +
-      'either the citations were deleted, or the "README:N" spelling changed (update the discovery regex above if so)',
-  );
-});
+// DECLARED LIST of checked files. This is the ONLY place file scope is decided -
+// nothing below globs or readdir's test/, so a file not listed here is never examined,
+// no matter how many "README:N"-shaped tokens its comments happen to contain.
+const CHECKED_FILES = [
+  {
+    file: 'test/regressions.test.js',
+    // One promise, cited four times, all at the same README line - see T-203 above.
+    promises: [
+      {
+        name: 'exit-code promise',
+        literal: EXIT_CODE_PROMISE,
+        // Bare `README:N` tokens, e.g. "README:171's only" - every one of them
+        // should resolve to this same promise.
+        citedLines(raw) {
+          const lines = [];
+          const re = /README:(\d+)/g;
+          let m;
+          while ((m = re.exec(raw))) lines.push(Number(m[1]));
+          return lines;
+        },
+      },
+    ],
+  },
+  {
+    file: 'test/cli.test.js',
+    // Two commitments, three README lines, two citation forms - see T-204 above.
+    promises: [
+      {
+        name: '--compact table row (Options table)',
+        // Exact literal from the Options table row - the "leaving exactly one line"
+        // half of the --compact commitment.
+        literal: '| `--compact` | suppress the next-full-moon line, leaving exactly one line |',
+        // The FIRST number in this file's "README:N/:M" shorthand names the table row.
+        citedLines(raw) {
+          const lines = [];
+          const re = /README:(\d+)\/:(\d+)/g;
+          let m;
+          while ((m = re.exec(raw))) lines.push(Number(m[1]));
+          return lines;
+        },
+      },
+      {
+        name: '--compact prose sentence (In your prompt or MOTD)',
+        // Exact literal from the prose paragraph, stopping before the mid-sentence
+        // line wrap ("...you\nwant in a shell prompt") so the pin can't be broken by
+        // a reflow that leaves the promise itself untouched.
+        literal: '`--compact` gives exactly one line with no trailing whitespace, which is the form you',
+        // The SECOND number in "README:N/:M" names the prose sentence.
+        citedLines(raw) {
+          const lines = [];
+          const re = /README:(\d+)\/:(\d+)/g;
+          let m;
+          while ((m = re.exec(raw))) lines.push(Number(m[2]));
+          return lines;
+        },
+      },
+      {
+        name: 'last-one-wins sentence (--south/--north)',
+        literal: '`--south` and `--north` are last-one-wins, so you can override a shell alias:',
+        // Bare `README:N`, deliberately excluding the "N/:M" shorthand above. The
+        // (?!\d) is load-bearing, not decorative: without it, greedy \d+ backtracks
+        // into the MIDDLE of a compound citation's first number to satisfy the (?!\/:)
+        // lookahead (e.g. "README:76/:90" would wrongly yield "7", by matching just
+        // the first digit so the next character, "6", isn't "/:") - (?!\d) forbids
+        // stopping mid-number, so only a citation's true trailing boundary counts.
+        citedLines(raw) {
+          const lines = [];
+          const re = /README:(\d+)(?!\d)(?!\/:)/g;
+          let m;
+          while ((m = re.exec(raw))) lines.push(Number(m[1]));
+          return lines;
+        },
+      },
+    ],
+  },
+];
 
-test('README.md still makes the exit-code promise the regressions.test.js exit-code tests rely on', () => {
-  assert.ok(
-    actualExitCodePromiseLine !== null,
-    `could not find the sentence "${EXIT_CODE_PROMISE}" anywhere in README.md - it was reworded or removed, but ` +
-      'test/regressions.test.js still cites it verbatim as the source of the exit-code contract',
-  );
-});
+for (const { file, promises } of CHECKED_FILES) {
+  const raw = fs.readFileSync(path.join(ROOT, file), 'utf8');
 
-for (const citedLine of readmeCitationLines) {
-  test(`test/regressions.test.js's README:${citedLine} citation points at the exit-code promise`, () => {
+  // Failure-closed case 3: a declared file that turns up zero README:N citations
+  // across ALL of its declared promises is exactly as broken as having no gate at
+  // all for it - fail loudly rather than pass silently on finding nothing.
+  test(`${file} still has README:N citations for its declared promises`, () => {
+    const total = promises.reduce((n, p) => n + p.citedLines(raw).length, 0);
     assert.ok(
-      actualExitCodePromiseLine !== null,
-      `README:${citedLine} is cited in test/regressions.test.js but the promise sentence it should point at is ` +
-        'not in README.md at all (see the previous test)',
-    );
-    assert.strictEqual(
-      citedLine,
-      actualExitCodePromiseLine,
-      `test/regressions.test.js cites README:${citedLine} for "Errors go to stderr and exit \`2\`; normal output ` +
-        `goes to stdout. Safe to pipe.", but that sentence actually lives at README.md:${actualExitCodePromiseLine} ` +
-        'now - the citation has drifted and the four assertions relying on it need updating',
+      total >= 1,
+      `found 0 README:N citations in ${file} across ${promises.length} declared promise(s) - either every ` +
+        'citation was deleted, or the "README:N" spelling changed (update the discovery regexes above if so)',
     );
   });
+
+  for (const { name, literal, citedLines } of promises) {
+    const actualLine = actualLineOf(literal);
+
+    // Failure-closed case 2: the pinned sentence/row can no longer be found in
+    // README.md AT ALL - reworded or deleted. Message says "could not find" and never
+    // states a line number, so it can't be confused with case 1 ("moved") below.
+    test(`README.md still makes the "${name}" promise ${file} relies on`, () => {
+      assert.ok(
+        actualLine !== null,
+        `could not find the "${name}" promise ("${literal}") ANYWHERE in README.md - it was reworded or ` +
+          `deleted, but ${file} still cites it`,
+      );
+    });
+
+    for (const citedLine of citedLines(raw)) {
+      // Failure-closed case 1: the promise is still IN README.md, but not at the line
+      // the citation names - it moved. Message always names both the cited line and
+      // the actual line, so it can't be confused with case 2 above.
+      test(`${file}'s README:${citedLine} citation points at the "${name}" promise`, () => {
+        assert.ok(
+          actualLine !== null,
+          `README:${citedLine} is cited in ${file} for the "${name}" promise, but that promise is not in ` +
+            'README.md at all (see the previous test)',
+        );
+        assert.strictEqual(
+          citedLine,
+          actualLine,
+          `${file} cites README:${citedLine} for the "${name}" promise ("${literal}"), but that promise ` +
+            `actually lives at README.md:${actualLine} now - the citation has drifted`,
+        );
+      });
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
