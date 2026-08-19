@@ -203,59 +203,48 @@ above are machine-checked against `.swarm/state.json` by `test/report-issues.tes
 them into disagreement and the suite goes red. That check was itself validated by a converse
 control — rewording prose inside a description cell must leave the suite **green** — so it
 reads structure, not sentences.
+## Runs 4-5 (2026-08-18, 2026-08-19) - two trickle runs, and what they settled
 
-## Run 4 (2026-08-18) — what changed, and why it stopped
+Both were allocator-driven **TRICKLE** runs: they existed because there was spare window, not
+because a user asked. Run 4 ran 13 cycles (85-97), run 5 ran 5 (98-102). Neither added a
+feature, flag, or dependency - that was the brief both times. Run 4s full change log is in
+`.swarm/REPORT-ARCHIVE-2026-08-18.md`.
 
-Run 4 was an allocator-driven **TRICKLE** run: it existed because there was spare capacity,
-not because a user asked. It ran **13 cycles (85–97)** and stopped with roughly **18.4 hours
-of authorized clock unspent**, by decision rather than by exhaustion or failure.
+**Run 4** verified thirteen items, zero reverted. The load-bearing one was a real wrong answer
+to a user: `detectHemisphere("US/Samoa")` returned north for a location at 14 degrees south
+(cycle 86) - the runs only source change. It also cut this report from 60,774 bytes so the
+first screen carries what-it-is, how-to-run, what-is-verified and known-issues; wrote the KI-8
+owner ask; and closed four doc-truth defects. Its closing audit returned zero findings.
 
-**Thirteen items built and verified, zero reverted, zero failed verifies, no item blocked.**
-The suite went from 171 tests at run 3's final commit to **175/175 green** — a figure
-re-derived at cycle 97 by a method first validated against the known runtime count, not
-carried over from a document. What actually changed:
+**Run 5** was scoped to the only thing that had changed since: the practice playbook. Four
+items, all verified, zero reverted, zero blocked.
 
-- **`detectHemisphere('US/Samoa')` returned north for a location at 14° south** — a real wrong
-  answer to a user, and the only source-code change of the run (cycle 86, T-175). It shipped
-  with the two-arm proof the spec demanded: the mutation with the new test present turns the
-  suite red on that test *by name*, and the same mutation with the test removed leaves it green.
-- **The KI-8 owner ask was written** (cycle 86, T-182) — `.swarm/KI-8-OWNER-ACTION.md` names the
-  exact file to create, the exact line the owner must supply, and what stays broken until they
-  do. It is an ask, not a LICENSE; an agent must not invent a copyright holder.
-- **REPORT.md was restructured from 60,774 bytes to its current size** (cycle 88, T-184) so a
-  first-time reader gets what-it-is, how-to-run, what-is-verified and known-issues on the first
-  screen. The forensic detail was **archived, not deleted**, at `.swarm/REPORT-ARCHIVE-2026-08-18.md`.
-- **A standing-claim audit found four doc-truth defects** after three prior runs had already
-  swept the code (cycle 94), and all four closed at cycles 95–96: a README clone-URL premise, a
-  decaying KI-9 count, a self-dating review-pass age, and a REPORT trailer that would have gone
-  stale the moment it was written.
+- **Two documented CLI capabilities were proven only against `parseArgs()`, never against the
+  process a user runs** (T-201, cycle 99): `-h`, and `--south`/`--north` last-one-wins. Both
+  now have a check that spawns `bin/moon.js`.
+- **Test comments cite README line numbers, and four had decayed** one to three lines off
+  (T-203/T-204/T-205, cycles 99-101). A gate now re-derives each cited line from README at run
+  time, per declared file and per distinct promise, and tells "the promise moved" apart from
+  "the promise is gone".
 
-**Why it stopped.** At cycle 97 the backlog was empty and every definition-of-done clause was
-re-derived from the repo rather than read back out of the journal: suite 175/175 (baseline 171);
-no `dependencies`/`devDependencies` key, no lockfile, no `node_modules`; all six `file:line`
-citations in README.md and REPORT.md checked against the lines they point at and all six true;
-issue counts machine-gated by `test/report-issues.test.js`; and the suite spot-checked against
-the practice lessons it is supposed to honor (L-043 and L-045 both clean). **That audit returned
-zero findings** — the first clean look after three consecutive looks that each found real work.
-With no candidate tracing to a filed defect or a demonstrably violated lesson, the spec's own
-taste clause applies: *"nothing needed doing" is an allowed outcome that ends the run early*.
+**Why run 5 stopped.** At cycle 102 the backlog was empty and every definition-of-done clause
+was re-derived from the repo rather than read back out of a document: suite **187/187 green**
+(baseline 175); this file at its 26,469-byte ceiling, not grown; no `dependencies` or
+`devDependencies` key, no lockfile, no `node_modules`; and every `file:line` citation this
+report makes into the code re-checked against the line it points at - all true, including the
+bare `:281`/`:346` shorthand a path-anchored sweep misses. The L-046 and L-043 audits came
+back clean. **No candidate passed the ratchet**, so the run wrapped rather than manufacture a
+diff - the outcome its own spec named as expected.
 
-**What run 4 did not touch, and why.** KI-5 is still pinned rather than fixed (the fix is a
-glyph-set redesign, an explicit non-goal). KI-7 remains bounded-by-sampling (the fix would mean
-rewriting the verified astronomy core). KI-4 needs a human with a terminal. KI-8 needs the owner.
-KI-2 and KI-9 are SWARM tooling defects that a run is fenced from repairing from the inside.
-**No new feature, flag, or dependency was added — that was the brief.**
+Run 5 also settled a question open since cycle 62: **READMEs KI-5 self-check is sound.** In a
+normal terminal every framed row of `--block` is 34 columns; modelling the ambiguous-as-double
+failure mode splits them into three widths - 68 for the borders, 40-42 for the disc rows, 36
+for the text rows. Comparing a border against a text row, which is what the README tells you
+to do, differs by 32 columns; comparing top border against bottom border - the observable
+cycle 62 disproved - cannot differ, since both are 68. That is a width-model computation, not
+a live CJK-terminal observation: KI-4 and KI-5 still need a human with the terminal.
 
-**The run-3 diagnosis in item 6 above still stands, and run 4 is its confirmation.** A fourth
-housekeeping run found thirteen real, traceable items and then ran out of authorized work with
-most of the night left. The remaining value in this repo is not in another correctness pass; it
-is in the scoping decision only the owner can make.
-
----
-
-Repo was tagged `v0.1-improve4` at the close of run 4 (run 3: `v0.1-improve3`, run 1:
-`v0.1-overnight`, run 2: `v0.1-improve2`, original build: `v0.1.0`); HEAD moves past each tag as
-later cycles amend this file, so checking a tag out will not reproduce this document as it now
-reads. This document was first generated by /swarm WRAP_UP for run 3 and has been amended by
-later improvement cycles since — run `git log -- REPORT.md` for the actual edit history rather
-than trusting a timestamp here.
+**Five runs in, the diagnosis in item 6 above has only hardened.** Runs 4 and 5 each found
+real, traceable work and then ran out of *authorized* work with most of the night left - run 5
+with ~22 hours unspent. The remaining value here is not another correctness pass; it is the
+scoping decision only the owner can make.

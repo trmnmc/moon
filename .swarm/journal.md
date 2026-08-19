@@ -1944,3 +1944,99 @@ runfile-mirror:
 ```json
 {"version": 1, "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-20T21:43:47Z", "usage_reset_at": "2026-08-19T23:00:00Z", "model_policy": "value-routing", "auth_mode": "subscription", "heartbeat": {"ts": 1787180779, "next_wakeup_at": 1787183479, "pid": 2678524, "limp": false, "degraded_tiers": []}, "pacing": {"mode": "guest", "dial": 0.3}, "budget": {"source": "probe", "gear": 2, "gear_target": 2, "ratio": 1.24, "mode": "guest", "k_cap": 2, "promote": false, "demote": true, "window_tokens": 73419933, "window_cost_usd": 51.59029345, "api_cap_usd": null, "api_spend_usd": 0, "tokens_per_hour": 17892213, "projected_depletion_at": 1787194987, "last_probe_ts": 1787180779, "last_real_probe_ts": 1787180779, "probe_failures": 0, "weekly": {"ok": true, "weekly_used_pct": 100, "opus_used_pct": 100, "week_elapsed_pct": 39.33, "weekly_heat": 2.54, "opus_heat": 2.54, "ceiling": 2, "promote_blocked": true}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "caffeinate_pid": 0, "wrap_up_complete": false, "cycles_since_recycle": 4, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}, "playbook": {"mode": "auto", "applied": ["L-008", "L-016", "L-024", "L-026", "L-029", "L-031", "L-033", "L-034", "L-039", "L-041", "L-042", "L-043", "L-044", "L-045", "L-046"], "vetoed": [], "note": "staged by DIRECT READ of playbook/learnings.md at kickoff. bin/swarm-playbook.sh parse was re-executed at kickoff under its EXACT absolute-path form (/opt/swarm/bin/swarm-playbook.sh parse - no compound, no env prefix) per L-039 and was DENIED; /opt/swarm/.claude/settings.json was then read directly and carries no entry for that script in any form. KI-2, 5th consecutive kickoff. L-021/L-022 are browser/SPA lessons and are deliberately NOT wired into prompt_lines for this zero-dependency terminal-CLI target.", "directives": {"wave_k": 2, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory", "The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test", "For any item whose acceptance names a domain capability, the check must exercise it through the OUTERMOST layer a user touches (bin/moon.js as a spawned process), not only through src/* imported directly"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file", "The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.", "When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive - a kill you cannot attribute is not evidence.", "For every mutation that must kill the suite, author one control that must leave it GREEN - a check that dies on everything is a snapshot test, not an assertion", "Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test", "Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}, "run_label": "improve-5 (2026-08-19)"}
 ```
+
+
+## cycle 102 | 2026-08-19T23:48:00+00:00 | moon | WRAP_UP — the value scan came back empty, which is the answer this run was scoped to accept
+
+work: VALUE_LOOP candidate scan against the definition of done, then WRAP_UP. No build wave.
+Cycle 101 named this cycle's work explicitly: an empty queue is not a DONE declaration, so DONE
+requires an explicit candidate scan, not an inference from the backlog draining.
+
+budget: gear **2**, rho **1.33**, guest mode, probe_ok true, k_cap 2, demote on, promote blocked.
+Window 80.17M tokens / $56.91, 18.34M tok/h. The weekly governor stayed the binding constraint
+rather than measured burn (weekly_heat 2.53 against a 1.3 threshold, ceiling clamped to 2) —
+though rho 1.33 lands gear 2 on its own, so clamp and thermostat agreed. Burn attribution:
++6,754,713 window tokens since cycle 101, credited to cycle 101's target (moon).
+
+control: poll clean, pending[] empty, inject[] empty. Nothing to triage.
+
+VERIFICATION EVIDENCE — every definition-of-done clause re-derived from the repo at run time
+(L-045), never read back out of a document:
+```
+suite        node --test test/*.test.js  ->  tests 187 | pass 187 | fail 0
+             baseline floor 175 (kickoff)     187 >= 175   PASS
+REPORT.md    26469 bytes at kickoff -> 25586 bytes now     did NOT grow  PASS (883 headroom)
+report gate  test/report-issues.test.js green AFTER the restructure — anchors survived, so
+             the gate was neither weakened nor re-labelled   PASS
+deps         package.json: no "dependencies" key, no "devDependencies" key
+             no node_modules, no package-lock.json, no yarn.lock   PASS
+```
+
+VERIFICATION EVIDENCE — audit clause: every `file:line` citation REPORT.md makes into the code,
+re-derived against the line it points at. The first sweep used a path-anchored regex and found
+five; that regex MISSES the bare `:N` shorthand the KI-6 row uses for its sibling guards, so the
+true count is seven:
+```
+REPORT:55  -> src/astro.js:71-74      PHASE_ILLUMINATION_CONSISTENCY_DOMAIN declared 71-74  TRUE
+REPORT:55  -> test/astro.test.js:491  KI-7 band discriminator test declaration              TRUE
+REPORT:54  -> test/render.test.js:829 KI-5 glyph-width pin test declaration                 TRUE
+REPORT:100 -> src/astro.js:358    throw TypeError("nextFullMoon result is outside...")      TRUE
+REPORT:100 -> src/astro.js:281    throw TypeError("computeMoon expects a valid Date")       TRUE  (shorthand)
+REPORT:100 -> src/astro.js:346    throw TypeError("nextFullMoon expects a valid Date")      TRUE  (shorthand)
+REPORT:100 -> test/astro.test.js:294  opening comment of the KI-6 regression block          TRUE
+```
+The last one is T-202, filed at cycle 99 and DROPPED at cycle 100 on the grounds that it cites a
+comment where its siblings cite declarations. That drop is re-confirmed correct here, on evidence
+the drop itself did not have: :281, :346 and :358 ALL name the THROW line, so the convention
+REPORT actually follows is "cite the throw", and :358 is consistent with the two siblings the
+sentence explicitly names. There was nothing to fix. (L-033: BOUNDARY, not HOLE.)
+
+VERIFICATION EVIDENCE — the nice-to-have. This run's SPEC lists a reader-runnable KI-5 check as
+open, and L-045 requires re-verifying an inherited nice-to-have against the repo BEFORE
+prioritizing it. It is ALREADY SHIPPED, at README.md:233-238, and simply never struck off since
+cycle 62. I verified the shipped check actually discriminates rather than assuming it does, by
+modelling both EAW policies over the real `--block` output using the glyph classes the repo pins:
+```
+row              single-width   ambiguous-as-double   composition
+borders (0,10)        34               68             box-drawing (all Ambiguous)
+disc    (1-5)         34          40,41,42,41,40      mixed Neutral + Ambiguous
+text    (6-9)         34               36             box + ASCII
+```
+README tells the reader to compare a BORDER against the bracketed TEXT rows: 68 vs 36, a
+32-column difference. Cycle 62's DISPROVED observable compared top border against bottom border:
+68 vs 68 — it provably cannot differ, which is exactly why it was disproved. The shipped check
+picks the one comparison that works. This is a width-MODEL computation, not a live CJK-terminal
+observation: KI-4 and KI-5 still need a human with the terminal, and are reported as such.
+
+gate: **no candidate passed the two-part ratchet.** Extending the new citation gate to the
+doc->code direction was the strongest candidate and was REJECTED on this run's own binding taste
+clause: every item must trace to a lesson minted after 2026-08-18 that this repo demonstrably
+violates, or to a doc claim that measurably rotted. Zero citations rotted (seven re-derived TRUE
+above), and no post-2026-08-18 lesson is violated. Building it would have been precisely the
+"diff that reads as diligence while changing nothing a reader could detect" that the SPEC names
+as this run's EXPECTED failure mode. The remaining known issues are all fenced, non-goals, or
+human-owned: KI-2/KI-9 are SWARM tooling (hard rule 5 forbids repairing them from inside a run),
+KI-5 is a glyph-set redesign, KI-7 an astronomy-core rewrite, KI-8 needs the owner's copyright
+line, KI-4 needs a human with a terminal.
+
+DONE: definition of done met and re-derived clause by clause; no VALUE_LOOP candidate clears the
+ratchet. Target status -> done, phase -> DONE, early WRAP_UP with ~22.3h of authorized clock
+unspent, by decision rather than by exhaustion or failure.
+
+playbook: bin/swarm-playbook.sh append was invoked under its EXACT absolute-path form and was
+DENIED — KI-2, 6th consecutive occurrence. cycle.md's WRAP_UP fallback applied: 4 candidates
+distilled and appended MANUALLY in the v2 grammar, all 4 merged semantically onto existing
+lessons (L-041 failure-direction clause 4->5; L-042 seal-must-be-tracked 4->5; L-043
+citation-form-and-direction 4->5; L-045 an EXACT re-learn, observed 3->4). ZERO ids minted: all
+20 lessons are high-confidence, so minting would have forced the overflow rule to drop the
+oldest — L-008 — which THIS run re-observed twice. Fifth consecutive run to decline that drop by
+argument. File left at the 20-lesson cap, next_id still 47. Flagged for human attention.
+
+items: **0 built · 0 verified · 0 reverted · 0 failed verifies · 0 new defects filed.**
+backlog: 100 items, 100 closed (95 done, 5 dropped), 0 todo. Unchanged — nothing was filed,
+which is the outcome, not an omission.
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"done","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-20T21:43:47Z","usage_reset_at":"2026-08-19T23:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787182506,"next_wakeup_at":1787182506,"pid":2691343,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":1.33,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":80174646,"window_cost_usd":56.91292244999998,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":18335925,"projected_depletion_at":1787194287,"last_probe_ts":1787181775,"last_real_probe_ts":1787181775,"probe_failures":0,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":39.5,"weekly_heat":2.53,"opus_heat":2.53,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":true,"cycles_since_recycle":5,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"playbook":{"mode":"auto","applied":["L-008","L-016","L-024","L-026","L-029","L-031","L-033","L-034","L-039","L-041","L-042","L-043","L-044","L-045","L-046"],"vetoed":[],"note":"staged by DIRECT READ of playbook/learnings.md at kickoff. bin/swarm-playbook.sh parse was re-executed at kickoff under its EXACT absolute-path form (/opt/swarm/bin/swarm-playbook.sh parse - no compound, no env prefix) per L-039 and was DENIED; /opt/swarm/.claude/settings.json was then read directly and carries no entry for that script in any form. KI-2, 5th consecutive kickoff. L-021/L-022 are browser/SPA lessons and are deliberately NOT wired into prompt_lines for this zero-dependency terminal-CLI target.","directives":{"wave_k":2,"routing_recs":["core-logic->fable"],"prompt_lines":{"builder":["The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test","For any item whose acceptance names a domain capability, the check must exercise it through the OUTERMOST layer a user touches (bin/moon.js as a spawned process), not only through src/* imported directly"],"reviewer":["The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory","Assign each fixer a pairwise-disjoint file set; two fixers must never share a file","The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"],"qa":["The conductor is the SOLE committer - never commit or push yourself","Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.","Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.","When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive - a kill you cannot attribute is not evidence.","For every mutation that must kill the suite, author one control that must leave it GREEN - a check that dies on everything is a snapshot test, not an assertion","Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test","Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}},"run_label":"improve-5 (2026-08-19)"}
+```
