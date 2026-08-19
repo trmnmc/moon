@@ -1,0 +1,48 @@
+{
+  "cycle": 99,
+  "timestamp": "2026-08-19T22:26:34Z",
+  "work_type": "build-wave",
+  "dispatch": "DIRECT Agent calls, sequential — headless -p session, Workflow tool review-gated (documented failure-table fallback). Sequential rather than concurrent because both items needed temporary source mutations for their two-arm proofs and share one working tree; disjoint file scopes alone would not have prevented cross-contamination of each other's test runs.",
+  "k_effective": 2,
+  "gear": 2,
+  "gate_seal": {
+    "file": "/opt/swarm/runs/cycle-099-gate-sealed.md",
+    "sha256": "97dec807d501a68385c24a0bc94a47607d56c5160ebf15dfd57e51887ca9192a",
+    "authored_before_dispatch": true
+  },
+  "items": [
+    {
+      "id": "T-201",
+      "model_table": "sonnet",
+      "model_used": "sonnet",
+      "demoted": false,
+      "files_changed": ["test/cli.test.js"],
+      "tests_added": 2,
+      "verdict": "PASS",
+      "limitation_recorded": "surface 2 arm B not achievable at full-suite scope; structural, conductor-confirmed via MUT-C and MUT-D"
+    },
+    {
+      "id": "T-203",
+      "model_table": "sonnet",
+      "model_used": "sonnet",
+      "demoted": false,
+      "files_changed": ["test/regressions.test.js", "test/contracts.test.js"],
+      "tests_added": 3,
+      "verdict": "PASS",
+      "scope_correction": ".swarm/CONTRACTS.md removed from files_hint at dispatch — the file carries its own builder-freeze clause; planning slip caught by the conductor, not by the builder"
+    }
+  ],
+  "conductor_mutations": [
+    {"id": "MUT-A", "target": "src/args.js", "change": "drop short:'h' alias", "result": "180 tests / 175 pass / 5 fail — new -h spawn test named among failures, 4 pre-existing parseArgs tests co-fail"},
+    {"id": "MUT-B", "target": "bin/moon.js", "change": "argv plumbing filters out '-h' before parseArgs (pure wiring break)", "result": "180 / 179 pass / 1 FAIL — the new spawned test is the ONLY test in the suite that catches it; arm B green by construction"},
+    {"id": "MUT-C", "target": "src/args.js", "change": "last-one-wins -> first-one-wins", "result": "180 / 178 pass / 2 fail — new spawn test + pre-existing args.test.js unit test"},
+    {"id": "MUT-D", "target": "bin/moon.js", "change": "ignore opts.hemisphere entirely", "result": "180 / 176 pass / 4 fail — 3 PRE-EXISTING spawn tests already catch it; surface 2's new test closes no unique mutation gap"},
+    {"id": "G9", "target": "README.md", "change": "insert blank line at :5, shifting the exit-2 promise 174 -> 175", "result": "BASELINE (pre-dispatch) 175/175 GREEN vs FIXED 180 / 179 pass / 1 FAIL with the citation test named — the flip the acceptance demanded"}
+  ],
+  "suite": {"before": "175/175", "after": "180/180", "reverts": 0, "failed_verifies": 0},
+  "post_merge_checks": {
+    "collision_scan": "NOT APPLICABLE — terminal CLI target, no browser-served classic scripts. Recorded as not-applicable, never as passed.",
+    "qa_look_pass": "NOT DISPATCHED — no merged file is user-visible (all three are test/*.test.js); the step-5 heuristic does not trigger."
+  },
+  "new_findings": ["T-204 — README:75/:89 citations in cli.test.js are both one line stale; found by gate check G11"]
+}

@@ -1394,3 +1394,141 @@ runfile-mirror:
 ```json
 {"version": 1, "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-20T21:43:47Z", "usage_reset_at": "2026-08-19T23:00:00Z", "model_policy": "value-routing", "auth_mode": "subscription", "heartbeat": {"ts": 1787176207, "next_wakeup_at": 1787178907, "pid": 2643088, "limp": false, "degraded_tiers": []}, "pacing": {"mode": "guest", "dial": 0.3}, "budget": {"source": "probe", "gear": 2, "gear_target": 2, "ratio": 0.15, "mode": "guest", "k_cap": 2, "promote": false, "demote": true, "window_tokens": 39154678, "window_cost_usd": 27.064390449999973, "api_cap_usd": null, "api_spend_usd": 0.0, "tokens_per_hour": 13817836, "projected_depletion_at": 1787203533, "last_probe_ts": 1787176207, "last_real_probe_ts": 1787176207, "probe_failures": 0, "weekly": {"ok": true, "weekly_used_pct": 100, "opus_used_pct": 100, "week_elapsed_pct": 38.53, "weekly_heat": 2.6, "opus_heat": 2.6, "ceiling": 2, "promote_blocked": true}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "caffeinate_pid": 0, "wrap_up_complete": false, "cycles_since_recycle": 0, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}, "playbook": {"mode": "auto", "applied": ["L-008", "L-016", "L-024", "L-026", "L-029", "L-031", "L-033", "L-034", "L-039", "L-041", "L-042", "L-043", "L-044", "L-045", "L-046"], "vetoed": [], "note": "staged by DIRECT READ of playbook/learnings.md at kickoff. bin/swarm-playbook.sh parse was re-executed at kickoff under its EXACT absolute-path form (/opt/swarm/bin/swarm-playbook.sh parse - no compound, no env prefix) per L-039 and was DENIED; /opt/swarm/.claude/settings.json was then read directly and carries no entry for that script in any form. KI-2, 5th consecutive kickoff. L-021/L-022 are browser/SPA lessons and are deliberately NOT wired into prompt_lines for this zero-dependency terminal-CLI target.", "directives": {"wave_k": 2, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory", "The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test", "For any item whose acceptance names a domain capability, the check must exercise it through the OUTERMOST layer a user touches (bin/moon.js as a spawned process), not only through src/* imported directly"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file", "The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.", "When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive - a kill you cannot attribute is not evidence.", "For every mutation that must kill the suite, author one control that must leave it GREEN - a check that dies on everything is a snapshot test, not an assertion", "Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test", "Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}, "run_label": "improve-5 (2026-08-19)"}
 ```
+
+## cycle 99 | 2026-08-19T22:26:34+00:00 | moon | BUILD — k=2 wave: CLI wire-through proof + the citation gate that could not see itself
+
+work: build-wave, k=2, dispatched as DIRECT Agent calls (headless `-p` session — the Workflow tool
+is review-gated here; documented failure-table fallback). Run SEQUENTIALLY rather than
+concurrently: disjoint file scopes were not sufficient protection, because both items needed
+temporary source mutations for their two-arm proofs and would have poisoned each other's test runs
+through the shared working tree.
+
+gate seal: the verification checks were authored BEFORE dispatch and sealed —
+`/opt/swarm/runs/cycle-099-gate-sealed.md`, sha256
+`97dec807d501a68385c24a0bc94a47607d56c5160ebf15dfd57e51887ca9192a`, committed unchanged this cycle
+so the seal is checkable after the fact. Builders were told the seal exists and never saw it.
+
+scope correction at dispatch: T-203's files_hint named `.swarm/CONTRACTS.md`, but that file carries
+its own freeze clause ("No builder may edit this file"). The conductor scoped it OUT before
+dispatch and told the builder why. A planning slip caught at the gate boundary, not by the builder.
+
+VERIFICATION EVIDENCE — pre-dispatch baseline, and the T-203 discriminator in its UNFIXED column.
+This is the measurement the whole item rests on, taken by the conductor before any agent ran:
+```
+$ npm test                                   ->  tests 175 / pass 175 / fail 0
+$ python3 - insert blank line at README.md:5      (shifts the exit-2 promise 174 -> 175)
+$ npm test                                   ->  tests 175 / pass 175 / fail 0     <- GREEN
+```
+Every gate in the repo was BLIND to a README line-number shift. That is the gap, measured rather
+than asserted.
+
+VERIFICATION EVIDENCE — T-201, surface 1 (`-h` through the shipped process). MUT-B is a pure
+wiring break: `bin/moon.js` filters `-h` out of argv before `parseArgs` ever sees it, so no
+parseArgs-based test can observe it. Conductor-applied, conductor-run:
+```
+$ npm test          # MUT-B applied
+X -h spawned as the real binary produces byte-identical output to --help (162.847853ms)
+i tests 180
+i pass 179
+i fail 1
+```
+ONE failing test out of 180 — the new spawned check, and nothing else in the suite. Arm B is green
+by construction: delete that test and this bug ships. This is exactly the L-046 wire-through class
+the item was filed against, and it is now closed with attribution.
+
+VERIFICATION EVIDENCE — T-201, surface 2 (hemisphere last-one-wins), and the LIMITATION that is
+being recorded rather than papered over:
+```
+$ npm test          # MUT-C: last-one-wins -> first-one-wins in src/args.js
+X --south --north together: the last flag on the line wins                      <- pre-existing unit test
+X --south --north and --north --south each resolve to whichever flag was LAST.. <- the new spawn test
+i tests 180 / pass 178 / fail 2
+
+$ npm test          # MUT-D: bin/moon.js ignores opts.hemisphere entirely
+i tests 180 / pass 176 / fail 4   — 3 of the 4 are PRE-EXISTING spawn tests
+```
+Arm B for this surface is NOT achievable at full-suite scope and is reported as NOT MET, not as a
+pass: order resolution lives only in `src/args.js`, so `args.test.js:161-165` necessarily co-fails
+with any mutation that breaks it. The builder reported this honestly and unprompted; the conductor
+confirmed it independently and went further with MUT-D, which shows three pre-existing spawn tests
+already cover the hemisphere wiring. So surface 2's new check closes NO unique mutation gap. Its
+real contribution is narrower than the item's own framing implied: it is the only proof that the
+ORDER-resolved winner reaches rendered output. Kept on those honest terms.
+
+VERIFICATION EVIDENCE — T-203, the FIXED column of the same discriminator:
+```
+$ python3 - insert blank line at README.md:5   (identical mutation to the baseline above)
+$ npm test
+X test/regressions.test.js's README:174 citation points at the exit-code promise (1.347614ms)
+  AssertionError: test/regressions.test.js cites README:174 for "Errors go to stderr and exit `2`;
+  normal output goes to stdout. Safe to pipe.", but that sentence actually lives at README.md:175
+  now - the citation has drifted and the four assertions relying on it need updating
+i tests 180 / pass 179 / fail 1
+```
+BLIND (175/175 green) -> SIGHTED (named red naming the file, the cited line, the actual line, and
+the expected sentence). Both columns conductor-measured. The gate is a literal substring locate
+plus a zero-citation guard plus a promise-exists guard — not a regex over free prose, which is the
+fragile shape this class of check usually fails as.
+
+VERIFICATION EVIDENCE — gate check G11 (hand-resolve every `README:N` citation surviving in
+`test/`), which found a NEW defect the wave did not fix:
+```
+$ grep -n "README:[0-9]" test/regressions.test.js   -> 694, 725, 742, 779, all README:174
+$ grep -n "" README.md | sed -n '174p'
+174: Errors go to stderr and exit `2`; normal output goes to stdout. Safe to pipe.   <- resolves OK
+$ grep -n "README:[0-9]" test/cli.test.js           -> :488 "README:75/:89", :534 "README:81"
+$ grep -n "" README.md | sed -n '75,76p;81p;89,90p'
+75: | `--block` | multi-line framed readout instead of the single line |
+76: | `--compact` | suppress the next-full-moon line, leaving exactly one line |
+81: `--south` and `--north` are last-one-wins, so you can override a shell alias:   <- resolves OK
+89:                                                                    <- BLANK
+90: `--compact` gives exactly one line with no trailing whitespace, which is the form you
+```
+`cli.test.js:488` cites README:75 and :89 for the `--compact` commitment. The `--compact` table row
+is line **76** and the `--compact` prose is line **90** — both citations are one line stale, the
+same rot class as T-203, and the new gate is explicitly scoped to `regressions.test.js` so it
+cannot see them. Filed as **T-204** (p15, S). The gate found this by doing its job; that is the
+argument for widening it.
+
+honesty note on G7: the sealed gate asked for zero hits on `grep -rn "README:171" test/`. Two hits
+survive, both in `contracts.test.js` explanatory comments that describe the historical decay ("that
+citation drifted stale (the sentence now lives at README.md:174)"). They are narrative, not live
+citations, and a reader is not misled. Recorded as PASS WITH CAVEAT rather than silently rounded to
+clean.
+
+scope + hygiene, conductor-checked: `git status` shows exactly `test/cli.test.js`,
+`test/contracts.test.js`, `test/regressions.test.js`. `src/`, `bin/`, `README.md`, `package.json`
+and `.swarm/CONTRACTS.md` are byte-identical to HEAD. No `node_modules`, no `.scratch-*` residue,
+zero dependencies added. Every conductor mutation reverted and re-verified green (180/180).
+
+post-merge checks: collision-scan NOT APPLICABLE (terminal CLI, no browser-served classic scripts)
+— recorded as not-applicable, never as passed. qa-verify look pass NOT DISPATCHED: all three merged
+files are `test/*.test.js`, so the user-visible heuristic does not trigger.
+
+gate: T-201 PASS (with the surface-2 limitation recorded above), T-203 PASS. Suite 175 -> 180,
+0 reverts, 0 failed verifies. Wave autotune: CLEAN wave -> `wave_streak` 0 -> 1 (k bumps at 2);
+`k_current` stays 2, which the gear-2 cap of 2 binds anyway.
+
+budget: gear **2**, ρ **0.14**, guest mode, probe_ok true, k_cap 2, demote on, promote blocked.
+Window 49.83M tokens / $33.99, 15.73M tok/h, projected depletion 03:29Z. The weekly governor is
+still clamping — `weekly_heat 2.58` against a 1.3 threshold, `weekly_used_pct 100`,
+`week_elapsed_pct 38.8` — so a measured ρ of 0.14 that would otherwise license gear 5 is held at 2.
+Both items routed sonnet; the gear-2 demotion did not apply (build/fix never drops below sonnet).
+Burn attribution: +10,672,333 window tokens since cycle 98, credited to cycle 98's target (moon).
+
+items: **2 built · 2 verified · 0 reverted · 0 failed verifies · 1 new defect filed by the gate ·
+1 acceptance clause honestly reported as NOT MET.**
+
+backlog: 99 items — 97 closed (93 done, 4 dropped), **2 todo**: T-204 (p15, S, new) and T-202
+(p60, S). T-202 remains the item the VALUE_LOOP ratchet may honestly DROP: cycle 98 refuted the
+"stale" premise behind it and it is a convention inconsistency that misleads nobody.
+
+standing note, unanswered and repeated deliberately: the largest open question about `moon` is not
+a correctness question. It is whether the product deserves a FEATURE run instead of a sixth
+housekeeping one. Three concrete ideas sit in `.swarm/ideas-ledger.md` and all three are forbidden
+by tonight's brief.
+
+runfile-mirror:
+```json
+{"version": 1, "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-20T21:43:47Z", "usage_reset_at": "2026-08-19T23:00:00Z", "model_policy": "value-routing", "auth_mode": "subscription", "heartbeat": {"ts": 1787178394, "next_wakeup_at": 1787178484, "pid": 2648681, "limp": false, "degraded_tiers": []}, "pacing": {"mode": "guest", "dial": 0.3}, "budget": {"source": "probe", "gear": 2, "gear_target": 2, "ratio": 0.14, "mode": "guest", "k_cap": 2, "promote": false, "demote": true, "window_tokens": 49827011, "window_cost_usd": 33.985286349999996, "api_cap_usd": null, "api_spend_usd": 0.0, "tokens_per_hour": 15730267, "projected_depletion_at": 1787198970, "last_probe_ts": 1787177374, "last_real_probe_ts": 1787177374, "probe_failures": 0, "weekly": {"ok": true, "weekly_used_pct": 100, "opus_used_pct": 100, "week_elapsed_pct": 38.78, "weekly_heat": 2.58, "opus_heat": 2.58, "ceiling": 2, "promote_blocked": true}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "caffeinate_pid": 0, "wrap_up_complete": false, "cycles_since_recycle": 2, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}, "run_label": "improve-5 (2026-08-19)"}
+```

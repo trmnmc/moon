@@ -691,7 +691,7 @@ test('T-135/T-136 — every sweep-table row is a (name, percent) pair the shippi
 // itself returns successfully; the broken pipe only shows up afterwards, asynchronously,
 // as an 'error' event on the stream. With no listener, Node's default behaviour is to
 // throw that as an uncaught exception: a Node stack trace on stderr and exit 1, even
-// though nothing about the computation failed. README:171 promises "Errors go to
+// though nothing about the computation failed. README:174 promises "Errors go to
 // stderr and exit 2; normal output goes to stdout. Safe to pipe" — {0, 2} are the only
 // documented codes, and a downstream reader closing the pipe is not this program's
 // error, so the closed-pipe path must exit 0 with nothing but silence on stderr.
@@ -722,7 +722,7 @@ test('a reader that closes stdout before reading any byte gets exit 0 and no Nod
 
     assert.equal(signal, null, `moon ${label} was killed by a signal (${signal}) instead of exiting`)
     assert.equal(code, 0,
-      `moon ${label} with stdout closed before any read must exit 0 — README:171's only ` +
+      `moon ${label} with stdout closed before any read must exit 0 — README:174's only ` +
       'documented codes are {0, 2}, and a closed downstream reader is not this ' +
       `program's error — got exit code ${code}. stderr was: ${JSON.stringify(stderr)}`)
     assert.doesNotMatch(stderr, /at .*(?:\(.*:\d+:\d+\)|:\d+:\d+)/,
@@ -739,7 +739,7 @@ test('a reader that closes stdout before reading any byte gets exit 0 and no Nod
 // path, whose message goes to stderr. `2>&1 | ...` is an ordinary shell idiom
 // (`moon --nope 2>&1 | head`, `... 2>&1 | grep -q`), and it hands the program a single
 // dead pipe on fd 1 AND fd 2. A handler that "helpfully" forces process.exitCode = 0 on
-// EPIPE then rewrites the exit 2 that README:171 documents into a silent 0, so a caller's
+// EPIPE then rewrites the exit 2 that README:174 documents into a silent 0, so a caller's
 // `if ! moon ...` check passes on a run that actually failed.
 //
 // Nothing in the handler needs to touch process.exitCode: pipes are asynchronous on
@@ -776,7 +776,7 @@ test('T-165 — a usage error still exits 2 when the dead pipe swallows stderr t
     assert.equal(merged.signal, null,
       `moon ${label} 2>&1 | (closed) was killed by a signal (${merged.signal}) instead of exiting`)
     assert.equal(merged.code, 2,
-      `moon ${label} 2>&1 | (closed) must still exit 2 — README:171 documents 2 for a ` +
+      `moon ${label} 2>&1 | (closed) must still exit 2 — README:174 documents 2 for a ` +
       'usage error, and a documented exit code must not depend on whether the reader is ' +
       `still alive — got exit code ${merged.code}`)
 

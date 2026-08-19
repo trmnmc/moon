@@ -512,3 +512,46 @@ test('--block --south differs from --block --north, and its detail row reports t
   assert.notEqual(south, north, '--block --south output must differ from --block --north output')
   assert.match(south, /hemisphere +southern/, '--block --south detail row must read "hemisphere southern"')
 })
+
+// T-201: two documented capabilities were proven only against parseArgs() in-process
+// (args.test.js:120,121,147 and this file's own "-h must parse as --help's short
+// alias" assertion above), never against the shipped binary as a spawned process.
+// Importing src/args.js skips argv plumbing, main()'s opts.help branch, and the
+// stdout write entirely — a wiring break anywhere in that path (e.g. bin/moon.js
+// stops checking opts.help, or process.argv slicing drops the token) would sail
+// through the parseArgs-only coverage undetected. Spawn the real binary instead.
+test('-h spawned as the real binary produces byte-identical output to --help', () => {
+  const short = run(['-h'])
+  const long = run(['--help'])
+  assert.equal(short, long, '-h and --help must produce byte-identical stdout end to end')
+  // Converse control: this is not a snapshot that dies on any change to HELP or to
+  // the binary's output in general — --help alone must still equal the exact HELP
+  // string (proven independently at line 397), so a passing check here is telling
+  // us specifically that -h tracks --help, not merely that the process ran.
+  assert.equal(long, HELP + '\n', '--help itself must still equal the exact HELP string')
+})
+
+// T-201: README:81 promises "--south and --north are last-one-wins, so you can
+// override a shell alias" as a fact about what the reader types on a real command
+// line. args.test.js:161-165 proves parseArgs() resolves the winner correctly, but
+// nothing spawns the binary with both flags present and reads the winner back out
+// of rendered output — a break in how bin/moon.js passes opts.hemisphere through to
+// renderBlock (already the subject of the HOLE fixed just above) could silently
+// re-introduce a first-wins bug that no parseArgs-only test would ever see. --block's
+// explicit "hemisphere southern/northern" row makes the winner legible directly in
+// the text a user reads, not just recoverable from a parsed options object.
+test('--south --north and --north --south each resolve to whichever flag was LAST on the command line, spawned both orders', () => {
+  const southThenNorth = run(['--block', '--south', '--north'])
+  const northThenSouth = run(['--block', '--north', '--south'])
+  assert.match(southThenNorth, /hemisphere +northern/,
+    '--south --north must render northern: --north was last, so it must win')
+  assert.match(northThenSouth, /hemisphere +southern/,
+    '--north --south must render southern: --south was last, so it must win')
+  // Converse control: a single, unambiguous hemisphere flag has no "last one" to
+  // resolve, so a mutation that breaks last-one-wins resolution must leave this
+  // alone. A passing check here under such a mutation shows the two assertions
+  // above are catching an order bug specifically, not failing on any hemisphere
+  // output whatsoever.
+  assert.match(run(['--block', '--south']), /hemisphere +southern/,
+    '--block --south alone must still render southern')
+})
