@@ -1218,3 +1218,179 @@ Recorded after the cycle-97 commit `abc34d7`, so the wrap-up steps that follow a
 **Final state.** Suite 175/175. Backlog 91 done / 0 todo / 4 dropped / **0 blocked**. Known issues 6, every one of them either out of scope by the locked SPEC, owned by a human, or SWARM-side and fenced. 13 items built and verified across 8 build waves this run with **zero reverted merges and zero failed verifies**. `wrap_up_complete = true`; target status `done`. No further wakeups.
 
 The one thing a reader should not take on trust from this file: every VERIFIED claim above has a command behind it and the output is pasted in this journal. The honest hand-off in `REPORT.md` names what is machine-checked and what only a human can finish — and for this repo the largest remaining question is not a correctness question at all, it is whether the product should get a feature run instead of a fifth housekeeping one.
+
+## cycle 98 | 2026-08-19T22:05:00+00:00 | moon | KICKOFF + inline PLAN — three audits scoped, one planner claim refuted
+
+work: **kickoff of improvement run 5, then the inline PLAN pass.** This is the FIFTH housekeeping
+run on a repo run 4 declared DONE on 2026-08-18 with 0 defects found. It is allocator-driven under
+a TRICKLE posture (`runs/kickoff-hints.json`, `source: allocator`, brief: *housekeeping only —
+harden tests, fix playbook items, polish docs — no new features*), so it exists because there was
+spare window, not because a user asked. The hints file was consumed and deleted so it cannot steer
+a later manual kickoff.
+
+### Kickoff, measured rather than inherited
+
+Every number in the new SPEC was measured at kickoff, not read out of run 4's report:
+
+```
+$ node --test test/*.test.js
+ℹ tests 175   ℹ pass 175   ℹ fail 0   ℹ duration_ms 3940.49
+$ backlog.json  ->  95 items: 91 done, 4 dropped, 0 todo, 0 blocked
+$ wc -c README.md REPORT.md .swarm/journal.md
+  11995 README.md   26469 REPORT.md   246663 .swarm/journal.md
+```
+
+STRESS-TEST (kickoff step 2, `templates/kickoff/stress-pack.md`): verdict **proceed, reshaped,
+confidence 6**. The attack that landed: a fifth housekeeping run over an exhausted repo
+manufactures work, and the toy version is "add tests until the number goes up." The reshape is the
+whole scope of this run — it is bounded to the PLAYBOOK DELTA since 2026-08-18 (L-046 newly minted,
+L-043's fails-OPEN clause added, both on 2026-08-19, i.e. AFTER run 4's lesson audit closed) plus
+claims that measurably rot, with early DONE pre-authorized rather than treated as failure.
+
+PRIOR-ART SCOUT: 4 of 6 searches spent. Nearest neighbours are a Home Assistant card
+(`ngocjohn/lunar-phase-card`), a MagicMirror module, a PHP class, and `sffjunkie/astral` (Python).
+Nothing is a zero-dependency Node CLI whose code this repo would adopt, and tonight's brief forbids
+new features, so prior art cannot change tonight's plan. Stance `build` — recorded as
+not-decision-relevant rather than padded into a candidate table.
+
+TASTE JUDGE (fresh subagent, spec text only): `use-twice` **4**, `product-not-demo` **8**,
+`scope-fits-night` **9**, `one-memorable-thing` **5**. Its verdict is written into the SPEC as a
+binding condition, not decoration: *"worth the spare window as scoped because the fences are honest
+and early-DONE is pre-authorized, but it hinges on use-twice — the run is only justified if the
+L-046 and L-043 audits are executed as real evidence-gathering and the report is allowed to say
+'clean, nothing changed' rather than manufacturing a diff."*
+
+### Infrastructure — three things that did NOT work, reported as not-run
+
+- **KI-2 recurs, 5th consecutive kickoff.** `bin/swarm-playbook.sh parse` was re-executed under its
+  EXACT granted form per L-039 — absolute path, no compound, no env prefix — and was DENIED;
+  `/opt/swarm/.claude/settings.json` was then read directly and carries no entry for that script in
+  any form. The playbook was staged by DIRECT READ instead (15 `[apply:]` lessons).
+  The settings `additionalDirectories` edit was likewise DENIED, so it stays `[]`.
+- **The budget probe DID run this time** — `/opt/swarm/bin/swarm-budget.sh` under its allowlisted
+  absolute form, `probe_ok: true`. That is a change from run 4, where it was denied every cycle,
+  and it is recorded because L-039's inverse error (inferring a denial from the shape of a failure)
+  is exactly what this kind of note prevents. The `RUNFILE=... script` form IS still denied — the
+  env-var prefix breaks the allowlist match, precisely as L-039 describes.
+- **KI-9 is LIVE for this run and there is no crash recovery from the watchdog.** Asserted at
+  kickoff rather than assumed, which is L-037's directive: `bin/swarm-watchdog.sh:265-282` keys its
+  DONE-guard on `REPORT.md` EXISTING in every target, and `/opt/targets/moon/REPORT.md` has existed
+  since run 1 — so the guard fires `all-done / reports-present` on every firing and the watchdog
+  never arms. `systemctl enable --now swarm-watchdog.timer` additionally FAILED with *"Interactive
+  authentication required"*; both timers read `active` + `enabled` already, so the desired state
+  holds, but it holds because it was already true, not because this session achieved it.
+  **What still works:** `bin/swarm-pacer.sh:183,229` gates on `wrap_up_complete` and
+  `heartbeat.next_wakeup_at` and has no REPORT.md branch, so cycles WILL be spawned on schedule.
+  What is lost is the kill-and-relaunch path for a hung session. Hard rule 5 fences a run from
+  repairing its own tooling; this is journal + report only.
+- **The headless zero-prompt assert (kickoff step 11) COULD NOT BE RUN** and is reported as
+  not-run, never as passed: `claude` is not in this session's allowlist and every form of the
+  command was denied. The adjacent evidence — this session is itself a `-p` headless session
+  operating on the target with `--add-dir` and has taken no permission prompt for target writes —
+  is real but is NOT that assert, which validates a *relaunch* session's scope.
+
+### PLAN pass — and the two corrections the conductor made to its own planner
+
+One Plan-seat subagent (sonnet, gear-2 demotion applied) ran the three audits and proposed items.
+Agent returns are claims. All three of its headline findings were re-derived by the conductor
+before anything was written to the backlog, and **two of the three came back different from what
+it reported**.
+
+VERIFICATION EVIDENCE — audit A (L-046 wire-through), finding UPHELD:
+```
+$ grep -n "'-h'" test/*.test.js
+test/args.test.js:120:  assert.deepStrictEqual(parseArgs(['-h']), parseArgs(['--help']));
+test/args.test.js:121:  assert.strictEqual(parseArgs(['-h']).help, true);
+test/args.test.js:147:  assert.deepStrictEqual(parseArgs(['--block','--json','-h','--south']), expected);
+test/cli.test.js:388:  assert.equal(parseArgs(['-h']).help, true, '-h must parse as --help's short alias')
+   -> all four call parseArgs() DIRECTLY. cli.test.js:388 lives in the CLI test file but is
+      not a spawn, which is exactly the shape that makes this invisible to a reader.
+$ grep -n "south.*north" test/args.test.js
+161:test('--south --north together: the last flag on the line wins', ...)   162-165: parseArgs()
+$ sed -n '81p' README.md
+`--south` and `--north` are last-one-wins, so you can override a shell alias:
+```
+Two capabilities the README promises a *command-line* user are proven only against an imported
+parser. That is precisely L-046's shape — implemented, unit-tested, green, and never shown to
+survive the outermost layer. Filed as **T-201**.
+
+VERIFICATION EVIDENCE — audit C, planner claim **REFUTED**:
+```
+The planner reported REPORT.md:100's "Regression at `test/astro.test.js:294`" as STALE.
+$ git show 66e5913:test/astro.test.js | sed -n '294p'
+// KI-6 regression: a valid input Date whose resulting full-moon instant falls
+$ git show 623b6ef:test/astro.test.js | sed -n '294p'
+// KI-6 regression: a valid input Date whose resulting full-moon instant falls
+$ sed -n '294p' test/astro.test.js        (today)
+// KI-6 regression: a valid input Date whose resulting full-moon instant falls
+```
+The citation has pointed at the identical line since it was authored at cycle 47. **It has never
+decayed.** What is true is narrower and weaker: line 294 opens a 7-line comment and the test
+declaration sits at 301, while REPORT's six sibling citations each land exactly on the declaration
+or statement they name (verified: `render.test.js:829`, `astro.test.js:491`, `astro.js:71-74`,
+`:281`, `:346`, `:358` — all exact). So it is a convention inconsistency, not rot, and a reader
+following it is not misled. Refiled as **T-202 at priority 60**, explicitly flagged as a candidate
+the VALUE_LOOP ratchet may honestly DROP rather than build. This is the run's own failure mode
+caught in the act: a planner under pressure to find work reached for "STALE" and the evidence does
+not support it.
+
+VERIFICATION EVIDENCE — audit C, the finding the planner reported but did NOT file, **upheld and
+filed**:
+```
+$ grep -n "README:171" test/*.test.js
+test/regressions.test.js:694   // README:171 promises "Errors go to stderr and exit 2"
+test/regressions.test.js:725 / :742 / :779   (three more assertions resting on the same citation)
+$ sed -n '168,178p' README.md   ->  line 174:
+Errors go to stderr and exit `2`; normal output goes to stdout. Safe to pipe.
+```
+Real decay, three lines off. Outside the LETTER of must-have C (which scopes README.md and
+REPORT.md themselves) but the same measurably-rotted-claim class, and it exposes something sharper
+than the drift itself: this repo HAS a run-time citation gate — `test/contracts.test.js` generates
+8 checks from `.swarm/CONTRACTS.md` — and this citation class is INVISIBLE to it. Filed as
+**T-203**; correcting 171 to 174 alone would rot again on the next README edit, so the acceptance
+asks for a form that cannot decay or is gate-covered.
+
+VERIFICATION EVIDENCE — audit B (L-043 fails-OPEN clause), **CHECKED AND CLEAN, no items filed**:
+```
+Every absence assertion in test/ was enumerated and read. Conductor spot-check of the
+most doc-facing one, test/regressions.test.js:241-257:
+  assert.ok(blocks.length > 0, 'Install section has no ```sh command block')   <- locates first
+  assert.doesNotMatch(blocks[0], /YOUR_USER|<[^>]+>/, ...)                     <- single tokens
+  execFileSync('bash', ['-c', blocks[0]]) + assert.match(out, /\d+%\s+.../)    <- and EXECUTES it
+```
+Every absence check in this suite reads either a single token/codepoint or live, non-reflowed
+spawn output, or a structurally parsed markdown table — never multi-word prose where a hard wrap
+could make a present thing read as absent. The one pattern that superficially resembles L-043's
+`[^>]*` warning is `/<[^>]+>/`, and it is paired with a positive control that both locates the
+region and executes it, which rules the fail-open out. **Clean is the complete answer here** — the
+SPEC pre-authorizes it, and filing something anyway would be the manufactured diff this run exists
+to avoid.
+
+gate: the PLAN gate is satisfied — every must-have is now either covered by a filed item (A -> T-201;
+C -> T-203, T-202) or discharged this cycle with recorded evidence (B clean; REPORT-must-not-grow and
+no-test-without-a-named-surface are constraints checked at their own gates, not queue items). Phase
+advances DESIGN/PLAN -> **BUILD**.
+
+budget: gear **2**, ρ **0.15**, guest mode (dial forced 1.0), probe_ok true, k_cap 2, demote on,
+promote blocked. Window 39.15M tokens / $26.88, 13.8M tok/h, projected depletion 05:25Z. The weekly
+governor is clamping: `weekly_heat 2.60` against a 1.3 threshold, `weekly_used_pct 100`,
+`week_elapsed_pct 38.5` — so measured ρ of 0.15 would license gear 5 and the ceiling holds it at 2.
+That is the governor working as designed on a run whose allocator allowance is 0%.
+
+items: **0 built · 3 filed · 0 reverted · 0 failed verifies · 1 planner claim refuted · 1 audit
+category closed clean.**
+
+backlog: 98 items — 95 closed (91 done, 4 dropped), **3 todo**: T-201 (p10, S), T-203 (p20, S),
+T-202 (p60, S). Next cycle opens a k=2 build wave on T-201 + T-203, which have pairwise-disjoint
+file scopes (`test/cli.test.js` vs `test/regressions.test.js` + `.swarm/CONTRACTS.md`).
+
+The honest note run 4 left on its last line still stands and this run does not answer it: the
+largest remaining question about `moon` is not a correctness question, it is whether the product
+should get a FEATURE run instead of a sixth housekeeping one. Three concrete product ideas sit in
+`.swarm/ideas-ledger.md` (a relative "in 10 days" countdown, `--date`, folding the next-full-moon
+line inside the `--block` frame) and all three are forbidden by tonight's brief.
+
+runfile-mirror:
+```json
+{"version": 1, "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-20T21:43:47Z", "usage_reset_at": "2026-08-19T23:00:00Z", "model_policy": "value-routing", "auth_mode": "subscription", "heartbeat": {"ts": 1787176207, "next_wakeup_at": 1787178907, "pid": 2643088, "limp": false, "degraded_tiers": []}, "pacing": {"mode": "guest", "dial": 0.3}, "budget": {"source": "probe", "gear": 2, "gear_target": 2, "ratio": 0.15, "mode": "guest", "k_cap": 2, "promote": false, "demote": true, "window_tokens": 39154678, "window_cost_usd": 27.064390449999973, "api_cap_usd": null, "api_spend_usd": 0.0, "tokens_per_hour": 13817836, "projected_depletion_at": 1787203533, "last_probe_ts": 1787176207, "last_real_probe_ts": 1787176207, "probe_failures": 0, "weekly": {"ok": true, "weekly_used_pct": 100, "opus_used_pct": 100, "week_elapsed_pct": 38.53, "weekly_heat": 2.6, "opus_heat": 2.6, "ceiling": 2, "promote_blocked": true}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "caffeinate_pid": 0, "wrap_up_complete": false, "cycles_since_recycle": 0, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}, "playbook": {"mode": "auto", "applied": ["L-008", "L-016", "L-024", "L-026", "L-029", "L-031", "L-033", "L-034", "L-039", "L-041", "L-042", "L-043", "L-044", "L-045", "L-046"], "vetoed": [], "note": "staged by DIRECT READ of playbook/learnings.md at kickoff. bin/swarm-playbook.sh parse was re-executed at kickoff under its EXACT absolute-path form (/opt/swarm/bin/swarm-playbook.sh parse - no compound, no env prefix) per L-039 and was DENIED; /opt/swarm/.claude/settings.json was then read directly and carries no entry for that script in any form. KI-2, 5th consecutive kickoff. L-021/L-022 are browser/SPA lessons and are deliberately NOT wired into prompt_lines for this zero-dependency terminal-CLI target.", "directives": {"wave_k": 2, "routing_recs": ["core-logic->fable"], "prompt_lines": {"builder": ["The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory", "The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test", "For any item whose acceptance names a domain capability, the check must exercise it through the OUTERMOST layer a user touches (bin/moon.js as a spawned process), not only through src/* imported directly"], "reviewer": ["The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory", "Assign each fixer a pairwise-disjoint file set; two fixers must never share a file", "The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test"], "qa": ["The conductor is the SOLE committer - never commit or push yourself", "Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish 'I verified this is wrong, here is the computation' from 'this looks suspicious but I could not confirm it'.", "Where possible verify with a discriminator: an observable that a faked or degenerate implementation could not produce, rather than a comparison against a remembered reference value.", "When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive - a kill you cannot attribute is not evidence.", "For every mutation that must kill the suite, author one control that must leave it GREEN - a check that dies on everything is a snapshot test, not an assertion", "Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test", "Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns"]}}}, "run_label": "improve-5 (2026-08-19)"}
+```
