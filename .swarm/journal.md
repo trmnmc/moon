@@ -1532,3 +1532,53 @@ runfile-mirror:
 ```json
 {"version": 1, "targets": [{"path": "/opt/targets/moon", "status": "active", "weight": 1}], "rotation_cursor": 0, "rotation_schedule": [0], "stop_at": "2026-08-20T21:43:47Z", "usage_reset_at": "2026-08-19T23:00:00Z", "model_policy": "value-routing", "auth_mode": "subscription", "heartbeat": {"ts": 1787178394, "next_wakeup_at": 1787178484, "pid": 2648681, "limp": false, "degraded_tiers": []}, "pacing": {"mode": "guest", "dial": 0.3}, "budget": {"source": "probe", "gear": 2, "gear_target": 2, "ratio": 0.14, "mode": "guest", "k_cap": 2, "promote": false, "demote": true, "window_tokens": 49827011, "window_cost_usd": 33.985286349999996, "api_cap_usd": null, "api_spend_usd": 0.0, "tokens_per_hour": 15730267, "projected_depletion_at": 1787198970, "last_probe_ts": 1787177374, "last_real_probe_ts": 1787177374, "probe_failures": 0, "weekly": {"ok": true, "weekly_used_pct": 100, "opus_used_pct": 100, "week_elapsed_pct": 38.78, "weekly_heat": 2.58, "opus_heat": 2.58, "ceiling": 2, "promote_blocked": true}}, "watchdog": {"mode": "normal", "plist_loaded": false, "lockfile": "/opt/swarm/runs/watchdog.lock", "relaunch_attempts": 0}, "caffeinate_pid": 0, "wrap_up_complete": false, "cycles_since_recycle": 2, "artifact": {"url": "", "file": "/opt/swarm/runs/dashboard.html", "publish_failures": 0}, "run_label": "improve-5 (2026-08-19)"}
 ```
+
+## cycle 99 addendum | 2026-08-19T22:33:00+00:00 | moon | BUILD — dashboard render, eighth instrument defect, decisions dedupe
+
+dashboard: re-rendered `/opt/swarm/runs/dashboard.html` (27,462 bytes, 0 unfilled placeholders)
+from `templates/dashboard.template.html`. On the VPS the file write IS the publication; no Artifact
+tool in a headless `-p` session, so the Artifact channel is skipped silently — not a publish
+failure, and `publish_failures` stays 0.
+
+INSTRUMENT DEFECT (the EIGHTH this target has caught in its own reporting, and a RECURRENCE of the
+class the cycle-95 decision already corrected once). The first render this cycle emitted:
+```
+notify line: notify off · control: 0 pending · last: none
+```
+while `/opt/swarm/.ntfy.json` was present and push was live. Cause, found by reading the file's key
+shape rather than trusting the render:
+```
+$ python3 - print sorted(keys of /opt/swarm/.ntfy.json)
+keys: ['base_url', 'control_topic', 'notify_topic', 'version']
+```
+The renderer read `.get("topic")`. The key is `notify_topic`. A missing key returned `""`, which the
+line-builder faithfully rendered as "notify off" — a FALSE statement about the run's own
+instrumentation, produced with no error anywhere. Corrected and re-rendered:
+```
+notify line: notify on (…0d89) · control: 0 pending · last: none
+```
+The lesson is the same one cycle 95 recorded and it did not stick, because last time it was fixed
+as a one-off string and not as a class: **a fallback that renders as a confident negative is worse
+than a crash.** `.get(k, "")` on a config key silently converts "I looked in the wrong place" into
+"the feature is off". This is exactly the fails-OPEN shape L-043 describes, appearing in the
+conductor's own reporting layer rather than in the target's tests — which is the harder place to
+see it, because nothing here has a gate.
+
+decisions dedupe: the render script appends its cycle-99 decision entries as a side effect, and it
+was run twice (once to render, once to correct the notify line). That double-appended 4 entries.
+Deduped on `(cycle, what)`:
+```
+before: 207  cycle-99: 8
+after:  202  cycle-99: 4
+```
+Note the total fell by 5, not 4: one EXACT duplicate already existed among the 199 pre-existing
+entries and was removed by the same pass. Recorded rather than quietly absorbed. The underlying
+fault is mine — a render script that mutates state is not idempotent and should not have been
+written that way; re-running a pure render must be free.
+
+notification emits: none due. Phase is BUILD before and after (no phase-change push), no target
+became stalled, `publish_failures` is 0.
+
+heartbeat: `next_wakeup_at` rewritten to now + 90s after the step-7 commit. On the VPS
+`bin/swarm-pacer.sh` is the firing mechanism, not ScheduleWakeup — the conductor writes the field
+either way.
