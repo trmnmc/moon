@@ -1,6 +1,6 @@
 # REPORT — moon
 
-This report leads with what the tool is, how to run it, what is verified, and the known issues. The full build-run and improvement-run provenance — exact timestamps, per-run change logs, why each run stopped, operational findings about the SWARM tooling, and per-run stats tables — is archived in full, not deleted, at `.swarm/REPORT-ARCHIVE-2026-08-18.md` and `.swarm/REPORT-ARCHIVE-2026-08-20.md`.
+This report leads with what the tool is, how to run it, what is verified, and the known issues. The full build-run and improvement-run provenance — exact timestamps, per-run change logs, why each run stopped, operational findings about the SWARM tooling, and per-run stats tables — is archived in full, not deleted, at `.swarm/REPORT-ARCHIVE-2026-08-18.md` and `.swarm/REPORT-ARCHIVE-2026-08-20.md` — except the most recent run, whose record sits in this file below until the next run archives it.
 
 ## What was built
 
@@ -213,10 +213,16 @@ reads structure, not sentences.
 
 Run 6 is an allocator-driven **TRICKLE** run: it existed because there was spare window, not because a user asked. No new feature, flag, or dependency — that is the brief.
 
-**Verified so far, and still open (cycle 105):**
+**Verified, cycles 103–109.** Each item was gated against a check the conductor wrote at verification time and never showed the builder:
 
-- T-206 (cycle 103): machine-checked gate for doc→code citations — every `file:line` citation README.md and REPORT.md make into the code is re-derived against the actual line, including the bare `:N` shorthand.
-- T-207 (cycle 104): `test/doc-counts.test.js` fails closed on any test-count or issue-count claim that does not name a cycle, run, commit or date.
-- Suite size, measured directly: 210 tests / 210 passing at cycle 104 (commit `ecdbcb8`); 208 tests / 208 passing at cycle 105 (this commit). The drop is bookkeeping, not lost coverage — archiving the run 4–5 tail into `.swarm/REPORT-ARCHIVE-2026-08-20.md` took two `file:line` citations out of `test/citations.test.js`'s generated cases (the bare-shorthand pair that lived at old REPORT.md line 239, resolving into `src/astro.js` lines 281 and 346), since that archive file isn't in the test's `DOC_NAMES` list.
+- **T-206 / T-213 — the doc→code citation gate**, `test/citations.test.js`. Every `file:line` citation README.md and REPORT.md make into the code is re-derived against the line it points at; the bare `:N` shorthand is enumerated rather than silently missed; and every backticked path with no line number must exist *and* be git-tracked. A self-check makes a parse that locates no citations fail rather than render green.
+- **T-207 / T-211 — count claims**, `test/doc-counts.test.js`. A test- or issue-count claim must name a cycle, run, commit or date; any claim naming a past cycle is then re-derived by checking that commit out into a throwaway worktree and running the suite there. Shape *and* truth, not shape alone.
+- **T-208 / T-210 — KI-2 escalated once**, not re-diagnosed an eighth time. The ask was re-measured: four allowlist lines covering two scripts, spelled out in `.swarm/KI-2-OWNER-ACTION.md`.
+- **T-212 — this document's own first-screen pointer had rotted**, naming one archive where the record lives in two.
+- Suite size, measured directly: 210 tests / 210 passing at cycle 104 (commit `ecdbcb8`); 245 tests / 245 passing at cycle 109 (commit `ed7054e`).
+
+**What the citation gate does not catch.** It fails a citation pointing at the wrong line, a path that does not exist, and a path that exists but is untracked. It does not fail a prose *completeness* claim — "archived in full" — that is false while every path inside it still resolves. That was T-212's actual defect, and that shape remains a human read.
+
+**Why it stopped early.** The backlog reached zero with roughly twenty hours of clock unspent. The delta this run opened to close was closed; a sixth mutation sweep would have read as diligence without changing anything a reader could detect.
 
 The detailed record for runs 4–5 is in `.swarm/REPORT-ARCHIVE-2026-08-20.md`.

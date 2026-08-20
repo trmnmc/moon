@@ -4,144 +4,162 @@
      gate: every entry cites cycle numbers from .swarm/journal.md. No cycle number, no
      entry — vibes are not evidence. -->
 
-Run: 2026-08-19 (improve-5, allocator TRICKLE) | cycles run: 5 (98–102) | stop reason:
-definition of done re-derived clean at cycle 102 and no VALUE_LOOP candidate passed the
-two-part ratchet — early DONE, ~22.3h of authorized clock unspent, by decision.
+Run: 2026-08-20 (improve-6, allocator TRICKLE) | cycles run: 8 (103–110) | stop reason:
+definition of done met and re-derived at cycle 110's `% 5 == 0` SPEC re-read; the one
+VALUE_LOOP candidate that passed the two-part ratchet was this run's own REPORT record,
+which is WRAP_UP step 3's work rather than a backlog item — early DONE, ~20.2h of
+authorized clock unspent, by decision.
 
 ## What worked
 
-- **Every wave merged clean: 0 reverts, 0 failed verifies, 0 items blocked, 0 items at
-  `attempts ≥ 2`** across the run's three build cycles (99, 100, 101). The gear-2 cap bound
-  every wave to ≤ 2 items; `k_current` sat at 3 and never bound. Four items built, four
-  verified (T-201, T-203, T-204, T-205); one adjudicated and dropped (T-202, cycle 100).
-- **The two-arm proof plus a converse GREEN control (L-029 + L-044) is what actually caught
-  things.** Cycle 101 is the clearest instance: C6 is a discriminator that a degenerate
-  "keep the first citation only" fix would fail while passing C2 and C3, and it was run in
-  two arms (retargeting the first and the last of four identical tokens) so neither end
-  could be special-cased. C7 supplied the removed-arm that must go green, C8 the converse
-  control that must stay green. Six of the thirteen checks that cycle existed only to make
-  the other seven falsifiable.
-- **Sealing the gate by hash before dispatch (L-042) held for three consecutive waves**
-  (cycles 99–101) — builders never saw the check that would judge them, and no item needed
-  a second attempt.
-- **Filing rather than patching kept the gate honest.** At cycle 100 T-204 passed on its
-  acceptance and the three duplicate test names its widening introduced were filed as T-205
-  rather than quietly patched by the conductor or used to fail the item. The follow-on item
-  then closed cleanly at cycle 101.
+- **Building the gate instead of doing the pass a seventh time.** The whole run turns on
+  one call made at kickoff: L-043's FORM-and-DIRECTION clause named `moon` explicitly, and
+  the choice was to spend the window on a machine check rather than a hand audit. The
+  doc→code citation direction is now in `test/citations.test.js` and the count claims in
+  `test/doc-counts.test.js`; run 7 inherits checks, not a chore (cycles 103, 104, 106, 107,
+  109).
+- **Withholding gate arms from the dispatch.** At cycle 109 arms A–C were named in the
+  builder brief and arms D (path exists but is NOT git-tracked) and E (a zero-match parse
+  must not render green) were authored by the conductor and never shown. Both came back RED
+  for the reason they name. Arms A–C were all satisfiable by a mere existence check; D and E
+  are what made it a gate rather than a formality (cycle 109).
+- **Re-deriving instead of remembering.** Cycle 110 wrote "245 tests / 245 passing at cycle
+  109 (commit `ed7054e`)" only after measuring that commit in a detached worktree, and then
+  falsified the sentence to 999/999 and confirmed the suite went RED naming
+  `REPORT.md's "Suite ..." bullet(s) state a count that is TRUE at the cycle/commit they name`.
+  The number in the document is machine-checked, not asserted (cycle 110).
+- **Two failed conductor verifies caught real defects, not instrument noise.** T-208 failed
+  the read at cycle 104 and T-209 at cycle 105; both were genuine — a false provenance claim
+  and a suite-count anchor glued to the wrong number. Each was repaired and re-verified at the
+  next cycle (cycles 104–107).
+- **k=2 sequential waves merged clean.** Every wave this run was `min(k_current, gear cap 2)`
+  = 2, dispatched sequentially, zero reverts, zero merge conflicts across cycles 103–109.
 
 ## What thrashed
 
-Nothing in the artifact. The thrash was entirely in the conductor's own instruments.
-
-- **Four conductor instrument defects in five cycles** — cycle 99 (the dashboard notify
-  line, the 8th on this target), cycle 100 (a citation classifier that mislabelled three
-  narrative tokens as live), and two at cycle 101 (below). That is 11 cumulative on this
-  target — why: **every one of them sat in a check that graded PROSE or re-encoded
-  something the repo already states**, rather than reading a structural marker the artifact
-  owns. The repo's own tests honor L-043; the conductor's gate scripts kept not doing so.
-- **The dangerous defect failed in the PASSING direction** (cycle 101). A TAP error
-  extractor matched a 4-space indent against a block node indents by two, so C5 and C6
-  printed `(message not parsed)` while the sealed claim asserted those messages "name both
-  the cited line and the actual line" — a claim the conductor had therefore never read.
-  Why it matters: the sibling defect the same cycle (calling `.trim()` on
-  whitespace-significant `git status --porcelain`, eating the XY column) failed LOUDLY and
-  cost one re-run. Same root cause, opposite direction, wildly different blast radius.
-  Per standing precedent the extractor was **removed rather than widened**, and the raw TAP
-  stanza dumped verbatim; the re-run is what produced the evidence quoted in the journal.
-- **A sealed gate that was not actually sealed** (cycle 99). The seal was written under
-  `runs/`, which is gitignored, so it was never committed. Caught the same cycle and
-  corrected in a follow-up commit with the hash re-verified — the claim was corrected
-  rather than left standing, but L-042's mechanism had a hole in this repo's ignore rules
-  that nothing checked for.
+- **Nothing hit `attempts ≥ 2`.** No item was blocked, no merge was reverted, no branch was
+  discarded this run (cycles 103–110). Recorded as an absence with its cycle range rather than
+  omitted, so the section is not silently empty.
+- **T-209 shipped a false anchor and needed a second cycle** — why: the cycle-105 write
+  anchored "208 tests" to cycle 104, whose commit actually measures 210. Anchor PRESENCE was
+  gated; anchor TRUTH was not. That gap became T-211 and is now closed by the worktree
+  re-derivation in `test/doc-counts.test.js` (cycles 105, 106, 107).
+- **A rot vector was created by cycle 109's own repair** — why: the repaired sentence read
+  "archived in full, not deleted, at `A` and `B`" while run 6's record sat in REPORT.md itself,
+  true on the day and false the moment that section is archived. Cycle 109 filed it as a
+  WRAP_UP obligation; cycle 110 killed it instead by rewording to a self-relative pointer
+  ("except the most recent run, whose record sits in this file below until the next run
+  archives it"), which does not decay when the next run archives (cycles 109, 110).
+- **KI-2 denied for the 33rd time** — why: structural, not an invocation-form error. The
+  `bin/swarm-playbook.sh` allowlist gap has no entry under any path form; hard rule 5 forbids
+  repairing it from inside a run. Escalated once at cycle 105/107, not re-diagnosed (cycles
+  105, 107, 110).
 
 ## Pacing honesty
 
-- Governor clamps: **5 of 5 cycles** (ceiling hit: 2, every cycle). `weekly_heat` ran
-  2.53–2.54 against a 1.3 threshold with `weekly_used_pct` and `opus_used_pct` both at 100,
-  so `promote` was blocked for the entire run. The clamp and the thermostat agreed rather
-  than fought: measured ρ was 1.24–1.33, which lands gear 2 on its own.
-- Mode `guest` throughout, so the runfile's `dial: 0.3` was overridden to 1.0 by the mode
-  rule — worth stating because the runfile still reads 0.3 and that looks like a live
-  setting.
-- Full-mode overrides: 0. Promote-rung promotions: 0 (blocked all run). Demotions were in
-  force every cycle; no item was demoted below sonnet because none was a build/fix item on
-  a lower rung to begin with.
-- No window reset below 90% utilization occurred during the run.
+- Governor clamps: 8 of 8 cycles (ceiling hit: 2, every cycle — `weekly_used_pct` 100,
+  `weekly_heat` 2.12–2.13, `promote_blocked: true`); full-mode overrides: 0; promote-rung
+  promotions: 0. Gear was **2 in every cycle of the run** and was a *governed* result, not a
+  measured one: ρ ranged 0.39–0.89 (cycles 103–110), which would reach gear 4–5 in thermostat
+  mode, but guest mode clamps to 1–3 and the weekly ceiling clamps to 2. No window reset below
+  90% utilization during this run. `probe_failures` stayed 0 — `bin/swarm-budget.sh` is
+  allowlisted and ran for real every cycle.
 
 ## Config recommendations
 
-- [qa] A verification check that cannot parse the evidence it was written to read must fail
-  CLOSED — render UNKNOWN or FAIL, never PASS — and a mis-parsing extractor should be
-  deleted in favour of dumping the tool's raw output verbatim, never widened until it
-  agrees; a parse failure in the passing direction ships an unearned claim, while the same
-  defect in the failing direction costs one re-run [apply: prompt line all] [confidence:
-  high] [source: 2026-08-19 moon] (evidence: cycle 101, two defects, one in each direction)
-- [qa] Before declaring a cross-reference audit clean, enumerate every citation FORM and
-  every DIRECTION, not just every file — this repo cites code from docs as both
-  `path/file.js:N` and a bare `:N` shorthand, and the gate built this run covered only the
-  test→doc direction, leaving doc→code hand-audited [confidence: med] [source: 2026-08-19
-  moon] (evidence: cycle 102, seven doc→code citations re-derived, two of them shorthand a
-  path-anchored sweep missed)
-- [process] On an improvement run over an already-shipped repo, a drained backlog is the
-  START of the value scan and never its conclusion, and the scan runs in BOTH directions —
-  an item the spec still lists as open may already be shipped [confidence: high] [source:
-  2026-08-19 moon] (evidence: cycle 102 — the KI-5 reader self-check, open since cycle 62
-  and listed as a nice-to-have at this run's kickoff, was found already present in README
-  and independently confirmed correct)
-- [process] Verify that a gate seal is committed where the repo actually tracks it — a seal
-  written under an ignored path satisfies every step of the sealing ritual and protects
-  nothing [confidence: med] [source: 2026-08-19 moon] (evidence: cycle 99, seal written to
-  gitignored `runs/`, corrected same cycle)
+- [qa] A citation gate that proves a path RESOLVES has not proved the sentence AROUND it is
+  true — "archived in full, not deleted, at `A` and `B`" stayed false while both paths
+  resolved and stayed git-tracked, which is the defect the gate was built after and cannot
+  catch; so when a doc claim couples a locator to a COMPLETENESS word, gate the locator and
+  say plainly in the report that the completeness half remains a human read, rather than
+  letting a green suite imply the whole sentence was checked [confidence: high]
+  [source: 2026-08-20 moon run6] (evidence: cycles 109, 110 — T-212's actual defect, and the
+  "What the citation gate does not catch" paragraph now in REPORT.md)
+- [qa] Kill a decaying pointer by making it SELF-RELATIVE rather than filing it as a future
+  obligation — a sentence enumerating "archived at `A` and `B`" rots the next time an archive
+  is added, and handing that to the next run as a wrap-up note relies on a human reading a
+  journal; rewording it to name its own position ("except the most recent run, whose record
+  sits in this file below") is stable under the very edit that would have broken it, costs one
+  sentence, and needs no obligation carried anywhere [confidence: high]
+  [source: 2026-08-20 moon run6] (evidence: cycle 109 filed the rot vector, cycle 110 removed
+  the class)
+- [qa] A count claim that names a PAST cycle is machine-verifiable, not merely shape-checkable
+  — resolve "cycle N" to a commit through the repo's own `cycle N:` commit-message convention,
+  check that commit out into a throwaway worktree outside the repo, run the suite there, and
+  compare; bound the cost with a max-commits constant and a recursion-depth env var, and use a
+  plain early return rather than `test.skip` at the depth bound so a nested run's own pass
+  count stays identical to a normal run's — otherwise the skip corrupts the very number the
+  outer run is measuring [confidence: high] [source: 2026-08-20 moon run6] (evidence: cycles
+  106, 107 built it; cycle 110 falsified a live claim through it and got the named RED)
+- [process] When the only VALUE_LOOP candidate left is itself a WRAP_UP deliverable, wrap up
+  in that cycle instead of spending one cycle building it and a second cycle wrapping — the
+  extra lap produces a commit that reads as work and changes nothing a reader could detect,
+  which is the manufactured-diligence failure the same spec warns about [confidence: med]
+  [source: 2026-08-20 moon run6] (evidence: cycle 110 — stale run-6 REPORT record was the only
+  candidate passing the ratchet, and REPORT.md is WRAP_UP step 3)
+- [process] An environment-variable PREFIX defeats an exact-path allowlist entry: `RUNFILE=…
+  bin/swarm-budget.sh` was denied in the same cycle the bare `bin/swarm-budget.sh` ran clean,
+  so a helper script that needs configuration must take a `--flag`, not an env var, or it is
+  unreachable from an allowlisted session no matter how its path is spelled [confidence: high]
+  [source: 2026-08-20 moon run6] (evidence: cycle 110, both invocations in the same cycle)
 
 ## House-rules proposals
 
-- [review] A check that grades prose owes its own converse control; if you cannot state the
-  input that must leave it green, read a structural marker the document owns instead.
+- [docs] A pointer sentence names its own position, never an enumeration that grows each run.
 
 ## Applied lessons check
 
-- L-008: re-observed (cycle 101 C12 — exactly one modified file, zero scratch, lockfile or
-  `node_modules` residue; and cycle 102, where the conductor's own `/tmp` write was blocked
-  by the working-directory fence, which is the clause's own point)
-- L-016: not-exercised (no review-fix wave ran; last was cycle 73, run 3)
-- L-024: re-observed (cycle 101 C6, a discriminator a degenerate fix cannot pass; cycle 102,
-  where the border-vs-border comparison is non-discriminating at 68 = 68 and the
-  border-vs-text one differs by 32 columns)
-- L-026: not-exercised (no core-logic item; every item this run was doc- or test-shaped)
-- L-029: re-observed (cycles 99, 101 — C5/C6 present-arm, C7 removed-arm green)
-- L-031: not-exercised (a fifth mutation sweep was an explicit non-goal of this run's spec)
-- L-033: re-observed (cycle 100 adjudicated T-202 BOUNDARY and dropped it rather than
-  hardening; cycle 102 independently re-confirmed that call — `:281`, `:346` and `:358` all
-  name the throw line, so the convention is consistent and there was nothing to fix)
-- L-034: re-observed (cycle 98 refuted one planner claim before it became an item; cycle 102
-  applied the same stance to its own DONE conclusion). No reviewer or QA wave ran this run.
-- L-039: re-observed, both halves (kickoff — `swarm-playbook.sh parse` denied under its
-  exact absolute-path form for the 5th consecutive kickoff, KI-2; cycle 102 — the identical
-  script path SUCCEEDED bare as `/opt/swarm/bin/swarm-budget.sh` but was DENIED as a
-  compound `cd … && RUNFILE=… ./bin/…` invocation, which is the lesson's diagnosis half
-  exactly)
-- L-041: re-observed, and this run is its sharpest instance (cycle 101 — the TAP extractor
-  counted failures while parsing no failure names and printed "(message not parsed)")
-- L-042: re-observed with a hole (cycles 99–101 sealed three waves clean; the cycle-99 seal
-  itself landed on a gitignored path — see What thrashed)
-- L-043: re-observed (cycle 98 audit B clean by structural read; cycle 101 C9 exercised the
-  fails-OPEN clause and kept "the promise moved" distinct from "the promise is gone")
-- L-044: re-observed (cycle 101 C8 — a blank line at README EOF that moves nothing must
-  leave the suite green, and did)
-- L-045: re-observed and load-bearing (cycle 102 — a drained backlog was explicitly not
-  treated as done, and the reverse direction fired too: a nice-to-have named as open turned
-  out already shipped)
-- L-046: re-observed (it is why T-201 exists — the audit found two documented capabilities,
-  `-h` and `--south`/`--north` last-one-wins, proven only against `parseArgs()` and never
-  against the spawned `bin/moon.js`)
+- L-008 (sole committer + scratch dir): re-observed — the directive rode every builder prompt;
+  zero builder commits and a clean tree at every orient (cycles 103–109).
+- L-016 (pairwise-disjoint fixer scopes): not-exercised — no review-fix wave ran this run (last
+  was cycle 73).
+- L-024 (verify with a discriminator): re-observed — cycle 109 arm D (a path that exists but is
+  untracked) and cycle 110 arm 1 (a falsified suite count) are observables a degenerate
+  existence-check could not produce (cycles 109, 110).
+- L-026 (correctness core → fable): not-exercised — no core-logic item this run; the astronomy
+  core was a frozen non-goal.
+- L-029 (failable AND attributable): re-observed — cycles 109 and 110 each ran the mutation
+  twice and named the distinct failing test (cycles 109, 110).
+- L-031 (measure untested surfaces, never infer): re-observed — zero tests were added for
+  count's sake; the spec's "no test added that cannot name its surface" non-goal held through
+  cycle 110.
+- L-033 (HOLE vs BOUNDARY before hardening): not-exercised — no mutation sweep this run, by
+  explicit non-goal.
+- L-034 (brief reviewers to REFUTE): re-observed — cycle 108's VALUE_LOOP scan refuted its own
+  candidates and recorded them so run 7 would not re-derive them; cycle 110 tried to falsify
+  its own new prose rather than confirm it (cycles 108, 110).
+- L-039 (allowlist by absolute path for the host): re-observed, and sharpened — the
+  every-path-FORM diagnostic confirmed KI-2 is structural, and cycle 110 added a NEW datum in
+  the same mechanism: an env-var prefix defeats an exact-path entry that otherwise matches
+  (cycles 105, 107, 110).
+- L-041 (an instrument must fail CLOSED): re-observed — the citation gate's self-check exists
+  precisely so a zero-match parse cannot render green, and cycle 109 arm E proved it does
+  (cycle 109).
+- L-042 (seal the gate before dispatch): re-observed — cycle 109 withheld arms D and E from the
+  builder dispatch entirely (cycle 109).
+- L-043 (enumerate every citation FORM and DIRECTION): re-observed and CLOSED for this repo —
+  the doc→code direction the clause named is now `test/citations.test.js`, and the bare-PATH
+  form was exactly the FORM a path-anchored sweep had been missing (cycles 103, 109).
+- L-044 (pair every kill with a converse control): re-observed — every gate this run shipped a
+  green arm: cycle 109 arm C and cycle 110 arm 3 both rewrote prose and stayed green (cycles
+  109, 110).
+- L-045 (read the authoritative source, both directions; go DONE early): re-observed — the DONE
+  call was made by cycle 110's full SPEC re-read, deliberately NOT by cycle 109's empty backlog,
+  and every count claim was re-derived at run time (cycles 108, 109, 110).
+- L-046 (wire-through at the outermost layer): not-exercised — no domain-capability item this
+  run; every item was docs or test.
+- L-047 (attribute a gate FAIL to the INSTRUMENT or the WORK): re-observed with the opposite
+  polarity to its source datum — attribution was performed on both failing verifies and both
+  landed on the WORK, not the instrument (a false provenance claim at cycle 104, a false
+  suite-count anchor at cycle 105); each was charged to the item and repaired next cycle
+  (cycles 104–107).
 
-## Telemetry
+## Telemetry (squeeze slice, 2026-08-14)
 
-- Weekly utilization at this run's close: overall 100%, premium (opus) 100% — both already
-  at cap, which is why the governor clamped every cycle of this run.
-- Allocator: this run was granted a TRICKLE slice (housekeeping only, no new features). It
-  burned 5 cycles of an authorized ~27h window and returned ~22.3h unspent.
-- Auto-kickoffs: 1 (this run, allocator-sourced hints). No 3-strike queue drops observed.
-- Final-hours floor release: did not fire — the run wrapped ~22h before `stop_at`.
-</content>
-</invoke>
+- Weekly utilization at this run: 100% overall / 100% premium, `week_elapsed_pct` 47.16,
+  `weekly_heat` 2.12 — the governor held the ceiling at gear 2 for all 8 cycles.
+- Allocator: TRICKLE posture, `allow_overall_pct: 0` / `allow_premium_pct: 0`. The run was
+  authorized as idle-capacity housekeeping and is reported as such.
+- Auto-kickoffs this run: 1 (allocator-driven, `runs/kickoff-hints.json`, `source: allocator`),
+  posture TRICKLE at start. No 3-strike queue drops.
+- Final-hours floor release: did not fire — the run wrapped ~20.2h before `stop_at`.

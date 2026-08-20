@@ -3337,3 +3337,192 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787227479,"next_wakeup_at":1787229151,"pid":3113560,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.46,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":20449247,"window_cost_usd":11.838916999999997,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":25899055,"projected_depletion_at":1787243634,"last_probe_ts":1787226479,"last_real_probe_ts":1787226479,"probe_failures":0,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":46.89,"weekly_heat":2.13,"opus_heat":2.13,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":7,"run_label":"improve-6 (2026-08-20)"}
 ```
+
+## cycle 110 | 2026-08-20T12:30:00+00:00 | moon | WRAP_UP — the %5 re-read makes the DONE call cycle 109 deliberately withheld, and the run wraps ~20.2h early
+
+**Clock/budget.** `date +%s` = 1787228031. `stop_at` 1787301593 → 20.4h of authorized clock
+remaining at cycle open. Probe ran under its exact allowlisted bare form
+(`bin/swarm-budget.sh`, `probe_ok: true`): gear **2**, ρ **0.39**, mode guest, `k_cap` 2,
+`demote: true`, `promote: false`, weekly ok but ceiling **2** (`weekly_used_pct` 100,
+`opus_used_pct` 100, `week_elapsed_pct` 47.16, heat 2.12). ρ 0.39 alone would reach gear 5;
+guest clamps to 1–3 and the weekly governor clamps to 2, so gear 2 is again a governed
+result, not a measured one — the eighth consecutive cycle of this run for which that is
+true. `probe_failures` stays 0. Control channel: `bin/swarm-notify.sh poll` returned clean,
+`runs/control.json` has `pending: []`, `applied: []`, no `inject` array. Tree clean at
+orient (`git status --porcelain` empty) — no salvage needed.
+
+**A denial worth recording as a NEW datum, not a re-diagnosis.** Two invocations of the same
+allowlisted script in this cycle:
+
+```
+$ RUNFILE=/opt/swarm/runs/current.json timeout 180 bash bin/swarm-budget.sh
+  → DENIED ("This Bash command contains multiple operations…")
+$ bin/swarm-budget.sh
+  → {"gear":2,"gear_target":2,"ratio":0.39,…,"probe_ok":true,…}
+```
+
+The allowlist carries `Bash(bin/swarm-budget.sh:*)`. The bare form runs; the env-var-prefixed
+form does not. This is not KI-2 (which is a MISSING entry) — it is an entry that exists and
+is defeated by the prefix. The remedy is a `--runfile` flag on the script, not another
+allowlist line. `.swarm/KI-2-OWNER-ACTION.md` already says so; this cycle supplies the
+same-cycle A/B that makes it evidence rather than inference.
+
+### Step 3 — the `% 5 == 0` full SPEC re-read
+
+110 % 5 == 0, so this is the full re-read plus backlog hygiene, and with it the DONE call
+cycle 109 recorded as deliberately withheld ("the definition-of-done check belongs to the
+cycle-110 re-read, not to the cycle that happens to empty the backlog").
+
+**Backlog hygiene.** 108 items: 103 done, 5 dropped, **0 todo, 0 blocked, 0 in-progress**.
+Nothing to dedupe, reprioritize, or drop; the live-item cap (~30) is not in play at 0 live
+items. Recorded rather than skipped, because "no action needed" is a hygiene outcome.
+
+### Definition of done, re-derived clause by clause — my commands, not the journal's memory
+
+| DoD clause | verdict | evidence |
+|---|---|---|
+| Citation gate ships, green, failable + attributable, two-arm + converse | **MET** | arms below, run this cycle |
+| Every count-citing claim re-derived at run time | **MET** | worktree measurements below |
+| KI-2 escalated once, exact config lines named | **MET** | allowlist grep below |
+| Suite ≥ 187 green; zero new dependencies | **MET** | 244/244; `dependencies: None` |
+| REPORT.md not grown vs kickoff; report-issues gate green | **MET** | 25582 ≤ 25586 bytes |
+| Zero tests added that cannot name their surface | **MET** | T-213 names its surface |
+
+**VERIFICATION EVIDENCE — is the shipped citation gate real, or a formality?** Four
+conductor-authored arms, restore-by-git, none of them taken from a builder's notes:
+
+```
+BASELINE md5 dd205e3f2c7b0a7097e7e736794464e9
+ARM 0  unmutated                      tests 245 / pass 245 / fail 0 / skipped 0
+ARM 1  bare-PATH -> nonexistent file  tests 244 / pass 243 / fail 1
+       ✖ bare-path citations: every backticked path with no line number is accounted for
+ARM 2  file:line -> src/astro.js:99358 tests 245 / pass 244 / fail 1
+       ✖ citations: REPORT.md:106 "`src/astro.js:99358`" -> … says what the document claims
+ARM 3  converse control, prose reworded, no citation touched
+                                       tests 245 / pass 245 / fail 0   <- stays GREEN
+FINAL md5 dd205e3f2c7b0a7097e7e736794464e9   git diff --numstat: (empty)
+```
+
+Both directions fail for the reason they name; the converse arm proves it is not a text
+snapshot. Full script: `/opt/swarm/runs/c110-gate.py`.
+
+**VERIFICATION EVIDENCE — count claims re-derived, never remembered.** Same technique
+`test/doc-counts.test.js` uses, run independently by the conductor (detached worktree
+outside the repo, suite run there):
+
+```
+cycle 104 -> 1 commit(s): ['ecdbcb8']
+   MEASURED at ecdbcb8: tests=210 pass=210 fail=0 skipped=0
+cycle 109 -> 1 commit(s): ['ed7054e']
+   MEASURED at ed7054e: tests=245 pass=245 fail=0 skipped=0
+```
+
+**VERIFICATION EVIDENCE — KI-2's named ask, checked against the live settings file.** The
+four lines `.swarm/KI-2-OWNER-ACTION.md` asks for are absent, and the two scripts it says are
+already granted are in fact granted:
+
+```
+$ grep -o '"Bash([^)]*)"' /opt/swarm/.claude/settings.json | sort -u
+  … "Bash(/opt/swarm/bin/swarm-budget.sh:*)"  "Bash(bin/swarm-budget.sh:*)"
+    "Bash(/opt/swarm/bin/swarm-notify.sh:*)"  "Bash(bin/swarm-notify.sh:*)"
+  (no match for swarm-playbook.sh or swarm-warmup.sh under ANY path form)
+$ ls -la /opt/swarm/bin/swarm-playbook.sh /opt/swarm/bin/swarm-warmup.sh
+  -rwxrwxr-x 17502 swarm-playbook.sh    -rwxrwxr-x 4860 swarm-warmup.sh
+```
+
+Both named scripts exist, so the ask is a real four-line grant against real files.
+
+### The one VALUE_LOOP candidate that passed the ratchet — and why it was wrapped, not built
+
+REPORT.md's `## Run 6` section still read **"Verified so far, and still open (cycle 105)"**
+and listed T-206 and T-207 only. Cycles 106–109 had since verified T-209, T-210, T-211,
+T-212 and T-213 and moved the suite 208 → 245. The run's single stated must-have — T-213,
+the bare-PATH citation gate — appeared **nowhere in the document a first-time reader
+actually opens**. That passes both halves of the ratchet: the target reader notices, and
+still cares ten minutes later.
+
+It is also, precisely, WRAP_UP step 3's deliverable. Building it as a cycle-110 backlog item
+and then wrapping at cycle 111 would have written the same paragraphs twice and produced one
+commit that reads as work — the manufactured diligence this run's own taste notes name as the
+failure mode. So: **DoD met → DONE declared → WRAP_UP entered in this cycle**, with the
+REPORT refresh done as step 3 where it belongs.
+
+### Rot vector from cycle 109: removed, not carried forward
+
+Cycle 109 filed a WRAP_UP obligation — line 3's "…is archived in full, not deleted, at `A`
+and `B`" is true today but goes false the moment run 6's in-file section is archived, and the
+new gate cannot catch it because both paths still resolve. Handing that to run 7 as a journal
+note relies on a human reading a journal. Instead the sentence was made **self-relative**:
+
+> …at `.swarm/REPORT-ARCHIVE-2026-08-18.md` and `.swarm/REPORT-ARCHIVE-2026-08-20.md` —
+> except the most recent run, whose record sits in this file below until the next run
+> archives it.
+
+That is stable under the very edit that would have broken it. **The obligation is discharged,
+not inherited.** The honest limit is now stated in REPORT.md itself under "What the citation
+gate does not catch": resolution is not completeness, and the completeness half stays a human
+read.
+
+**VERIFICATION EVIDENCE — are cycle 110's OWN edits under the gates, or merely beside them?**
+Restore-by-content (the tree is deliberately dirty this cycle, so `git checkout` was not an
+available restore path):
+
+```
+BASE md5 7bda67915cd237e0d55856f61e3b5cea
+ARM 1  new suite claim falsified 245/245 -> 999/999 at cycle 109
+       tests 244 / pass 243 / fail 1
+       ✖ REPORT.md's "Suite ..." bullet(s) state a count that is TRUE at the cycle/commit they name
+ARM 2  new `test/doc-counts.test.js` citation -> `test/doc-counts-NOPE.test.js`
+       tests 243 / pass 242 / fail 1
+       ✖ bare-path citations: every backticked path with no line number is accounted for
+ARM 3  new prose reworded, no number or path touched
+       tests 244 / pass 244 / fail 0   <- stays GREEN
+FINAL md5 7bda67915cd237e0d55856f61e3b5cea
+```
+
+The number this run publishes about itself is machine-checked against a real worktree
+measurement of a real commit. Script: `/opt/swarm/runs/c110-gate2.py`.
+
+**Byte ceiling honoured rather than relaxed.** The first draft of the refreshed section put
+REPORT.md at **25727 bytes against a kickoff ceiling of 25586** — a must-have violation. Three
+trims (a shorter self-relative clause, a tightened "why it stopped early", one redundant word)
+brought it to **25582 ≤ 25586**. The constraint was not re-labelled or re-baselined.
+
+```
+$ wc -c REPORT.md          25582      (kickoff 45b9bc9: 25586)
+$ node --test test/*.test.js
+ℹ tests 244 / pass 244 / fail 0 / skipped 0
+```
+
+Suite moves 245 → 244 because the rewritten section dropped one prose reference that had been
+generating a bare-path case. Skipped-0 is the load-bearing number, not fail-0.
+
+### WRAP_UP record
+
+- **RETRO** written to `.swarm/RETRO.md`; run 5's retro archived to
+  `.swarm/RETRO-improve-2026-08-19.md`. All 16 applied lessons carry a verdict with cycle
+  numbers; 10 re-observed, 5 not-exercised, 1 (L-047) re-observed with the opposite polarity
+  to its source datum — attribution ran on both failing verifies and both landed on the WORK,
+  not the instrument.
+- **DISTILL**: 5 candidates → `/opt/swarm/runs/wrapup-candidates.md`.
+  `/opt/swarm/bin/swarm-playbook.sh append --candidates … --run-date 2026-08-20 --targets "moon"`
+  invoked under its exact absolute-path form and **DENIED — denial #33, 8th consecutive
+  occurrence**, so cycle.md's WRAP_UP 2b fallback applied: manual append in the v2 grammar.
+  Outcome: **4 lessons updated (L-039, L-042, L-043, L-045), 0 minted, cap held at 20,
+  `next_id` unchanged at 48, no overflow drop needed.** Nothing was minted deliberately —
+  all five candidates extended an existing lesson, and minting would have forced a drop to
+  record no new shape.
+- **KI-2 escalated once, not re-diagnosed.** This cycle records denial #33 and the
+  env-prefix A/B above. It does not re-litigate the root cause, which has been conclusive
+  since cycle 83.
+
+### Counters
+
+`consecutive_no_value` 0 → **0** (verified value this cycle). `k_current` stays **3**,
+`wave_streak` stays **1** — no build wave ran this cycle, so autotune does not move.
+Phase BUILD → **DONE**; runfile target status → `done`; `wrap_up_complete` → true.
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"done","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787228962,"next_wakeup_at":0,"pid":3146751,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.39,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":31450444,"window_cost_usd":19.25541809999999,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":25378582,"projected_depletion_at":1787244051,"last_probe_ts":1787228108,"last_real_probe_ts":1787228108,"probe_failures":0,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":47.16,"weekly_heat":2.12,"opus_heat":2.12,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":true,"cycles_since_recycle":8,"run_label":"improve-6 (2026-08-20)"}
+```
