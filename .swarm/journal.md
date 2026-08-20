@@ -2659,3 +2659,150 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.51,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":48279460,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":12221793,"projected_depletion_at":1787248056,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":45.8,"weekly_heat":2.18,"opus_heat":2.18,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":3,"run_label":"improve-6 (2026-08-20)"}
 ```
+
+## cycle 106 | 2026-08-20T10:33:00+00:00 | moon | BUILD — build-wave k=1: the false anchor is repaired, and the gate that caught it measured the number instead of looking for one
+
+**Clock/budget.** Probe ran (allowlisted, bare absolute form, `probe_ok: true`): gear **2**,
+ρ 0.54, mode guest, k_cap 2, promote false, demote true. Window 55,638,316 tokens · $44.48 ·
+12,987,708 tok/h · projected depletion 2026-08-20T17:05Z. Weekly governor still engaged:
+weekly_heat 2.17, ceiling 2, promote blocked. Guest mode clamps 1–3 and the weekly ceiling
+clamps to 2, so gear 2 is again a governed result rather than a measured one. Control channel
+polled: zero pending, zero applied, zero injections. Tree clean at orient — no salvage.
+`cycles_since_recycle` 3 → 4, well under 25.
+
+**Re-anchor.** 106 % 5 ≠ 0, so no full SPEC re-read this cycle. Definition of done, six clauses:
+four closed (citation gate, count-claim guard, suite ≥ 187, zero new deps), one closed at cycle
+105 (KI-2 escalated once with the exact lines named), and clause 5 — "REPORT.md not grown against
+its kickoff byte count; `test/report-issues.test.js` still green" — is structurally closed but was
+carrying a known-false sentence, which is this cycle's work. Backlog: 2 live items of 105, far
+under the ~30 cap.
+
+**Wave size, and why it is 1 and not 2.** k = min(k_current 2, gear cap 2, hard max 5) = 2, but
+both live items — T-209 and T-210 — carry `files_hint: ["REPORT.md"]`. The wave-assembly rule
+requires pairwise-disjoint file scopes, so only one of them can be dispatched. T-209 wins on
+severity as well as on priority (4 vs 5): a known-FALSE sentence is currently shipped in the
+document, where T-210 is a stale-but-once-true contradiction. Dispatched as a direct Agent call,
+not Workflow — the Workflow tool is review-gated in a headless `-p` session. Routing recomputed
+at pick time: docs/S at attempts 1, so the ladder escalates haiku→sonnet, and per the run's
+standing ruling an escalation earned by observed evidence outranks the gear's demotion rung →
+**sonnet**. Craft pack ran clean (`degraded: []`); the docs pack was passed rather than the ui
+pack, since the item is a one-bullet edit to a markdown document and moon has no browser surface.
+
+### VERIFICATION EVIDENCE — cycle-106 gate: PASS 19 / FAIL 0
+
+Full output: `.swarm/runs/cycle-106-verify-gate.txt`. Gate source:
+`.swarm/gates/cycle-106-gate.mjs`, authored at verification time; the builder never saw it.
+
+```
+PASS A2 exactly one line replaced — no reflow, no new bullets   +1/-1; line count 223->223
+PASS A3 the removed line is the known-false sentence, and it is gone
+PASS A4 REPORT.md at or under its kickoff byte cap    bytes=24044 (cap 25586, HEAD 23573)
+PASS B1 every suite-count claim is TRUE at the cycle it names   2 clause(s) checked
+PASS B2 the document names cycle 104 AND its real commit sha    ecdbcb8, cited=true
+PASS B3 CONTROL — B1 FAILS against the pre-change text (not vacuous)
+       pre-change verdict=false :: cycle 104: doc says 208/208, measured 210/210
+PASS B4 CONTROL — B1 FAILS on a one-digit mutation of the cycle-104 number
+       mutant verdict=false :: cycle 104: doc says 211/211, measured 210/210
+PASS B5 CONTROL — B1 STAYS GREEN on a prose-only mutation    mutant verdict=true
+PASS C1 the stated arithmetic holds: cycle104 - cycle105 == 2   210 - 208 = 2
+PASS C3 they really did live at REPORT.md:239 at the cycle-104 commit
+PASS C5 the new text added NO new live citation    working tree 208, cycle-105 commit 208
+PASS D3 CONTROL — doc-counts.test.js still FAILS on an anchorless variant   -> fail 1
+GATE cycle-106  PASS 19 / FAIL 0
+```
+
+`test_cmd` run by the conductor in the REAL tree, standalone, after the state and backlog writes:
+
+```
+$ node --test test/*.test.js
+ℹ tests 208   ℹ pass 208   ℹ fail 0   ℹ cancelled 0   ℹ skipped 0   ℹ todo 0
+```
+
+### T-209 PASSED — and the gate proved the number rather than looking for one
+
+The line that shipped false at cycle 105 —
+
+```
+- Suite at cycle 104: 208 tests, 208 passing.
+```
+
+— now carries both true figures, each anchored to its own cycle, the cycle-104 one additionally
+to its real commit sha, plus the reason they differ: 210/210 at cycle 104 (`ecdbcb8`), 208/208 at
+cycle 105, the two-test drop being exactly the pair of dynamically generated `citations.test.js`
+cases that moved into `.swarm/REPORT-ARCHIVE-2026-08-20.md` with the run-5 tail.
+
+The important part is how that was checked. Cycle 105's honest post-mortem said the shipped guard
+"proves an anchor is PRESENT; it cannot prove the number is TRUE at that anchor, because it has no
+way to run the suite as of another commit." That premise turned out to be wrong, and cheaply so:
+`git worktree add --detach <sha>` into a directory OUTSIDE the target, then `node --test` there,
+costs about four seconds per commit. Cell B1 does exactly that for every cycle the bullet names —
+104 and 105 — and compares the measured pair against the stated pair. It resolves each cycle to a
+commit by reading the repo's own commit-message convention (`git log --grep '^cycle N:'`), not by
+trusting the sha the document prints; B2 then separately asserts the document's sha agrees with
+what git says.
+
+Four controls stand behind it, because a truth cell with no controls is just a louder existence
+check:
+
+- **B3** re-runs the identical predicate against the pre-change text and requires it to FAIL. It
+  does, and names the reason: `cycle 104: doc says 208/208, measured 210/210`. The cell would
+  have caught the cycle-105 defect.
+- **B4** mutates 210/210 → 211/211 in a copy and requires failure. It fails.
+- **B5** is the true-negative control, and it is the one that keeps B1 from degenerating: it
+  rewrites `The drop is bookkeeping` to `The decrease is clerical` and requires the cell to stay
+  GREEN. A check that dies on every edit is a snapshot test, not an assertion.
+- **D3** strips every anchor token from the bullet block in a throwaway worktree and confirms the
+  SHIPPED `doc-counts.test.js` still fails closed on it — so hardening the conductor gate did not
+  come at the cost of quietly loosening the repo's own.
+
+Three further cells check the explanation's substance rather than its wording, since a plausible
+false explanation is exactly what got us here: C1 confirms the arithmetic (210 − 208 = 2), C3
+confirms those two citations really did live at `REPORT.md:239` as of `ecdbcb8` by reading that
+line out of the old commit, C2 confirms they are byte-present in the archive rather than deleted,
+and C4 confirms the archive really is absent from `citations.test.js`'s `DOC_NAMES`.
+
+**The builder's own near-miss, kept in the record because it is the sharpest thing this cycle
+produced.** Its first draft wrote the two citations as backticked `` `:281` ``/`` `:346` ``
+shorthand — whereupon `citations.test.js` parsed them as two NEW live citations, regenerated two
+cases, and pushed the working tree back to 210. The sentence explaining why the count fell to 208
+had, by being written, made the count 210 again. The builder measured it, saw it, and reworded to
+"lines 281 and 346" with no bare colon-digit token. Cell C5 is the standing check for that:
+working tree count must equal the cycle-105 commit count. This is a genuinely reflexive document —
+its prose is an input to its own test count — and that is now recorded rather than rediscovered.
+
+### The pattern is now three cycles old, and it is filed rather than merely noted
+
+Cycle 104's cell D5 checked that a denial count was stated while a wrong decomposition of it
+passed underneath. Cycle 105 shipped a false count past a guard that could only see the anchor.
+Cycle 106 caught it — but only because the CONDUCTOR's gate measured. The measurement technique
+is proven and cheap; what it is not is part of the repo. `.swarm/gates/cycle-106-gate.mjs` is a
+per-cycle conductor artifact, so a fresh reader of this repository still has only the weaker
+anchor-presence guarantee from `doc-counts.test.js`.
+
+Filed as **T-211** (M, priority 6) with an explicitly two-sided acceptance: either a shipped test
+gains the truth check — proven both ways, failing against the exact pre-cycle-106 text and green
+on a prose-only mutation — or the infeasibility is DEMONSTRATED with real output and
+`doc-counts.test.js` gains a comment naming the limitation precisely. Priority sits below T-210
+on an honest reading of the step-4 ratchet: a moon CLI user would never notice this. It earns a
+slot only because machine-checked doc gates are this run's stated theme, and that reasoning is
+written into the item rather than left implicit.
+
+**Post-merge checks skipped, and why**: `collision-scan.mjs` gates browser targets built from
+classic non-module scripts, and the qa-verify look pass keys on user-visible browser-served
+files. moon is a zero-dependency terminal CLI and this wave changed one line of one markdown
+document. Neither check applies; skipped by rule, not for time.
+
+**Wave autotune**: 1 item dispatched, 0 reverts, 0 failed verifies — a CLEAN wave.
+`wave_streak` 0 → 1; the increment to `k_current` needs a streak of 2, so `k_current` stays 2.
+The gear-2 cap binds at 2 regardless, and the disjoint-scope rule binds harder still while both
+remaining items name the same file.
+
+items: **1 dispatched · 1 verified · 0 failed verify · 0 reverted · 0 blocked · 1 defect filed
+(T-211) · 1 reflexive-document hazard recorded (doc prose is an input to the doc's own test
+count)**.
+backlog: 106 items — 99 done, 5 dropped, 2 todo (T-210 att 0, T-211 new).
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.54,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":55638316,"window_cost_usd":44.47696205,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":12987708,"projected_depletion_at":1787245552,"probe_failures":0,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":46,"weekly_heat":2.17,"opus_heat":2.17,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":4,"run_label":"improve-6 (2026-08-20)"}
+```

@@ -217,6 +217,6 @@ Run 6 is an allocator-driven **TRICKLE** run: it existed because there was spare
 
 - T-206 (cycle 103): machine-checked gate for doc→code citations — every `file:line` citation README.md and REPORT.md make into the code is re-derived against the actual line, including the bare `:N` shorthand.
 - T-207 (cycle 104): `test/doc-counts.test.js` fails closed on any test-count or issue-count claim that does not name a cycle, run, commit or date.
-- Suite at cycle 104: 208 tests, 208 passing.
+- Suite size, measured directly: 210 tests / 210 passing at cycle 104 (commit `ecdbcb8`); 208 tests / 208 passing at cycle 105 (this commit). The drop is bookkeeping, not lost coverage — archiving the run 4–5 tail into `.swarm/REPORT-ARCHIVE-2026-08-20.md` took two `file:line` citations out of `test/citations.test.js`'s generated cases (the bare-shorthand pair that lived at old REPORT.md line 239, resolving into `src/astro.js` lines 281 and 346), since that archive file isn't in the test's `DOC_NAMES` list.
 
 The detailed record for runs 4–5 is in `.swarm/REPORT-ARCHIVE-2026-08-20.md`.

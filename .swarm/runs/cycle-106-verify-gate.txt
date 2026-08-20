@@ -1,0 +1,42 @@
+Preparing worktree (detached HEAD ecdbcb8)
+Preparing worktree (detached HEAD 549af12)
+Preparing worktree (detached HEAD 549af12)
+PASS A1 REPORT.md is the only modified file
+       changed: REPORT.md
+PASS A2 exactly one line replaced — no reflow, no new bullets
+       +1/-1; line count 223->223
+PASS A3 the removed line is the known-false sentence, and it is gone
+       present at HEAD=true, present now=false
+PASS A4 REPORT.md at or under its kickoff byte cap
+       bytes=24044 (cap 25586, HEAD 23573)
+PASS A5 no test file touched; no dependency added
+       tests touched=0, manifest touched=0
+PASS B1 every suite-count claim is TRUE at the cycle it names
+       2 clause(s) checked against measured commits
+PASS B2 the document names cycle 104 AND its real commit sha
+       cycle-104 commit per git log = ecdbcb8; cited in doc = true
+PASS B3 CONTROL — B1 FAILS against the pre-change text (not vacuous)
+       pre-change verdict=false :: cycle 104: doc says 208/208, measured 210/210
+PASS B4 CONTROL — B1 FAILS on a one-digit mutation of the cycle-104 number
+       mutation applied=true, mutant verdict=false :: cycle 104: doc says 211/211, measured 210/210
+PASS B5 CONTROL — B1 STAYS GREEN on a prose-only mutation (reads numbers, not sentences)
+       mutation applied=true, mutant verdict=true
+PASS C1 the stated arithmetic holds: cycle104 - cycle105 == 2
+       210 - 208 = 2
+PASS C2 the two citations named really are in the archive, not deleted
+       archive has :281=true :346=true
+PASS C3 they really did live at REPORT.md:239 at the cycle-104 commit
+       ecdbcb8:REPORT.md:239 = "bare `:281`/`:346` shorthand a path-anchored sweep misses. The L-046 and L-043 audits came"
+PASS C4 the archive really is outside citations.test.js DOC_NAMES
+       DOC_NAMES = ['README.md', 'REPORT.md']
+PASS C5 the new text added NO new live citation (working tree still 208)
+       working tree 208, cycle-105 commit 208
+PASS D1 full test_cmd green in the real working tree
+       tests 208 pass 208 fail 0
+PASS D2 suite still at or above the kickoff floor of 187
+       208 >= 187
+PASS D3 CONTROL — doc-counts.test.js still FAILS on an anchorless variant
+       anchorless variant -> fail 1 (nonzero required)
+PASS E1 no scratch dirs or stray worktrees left inside the target
+       untracked=0, .scratch-T-209=false, foreign worktrees=0
+GATE cycle-106  PASS 19 / FAIL 0
