@@ -3526,3 +3526,62 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"done","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787228962,"next_wakeup_at":0,"pid":3146751,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.39,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":31450444,"window_cost_usd":19.25541809999999,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":25378582,"projected_depletion_at":1787244051,"last_probe_ts":1787228108,"last_real_probe_ts":1787228108,"probe_failures":0,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":47.16,"weekly_heat":2.12,"opus_heat":2.12,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":true,"cycles_since_recycle":8,"run_label":"improve-6 (2026-08-20)"}
 ```
+
+## cycle 110 addendum | 2026-08-20T12:31:00+00:00 | moon | WRAP_UP — two steps that did NOT complete, recorded as not-done rather than reported as done
+
+WRAP_UP's evidence rule cuts both ways: a step that could not run is reported as not-run.
+Two did not complete this wrap-up.
+
+**1. Watchdog disarm (WRAP_UP step 8) — REFUSED, timer still armed.**
+
+```
+$ systemctl disable --now swarm-watchdog.timer
+Failed to disable unit: Interactive authentication required.
+$ systemctl is-active swarm-watchdog.timer
+active
+```
+
+The unit is a system timer and disabling it needs polkit authentication this headless
+session does not have. **The timer is still armed and this run did not disarm it.**
+
+Why it is nonetheless harmless, read out of the watchdog's own source rather than assumed —
+`bin/swarm-watchdog.sh:270`:
+
+```
+if [ "$(rf '.wrap_up_complete')" = "true" ]; then
+    log_decision "run-complete" "wrap_up_complete=true"
+```
+
+`wrap_up_complete` is now `true` in the runfile, so every future firing exits `run-complete`
+before reaching any relaunch path. The same guard's second arm (`REPORT.md` present in every
+target, `:279`) is also satisfied. And the actual firing mechanism on this host is
+`bin/swarm-pacer.sh`, which at `:183` takes the identical `wrap_up_complete` branch, logs
+`run-complete`, and after the allocator cooloff archives the runfile (`:195`) — the normal
+end-of-run path. **No further cycles can be spawned by either mechanism.**
+
+Standing owner action: the disarm needs a human with polkit rights, or the unit needs to
+move to a user timer. Filed alongside KI-9, which is the same family — watchdog lifecycle
+control that a run cannot reach from inside itself under hard rule 5.
+
+**2. Public-project screenshot (WRAP_UP step 6) — SKIPPED.**
+
+`project screenshot skipped: moon: browse CLI not reachable from this session`. The registry
+resolved fine —
+
+```
+$ node /opt/swarm/web/bin/project-registry.js resolve SWARM /opt/targets/moon
+{"slug":"moon","url":"https://swarm.fenley.ai/projects/moon"}
+```
+
+— but `~/.claude/skills/gstack/browse/dist/browse` sits outside this session's allowed
+working directories (`/opt/swarm`, `/opt/targets/moon`), so it can be neither stat'd nor
+executed. Step 6 is explicitly best-effort and never a wrap-up gate; the prior capture at
+`runs/projects/moon.png`, if any, stands unchanged rather than being overwritten with a
+failure.
+
+**Everything else in WRAP_UP completed:** verified-only commit (`eba7a34`), tag
+`v0.1-improve6`, push to origin confirmed at `origin/main`, RETRO + REPORT written,
+playbook distilled (4 lessons updated, 0 minted), dashboard re-rendered in final mode
+(28064 bytes, phase DONE, cycle 110), wrap-up push sent (`notify.log`: `send wrap-up ok`),
+control channel archived to `control.json.1787228031` / `notify.log.1787228031`.
+`caffeinate_pid` is 0 — this is a Linux host and no caffeinate ever existed to kill.
