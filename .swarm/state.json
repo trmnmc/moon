@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "BUILD",
-  "cycle": 107,
+  "cycle": 108,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -1086,6 +1086,18 @@
       "cycle": 107,
       "what": "my own shallow-clone verdict parser read `# skipped N` only and missed node --test's `ℹ skipped 3`, reporting 0 skips against a transcript that plainly showed three. Twelfth instrument defect this target has caught in the conductor's own reporting; repaired, and the repair paid for with three strictly stronger assertions.",
       "why": "Same class as cycles 8 (.trim() eating porcelain's status column), 9 (sentence scope over an anaphoric claim), 19 (line-wrap blindness), 100, 101 — my regex narrower than the output it measures; here, one of node --test's two reporter formats. Under the standing precedent every widening is paid for: the parser now (1) requires every counted skip line to NAME shallowness in its own reason text rather than looking for the word anywhere in the output, (2) requires the skip COUNT to equal the number of such lines, and (3) adds a POSITIVE CONTROL that clones the repo with FULL history and requires zero skips — without which \"skipped\" could have been unconditional and the degrade path would have looked verified while proving nothing. The substantive conclusion never moved; only my verdict line was wrong, and it is corrected here rather than re-run until it agreed with me."
+    },
+    {
+      "cycle": 108,
+      "what": "The mandated VALUE_LOOP candidate scan ran and DID NOT clear the target for DONE. Two candidates passed the two-question ratchet and were filed (T-212, T-213). The definition of done is separately met on every clause and was re-measured this cycle rather than inherited - suite 216/216 green with skipped 0; REPORT.md 24399 bytes against a kickoff 25586, so it did not grow; zero dependencies in package.json; the citation and count gates both ship and are green - but a met definition-of-done is not a licence to stop while a ratchet-passing candidate is on the table, and the scan found one that is a rot introduced by THIS RUN."
+    },
+    {
+      "cycle": 108,
+      "what": "The scan was run by the conductor inline rather than dispatched to a Plan subagent. Rationale recorded so the choice is auditable rather than silent: the run posture is TRICKLE at gear 2 with promote blocked and the weekly window at 100 percent used, the SPEC states this run is genuinely cheap or it is nothing, and every input the scan needed (the two archives, the two doc gates, the flag surface, the known-issues list) is a file read the conductor must perform anyway to adjudicate an agent return under hard rule 2. The cost of the independent voice was not judged worth the window. The bias risk this accepts is real and is stated: a conductor scanning for reasons to continue its own run is not a neutral party, which is why every candidate below cites measured command output rather than judgment."
+    },
+    {
+      "cycle": 108,
+      "what": "Candidates REJECTED by the scan, recorded so run 7 does not re-derive them. (a) A CI leg exercising the shallow-clone degrade path, named unproven in the cycle-107 addendum: fails ratchet question 2 - it is a guard of a guard of a guard, the degrade path is already verified locally with a control, and it brushes the no-new-measurement-axis non-goal. (b) Exercising the 6-commit cost bound at 6 rather than 2: fails question 1, no reader-visible change. (c) KI-8 LICENSE file: blocked on the owner supplying a copyright line, which no agent may invent; already surfaced with what would settle it. (d) KI-4: needs a human look, no automated check possible. (e) KI-5 and KI-7: documented upstream facts, machine-pinned, and the astronomy core and glyph set are frozen non-goals. (f) KI-2 and KI-9: SWARM tooling, fenced by hard rule 5, and already escalated once this run per must-have 3. (g) L-046 wire-through gap: CHECKED and absent - every flag README documents (--block, --compact, --json, --north, --south) plus --help and two negative cases is exercised through a spawned bin/moon.js in test/cli.test.js. (h) L-043 unstable-SUBJECT: audited clean at kickoff and re-checked - the new anchor-truth guard binds to immutable historical commits, not to a moving pathspec."
     }
   ],
   "known_issues": [
@@ -1149,7 +1161,7 @@
     "last_wrap_up_cycle": 102
   },
   "counters": {
-    "consecutive_no_value": 0,
+    "consecutive_no_value": 1,
     "consecutive_failures": 0,
     "k_current": 3,
     "wave_streak": 0,

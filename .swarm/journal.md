@@ -3043,3 +3043,148 @@ unexercised in CI by construction, which is the correct arrangement but does mea
 watching it. And the 6-commit cost bound has only ever been exercised at 2.
 
 nothing dispatched · nothing verified beyond the CI read · no state, backlog or item change.
+
+## cycle 108 | 2026-08-20T11:28:09+00:00 | moon | VALUE_LOOP SCAN — the scan the handoff demanded, and it did not clear DONE
+
+The cycle-107 handoff required an explicit VALUE_LOOP candidate scan before any DONE
+declaration, on the grounds that an empty queue is not an exhausted value space. The scan ran.
+It found a ratchet-passing candidate, and the candidate is a rot **this run itself introduced**.
+
+**Work type: inline VALUE_LOOP scan (planning-class, 600s budget). Nothing dispatched, nothing
+built, no agent called.** The scan was run by the conductor rather than a Plan subagent —
+rationale and the bias it accepts are recorded as a cycle-108 decision, not left implicit.
+
+### Gear and clock
+
+Probe OK (`bin/swarm-budget.sh`, real invocation): gear 2, ρ 0.89, mode guest, k_cap 2,
+demote true, promote BLOCKED by the weekly governor (weekly_used_pct 100, week_elapsed_pct
+46.64, weekly_heat 2.14, ceiling 2). Window tokens 15,865,261 at $7.65 — the window reset since
+cycle 107 (59.0M → 15.9M). Burn 43.6M tok/h, projected depletion 1787235510. `probe_failures`
+stays 0. Clock: now 1787224918, stop_at 1787301593 → 21.3 h remaining; no admission pressure.
+
+### Definition of done — RE-MEASURED, not inherited
+
+Every clause of the SPEC's definition of done is met, and each was measured this cycle rather
+than read off a document:
+
+```
+$ node --test test/*.test.js
+ℹ tests 216      ℹ pass 216      ℹ fail 0
+ℹ skipped 0      ℹ todo 0        ℹ duration_ms 10356.439402
+```
+
+```
+$ wc -c REPORT.md                 -> 24399
+$ git show 45b9bc9:REPORT.md|wc -c -> 25586      (kickoff; REPORT.md did NOT grow)
+$ node -e "...package.json"        -> deps {} devDeps {}
+```
+
+Suite floor was 187; 216 green with **`skipped 0`** — the discriminator, per cycle 107. The
+citation gate and the count gate both ship and are green. So the DoD is met on every clause.
+
+**That is not a licence to stop.** A met definition-of-done plus a ratchet-passing candidate
+means the candidate wins; L-045's converse clause licenses early DONE only when the remaining
+work is locked by the brief or blocked on a human, and this candidate is neither.
+
+### FINDING — VERIFICATION EVIDENCE
+
+REPORT.md's first screen tells the reader where the provenance lives. It names one archive and
+calls it complete:
+
+```
+REPORT.md:3   ...is archived in full, not deleted, at `.swarm/REPORT-ARCHIVE-2026-08-18.md`.
+REPORT.md:110 ...is in `.swarm/REPORT-ARCHIVE-2026-08-18.md`, in full.*
+REPORT.md:222 The detailed record for runs 4–5 is in `.swarm/REPORT-ARCHIVE-2026-08-20.md`.
+```
+
+The named file does not contain what the sentence promises:
+
+```
+$ grep -nE "^#{1,3} " .swarm/REPORT-ARCHIVE-2026-08-18.md | tail -3
+533:## Run 3 stats
+554:## Run 2 stats
+581:## Run 4 (2026-08-18) — what changed, and why it stopped
+$ grep -rniE "^#+ .*run.?5" .swarm/REPORT-ARCHIVE-2026-08-18.md
+(no output — run 5 has no section in it)
+$ grep -niE "run 5|run #5" .swarm/REPORT-ARCHIVE-2026-08-18.md
+577:<!-- Archived 2026-08-19 by run 5 WRAP_UP: the run-4 tail below was replaced in
+578:     REPORT.md by a combined "Runs 4-5" section, per run 5s "REPORT.md does not grow"
+$ grep -nE "^#{1,3} " .swarm/REPORT-ARCHIVE-2026-08-20.md
+1:# Runs 4–5 archive
+5:## Runs 4-5 (2026-08-18, 2026-08-19) - two trickle runs, and what they settled
+```
+
+Run 5's only appearance in the file advertised as holding the record "in full" is an HTML
+comment explaining that run 5 moved something else. The record itself is in the other archive,
+which the first screen never names.
+
+**This is rot, and it is ours.** The sentence was true at the 2026-08-18 wrap-up, when there was
+one archive. This run's own T-209 created the second one, updated the bottom of the document,
+and left the two "in full" pointers pointing at a partial record. It lands squarely on the SPEC
+binding rule's second half — a claim that measurably rotted — and on L-045 (read the
+authoritative source in BOTH directions). Ratchet: the stated audience is the next person to
+change this code; they read the first screen, follow the pointer, and run 5 is not there. They
+would notice, and would still care ten minutes later, having concluded the record was lost.
+Filed **T-212** (docs, S, priority 1, haiku).
+
+### The durable half — VERIFICATION EVIDENCE
+
+No gate covers that pointer, and the reason is a citation FORM this run's own gate does not
+enumerate:
+
+```
+test/citations.test.js:45  const DOC_NAMES = ['README.md', 'REPORT.md'];
+test/citations.test.js:58  const BARE_CITATION_RE = /`:(\d+)`/g;
+test/citations.test.js:61  const ANY_COLON_NUMBER_RE = /:(\d+)/g;
+```
+
+Every form the gate knows is keyed to colon-then-digits. A backticked repo-relative path with
+**no line number** — exactly the form of the `.swarm/REPORT-ARCHIVE-*.md` pointers — is invisible
+to it. Such a pointer can rot to a renamed, deleted or untracked file with the suite green. That
+is L-043's enumerate-every-citation-FORM clause, the clause must-have #1 was written from,
+turned back on the gate that clause produced. Filed **T-213** (test, M, priority 2, sonnet,
+deps [T-212]).
+
+**Honest scope limit, stated now so nobody over-reads T-213: it would NOT have caught T-212.**
+There the file exists, is tracked, and IS referenced; the falsehood is the phrase "in full", a
+prose completeness claim, and L-043 forbids binding an assertion to prose by regex. T-213 closes
+the dangling-pointer shape only. The incomplete-claim shape remains a human read and REPORT.md
+should say so rather than imply broader cover.
+
+T-213 must be dispatched SEQUENTIALLY after T-212 (L-016, necessary-but-not-sufficient): its
+acceptance is a measurement OF REPORT.md, which T-212 edits. Disjoint `files_hint` does not make
+them parallel-safe.
+
+### Candidates REJECTED — recorded so run 7 does not re-derive them
+
+(a) CI leg for the shallow-clone degrade path (named unproven in the cycle-107 addendum) — fails
+question 2: a guard of a guard of a guard, already verified locally with a control, and it
+brushes the no-new-axis non-goal. (b) Exercising the 6-commit cost bound at 6 — fails question 1.
+(c) KI-8 LICENSE — blocked on the owner's copyright line, which no agent may invent. (d) KI-4 —
+needs a human look. (e) KI-5, KI-7 — documented upstream facts, machine-pinned, frozen non-goals.
+(f) KI-2, KI-9 — SWARM tooling, fenced by hard rule 5, escalated once already this run.
+(g) L-046 wire-through — CHECKED and absent: every flag README documents (`--block`, `--compact`,
+`--json`, `--north`, `--south`) plus `--help` and two negative cases runs through a spawned
+`bin/moon.js` in `test/cli.test.js`. (h) L-043 unstable-SUBJECT — re-checked: the anchor-truth
+guard binds to immutable historical commits, not a moving pathspec.
+
+### Control channel
+
+`bin/swarm-notify.sh poll` ran clean; `runs/control.json` has `pending: []`, `applied: []`, no
+`inject` array. Nothing to apply. Tree was clean at orient — no salvage needed.
+
+### Counters
+
+`consecutive_no_value` → 1. Nothing was VERIFIED done this cycle, and the counter's definition is
+verified-value, not useful-work; calling a scan a value cycle because it found something would be
+exactly the self-serving read this repo keeps catching. The breaker acts at ≥ 2, so cycle 109
+carries no penalty. `k_current` unchanged at 3 (no wave ran); effective wave next cycle =
+min(3, gear cap 2) = 2, and L-016 makes it sequential inside that wave anyway.
+
+**Next: cycle 109 builds T-212 then T-213, sequentially, with the gate sealed before dispatch.**
+Cycle 110 is the next `cycle % 5 == 0` step-3 pass — full SPEC re-read plus backlog hygiene.
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.89,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":15865261,"window_cost_usd":7.651145999999996,"tokens_per_hour":43582389,"projected_depletion_at":1787235510,"probe_failures":0,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":46.64,"weekly_heat":2.14,"opus_heat":2.14,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":6,"run_label":"improve-6 (2026-08-20)"}
+```
