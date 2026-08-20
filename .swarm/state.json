@@ -2,7 +2,7 @@
   "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
-  "phase": "DONE",
+  "phase": "BUILD",
   "cycle": 102,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
@@ -10,7 +10,7 @@
     "launch_name": "",
     "port": 0
   },
-  "spec_digest": "fifth improvement run on the shipped moon CLI, TRICKLE posture, over a repo declared DONE on 2026-08-18 - scope is the PLAYBOOK DELTA since that date plus claims that rot: audit L-046 (wire-through at bin/moon.js), audit L-043's fails-OPEN absence clause, re-derive every count/file:line claim in README + REPORT. NO new features, NO new deps, NO fifth sweep, NO new axis. Every item traces to a lesson minted after 2026-08-18 or a measurably rotted claim. 'Nothing needed doing' is the EXPECTED honest outcome and ends the run early.",
+  "spec_digest": "sixth improvement run on the shipped moon CLI, TRICKLE posture, over a repo declared DONE on 2026-08-19 by run #5 (which found 0 defects and left 22.3h unspent). Scope is the PLAYBOOK DELTA minted after 2026-08-19T23:55Z plus claims that rot. Delta measured AT KICKOFF: L-043 unstable-SUBJECT clause AUDITED CLEAN (zero git-bound guards in the repo); L-039 path-FORM diagnostic APPLIED (KI-2 confirmed structural); L-047 governs conduct not the tree; L-021 inapplicable. The ONE open item is L-043's FORM-and-DIRECTION clause, minted at run #5's own wrap-up and naming THIS repo: the doc->code citation direction is hand-audited and unprotected. That becomes a machine-checked gate - the run's only durable output. Then re-derive count claims, escalate KI-2 ONCE (not a 7th re-diagnosis), keep REPORT from growing. NO new features, NO new deps, NO sixth sweep, NO new axis. Early DONE is the EXPECTED outcome.",
   "decisions": [
     {
       "cycle": 0,
@@ -1103,16 +1103,16 @@
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
-    "k_current": 3,
-    "wave_streak": 1,
-    "window_tokens_attributed": 30347635
+    "k_current": 2,
+    "wave_streak": 0,
+    "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "cycle": 100,
-    "work": "build-wave k=1 (direct Agent dispatch) — T-204 stale README citations + citation-gate widening to a declared file list",
-    "outcome": "1 verified, 0 reverted, 0 failed verifies; suite 180 -> 190 green; T-202 dropped at hygiene, T-205 filed by the gate"
+    "n": 102,
+    "work": "WRAP_UP (run #5)",
+    "outcome": "done"
   },
-  "run_label": "improve-5 (2026-08-19)",
+  "run_label": "improve-6 (2026-08-20)",
   "resolved_issues": [
     {
       "id": "KI-1",
