@@ -1,0 +1,37 @@
+PASS A1 owner-action file exists and stays bounded
+       bytes=2314 (cap 6000)
+PASS A2 exactly two lines changed, no reflow, no new sections
+       line count 35->35; changed lines: 18,22
+PASS A3 all four allow-list lines byte-identical to HEAD
+       4/4 present
+PASS A4 both retired mis-statements are gone
+       "across two improvement cycles": false · "31 denials": false
+PASS A5 31 is stated as a RUN/kickoff count and the span names two PROJECTS
+       both replacement sentences parsed
+PASS A6 CONTROL: A4+A5 fail against the pre-change text (not vacuous)
+       pre-change A4=false A5=false (both must be false)
+PASS A7 headline count 32 preserved
+       occurrences of "32": HEAD 3 -> now 3
+PASS B1 REPORT.md at or under its kickoff byte cap
+       bytes=23573 (cap 25586, was 25945)
+PASS B2 archive contains the removed section byte-for-byte
+       removed 3196B; archive 3362B; verbatim=true
+PASS B2c CONTROL: a 1-char mutation of the section is NOT found in the archive
+       substring check is exact, not fuzzy
+PASS B3 run-5 tail replaced by a run-6 record
+       old marker present=false · "## Run 6" present=true
+PASS B4 exactly one KI-2 pointer; this item added no restatement of the ask
+       pointer occurrences=1 (HEAD 0); tokens whose count ROSE vs HEAD: none
+PASS B4c CONTROL: B4 flags an injected allow-list line
+       injected line raises: swarm-playbook.sh:*,Bash(
+PASS B5 first-screen sections intact
+       all four present
+PASS B6 the run-6 suite claim is parseable and names its anchor
+       claims cycle 104: 208/208
+FAIL B7 the suite number is TRUE at the cycle it names
+       document says 208 at cycle 104; conductor measured 210 at HEAD (the cycle-104 commit)
+PASS B7c CONTROL: B7 rejects a mismatched number
+       a number one off the measured value would fail
+PASS C1 no file outside the two items' declared scopes was touched
+       touched: .swarm/KI-2-OWNER-ACTION.md, REPORT.md, .swarm/REPORT-ARCHIVE-2026-08-20.md, .swarm/gates/cycle-105-gate.mjs, .swarm/runs/cycle-105-verify-gate.txt
+GATE cycle-105  PASS 17 / FAIL 1

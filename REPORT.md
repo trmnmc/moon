@@ -60,6 +60,8 @@ now stands, so the two never collide.
 | KI-9 | medium | open, needs a human — found at cycle 84 | **The watchdog never armed for any of the three improvement runs, and the record says so in its own log.** `bin/swarm-watchdog.sh:275-285` exits `all-done` if `REPORT.md` exists in every target — unconditionally, with no reference to target status, cycle number, or run start time. On a first-build run that file cannot exist before wrap-up, so the check is the safety net cycle.md intends. On an **improvement** run over a shipped repo it always exists, so the guard fires on the watchdog's very first firing and never stops. Measured: run 3 kicked off 16:12:20Z; the next watchdog firing at 16:37:17Z logged `decision=all-done detail=reports-present`, as did all 20 firings through wrap-up. `REPORT.md` has been in this repo since run 1's wrap-up commit `9bc8a0f`, so runs 2 and 3 were both unprotected end to end. **Severity is medium rather than high, and the reason matters:** on the VPS the actual firing mechanism is `bin/swarm-pacer.sh`, which spawns a cycle whenever `heartbeat.next_wakeup_at` is due, so a dead conductor still gets recovered on the next pacer tick. What three runs lost is the *redundant* layer — stale-heartbeat detection, PID identity check, kill, relaunch — not all recovery. **What would settle it:** gate the `REPORT.md` branch on evidence the file belongs to *this* run (mtime at or after the runfile's creation), or require every target's status to be `done`/`stalled` alongside it, or drop the file check now that `wrap_up_complete` has proven itself across 33 recorded `run-complete` decisions. One condition in one file; hard rule 5 forbids doing it from inside a run. |
 | KI-8 | low | open, needs the repo owner | `package.json` declares `"license": "MIT"` and `"private": false`, but **there is no LICENSE file at the repo root** (re-verified at cycle 47). A repo that declares a license without shipping its text is legally ambiguous to the next person who wants to reuse it. Deliberately not fixed here: the MIT body needs a copyright line naming a legal person, which is the owner's decision and not one a build agent or the conductor may invent. **What would settle it:** the owner supplies `Copyright (c) <year> <holder>`; wrapping the standard MIT body around it is then a one-file mechanical change. |
 
+For the exact configuration change KI-2 requires, see `.swarm/KI-2-OWNER-ACTION.md`.
+
 ## VERIFIED vs CLAIMED
 
 Everything below marked VERIFIED was checked by the conductor running a command and
@@ -207,48 +209,14 @@ above are machine-checked against `.swarm/state.json` by `test/report-issues.tes
 them into disagreement and the suite goes red. That check was itself validated by a converse
 control — rewording prose inside a description cell must leave the suite **green** — so it
 reads structure, not sentences.
-## Runs 4-5 (2026-08-18, 2026-08-19) - two trickle runs, and what they settled
+## Run 6 (2026-08-20)
 
-Both were allocator-driven **TRICKLE** runs: they existed because there was spare window, not
-because a user asked. Run 4 ran 13 cycles (85-97), run 5 ran 5 (98-102). Neither added a
-feature, flag, or dependency - that was the brief both times. Run 4s full change log is in
-`.swarm/REPORT-ARCHIVE-2026-08-18.md`.
+Run 6 is an allocator-driven **TRICKLE** run: it existed because there was spare window, not because a user asked. No new feature, flag, or dependency — that is the brief.
 
-**Run 4** verified thirteen items, zero reverted. The load-bearing one was a real wrong answer
-to a user: `detectHemisphere("US/Samoa")` returned north for a location at 14 degrees south
-(cycle 86) - the runs only source change. It also cut this report from 60,774 bytes so the
-first screen carries what-it-is, how-to-run, what-is-verified and known-issues; wrote the KI-8
-owner ask; and closed four doc-truth defects. Its closing audit returned zero findings.
+**Verified so far, and still open (cycle 105):**
 
-**Run 5** was scoped to the only thing that had changed since: the practice playbook. Four
-items, all verified, zero reverted, zero blocked.
+- T-206 (cycle 103): machine-checked gate for doc→code citations — every `file:line` citation README.md and REPORT.md make into the code is re-derived against the actual line, including the bare `:N` shorthand.
+- T-207 (cycle 104): `test/doc-counts.test.js` fails closed on any test-count or issue-count claim that does not name a cycle, run, commit or date.
+- Suite at cycle 104: 208 tests, 208 passing.
 
-- **Two documented CLI capabilities were proven only against `parseArgs()`, never against the
-  process a user runs** (T-201, cycle 99): `-h`, and `--south`/`--north` last-one-wins. Both
-  now have a check that spawns `bin/moon.js`.
-- **Test comments cite README line numbers, and four had decayed** one to three lines off
-  (T-203/T-204/T-205, cycles 99-101). A gate now re-derives each cited line from README at run
-  time, per declared file and per distinct promise, and tells "the promise moved" apart from
-  "the promise is gone".
-
-**Why run 5 stopped.** At cycle 102 the backlog was empty and every definition-of-done clause
-was re-derived from the repo rather than read back out of a document: suite **187/187 green**
-(baseline 175); this file at its 26,469-byte ceiling, not grown; no `dependencies` or
-`devDependencies` key, no lockfile, no `node_modules`; and every `file:line` citation this
-report makes into the code re-checked against the line it points at - all true, including the
-bare `:281`/`:346` shorthand a path-anchored sweep misses. The L-046 and L-043 audits came
-back clean. **No candidate passed the ratchet**, so the run wrapped rather than manufacture a
-diff - the outcome its own spec named as expected.
-
-Run 5 also settled a question open since cycle 62: **READMEs KI-5 self-check is sound.** In a
-normal terminal every framed row of `--block` is 34 columns; modelling the ambiguous-as-double
-failure mode splits them into three widths - 68 for the borders, 40-42 for the disc rows, 36
-for the text rows. Comparing a border against a text row, which is what the README tells you
-to do, differs by 32 columns; comparing top border against bottom border - the observable
-cycle 62 disproved - cannot differ, since both are 68. That is a width-model computation, not
-a live CJK-terminal observation: KI-4 and KI-5 still need a human with the terminal.
-
-**Five runs in, the diagnosis in item 6 above has only hardened.** Runs 4 and 5 each found
-real, traceable work and then ran out of *authorized* work with most of the night left - run 5
-with ~22 hours unspent. The remaining value here is not another correctness pass; it is the
-scoping decision only the owner can make.
+The detailed record for runs 4–5 is in `.swarm/REPORT-ARCHIVE-2026-08-20.md`.

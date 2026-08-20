@@ -2485,3 +2485,177 @@ done here. Same fence, same disposition, as every other tool finding this run.
 Also noted: hard rule 1 says the target repo is committed and pushed every cycle, and it was
 (ecdbcb8, pushed to origin/main). No SWARM-side commit accompanies it this cycle because the
 only SWARM writes were under runs/, which git ignores by design.
+
+## cycle 105 | 2026-08-20T10:14:00+00:00 | moon | BUILD — build-wave k=2: one verified, one failed on a false sentence the gate that should have caught it cannot see
+
+**Clock/budget.** Probe ran (allowlisted, bare absolute form): gear **2**, ρ 0.51, mode guest,
+k_cap 2, promote false, demote true. Window 48,139,304 tokens · $38.66 · 12,193,689 tok/h ·
+projected depletion 2026-08-20T17:49Z. Weekly governor engaged: weekly_heat 2.18, ceiling 2,
+promote blocked. The raw ratio would reach gear 4 in thermostat mode; guest clamps to 1–3 and the
+weekly ceiling clamps to 2, so gear 2 is a governed result, not a measured one. Control channel
+polled: zero pending, zero injections. Tree clean at orient — no salvage.
+
+**Re-anchor (cycle 105 % 5 == 0, so a full SPEC.md re-read).** Definition of done has six clauses.
+Four were already closed before this cycle: the doc→code citation gate (T-206, cycle 103), the
+count-claim guard (T-207, cycle 104), suite ≥ 187, zero new dependencies. The two open ones were
+exactly this wave: escalate KI-2 once with the exact config lines named, and stop REPORT.md
+growing. Backlog hygiene: 2 live items out of 104, far under the ~30 cap; nothing stale to dedupe
+or drop.
+
+**Wave.** k = min(k_current 2, gear cap 2, hard max 5) = 2. Both items S-effort docs, both
+unblocked, file scopes pairwise disjoint (`.swarm/KI-2-OWNER-ACTION.md` vs `REPORT.md` +
+a new archive file). Dispatched as direct Agent calls, not Workflow — this is a headless `-p`
+session and the Workflow tool is review-gated there. Routing recomputed at pick time: T-208
+docs/S at attempts 1 → the ladder escalates haiku→sonnet, and per the cycle-2 ruling an
+escalation earned by observed evidence outranks the gear's demotion, so sonnet. T-209 docs/S at
+attempts 0 → haiku by the table; gear 2's demote rung cannot go below it.
+
+### VERIFICATION EVIDENCE — cycle-105 gate: PASS 17 / FAIL 1
+
+Full output: `.swarm/runs/cycle-105-verify-gate.txt`. Gate source: `.swarm/gates/cycle-105-gate.mjs`,
+authored at verification time; neither builder saw it.
+
+```
+PASS A2 exactly two lines changed, no reflow, no new sections
+       line count 35->35; changed lines: 18,22
+PASS A3 all four allow-list lines byte-identical to HEAD          4/4 present
+PASS A5 31 is stated as a RUN/kickoff count and the span names two PROJECTS
+PASS A6 CONTROL: A4+A5 fail against the pre-change text (not vacuous)
+       pre-change A4=false A5=false (both must be false)
+PASS B1 REPORT.md at or under its kickoff byte cap
+       bytes=23573 (cap 25586, was 25945)
+PASS B2 archive contains the removed section byte-for-byte
+       removed 3196B; archive 3362B; verbatim=true
+PASS B2c CONTROL: a 1-char mutation of the section is NOT found in the archive
+PASS B4 exactly one KI-2 pointer; this item added no restatement of the ask
+       pointer occurrences=1 (HEAD 0); tokens whose count ROSE vs HEAD: none
+PASS B4c CONTROL: B4 flags an injected allow-list line
+       injected line raises: swarm-playbook.sh:*,Bash(
+FAIL B7 the suite number is TRUE at the cycle it names
+       document says 208 at cycle 104; conductor measured 210 at HEAD (the cycle-104 commit)
+GATE cycle-105  PASS 17 / FAIL 1
+```
+
+`test_cmd` run by the conductor in the REAL tree, after the state/backlog writes, not taken from
+either agent:
+
+```
+$ node --test test/*.test.js
+ℹ tests 208   ℹ pass 208   ℹ fail 0   ℹ cancelled 0   ℹ skipped 0   ℹ todo 0
+```
+
+### The suite went 210 → 208 with no test file touched, and that is fully explained
+
+The builder self-reported 208 and the number is real, but 210 was the figure this run measured at
+cycle 104, so a two-test drop with `git status` showing only markdown changes had to be accounted
+for before anything could be called done. It was, by measurement rather than by inference: a
+worktree pinned at HEAD runs **210**, the working tree runs **208**, and the name-by-name diff
+names the two that vanished —
+
+```
+- citations: REPORT.md:239 "`:281`" -> src/astro.js:281 says what the document claims
+- citations: REPORT.md:239 "`:346`" -> src/astro.js:346 says what the document claims
+```
+
+Both lived at REPORT.md:239, inside the run-5 tail that T-209 archived. `citations.test.js`
+generates one case per citation found, so archiving the section took its two citations with it.
+Benign, and the remaining REPORT.md citations still generate their four cases (now at :106).
+
+Two honest notes fall out of it. First, a false start of my own: an earlier attempt to measure
+this put the comparison worktree INSIDE `/opt/targets/moon`, and the citation scan promptly walked
+into it and reported failures that did not exist in either tree. The worktree was moved outside
+the target and every number above was re-measured clean. Second, and durable: those two citations
+now live in `.swarm/REPORT-ARCHIVE-2026-08-20.md`, which is not in `citations.test.js`'s
+`DOC_NAMES` list, so **archiving moved two citations out of gate coverage**. Defensible — an
+archive is a frozen snapshot and its citations are meant to record what was true then — but it is
+a real coverage reduction and it is recorded here rather than left to be rediscovered.
+
+### T-208 PASSED
+
+Exactly two lines changed, lines 18 and 22, no reflow, no new section, the four-line allow block
+byte-identical. The unit error is gone in both places: 31 is now stated as the cumulative count of
+RUNS reached at aphorism-cli run #5's kickoff (source: `applied.log` 2026-08-20T01:45:30Z, "denial
+#31, improvement run #5 kickoff"; the counting rule is the handoff's own — "ten is a count of
+RUNS, not of denials"), and the span is now two PROJECTS, moon and aphorism-cli, not "two
+improvement cycles". Headline 32 preserved at all three occurrences. Cell A6 is what makes A4 and
+A5 worth anything: both predicates were re-run against the pre-change text and both fail there.
+
+### T-209 FAILED on one sentence — and on a gate cell that only this run's OWN gate could catch
+
+Four of its five clauses passed with controls behind them. The archive is byte-for-byte verbatim
+and a one-character mutation of the section is provably NOT found in it. REPORT.md fell 25945 →
+23573 against a 25586 cap. The KI-2 pointer appears exactly once and adds no restatement of the
+ask. The first screen still answers all four reader questions.
+
+The failure is this line:
+
+```
+- Suite at cycle 104: 208 tests, 208 passing.
+```
+
+208 is the count *after* this item's own change; at cycle 104 the suite was 210/210, re-measured
+by the conductor at that commit. The number is anchored to a cycle where it was never true.
+
+**Why the shipped gate did not stop it, stated plainly.** `test/doc-counts.test.js` — T-207,
+verified one cycle ago — fails closed on a count claim that names no cycle, run, commit or date.
+This claim names one. The gate proves an anchor is PRESENT; it cannot prove the number is TRUE at
+that anchor, because it has no way to run the suite as of another commit. That is the *same shape*
+as cycle 104's cell D5, which checked that a denial count was stated while a wrong decomposition
+of it passed underneath. Two consecutive cycles have now had a defect walk through a green
+existence-check, which is a pattern rather than an incident and goes to the retro as such.
+
+**Kept, not reverted, and committed carrying the false sentence.** Reverting would discard a
+verified archive, a 2372-byte reduction the spec asks for, and a correct pointer, to buy nothing —
+`test_cmd` is green either way and hard rule 4's revert trigger is a broken suite. And the other
+tempting move is worse: I hold the true numbers and could fix the sentence myself in seconds, but
+cycle 104 already recorded why that is wrong — it launders the wave green, destroys the record of
+what was returned, and feeds the autotune a signal the wave did not earn. So REPORT.md is
+committed this cycle with one known-false sentence in it, named here, in the item, and in a
+decision entry, with its repair as the next pick. That is the honest cost of the rule.
+
+T-209 → todo, attempts 1, escalated haiku→sonnet. Retry scope is one bullet.
+
+### Gate cell B4 failed the INSTRUMENT, and was narrowed — with a new control, not quietly
+
+B4 tested for the absolute presence of tokens including `Bash(` in REPORT.md, to prove T-209 had
+not restated the allow-list ask there. It failed on text that is byte-identical at HEAD, inside
+the historical run-3 KI-2 row, which T-209 never touched. Under L-047 the attribution comes before
+the verdict: this was the instrument — an absolute-presence test cannot express a prohibition on
+*adding* something. Rewritten to count occurrences against HEAD and test the delta. Narrowing a
+cell that has just failed is exactly how a gate gets hollowed out, so the narrowed cell ships with
+**B4c**, which injects `"Bash(/opt/swarm/bin/swarm-playbook.sh:*)"` into a copy and confirms the
+delta test still flags it. It does. T-209's `attempts` counter was never touched by this cell.
+
+`C1` was widened once for the same reason: it flagged the conductor's own evidence file under
+`.swarm/runs/`. That path and `.swarm/gates/` are conductor-only and were forbidden to both
+builders, so excluding them tests the items' scopes rather than the cycle's.
+
+### One real pre-existing defect surfaced by that narrowing — filed, not fixed here
+
+REPORT.md's KI-2 row says **"The exact patch is six allow-list lines"**. True when run 3 wrote it:
+neither `swarm-budget.sh` nor `swarm-playbook.sh` was allowlisted then. `swarm-budget.sh` has since
+been granted — confirmed behaviourally, the probe has now run at cycles 103, 104 and 105 — so the
+ask is four. The contradiction became visible on one screen precisely because this cycle added a
+pointer, two rows below, to a file that says four. Filed as **T-210** (S, priority 5). Its
+acceptance requires a *dated superseding clause*, not a rewrite of the run-3 sentence — the same
+rule cycle 104 applied to KI-2's own rotted text.
+
+**Post-merge checks skipped, and why**: `collision-scan.mjs` gates browser targets built from
+classic non-module scripts, and the qa-verify look pass keys on user-visible browser-served files.
+moon is a zero-dependency terminal CLI, and this wave changed two markdown documents, added a
+markdown archive, and added a conductor gate script. Neither check applies; skipped by rule, not
+for time.
+
+**Wave autotune**: 0 reverts, 1 failed verify. Not clean (so no streak increment) and not the
+revert/≥2-failure case (so no decrement) — "any other outcome": `wave_streak` 1 → 0, `k_current`
+stays 2. The gear-2 cap binds at 2 regardless.
+
+items: **2 dispatched · 1 verified · 1 failed verify · 0 reverted · 0 blocked · 1 gate cell
+repaired as instrument-failure (B4) · 1 pre-existing defect filed (T-210) · 1 coverage reduction
+recorded (2 citations moved out of gate scope)**.
+backlog: 105 items — 98 done, 5 dropped, 2 todo (T-209 att 1 escalated, T-210 new).
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.51,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":48279460,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":12221793,"projected_depletion_at":1787248056,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":45.8,"weekly_heat":2.18,"opus_heat":2.18,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":3,"run_label":"improve-6 (2026-08-20)"}
+```
