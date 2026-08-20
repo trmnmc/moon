@@ -1,0 +1,130 @@
+cycle 109 — T-213 verification evidence (ALL ARMS RUN BY THE CONDUCTOR, not copied from the builder)
+
+Gate authored at verification time. The builder was told arms A/B/C existed but was never
+shown arm D or arm E — those are the conductor's own discriminators, added because arms A-C
+are all satisfiable by a check that tests mere EXISTENCE, which is not what the acceptance says.
+
+--------------------------------------------------------------------------------
+CELL 1 — scope + additive-only
+--------------------------------------------------------------------------------
+$ git status --porcelain
+ M REPORT.md
+ M test/citations.test.js
+$ git diff --numstat
+2	2	REPORT.md            <- T-212's edit only
+147	0	test/citations.test.js  <- 147 added, 0 removed: no existing check weakened
+$ git diff -- test/citations.test.js | grep -c '^-[^-]'
+0
+$ ls -a | grep scratch
+(none)
+no new dependencies: package.json unchanged; only node: builtins required
+
+--------------------------------------------------------------------------------
+CELL 2 — baseline suite, post-merge
+--------------------------------------------------------------------------------
+$ node --test test/*.test.js
+ℹ tests 245
+ℹ pass 245
+ℹ fail 0
+ℹ skipped 0
+(up from 216/216/0 at cycle 108; skipped 0 is the discriminator, not fail 0)
+
+--------------------------------------------------------------------------------
+ARM A — the mutation kills it (dangling backticked path, no line number)
+--------------------------------------------------------------------------------
+$ printf '\nGate probe: see `src/astr.js` for the parser.\n' >> REPORT.md
+$ node --test test/*.test.js
+✖ bare-path citations: every backticked path with no line number is accounted for (resolves in-repo, or is an enumerated external reference) (2.375215ms)
+ℹ tests 245
+ℹ pass 244
+ℹ fail 1
+ℹ skipped 0
+Exactly one failure, and it is the new check BY NAME.
+
+--------------------------------------------------------------------------------
+ARM B — attribution, against the TRUE pre-T-213 baseline
+--------------------------------------------------------------------------------
+Not a test.skip(): citations.test.js was reverted to HEAD (the pre-T-213 file) with the
+SAME mutation still in REPORT.md. A skip proves less than a revert — a revert proves no
+PRE-EXISTING check in any file catches this shape.
+$ git checkout HEAD -- test/citations.test.js
+$ node --test test/*.test.js
+ℹ tests 216
+ℹ pass 216
+ℹ fail 0
+ℹ skipped 0
+The mutation SURVIVES the pre-T-213 suite. The arm-A kill is fully attributable to the new check.
+
+--------------------------------------------------------------------------------
+ARM C — converse control that must stay GREEN (L-044)
+--------------------------------------------------------------------------------
+REPORT.md line 3's leading sentence reworded in full; both backticked archive paths untouched.
+$ node --test test/*.test.js
+ℹ tests 245
+ℹ pass 245
+ℹ fail 0
+ℹ skipped 0
+The check reads path structure, not prose. It is not a snapshot of REPORT.md's current text.
+
+--------------------------------------------------------------------------------
+ARM D — CONDUCTOR-AUTHORED, NEVER SHOWN TO THE BUILDER
+         path EXISTS on disk but is NOT git-tracked
+--------------------------------------------------------------------------------
+This is the arm that separates "exists" from "exists AND is git-tracked". A builder who coded
+to arms A-C only could have shipped an existence check and passed all three.
+$ printf 'module.exports = 1;\n' > src/gate-probe-untracked.js
+$ git status --porcelain src/gate-probe-untracked.js
+?? src/gate-probe-untracked.js
+$ printf '\nGate probe: see `src/gate-probe-untracked.js` for the parser.\n' >> REPORT.md
+$ node --test test/*.test.js
+✖ citations: bare-path REPORT.md:224 "`src/gate-probe-untracked.js`" -> src/gate-probe-untracked.js exists and is git-tracked (6.833912ms)
+ℹ tests 246
+ℹ pass 245
+ℹ fail 1
+ℹ skipped 0
+RED for the reason it names. The git-tracked half of the acceptance is real, not decorative.
+
+--------------------------------------------------------------------------------
+ARM E — CONDUCTOR-AUTHORED: the self-check must fire on a ZERO-MATCH parse
+--------------------------------------------------------------------------------
+A regex that silently matches nothing must never render as green (L-043 green-over-a-dead-region).
+Backticks stripped from README.md's three bare-path citations, leaving the paths as plain prose:
+$ node --test test/*.test.js
+✖ bare-path citations self-check: at least one no-line-number path citation was located in each document (1.118866ms)
+ℹ tests 242
+ℹ pass 241
+ℹ fail 1
+ℹ skipped 0
+The self-check discriminates. Note the test COUNT also drops 245 -> 242 as the generated
+per-citation cases vanish — the self-check is what turns that silent shrink into a failure.
+
+--------------------------------------------------------------------------------
+CELL — rug inspection of the added code
+--------------------------------------------------------------------------------
+$ git diff -- test/citations.test.js | grep -iE "^\+.*(catch|skip|continue|BY_BASENAME|return true)"
+(only a comment string: "but cannot account for is a failure, not a skip.")
+No try/catch swallowing git failures, no basename fuzzy-resolution fallback, no early continue.
+The tracked assertion is a strict equality on the exit status:
+    const result = spawnSync('git', ['ls-files', '--error-unmatch', c.citedPath], {cwd: ROOT, encoding: 'utf8'});
+    assert.strictEqual(result.status, 0, `... exists on disk but is not git-tracked ...`);
+
+--------------------------------------------------------------------------------
+RESTORE PROOF
+--------------------------------------------------------------------------------
+REPORT.md md5 before any mutation : dd205e3f2c7b0a7097e7e736794464e9
+REPORT.md md5 after every arm     : dd205e3f2c7b0a7097e7e736794464e9
+$ git diff --numstat -- README.md
+(empty — README.md fully restored)
+$ git status --porcelain
+ M REPORT.md
+ M test/citations.test.js
+src/gate-probe-untracked.js removed; all conductor gate scratch deleted.
+
+--------------------------------------------------------------------------------
+VERDICT: T-213 PASS (5 arms, 2 of them unseen by the builder)
+--------------------------------------------------------------------------------
+HONEST SCOPE LIMIT, carried forward from the item's own filing and NOT widened by this gate:
+this check closes the DANGLING-pointer shape only. It would NOT have caught T-212's defect,
+where the named file exists, is tracked, and IS referenced — the falsehood lived in the words
+"in full", a prose completeness claim. Binding an assertion to prose by regex is forbidden
+(L-043), so the incomplete-claim shape remains a human read.

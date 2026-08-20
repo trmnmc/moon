@@ -3188,3 +3188,152 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.89,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":15865261,"window_cost_usd":7.651145999999996,"tokens_per_hour":43582389,"projected_depletion_at":1787235510,"probe_failures":0,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":46.64,"weekly_heat":2.14,"opus_heat":2.14,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":6,"run_label":"improve-6 (2026-08-20)"}
 ```
+
+## cycle 109 | 2026-08-20T12:03:43+00:00 | moon | BUILD — build-wave k=2 sequential: the rotted provenance pointer is repaired, and the citation gate finally enumerates the form that let it rot
+
+**Clock + gear.** `date +%s` = 1787226411 at open, 75142s (20.9h) to `stop_at`. Probe ran clean at
+its exact allowlisted absolute form: gear **2**, ρ 0.46, mode guest, k_cap 2, `demote: true`,
+`promote: false`, window 20,449,247 tokens / $11.84, weekly governor **ceiling 2** (weekly_used_pct
+100, heat 2.13) — governor clamp 2. ρ 0.46 alone would reach gear 5; guest mode clamps to 1–3 and
+the weekly governor clamps to 2, so gear 2 is the binding constraint, not the burn rate. `dial`
+printed `1.00` against the runfile's `0.3` — that is guest mode forcing the dial to 1.0 by design,
+not a probe reading the wrong file. `probe_failures` stays 0.
+
+**Orient.** Tree clean at open — no salvage. `bin/swarm-notify.sh poll` ran clean; `runs/control.json`
+carries `pending: []`, `applied: []`, no `inject` array. Nothing to apply, nothing to triage.
+Prior conductor PID 3109488 confirmed **dead** before this session claimed the heartbeat — no
+relaunch stacking. Cycle 109 is not a `% 5 == 0` cycle; the full SPEC re-read + backlog hygiene
+pass is cycle 110's.
+
+**Work.** build-wave, effective k = min(k_current 3, gear cap 2) = **2**, both items dispatched as
+DIRECT Agent calls and strictly **SEQUENTIALLY** — T-213's acceptance is a measurement OF the file
+T-212 edits, so disjoint `files_hint` does not make them parallel-safe (L-016, necessary-but-not-
+sufficient). Routing recomputed at pick time: T-212 docs/S → **haiku** (gear-2 demote is already at
+the floor); T-213 test/M → **sonnet** (gear-2 demote never drops build/fix/test below sonnet).
+
+### VERIFICATION EVIDENCE — cycle-109 gate A (T-212): PASS 7 / FAIL 0
+
+The gate was authored at verification time, after the return. The judgment cell reads the ARCHIVES,
+not REPORT.md — the direction the item was filed from (L-045).
+
+```
+CELL 1 scope        $ git status --porcelain
+                     M REPORT.md                     <- only file touched
+CELL 2 diff         $ git diff --numstat -- REPORT.md
+                    2	2	REPORT.md                   <- two sentences, purely additive clause
+CELL 3 bytes        $ wc -c REPORT.md
+                    24483 REPORT.md                  <- cap 25586, headroom 1103
+CELL 4 pointers     line   3 names: [".swarm/REPORT-ARCHIVE-2026-08-18.md",".swarm/REPORT-ARCHIVE-2026-08-20.md"]
+                    line 110 names: [".swarm/REPORT-ARCHIVE-2026-08-18.md",".swarm/REPORT-ARCHIVE-2026-08-20.md"]
+CELL 5 resolve      OK .swarm/REPORT-ARCHIVE-2026-08-18.md exists=true tracked=true
+                    OK .swarm/REPORT-ARCHIVE-2026-08-20.md exists=true tracked=true
+                    (+4 further .swarm/*.md paths in REPORT.md, all exists+tracked)
+CELL 6 mapping      OK run 1 -> A [208:## What improvement run 1 changed (cycles 0–47)]
+                    OK run 2 -> A [159:## What improvement run 2 changed (cycles 48–65)]
+                    OK run 3 -> A [ 63:## What improvement run 3 changed (cycles 66–84)]
+                    OK run 4 -> A [581:## Run 4 (2026-08-18)] ; B [5:## Runs 4-5 ...]
+                    OK run 5 -> B [  5:## Runs 4-5 (2026-08-18, 2026-08-19)]
+                    OK run 6 -> REPORT.md [212:## Run 6 (2026-08-20)]
+                    OK CONTROL: the 08-18 archive has NO run-5 section (the filed defect confirmed)
+CELL 7 suite        ℹ tests 216 / pass 216 / fail 0 / skipped 0
+```
+
+**Discriminator (the gate must fail on the pre-fix text for the reason it names):**
+
+```
+PRE-FIX  line   3 [".swarm/REPORT-ARCHIVE-2026-08-18.md"] FAIL
+PRE-FIX  line 110 [".swarm/REPORT-ARCHIVE-2026-08-18.md"] FAIL
+POST-FIX line   3 [both archives] PASS
+POST-FIX line 110 [both archives] PASS
+DISCRIMINATOR OK: 2/2 cells fail on the pre-fix text, 0 fail on the post-fix text
+```
+
+### VERIFICATION EVIDENCE — cycle-109 gate B (T-213): PASS, 5 arms
+
+Full output at `.swarm/runs/cycle-109-verify-T-213.txt` (fingerprinted by this cycle's commit).
+Every arm was run BY THE CONDUCTOR, not copied from the builder's return. Decisive lines:
+
+```
+ARM A  dangling backticked path, no line number, added to REPORT.md
+       ✖ bare-path citations: every backticked path with no line number is accounted for ...
+       ℹ tests 245 / pass 244 / fail 1 / skipped 0        <- exactly one failure, the new check BY NAME
+
+ARM B  attribution — NOT a test.skip(). citations.test.js reverted to HEAD (pre-T-213),
+       same mutation still in REPORT.md:
+       ℹ tests 216 / pass 216 / fail 0 / skipped 0        <- mutation SURVIVES the old suite
+
+ARM C  converse control (L-044): REPORT.md line 3 prose fully reworded, both backticked
+       archive paths untouched:
+       ℹ tests 245 / pass 245 / fail 0 / skipped 0        <- stays GREEN; not a text snapshot
+
+ARM D  CONDUCTOR-AUTHORED, NEVER SHOWN TO THE BUILDER — path EXISTS but is UNTRACKED:
+       $ git status --porcelain src/gate-probe-untracked.js
+       ?? src/gate-probe-untracked.js
+       ✖ citations: bare-path REPORT.md:224 "`src/gate-probe-untracked.js`" -> ... exists and is git-tracked
+       ℹ tests 246 / pass 245 / fail 1 / skipped 0
+
+ARM E  CONDUCTOR-AUTHORED — zero-match parse must not render green (L-043):
+       backticks stripped from README.md's three bare-path citations:
+       ✖ bare-path citations self-check: at least one no-line-number path citation was located in each document
+       ℹ tests 242 / pass 241 / fail 1 / skipped 0        <- note the count SHRINKS 245->242;
+                                                             the self-check is what makes that shrink loud
+```
+
+**Why arms D and E exist.** Arms A–C were named in the dispatch, so the builder could see them.
+All three are satisfiable by a check that tests mere EXISTENCE and by a regex that happens to match
+today's text — neither of which is what the acceptance says. D separates `exists` from
+`exists AND git-tracked`; E separates a live regex from a dead one. Both were withheld from the
+dispatch and both came back RED for the reason they name. That is the difference between a gate and
+a formality.
+
+**Rug inspection of the 147 added lines** — no `try/catch` swallowing git failures, no basename
+fuzzy-resolution fallback, no early `continue`, no `test.skip`. The tracked assertion is a strict
+`assert.strictEqual(result.status, 0)` on `git ls-files --error-unmatch`. Diff is `147 / 0` —
+**zero deletions**, so no pre-existing check was weakened to make room. Zero new dependencies;
+`package.json` untouched; only `node:` builtins.
+
+**Restore proof.** REPORT.md md5 `dd205e3f2c7b0a7097e7e736794464e9` before the first mutation and
+after the last; `git diff --numstat -- README.md` empty; the untracked probe file removed; all
+conductor gate scratch deleted.
+
+**Suite: 216 → 245, fail 0, skipped 0.** Skipped-0 is the load-bearing number here, not fail-0 —
+a suite can reach fail 0 by skipping, and this one did not.
+
+### The honest limit, stated so nobody over-reads the new gate
+
+T-213 closes the DANGLING-pointer shape only. **It would not have caught T-212's defect.** There the
+named file existed, was tracked, and was referenced; the falsehood lived in the two words "in full" —
+a prose completeness claim, and L-043 forbids binding an assertion to prose by regex. The
+incomplete-claim shape stays a human read.
+
+### A rot vector this cycle CREATED, filed rather than quietly carried
+
+The repaired sentence now reads "…is archived in full, not deleted, at `A` and `B`." Run 6's record
+is **in REPORT.md itself** (`## Run 6`, line 212), in neither archive. That is true and reachable
+today — clause 4 of the acceptance was verified against it — but it becomes false the moment run 6's
+section is archived at wrap-up, which is exactly the T-212 failure shape one run later. The new gate
+cannot catch it (both paths will still resolve). **This is a WRAP_UP obligation, not a backlog item:**
+whoever archives the run-6 section must update both pointer sentences in the same edit. Recorded here
+because chat is not durable memory.
+
+### Counters + wave autotune
+
+Wave was CLEAN — zero reverts, zero failed verifies, both items verified first attempt.
+`wave_streak` 0 → **1**; `k_current` stays **3** (it rises at streak 2, not 1). `consecutive_no_value`
+1 → **0** (real verified value). Effective wave next cycle = min(3, gear cap 2) = 2.
+
+### Backlog is now EMPTY
+
+103 done, 5 dropped, **0 todo, 0 blocked**. The run's single stated must-have — L-043's
+FORM-and-DIRECTION clause turned into a machine-checked gate — is **closed and in the suite**. Per the
+spec digest, early DONE is the expected outcome for this trickle run.
+
+**Next: cycle 110 is the `% 5 == 0` pass — full `SPEC.md` re-read plus backlog hygiene, and with it the
+VALUE_LOOP call on DONE that cycle 108 deferred and this cycle earned.** DONE is deliberately NOT
+declared here: the definition-of-done check belongs to the re-read, not to the cycle that happens to
+empty the backlog.
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787227479,"next_wakeup_at":1787229151,"pid":3113560,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.46,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":20449247,"window_cost_usd":11.838916999999997,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":25899055,"projected_depletion_at":1787243634,"last_probe_ts":1787226479,"last_real_probe_ts":1787226479,"probe_failures":0,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":46.89,"weekly_heat":2.13,"opus_heat":2.13,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":7,"run_label":"improve-6 (2026-08-20)"}
+```

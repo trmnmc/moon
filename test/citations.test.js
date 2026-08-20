@@ -40,6 +40,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 
 const ROOT = path.join(__dirname, '..');
 const DOC_NAMES = ['README.md', 'REPORT.md'];
@@ -59,6 +60,20 @@ const BARE_CITATION_RE = /`:(\d+)`/g;
 
 // The fail-closed sweep: every colon-then-digits token in the document.
 const ANY_COLON_NUMBER_RE = /:(\d+)/g;
+
+// FORM 4: a backticked repo-relative file path carrying NO line number at all --
+// a bare pointer like `.swarm/REPORT-ARCHIVE-2026-08-18.md` or
+// `test/doc-counts.test.js`. Every scanner above is keyed to `:<digits>`; a
+// citation with no colon-digits anywhere in it is invisible to all three, so it
+// can rot silently -- the file renamed, deleted, or never committed -- while the
+// suite stays green. This regex requires the closing backtick to sit directly
+// after the path with nothing in between, which is exactly what keeps it
+// disjoint from FORM 1/3: a `path:N` citation never matches here, because the
+// `:N` sits between the path and the closing backtick.
+const BARE_PATH_CITATION_RE = new RegExp(
+  '`((?:[A-Za-z0-9_.-]+\\/)*[A-Za-z0-9_.-]+\\.(?:' + CODE_EXT + '))`',
+  'g',
+);
 
 // ---------------------------------------------------------------------------
 // Repo file index, for resolving citations (including bare filenames with no
@@ -283,6 +298,54 @@ function resolvePath(citedPath) {
   // Not in this repo. Only SWARM's own tooling is a legitimate out-of-repo target.
   if (/^swarm-/.test(path.posix.basename(citedPath))) return { kind: 'external' };
   return { kind: 'missing' };
+}
+
+// Scope boundary for the bare-path form (FORM 4), stated rather than silently
+// applied -- mirroring the reasoning given above for `bin/swarm-watchdog.sh:275-285`:
+// REPORT.md also names SWARM orchestrator tooling and configuration that does
+// not live in this repo at all. Two of these are BARE basenames -- `settings.json`
+// and `state.json` -- that a basename fallback would resolve WRONG: there is no
+// top-level `settings.json` in this repo, but `state.json` would fuzzy-match
+// this repo's own `.swarm/state.json`, which is a different citation, elsewhere,
+// naming a different file, and is checked on its own terms. Bare `state.json` in
+// REPORT.md's KI-2 cell means the SWARM run's ephemeral state file, not this
+// repo's. So the bare-path form below does exact-path resolution ONLY (no
+// basename fallback, unlike resolvePath above), and this exclusion set is an
+// exact, enumerated set of literal strings as they appear in the document text
+// -- not a `swarm-*` prefix wildcard, not a basename match. Nothing may be
+// added to it without being named here by hand, and each entry is asserted
+// below to be genuinely absent from this repo, so a future same-named file
+// landing in the repo is caught rather than silently swallowed.
+const BARE_PATH_EXTERNAL_EXCLUSIONS = new Set([
+  'SWARM/.claude/settings.json',
+  'swarm-budget.sh',
+  'swarm-playbook.sh',
+  'swarm-warmup.sh',
+  'settings.json',
+  'bin/swarm-budget.sh',
+  'bin/swarm-playbook.sh',
+  'swarm-notify.sh',
+  'bin/swarm-pacer.sh',
+  'state.json',
+  'bin/swarm-watchdog.sh',
+]);
+
+// Scan a document for FORM 4 (bare-path) citations. Independent of scanDocument
+// above: there is no line number to attach to a scope/claim, so the only
+// checkable facts are structural -- the path resolves, and (proven separately,
+// in the tests below) it is git-tracked, not merely sitting untracked on disk.
+function scanBarePathCitations(scan) {
+  const { docName, raw, index } = scan;
+  const out = [];
+  for (const m of raw.matchAll(BARE_PATH_CITATION_RE)) {
+    out.push({
+      doc: docName,
+      raw: m[0],
+      citedPath: m[1],
+      docLine: lineIndexAt(index, m.index) + 1,
+    });
+  }
+  return out;
 }
 
 function resolveAll(scan) {
@@ -652,6 +715,33 @@ function countByForm(list) {
 }
 
 // ---------------------------------------------------------------------------
+// FORM 4 (bare-path): scan, resolve, and fail-close every citation this
+// scanner cannot account for -- the same discipline as the ":<digits>" sweep
+// above, applied to the citation form that sweep cannot see at all.
+// ---------------------------------------------------------------------------
+
+const BARE_PATH_CITATIONS = SCANS.flatMap(scanBarePathCitations);
+const BARE_PATH_PROBLEMS = [];
+
+for (const c of BARE_PATH_CITATIONS) {
+  if (REPO_FILE_SET.has(c.citedPath)) {
+    c.resolution = { kind: 'repo' };
+  } else if (BARE_PATH_EXTERNAL_EXCLUSIONS.has(c.citedPath)) {
+    c.resolution = { kind: 'external' };
+  } else {
+    c.resolution = { kind: 'missing' };
+    BARE_PATH_PROBLEMS.push(
+      `${c.doc}:${c.docLine}: bare-path citation "${c.raw}" names "${c.citedPath}", which does ` +
+        `not exist in this repo at that exact path (this form does no basename fallback) and is ` +
+        `not in the enumerated external-tooling exclusion list. A citation this scanner finds ` +
+        `but cannot account for is a failure, not a skip.`,
+    );
+  }
+}
+
+const BARE_PATH_IN_REPO = BARE_PATH_CITATIONS.filter((c) => c.resolution.kind === 'repo');
+
+// ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
@@ -746,6 +836,63 @@ for (const c of IN_REPO) {
       failures,
       [],
       `citations: the document's claim about ${target} does not hold:\n  - ${failures.join('\n  - ')}`,
+    );
+  });
+}
+
+// ---------------------------------------------------------------------------
+// FORM 4 (bare-path) tests. A bare backticked path carries no line number, so
+// there is no sentence-adjacent claim to verify -- the subject here is purely
+// structural: does the path exist, and is it actually tracked by git (not
+// merely present untracked on disk, which `fs.existsSync` alone would miss).
+// ---------------------------------------------------------------------------
+
+test('bare-path citations self-check: at least one no-line-number path citation was located in each document', () => {
+  const perDoc = {};
+  for (const c of BARE_PATH_CITATIONS) perDoc[c.doc] = (perDoc[c.doc] || 0) + 1;
+  for (const docName of DOC_NAMES) {
+    assert.ok(
+      (perDoc[docName] || 0) > 0,
+      `citations: zero bare-path (no-line-number) citations were found in ${docName}. A matcher ` +
+        `that silently finds nothing must not render as green. Counts so far: ${JSON.stringify(perDoc)}`,
+    );
+  }
+});
+
+test('bare-path citations: every backticked path with no line number is accounted for (resolves in-repo, or is an enumerated external reference)', () => {
+  assert.deepStrictEqual(
+    BARE_PATH_PROBLEMS,
+    [],
+    `citations: bare-path citations could not all be accounted for:\n  - ${BARE_PATH_PROBLEMS.join('\n  - ')}`,
+  );
+});
+
+test('bare-path citations: every enumerated external exclusion is genuinely absent from this repo', () => {
+  const stillPresent = [...BARE_PATH_EXTERNAL_EXCLUSIONS].filter((p) => REPO_FILE_SET.has(p));
+  assert.deepStrictEqual(
+    stillPresent,
+    [],
+    `citations: these paths are excluded as out-of-repo SWARM tooling, but a file now exists at ` +
+      `that exact path in this repo -- it must be checked, not excluded: ${stillPresent.join(', ')}`,
+  );
+});
+
+for (const c of BARE_PATH_IN_REPO) {
+  test(`citations: bare-path ${c.doc}:${c.docLine} "${c.raw}" -> ${c.citedPath} exists and is git-tracked`, () => {
+    assert.ok(
+      fs.existsSync(path.join(ROOT, c.citedPath)),
+      `citations: ${c.doc}:${c.docLine} cites "${c.citedPath}", which the repo file index found ` +
+        `earlier but which no longer exists on disk.`,
+    );
+    const result = spawnSync('git', ['ls-files', '--error-unmatch', c.citedPath], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    assert.strictEqual(
+      result.status,
+      0,
+      `citations: ${c.doc}:${c.docLine} cites "${c.citedPath}", which exists on disk but is not ` +
+        `git-tracked (git ls-files --error-unmatch exited ${result.status}): ${result.stderr.trim()}`,
     );
   });
 }

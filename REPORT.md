@@ -1,6 +1,6 @@
 # REPORT — moon
 
-This report leads with what the tool is, how to run it, what is verified, and the known issues. The full build-run and improvement-run provenance — exact timestamps, per-run change logs, why each run stopped, operational findings about the SWARM tooling, and per-run stats tables — is archived in full, not deleted, at `.swarm/REPORT-ARCHIVE-2026-08-18.md`.
+This report leads with what the tool is, how to run it, what is verified, and the known issues. The full build-run and improvement-run provenance — exact timestamps, per-run change logs, why each run stopped, operational findings about the SWARM tooling, and per-run stats tables — is archived in full, not deleted, at `.swarm/REPORT-ARCHIVE-2026-08-18.md` and `.swarm/REPORT-ARCHIVE-2026-08-20.md`.
 
 ## What was built
 
@@ -107,7 +107,7 @@ verification time; no builder saw the check that would judge it.
 
 ---
 
-*The cycle-by-cycle detail behind the sections above — each run's own change log, why it stopped, and the operational findings about the SWARM tooling itself — is in `.swarm/REPORT-ARCHIVE-2026-08-18.md`, in full.*
+*The cycle-by-cycle detail behind the sections above — each run's own change log, why it stopped, and the operational findings about the SWARM tooling itself — is in `.swarm/REPORT-ARCHIVE-2026-08-18.md` and `.swarm/REPORT-ARCHIVE-2026-08-20.md`, in full.*
 
 ## Honest hand-off
 
