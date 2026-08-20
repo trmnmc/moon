@@ -3013,3 +3013,33 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.51,"mode":"guest","k_cap":2,"promote":false,"demote":true,"window_tokens":59043080,"window_cost_usd":47.936602949999994,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":12793350,"projected_depletion_at":1787246157,"probe_failures":0,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":46.2,"weekly_heat":2.16,"opus_heat":2.16,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":5,"run_label":"improve-6 (2026-08-20)"}
 ```
+
+## cycle 107 addendum | 2026-08-20T11:16:00+00:00 | moon | BUILD — the CI half of T-211, verified on GitHub's runner rather than reasoned about
+
+The cycle-107 gate proved T-211 locally and named CI as the one surface still unproven at
+gate time. It is proven now, by the cycle-21 method: push it and read GitHub's own execution
+log, because a workflow file is the artifact where static review is systematically weakest —
+every wrong version of it is also well-formed yaml.
+
+Run `32362877911`, commit `62705e5`, both matrix legs:
+
+```
+test (22)  # tests 216   # pass 216   # fail 0   # skipped 0
+test (20)  # tests 216   # pass 216   # fail 0   # skipped 0
+```
+
+**`skipped 0` is the discriminator, not `fail 0`.** A green CI proves very little here: had
+`fetch-depth: 0` been wrong, missing, or ineffective, the runner's checkout would have carried
+one commit, the shallow guard would have fired, and the job would still have gone GREEN — with
+`skipped 3`. That is precisely the outcome that looks validated while having skipped the check.
+Zero skips on a runner the conductor does not control means the historical commits were really
+present, `git worktree add --detach` really ran there, and the suite really re-measured itself
+at cycle 104's and cycle 105's commits. The guarantee HOLDS in CI; it does not merely degrade
+politely.
+
+Two things this does not prove, stated rather than implied: the shallow-clone degrade path is
+verified locally (loud skip, with a full-clone control showing zero skips) and is now
+unexercised in CI by construction, which is the correct arrangement but does mean CI is not
+watching it. And the 6-commit cost bound has only ever been exercised at 2.
+
+nothing dispatched · nothing verified beyond the CI read · no state, backlog or item change.
