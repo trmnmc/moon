@@ -1973,10 +1973,10 @@
       "verified_ts": "2026-08-19T23:20:00Z"
     },
     {
-      "id": "T-203",
+      "id": "T-206",
       "title": "Machine-checked doc->code citation gate over README.md and REPORT.md",
       "kind": "fix",
-      "status": "todo",
+      "status": "done",
       "priority": 1,
       "effort": "M",
       "deps": [],
@@ -1987,10 +1987,11 @@
         "test/citations.test.js"
       ],
       "craft": null,
-      "acceptance": "A test run by test_cmd checks every file:line citation README.md and REPORT.md make INTO the code against the line it actually points at. It enumerates EVERY citation form the two documents use, including the bare ':N' shorthand a path-anchored regex misses. It carries a self-check that fails CLOSED when zero citations are located, so a dead parse can never render green. Proven failable AND attributable via the two-arm mutation proof, plus a converse control that leaves the suite green."
+      "acceptance": "A test run by test_cmd checks every file:line citation README.md and REPORT.md make INTO the code against the line it actually points at. It enumerates EVERY citation form the two documents use, including the bare ':N' shorthand a path-anchored regex misses. It carries a self-check that fails CLOSED when zero citations are located, so a dead parse can never render green. Proven failable AND attributable via the two-arm mutation proof, plus a converse control that leaves the suite green.",
+      "cycle_done": 103
     },
     {
-      "id": "T-204",
+      "id": "T-207",
       "title": "Re-derive every count-citing claim in README.md and REPORT.md at run time",
       "kind": "fix",
       "status": "todo",
@@ -2007,7 +2008,7 @@
       "acceptance": "Every test-count and issue-count claim in README.md and REPORT.md is re-derived from the authoritative source at the moment of checking (suite run for test counts, state.json for issue counts), never from a previously captured number. Stale counts corrected; already-true prose left alone."
     },
     {
-      "id": "T-205",
+      "id": "T-208",
       "title": "Escalate KI-2 once, in one place, with the exact settings.json lines named",
       "kind": "docs",
       "status": "todo",
@@ -2024,15 +2025,15 @@
       "acceptance": "One owner-action file states the denial count, the confirmed structural root cause, and the verbatim settings.json allow-list lines a human must add. No re-diagnosis, no re-measurement, no re-litigation. Referenced from REPORT known-issues rather than restated there."
     },
     {
-      "id": "T-206",
+      "id": "T-209",
       "title": "REPORT.md run-6 record replaces the run-5 tail; forensics archived",
       "kind": "docs",
       "status": "todo",
       "priority": 4,
       "effort": "S",
       "deps": [
-        "T-203",
-        "T-204"
+        "T-206",
+        "T-207"
       ],
       "attempts": 0,
       "model": "haiku",

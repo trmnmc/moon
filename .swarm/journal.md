@@ -2073,3 +2073,196 @@ No further wakeups. Verified at the mechanism rather than trusted: `bin/swarm-pa
 
 Run closed: 5 cycles (98-102), 4 items built and verified, 0 reverted, 0 blocked, ~22.3h of
 authorized clock unspent by decision.
+
+## cycle 103 | 2026-08-20T09:35:00+00:00 | moon | build-wave k=1 — T-206 doc→code citation gate
+
+kickoff + cycle 1 of improvement run #6 (allocator auto-kickoff, TRICKLE posture, guest/0.30).
+budget probe OK: gear 2, ρ 0.34, k_cap 2, demote true, promote blocked. The weekly governor is
+the binding constraint, not measured burn — weekly_heat 2.22 clamps the ceiling to 2 while ρ 0.34
+would otherwise reach gear 5. Allocator reports allow_overall_pct 0 / allow_premium_pct 0.
+
+control: no control.json yet this run (archived at run #5 wrap-up); pending[] and inject[] both
+empty by construction. Nothing to triage.
+
+**Scope, derived at kickoff rather than inherited.** Run #5 declared this repo DONE on 2026-08-19
+with 0 defects and ~22.3h unspent. The only thing that changed since is the playbook. That delta
+was measured, and four of its six items closed at kickoff without any dispatch:
+
+- L-043 unstable-SUBJECT clause (git-pathspec-bound guards) — **AUDITED CLEAN**: zero git-bound
+  guards anywhere in `test/`, `src/`, `bin/`. Structurally inapplicable. Evidence: one grep,
+  below.
+- L-039 every-path-FORM diagnostic — **APPLIED**: grep of settings.json returns NO match for
+  "playbook" under ANY path form, so KI-2 is confirmed STRUCTURAL rather than an invocation-form
+  error. Diagnosis closed; not to be re-run (see T-208).
+- L-047 — governs conductor conduct, not the tree. Exercised heavily this cycle (below).
+- L-021 — archived upstream 2026-08-20; browser/SPA, never applicable to this terminal CLI.
+- L-045 converse clause — argues AGAINST another lap; treated as binding, which is why this run
+  carries exactly one build item and expects to close early.
+- **L-043 FORM-and-DIRECTION clause — the one OPEN item.** Minted at run #5's OWN wrap-up, i.e.
+  after run #5's scope was locked, and it names THIS repo: "a gate built for one direction (test
+  comments → doc lines) leaves the reverse (doc → code lines) hand-audited once and unprotected
+  thereafter." That became T-206.
+
+The kickoff taste judge independently reached the same item from a different direction, scoring
+use-twice 4 and one-memorable-thing 3 against the draft spec: a hand re-derivation "leaves nothing
+behind, so run #7 repeats it manually an eighth time." Two independent signals, one candidate.
+The spec was reshaped from a hand pass to a machine-checked gate before lock.
+
+VERIFICATION EVIDENCE — L-043 unstable-SUBJECT audit (the whole auditable delta, closed at
+kickoff):
+```
+$ grep -rn "git" /opt/targets/moon/test/ /opt/targets/moon/src/ /opt/targets/moon/bin/ | grep -v digit
+  test/cli.test.js:84-87   singleDigitOut / doubleDigitOut  (variable names, not git)
+  src/astro.js:16,231,238  prose comments containing "difference"
+  src/render.js:212        prose comment
+  bin/moon.js:22,199       prose comments containing "diff"
+  -> ZERO invocations of git. ZERO pathspec-bound guards. Clause inapplicable. CLEAN.
+```
+
+VERIFICATION EVIDENCE — baseline re-derived at run time (L-045), never read from a document:
+```
+$ node --test test/*.test.js
+  tests 187 | pass 187 | fail 0        <- kickoff floor, matches run #5's closing number
+```
+
+**T-206 — doc→code citation gate. VERIFIED DONE.** 187 → 200 tests (+13, each naming the citation
+it checks). Zero new dependencies. The builder's diff is exactly one new file,
+`test/citations.test.js` (751 lines, node built-ins only, read-only — no writes, no exec, no
+network); README.md and REPORT.md verified byte-identical after the dispatch window.
+
+The builder found a citation FORM neither the spec nor the gate had enumerated — a backticked
+path+range citation into a file OUTSIDE this repo (`bin/swarm-watchdog.sh:275-285`, REPORT.md:56)
+— and excluded it explicitly rather than silently, requiring both a `swarm-*` basename AND genuine
+absence from the repo, so a typo'd in-repo path still fails. It also found `` `:281` ``/`` `:346` ``
+occurring TWICE, the second time (REPORT.md:235) in a paragraph with no path citation at all,
+resolving as a back-reference to the binding at line 100. Four forms total, not the three the
+item named.
+
+VERIFICATION EVIDENCE — sealed gate, four versions, and the reason there were four.
+
+The gate was authored BEFORE dispatch, held under `/opt/swarm/runs/` (outside the target, so it is
+structurally unreachable by an agent given only target paths — L-042 hold-outside clause), and
+sealed by sha256 of both the script and its pre-dispatch output:
+```
+13b2006314da414962e6914def023bae4dbe5d81e9bc85fffebe036bf3bdd645  gate-T-203-v2.mjs
+3e7ffa9c82f4f1b868f6fdb1895ed830edb508d9f9d8aeb89d93dcc282144932  gate-T-203-v2.predispatch.txt
+$ sha256sum -c gate-T-203.seal.txt    ->  all OK after the builder returned
+```
+The pre-dispatch smoke run against unmodified HEAD (L-042) returned **FAIL 5 / PASS 2** — the
+correct baseline, since a gate that passes before the work exists is worthless. It also caught
+**two defects in my own instrument**, both of which would have charged a correct builder:
+```
+v1-C3 mutated "18:22 UTC" -- a TIMESTAMP, not a citation. Its 40-char lookbehind guard matched
+      the words "next full moon". No correct test can fail on a mutated clock time.
+v1-C4 demanded a path/file.js:N citation in README.md. README contains ZERO (grep -c = 0).
+```
+Repaired into v2 (backtick-anchored shorthand `` `:281` ``, README tested by INJECTION instead of
+mutation), which also surfaced a third form v1 never enumerated — `(astro.js:71-74)`, bare filename
+with a line range — added as cell C7. Enumerating two forms of four would have been the very
+defect L-043's clause names, one level up.
+
+Gate v2 against the builder's work returned **FAIL 4 / PASS 3**. Per L-047 — minted this morning,
+and the first run to exercise it — each FAIL was attributed to the INSTRUMENT or to the WORK
+BEFORE any verdict touched the item's attempts counter. Adjudicated with probes, not reasoning:
+```
+C2/C3/C7:  armA_red=true  armB_green=true  attributed=FALSE
+  -> the two-arm behavioural proof PASSED; only name-extraction failed.
+  $ node runs/attrib-probe.mjs
+     does the reporter emit TAP "not ok" lines?  (NONE)
+     lines it DOES use:  "✖ citations: REPORT.md:54 \"`test/render.test.js:926`\" -> ..."
+     tests 200 | pass 199 | fail 1
+  -> my extractor matched /^not ok \d+ - (.+)$/gm; node --test's default reporter never emits
+     TAP. INSTRUMENT defect. This is L-041's recorded reporter-format shape, re-observed --
+     the playbook warned about exactly this and the instrument did it anyway. It failed in the
+     SAFE direction (under-reporting a pass costs one re-run; the reverse ships an unattributed
+     kill as verified).
+
+C4:  wrong_red=true  true_green=FALSE   -- the cell where fitting the gate to the answer is
+     easiest, so it got a real probe rather than a wave-through.
+  $ node runs/c4-probe.mjs
+     A. injected citation, prose carrying NO claim   -> RED, "every in-repo citation carries at
+        least one substantive claim to check"   (the checker enforcing what the acceptance
+        clause DEMANDED: an unclassifiable citation is a failure, not a skip)
+     B. injected citation, prose naming what the line contains -> exit=0, 0 failures  GREEN
+     C. same shape, WRONG line                        -> RED
+  -> B green + C red is the true-input / unfixed-baseline pair L-043 requires, and it passes.
+     v2's good arm asserted a property the item never promised. INSTRUMENT defect.
+```
+**4 of 4 gate FAILs were defects in the conductor's instrument; 0 were defects in the dispatched
+work.** L-047's disposition was followed exactly: the failing output was published as it stands,
+the repair went into a SEPARATE artifact (v3), and no sealed gate was edited. v1 and v2 remain on
+disk unmodified as the record of what each instrument said.
+
+VERIFICATION EVIDENCE — gate v3, the authoritative verdict, **PASS 7 / FAIL 0**:
+```
+C1 converse-control    pristine tree GREEN   exit=0 tests=200 pass=200 fail=0  (floor 187)
+C2 FORM path:N         `test/render.test.js:829` -> `:926`
+                       ARM A exit=1 fail=1  failing: citations: REPORT.md:54 "..." -> ...
+                       ARM B (test REMOVED) exit=0 fail=0 pass=187      attributed=true
+C3 FORM bare `:N`      `:281` -> `:370`      ARM A exit=1 fail=3 · ARM B exit=0 pass=187
+C7 FORM name+range     (astro.js:71-74) -> (astro.js:191-194)
+                       ARM A exit=1 fail=1  failing: citations: REPORT.md:55 "astro.js:191-194"
+                       ARM B exit=0 fail=0 pass=187
+C4 README in scope     WRONG src/astro.js:386 -> RED · TRUE src/astro.js:346 -> exit=0 fail=0
+C5 fails CLOSED        all citations stripped -> exit=1 fail=1
+                       failing: "citations self-check: the scanner actually located citations,
+                       in every form, in both documents"
+C6 zero-dependency     deps=undefined devDeps=undefined node_modules=false
+```
+Every arm satisfies L-029 (failable AND attributable — ARM B green proves no other test was doing
+the killing) and L-044 (a converse control that must stay GREEN, so this is an assertion and not
+a snapshot hash). C5 proves it fails CLOSED over a dead region.
+
+**DEFECT I INTRODUCED, found and repaired this cycle.** The persist step reported backlog counts
+that did not move after T-203 was marked done. Rather than accept the number, I read the source:
+`T-203`, `T-204` and `T-205` ALREADY EXISTED in this backlog as completed items (pre-kickoff max
+T-id was 205), and kickoff minted those same three ids for new work. `find(id)` therefore matched
+the HISTORICAL T-203 and stamped `cycle_done: 103` onto a record that was already true, while the
+real new item sat untouched at todo. This is L-045 one level up — I minted ids from a mental model
+of the backlog instead of reading the authoritative source.
+```
+$ git show 45b9bc9^:.swarm/backlog.json  ->  100 items, max T-id 205, no duplicate ids
+   T-201 done · T-202 dropped · T-203 done · T-204 done · T-205 done
+repair: historical records restored byte-exactly from the pre-kickoff commit; the four minted
+        items renumbered T-206..T-209 with deps re-pointed.
+$ verify  duplicate ids: false | total 104 | {"done":96,"dropped":5,"todo":3}
+          T-203 cycle_done=(none) identical_to_pre_kickoff=true
+          T-204 cycle_done=(none) identical_to_pre_kickoff=true
+          T-205 cycle_done=(none) identical_to_pre_kickoff=true
+```
+Caught only because a count was verified rather than trusted. Candidate lesson for WRAP_UP.
+
+**NOT RUN, reported as not-run rather than as passed** (hard rule 2):
+- The kickoff headless zero-prompt assert (SKILL.md step 11) could not execute: `claude` is absent
+  from the settings allowlist, so the assert command is itself denied from this session. This is
+  the same allowlist gap family as KI-2 and is folded into T-208's owner-action file rather than
+  filed as a new issue.
+
+**Watchdog recovery ASSERTED, not assumed** (L-037's improvement-run blind spot):
+```
+bin/swarm-watchdog.sh:279   [ -f "$tpath/REPORT.md" ] || { ALL_REPORTS=0; break; }
+                     :282   log_decision "all-done" "reports-present"
+```
+moon's REPORT.md has existed since run #1, so the DONE-guard fires on every firing and the
+watchdog has NO crash recovery for this run's entire duration — confirmed in runs/watchdog.log.
+This re-confirms KI-9 (already filed; not re-filed). It is NOT total: `bin/swarm-pacer.sh:183`
+keys ONLY on `wrap_up_complete` (currently false), so the pacer — which is the actual cycle-firing
+mechanism on the VPS — will drive cycles normally. Recovery is DEGRADED (pickup at the next due
+wakeup) rather than absent. Hard rule 5 forbids repairing bin/ mid-run; journal + report only.
+
+**Claim rot found at kickoff, filed to T-207:** KI-2's own text in state.json asserts that
+"bin/swarm-budget.sh + bin/swarm-playbook.sh are not allowlisted, so the budget probe and playbook
+parser are both unrunnable." The budget probe RAN SUCCESSFULLY this cycle (output above).
+swarm-budget.sh is allowlisted under four separate forms. Half that claim has rotted.
+
+wave autotune: clean wave (0 reverts, 0 failed verifies) -> wave_streak 0 -> 1. k_current stays 2
+(needs a streak of 2 to raise, and the gear-2 cap binds at 2 regardless).
+
+items: **1 built · 1 verified · 0 reverted · 0 failed verifies · 1 defect filed (self-inflicted,
+repaired same cycle) · 1 claim-rot finding filed to T-207.**
+backlog: 104 items — 96 done, 5 dropped, 3 todo (T-207, T-208, T-209).
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.34,"mode":"guest","k_cap":2,"promote":false,"demote":true,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":45.04,"weekly_heat":2.22,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":1,"run_label":"improve-6 (2026-08-20)"}
+```
