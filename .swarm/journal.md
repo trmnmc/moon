@@ -2267,7 +2267,7 @@ runfile-mirror:
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.34,"mode":"guest","k_cap":2,"promote":false,"demote":true,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":45.04,"weekly_heat":2.22,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":1,"run_label":"improve-6 (2026-08-20)"}
 ```
 
-## cycle 104 — build-wave k=2 (T-207 sonnet, T-208 haiku) — 1 verified, 1 failed verify
+## cycle 104 | 2026-08-20T09:48:17+00:00 | moon | BUILD — k=2 wave: the doc count-claim guard lands, and the owner-action file misstates its own count
 
 Clock 09:18:35Z, 23.34 h to stop_at. Budget probe RAN (bare absolute form, no env prefix):
 gear 2, ρ 0.42, guest mode dial forced 1.00, k_cap 2, promote false / demote true,
@@ -2467,3 +2467,21 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.42,"mode":"guest","k_cap":2,"promote":false,"demote":true,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":45.42,"weekly_heat":2.2,"opus_heat":2.2,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":2,"run_label":"improve-6 (2026-08-20)"}
 ```
+
+## cycle 104 addendum | 2026-08-20T09:53:00+00:00 | moon | BUILD — a tool finding, journaled because chat is not durable memory
+
+The dashboard has been hand-rendered into a 25 KB HTML file each cycle. This cycle it was
+rendered by a script instead, `SWARM/runs/render-dashboard.mjs`, which derives counts, burn-up
+bars and per-cycle timeline outcomes from state.json / backlog.json / journal.md, HTML-escapes
+every journal-derived string, and hard-fails on any unsubstituted {{PLACEHOLDER}} rather than
+shipping a page with holes in it.
+
+The honest limitation: `SWARM/runs/` is GITIGNORED in the SWARM repo, so that script is on disk
+and in the nightly backup but is NOT in git — a fresh clone loses it and the next conductor
+hand-renders again. It cannot be promoted to `bin/` from inside a run (hard rule 5 makes bin/
+read-only mid-run), so this is recorded as a WRAP_UP candidate and a morning-report action, not
+done here. Same fence, same disposition, as every other tool finding this run.
+
+Also noted: hard rule 1 says the target repo is committed and pushed every cycle, and it was
+(ecdbcb8, pushed to origin/main). No SWARM-side commit accompanies it this cycle because the
+only SWARM writes were under runs/, which git ignores by design.
