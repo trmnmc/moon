@@ -38,9 +38,13 @@ No install step, no dependencies, no network access at any point.
 *On that annotation: it read `# 161 tests` until this wrap-up, correct when T-174 pinned it at
 cycle 80 and stale by cycle 83, because two later cycles added tests. This is the third time a
 hard-coded count in this file has decayed. It now carries the measurement point rather than a
-bare number — weaker but true, which is this repo's documented preference. The durable fix is
-the T-180 treatment: have a test parse the annotation. That is filed as a candidate for the
-next run, not done here, because WRAP_UP finishes nothing new.*
+bare number — weaker but true, which is this repo's documented preference. The durable fix was
+the T-180 treatment: have a test parse the annotation. That was filed as a candidate for the
+next run at the time, and it is now done, as T-207: `test/doc-counts.test.js` fails closed on
+any test- or issue-count claim in README.md or REPORT.md that does not name a cycle, run,
+commit, or date, so a future bare number is caught the moment it lands instead of decaying
+silently a fourth time. The `171` above needed no correction — it already names its measurement
+point and remains true — so it is untouched.*
 
 ## Known issues (6)
 

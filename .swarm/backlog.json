@@ -1994,7 +1994,7 @@
       "id": "T-207",
       "title": "Re-derive every count-citing claim in README.md and REPORT.md at run time",
       "kind": "fix",
-      "status": "todo",
+      "status": "done",
       "priority": 2,
       "effort": "S",
       "deps": [],
@@ -2002,10 +2002,14 @@
       "model": "sonnet",
       "packages": [],
       "files_hint": [
-        "README.md"
+        "README.md",
+        "REPORT.md",
+        "test/doc-counts.test.js"
       ],
       "craft": null,
-      "acceptance": "Every test-count and issue-count claim in README.md and REPORT.md is re-derived from the authoritative source at the moment of checking (suite run for test counts, state.json for issue counts), never from a previously captured number. Stale counts corrected; already-true prose left alone."
+      "acceptance": "Every test-count and issue-count claim in README.md and REPORT.md is re-derived from the authoritative source at the moment of checking (suite run for test counts, state.json for issue counts), never from a previously captured number. Stale counts corrected; already-true prose left alone.",
+      "cycle_done": 104,
+      "notes": "Verified at the sealed gate (v5, PASS 16/0). README carried no count claim (confirmed independently). REPORT prose corrected; test/doc-counts.test.js adds 10 tests, 200->210. C2/C3/C5 all attributable=true with doc-counts.test.js as the sole victim."
     },
     {
       "id": "T-208",
@@ -2015,14 +2019,15 @@
       "priority": 3,
       "effort": "S",
       "deps": [],
-      "attempts": 0,
-      "model": "haiku",
+      "attempts": 1,
+      "model": "sonnet",
       "packages": [],
       "files_hint": [
         ".swarm/KI-2-OWNER-ACTION.md"
       ],
       "craft": null,
-      "acceptance": "One owner-action file states the denial count, the confirmed structural root cause, and the verbatim settings.json allow-list lines a human must add. No re-diagnosis, no re-measurement, no re-litigation. Referenced from REPORT known-issues rather than restated there."
+      "acceptance": "One owner-action file states the denial count, the confirmed structural root cause, and the verbatim settings.json allow-list lines a human must add. No re-diagnosis, no re-measurement, no re-litigation. Referenced from REPORT known-issues rather than restated there.",
+      "notes": "FAILED the conductor read at cycle 104 despite green gate cells. The file exists, is bounded (2221B), and its 4 allow-list lines are correct and non-stale. Two factual defects in the provenance it exists to state: (1) \"31 denials from aphorism-cli improvement run #5\" misreads the unit - 31 is the cumulative count of RUNS, of which run #5 kickoff is the 31st, not 31 denials within one run; this is the exact unit confusion HANDOFF-allowlist-2026-08-17.md already had to correct once. (2) \"blocker for 32 runs across two improvement cycles\" - it spans improvement runs #1-#6 across two PROJECTS (moon, aphorism-cli), not two cycles. Repair is those two sentences; keep everything else, the patch block especially, byte-identical. Gate cell D5 is WEAK: it only checks that a count is stated, so a wrong decomposition passes it."
     },
     {
       "id": "T-209",
@@ -2042,7 +2047,8 @@
         "REPORT.md"
       ],
       "craft": null,
-      "acceptance": "REPORT.md does not exceed its kickoff byte count of 25586. Run-5 forensic detail archived verbatim to .swarm/REPORT-ARCHIVE-2026-08-20.md, never deleted. First screen still gives what-it-is, how-to-run, what-is-verified, known-issues. test/report-issues.test.js still passes unmodified, or is FIXED - never weakened."
+      "acceptance": "REPORT.md does not exceed its kickoff byte count of 25586. Run-5 forensic detail archived verbatim to .swarm/REPORT-ARCHIVE-2026-08-20.md, never deleted. First screen still gives what-it-is, how-to-run, what-is-verified, known-issues. test/report-issues.test.js still passes unmodified, or is FIXED - never weakened.",
+      "notes": "Unblocked: dep T-206 and T-207 both done. Two additions carried from cycle 104: (a) REPORT.md is now 25945 bytes against the 25586 cap, so the archive pass has 359 bytes more to reclaim than at kickoff; (b) T-208 was scoped OFF REPORT.md this wave to keep file scopes disjoint, so the \"referenced from REPORT known-issues rather than restated there\" clause of T-208 is T-209 work: add a one-line pointer to .swarm/KI-2-OWNER-ACTION.md in the known-issues section, and do NOT restate the allow-list lines there (gate cell D6 enforces this)."
     }
   ]
 }

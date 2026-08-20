@@ -2266,3 +2266,204 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.34,"mode":"guest","k_cap":2,"promote":false,"demote":true,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":45.04,"weekly_heat":2.22,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":1,"run_label":"improve-6 (2026-08-20)"}
 ```
+
+## cycle 104 — build-wave k=2 (T-207 sonnet, T-208 haiku) — 1 verified, 1 failed verify
+
+Clock 09:18:35Z, 23.34 h to stop_at. Budget probe RAN (bare absolute form, no env prefix):
+gear 2, ρ 0.42, guest mode dial forced 1.00, k_cap 2, promote false / demote true,
+window 33,403,221 tokens · $27.89 · 10.06M tok/h, projected depletion 1787257187. Weekly
+governor engaged and hot: weekly_used 100 %, week_elapsed 45.4 %, heat 2.20, ceiling 2,
+promote_blocked. probe_failures stays 0. Effective wave = min(k_current 2, gear cap 2) = 2.
+
+Control channel: `swarm-notify.sh poll` ran clean, `pending[]` empty, `inject[]` empty,
+`applied` 0. Nothing to triage. Craft pack: `degraded: []`, docs pack wired into the T-207
+prompt; neither item is UI, so `craft` stayed null on both.
+
+Headless pacer session (`claude -p` under `swarm-pacer.sh`, conductor pid 2997817), so the
+Workflow tool is review-gated and both items went out as DIRECT Agent calls — the documented
+fallback. No worktrees: scopes were made strictly disjoint instead. T-207 owned README.md,
+REPORT.md and new files under test/; T-208 owned exactly `.swarm/KI-2-OWNER-ACTION.md`. T-208's
+acceptance clause "referenced from REPORT known-issues" was deliberately SCOPED OFF this wave
+and pushed to T-209, which owns REPORT.md, rather than letting two agents share a file.
+
+### The gate went through five versions before it was fit to judge anything
+
+Sealed before dispatch, `sha256 02459276949a84ac1f610ab52f6b14c0323f03098fec6d3b7b04155b7d9964b3`
+(v4), under a TRACKED path — L-042's seal-must-be-tracked clause checked with `git check-ignore`,
+not assumed. Pre-dispatch baseline against unmodified HEAD: **PASS 9 / FAIL 7**, the 7 failures
+being exactly the cells describing work that did not exist yet. A gate that passes before the
+work is worthless.
+
+Three instrument defects were found and repaired BEFORE dispatch, each by RUNNING the instrument
+rather than reading it:
+
+```
+v1 C5  injected a line mid-README; README lines are cited by cli.test.js and regressions.test.js,
+       so ARM A went red for a reason unrelated to count claims and ARM B could attribute nothing.
+       -> probed (cycle-104-c5-probe.mjs): a neutral EOF append leaves the suite GREEN 200/200,
+          so v2 appends at EOF and the claim is the only variable.
+v3 D2  regex-matched Bash(...) across the whole file, which would have charged the owner-action
+       file for a correctly-worded "do NOT add <already-granted line>" warning.
+       -> reads the fenced code block instead: a structural marker the document owns.
+v3 C7  scanned line by line; REPORT.md's annotation opens on line 38 and the "cycle 80" that
+       dates it lands on line 39, so the scan split a claim from its date and invented a
+       false positive. -> paragraph-scoped in v3.
+v4 D3  repairing D2 broke D3: its stale-ask probe injected as bare prose, which the new extractor
+       correctly ignores, so D3 reported "no problems" and went red. The probe was wrong, not the
+       extractor. -> v4 injects inside a fence.
+```
+
+All four repairs landed while the tree contained none of the work, so none of them could be
+fitted to an answer. v1–v4 remain on disk byte-unmodified as the record of what each instrument
+said.
+
+### VERIFICATION EVIDENCE — sealed gate v4 against the returned work: PASS 15 / FAIL 1
+
+```
+C1 converse control    exit=0 tests=210 pass=210 fail=0   (floor 200)
+C2 issue-count guard   "three known issues closed" -> "seven"
+                       ARM A exit=1 fail=1  failing: REPORT.md "known issues closed" sentence
+                              matches state.json resolved_issues[] exactly
+                       ARM B removed [doc-counts.test.js] -> exit=0 tests=200 fail=0
+                              attributable=true
+C3 undated count       injected "The suite carries 171 tests." above "## Known issues"
+                       ARM A exit=1 fail=1 · ARM B exit=0 tests=200 fail=0  attributable=true
+C5 README in scope     appended undated claim at EOF (line numbers unshifted)
+                       ARM A exit=1 fail=1 · ARM B exit=0 tests=200 fail=0  attributable=true
+C4 true-input control  dated historical count present, unmutated tree exit=0 fail=0
+C6a/C6b fails CLOSED   REPORT.md deleted -> exit=1 fail=5 · README.md deleted -> exit=1 fail=12
+C8 protected file      git diff --name-only HEAD -- test/report-issues.test.js -> "(empty)"
+C9 zero-dependency     dependencies=undefined devDependencies=undefined node_modules=false
+C7 FAIL                undated bare test-count claims remaining: 1
+```
+
+C6a and C6b passed at BASELINE too, on pre-existing citation tests. They assert a true repo
+property but carry no information about this cycle's work, and are reported that way rather than
+counted as this wave's evidence.
+
+### The one FAIL was mine, and it was adjudicated with a probe before any verdict was recorded
+
+L-047 applied for the second consecutive cycle. C7 flagged REPORT.md's
+`# 171 tests as of run 3's final commit`. Rather than reason about it:
+
+```
+$ node .swarm/runs/cycle-104-c7-probe.mjs
+run 3 final commit  v0.1-improve3 -> 7395837
+                    "cycle 84: WRAP_UP — target DONE, ~14.4h early by decision [verified]"
+suite AT that commit exit=0 tests=171 pass=171 fail=0
+REPORT.md claims     171 tests as of run 3's final commit
+anchor vocabulary present in the enclosing paragraph:
+  no   cycle N (C7 vocabulary)     YES  run N     YES  commit     no  date
+claim true at the commit it names:  true  (171 vs measured 171)
+C7 flag attributable to the WORK:   false
+VERDICT: INSTRUMENT DEFECT. The claim is anchored and true; C7 recognises only `cycle N`.
+```
+
+My exemption vocabulary was narrower than the grammar the document actually uses — and narrower
+than the checker the builder shipped, which accepts cycle / run / commit / date. **1 of 1 gate
+FAILs was a defect in the conductor's instrument; 0 were defects in the dispatched work.** That is
+now two consecutive cycles in which every gate failure was mine (cycle 103: 4 of 4).
+
+The repair went into a SEPARATE artifact (v5); v4's failing output stands as published. Widening
+an exemption is one edit away from making a check vacuous, and a vacuous check reads exactly like
+a clean document — so C7 v5 carries a POSITIVE CONTROL that fails the cell if an unanchored claim
+can no longer be flagged at all.
+
+### VERIFICATION EVIDENCE — authoritative gate v5: PASS 16 / FAIL 0
+
+Full output: `.swarm/runs/cycle-104-verify-gate-v5.txt`
+
+```
+C7 conductor re-derives the counts independently and the document agrees
+     state.json known_issues=6 resolved_issues=3
+     REPORT "## Known issues (N)" = 6 · closed-count word = "three" (3)
+     undated bare test-count claims remaining: 0
+D1 owner-action exists, bounded          exists=true bytes=2221  (cap 6000)
+D2 every proposed allow line real AND not already granted    4 lines, problems: none
+     Bash(/opt/swarm/bin/swarm-playbook.sh:*) · Bash(bash /opt/swarm/bin/swarm-playbook.sh:*)
+     Bash(/opt/swarm/bin/swarm-warmup.sh:*)   · Bash(bash /opt/swarm/bin/swarm-warmup.sh:*)
+D3 failable    injected Bash(/opt/swarm/bin/swarm-budget.sh:*) -> ALREADY GRANTED (stale ask)
+D4 fails CLOSED   a file naming zero allow lines does not pass
+GATE v5  PASS 16 / FAIL 0
+```
+
+`test_cmd` run by the conductor in the REAL tree, not a scratch copy, not taken from the agent:
+
+```
+$ node --test test/*.test.js
+ℹ tests 210   ℹ pass 210   ℹ fail 0   ℹ cancelled 0   ℹ skipped 0   ℹ todo 0
+```
+
+200 -> 210. `git worktree list` shows only the main tree: the builder's mutation worktrees were
+really removed, checked rather than believed.
+
+### T-207 PASSED. T-208 FAILED — on the conductor's read, with every gate cell green
+
+T-207 is done. README.md carried no count claim at all (confirmed independently, not taken from
+the builder); the substantive change is that REPORT.md's own "the durable fix is filed as a
+candidate for the next run" annotation is no longer stale forward-looking prose, because this run
+IS that next run, and `test/doc-counts.test.js` now fails closed on any test- or issue-count claim
+in either document that does not name a cycle, run, commit or date. The `171` needed no
+correction — it already names its measurement point and measures true.
+
+T-208 FAILED. The file exists, is bounded at 2221 bytes, and its four allow-list lines are correct
+and non-stale — D2's discriminator specifically proves it is not asking for anything already
+granted, which is the exact rot cycle 103 found. But two supporting sentences misstate the
+provenance the file exists to fix:
+
+```
+"31 denials from aphorism-cli improvement run #5"
+     -> 31 is the cumulative count of RUNS, of which run #5's kickoff is the 31st. This is the
+        SAME unit confusion HANDOFF-allowlist-2026-08-17.md already had to correct once
+        ("ten is a count of RUNS, not of denials"). applied.log 2026-08-20T01:45:30Z is the source.
+"blocker for 32 runs across two improvement cycles"
+     -> spans improvement runs #1-#6 across two PROJECTS (moon, aphorism-cli), not two cycles.
+```
+
+Gate cell **D5 is WEAK and is recorded as such**: it checks that a denial count is stated, and
+matched "32" — the correct headline number — while a wrong decomposition of that number passed
+underneath it. A file whose entire purpose is to end re-litigation cannot ship a false account of
+its own provenance, so this fails on substance even though the gate is green.
+
+The conductor did NOT rewrite those two sentences itself. It holds the ground truth and the repair
+is two sentences, but silently fixing a dispatched item's defect launders the wave green, destroys
+the record of what was returned, and feeds the autotune a clean signal the wave did not earn.
+T-208 -> todo, attempts 1, escalated one rung to sonnet; the repair is scoped to those two
+sentences with the patch block to stay byte-identical.
+
+### KI-2's own record had rotted, and is corrected rather than rewritten
+
+Filed at cycle 103, fixed here. KI-2 asserted that swarm-budget.sh had no allow entry at ANY path.
+Read directly out of `/opt/swarm/.claude/settings.json` this cycle:
+
+```
+Bash(/opt/swarm/bin/swarm-budget.sh:*)        Bash(bash /opt/swarm/bin/swarm-budget.sh:*)
+Bash(bin/swarm-budget.sh:*)                   Bash(bash bin/swarm-budget.sh:*)
+Bash(/opt/swarm/bin/swarm-notify.sh:*)        Bash(bin/swarm-notify.sh:*)
+swarm-playbook.sh:  NO entry under any path form   <- the whole of what remains
+```
+
+Confirmed behaviourally, not only by reading: the probe RAN this cycle and last. KI-2 is NARROWED
+from two scripts to one load-bearing script. The rotted text is superseded in a dated cycle-104
+note rather than edited away — rewriting a dated measurement to fix a later error destroys the
+record of what was believed when.
+
+**Post-merge checks skipped, and why**: `collision-scan.mjs` is a browser-target gate for classic
+non-module scripts, and the qa-verify look pass keys on user-visible browser-served files. moon is
+a zero-dependency terminal CLI and this wave merged two markdown documents and one test file.
+Neither check applies; skipped by rule, not for time.
+
+wave autotune: 0 reverts, 1 failed verify — neither the clean branch nor the k-1 branch, so
+"any other outcome": wave_streak 1 -> 0, k_current stays 2 (the gear-2 cap binds at 2 regardless).
+
+REPORT.md is now 25945 bytes against T-209's 25586 cap — 359 bytes more for that item's archive
+pass to reclaim than at kickoff. Noted on the item.
+
+items: **2 dispatched · 1 verified · 1 failed verify · 0 reverted · 0 blocked · 1 rotted claim
+corrected (KI-2) · 1 weak gate cell recorded (D5)**.
+backlog: 104 items — 97 done, 5 dropped, 2 todo (T-208 att 1, T-209 unblocked).
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-21T08:39:53Z","usage_reset_at":"2026-08-20T09:00:00Z","model_policy":"value-routing","auth_mode":"subscription","pacing":{"mode":"guest","dial":0.3},"budget":{"source":"probe","gear":2,"gear_target":2,"ratio":0.42,"mode":"guest","k_cap":2,"promote":false,"demote":true,"weekly":{"ok":true,"weekly_used_pct":100,"opus_used_pct":100,"week_elapsed_pct":45.42,"weekly_heat":2.2,"opus_heat":2.2,"ceiling":2,"promote_blocked":true}},"watchdog":{"mode":"normal","plist_loaded":true,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":2,"run_label":"improve-6 (2026-08-20)"}
+```

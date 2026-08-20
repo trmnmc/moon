@@ -1,0 +1,49 @@
+PASS  C1  converse control: shipped tree GREEN, suite not shrunk
+        exit=0 tests=210 pass=210 fail=0  (floor 200)
+PASS  C2  issue-count claim in REPORT.md is machine-checked against state.json
+        REPORT.md  "three known issues closed" -> "seven known issues closed"  (state.json resolved_issues = 3)
+        ARM A exit=1 fail=1  failing: REPORT.md "known issues closed" sentence matches state.json resolved_issues[] exactly
+        ARM B removed [doc-counts.test.js] -> exit=0 tests=200 fail=0  attributable=true
+PASS  C3  undated test-count claim reintroduced in REPORT.md is caught
+        REPORT.md  injected undated claim "The suite carries 171 tests." above "## Known issues"
+        ARM A exit=1 fail=1  failing: REPORT.md carries no unanchored test/issue count claim
+        ARM B removed [doc-counts.test.js] -> exit=0 tests=200 fail=0  attributable=true
+PASS  C4  true-input control: a count bound to its measurement point stays GREEN
+        dated historical count present in REPORT.md: true
+        unmutated tree exit=0 fail=0
+PASS  C5  README.md is inside the scanner scope (injection, not mutation)
+        README.md  appended undated claim at EOF: "The suite carries 171 tests today." (line numbers unshifted)
+        ARM A exit=1 fail=1  failing: README.md carries no unanchored test/issue count claim
+        ARM B removed [doc-counts.test.js] -> exit=0 tests=200 fail=0  attributable=true
+PASS  C6a  fails CLOSED when REPORT.md is absent
+        REPORT.md deleted -> exit=1 fail=5  failing: test/citations.test.js | REPORT.md carries no unanchored test/issue count claim
+PASS  C6b  fails CLOSED when README.md is absent
+        README.md deleted -> exit=1 fail=12  failing: test/citations.test.js | test/cli.test.js
+PASS  C7  conductor re-derives the counts independently and the document agrees
+        state.json known_issues=6 resolved_issues=3
+        REPORT "## Known issues (N)" = 6
+        REPORT closed-count word = "three" (3)
+        undated bare test-count claims remaining: 0
+PASS  C8  test/report-issues.test.js not modified by this wave
+        git diff --name-only HEAD -- test/report-issues.test.js -> "(empty)"
+PASS  C9  zero runtime and dev dependencies
+        dependencies=undefined devDependencies=undefined node_modules=false
+PASS  D1  owner-action file exists and is bounded (<= 6000 bytes, no re-litigation)
+        /opt/targets/moon/.swarm/KI-2-OWNER-ACTION.md  exists=true bytes=2221
+PASS  D2  every proposed allow line names a real script AND is not already granted
+        proposed lines (4):
+          Bash(/opt/swarm/bin/swarm-playbook.sh:*)
+          Bash(bash /opt/swarm/bin/swarm-playbook.sh:*)
+          Bash(/opt/swarm/bin/swarm-warmup.sh:*)
+          Bash(bash /opt/swarm/bin/swarm-warmup.sh:*)
+        problems: none
+PASS  D3  failable: injecting an already-granted line turns D2 RED
+        injected "Bash(/opt/swarm/bin/swarm-budget.sh:*)" -> problems: Bash(/opt/swarm/bin/swarm-budget.sh:*) -> ALREADY GRANTED in settings.json (stale ask)
+PASS  D4  fails CLOSED: a file naming zero allow lines does not pass
+        extracted=0 closed=false
+PASS  D5  the file states a denial count
+        matched: 32
+PASS  D6  REPORT.md does not restate the verbatim allow-list lines
+        REPORT.md carries verbatim allow lines: false
+
+GATE v5  PASS 16 / FAIL 0
