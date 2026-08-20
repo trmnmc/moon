@@ -33,6 +33,8 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
+const { execFileSync } = require('node:child_process');
 
 const ROOT = path.join(__dirname, '..');
 const README_PATH = path.join(ROOT, 'README.md');
@@ -165,6 +167,271 @@ function formatViolations(violations) {
         `anchor anywhere in its chunk:\n    ${JSON.stringify(v.chunk)}`,
     )
     .join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// T-211: anchor-PRESENCE (above) is necessary but not sufficient. REPORT.md
+// shipped "- Suite at cycle 104: 208 tests, 208 passing." from cycle 105
+// through cycle 106 -- it sailed straight through every test above because it
+// DID name an anchor (cycle 104); the anchor was just glued to the wrong
+// number (cycle 104's commit actually reads 210/210, not 208/208). The header
+// comment above used to claim "there is no non-recursive way for a test in
+// this suite to learn the suite's OWN runtime test count" and treated that as
+// a reason a count claim could never be machine-verified for TRUTH, only for
+// shape. That premise is too strong for any claim that names a PAST cycle:
+// the conductor proved at cycle 106 (by hand, ~4s/commit) that a past cycle's
+// real count is recoverable by resolving "cycle N" to a commit via this
+// repo's own `cycle N:` commit-message convention, checking that commit out
+// into a worktree, and running the suite there. This section packages that
+// exact technique as a shipped test, scoped to the one claim SHAPE that has
+// actually caused the defect three times: a bullet that opens with the word
+// "Suite" and states its count at a named cycle.
+//
+// Scope, deliberately narrow: only bullets/list items that OPEN with "Suite"
+// are treated as claims about a real commit's real suite state. Other
+// count-shaped mentions elsewhere in this document are NOT re-derived against
+// git history, because they are not claims about a commit's real state --
+// e.g. the mutation-testing row further down ("...the suite reads 147 tests /
+// 146 pass..." against a *throwaway mutated scratch copy*, deliberately
+// different from any real commit) would be a false positive if matched by a
+// looser "any cycle number near any test count" scan. Verified empirically:
+// see the "positive engagement" test below, which confirms this scope finds
+// exactly the claim it is meant to find in the live document and nothing
+// else.
+//
+// Hazards handled here (see also the report-back for this item):
+//   - Recursion: a worktree's suite is run as a CHILD process with
+//     MOON_DOC_COUNTS_DEPTH incremented. Once DEPTH reaches
+//     MAX_RECURSION_DEPTH, this file's own live-document checks stop
+//     spawning further children -- they still run (so a nested run's overall
+//     tests/pass totals are unaffected -- see below), they just skip the part
+//     that would spawn a grandchild, and say so loudly via console.log so the
+//     skip is visible in output rather than silently indistinguishable from
+//     "checked, found nothing wrong". A `return` (not `test.skip`) is used
+//     deliberately: `test.skip` would move this test out of the "pass" bucket
+//     and into "skipped", which would make a nested run's own `# pass` count
+//     diverge from what a normal, non-recursive run of that same commit
+//     would report -- corrupting the very number an OUTER run is trying to
+//     verify. A plain early return keeps the test in the "pass" bucket while
+//     still being loud on stdout about why no further recursion happened.
+//   - Cost: MAX_COMMITS_PER_RUN bounds how many distinct commits a single
+//     suite run will ever worktree+measure. The live document needs exactly
+//     2 today (cycle 104, cycle 105); crossing the bound fails loudly rather
+//     than silently checking only some claims.
+//   - Shallow clones (CI default is fetch-depth 1): detected via
+//     `git rev-parse --is-shallow-repository`. When true, historical commits
+//     the live document names may simply not exist locally, so this test
+//     calls `t.skip(...)` with an explicit reason -- visibly a skip, not a
+//     pass -- rather than silently reporting zero violations. `ci.yml` has
+//     also been given `fetch-depth: 0` (see report) so this path should not
+//     normally trigger in CI; it remains as a defense-in-depth honest
+//     degradation, not the primary fix.
+//   - Cleanup: every worktree is created under `os.tmpdir()` (outside this
+//     repo) and removed in a `finally`, including on throw.
+// ---------------------------------------------------------------------------
+
+const MAX_RECURSION_DEPTH = 1; // a normal (depth 0) run may spawn and measure
+// depth-1 children; depth-1 children do not themselves spawn depth-2 children.
+const DEPTH = parseInt(process.env.MOON_DOC_COUNTS_DEPTH || '0', 10);
+const MAX_COMMITS_PER_RUN = 6; // hard cap on distinct commits a single run
+// will ever worktree+measure. Today's live document needs exactly 2.
+
+// Node's OWN `--test` runner marks child test-file processes it spawns
+// internally via NODE_TEST_CONTEXT / NODE_TEST_WORKER_ID. If those leak into
+// a `node --test` we spawn ourselves (they inherit through `...process.env`
+// like anything else), the grandchild sees them, assumes it IS one of
+// node's own internal recursive workers already, prints "run() is being
+// called recursively within a test file. skipping running files", and exits
+// having run nothing -- silently producing no TAP summary at all. Discovered
+// empirically while building this (see report-back). Strip them so our
+// child is treated as a fresh, independent `node --test` invocation.
+function childEnv(extra) {
+  const env = { ...process.env, ...extra };
+  delete env.NODE_TEST_CONTEXT;
+  delete env.NODE_TEST_WORKER_ID;
+  return env;
+}
+
+function isShallowClone() {
+  try {
+    const out = execFileSync('git', ['rev-parse', '--is-shallow-repository'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    }).trim();
+    return out === 'true';
+  } catch {
+    return false; // can't tell from here; the git calls below will surface their own errors
+  }
+}
+
+// Resolve a `cycle N` claim to the commit that introduced it, via this repo's
+// own commit-message convention -- never a sha printed in prose (that is a
+// separate thing worth cross-checking, not a source of truth). Returns an
+// array of matching full shas so the caller can fail closed on 0 (unresolved)
+// or >1 (ambiguous) rather than silently guessing.
+function resolveCycleCommits(cycleNum) {
+  const out = execFileSync(
+    'git', ['log', '--grep', `^cycle ${cycleNum}:`, '--format=%H'],
+    { cwd: ROOT, encoding: 'utf8' },
+  ).trim();
+  return out.length ? out.split('\n') : [];
+}
+
+// Check out `sha` into a throwaway worktree OUTSIDE this repo, run this
+// repo's own suite there as a depth-bounded child process, and parse its TAP
+// summary. Always cleans up the worktree, even on throw.
+function measureSuiteAt(sha) {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'moon-doc-counts-'));
+  let added = false;
+  try {
+    execFileSync('git', ['worktree', 'add', '--detach', tmpDir, sha], { cwd: ROOT, encoding: 'utf8' });
+    added = true;
+    const testDir = path.join(tmpDir, 'test');
+    const files = fs.readdirSync(testDir).filter((f) => f.endsWith('.test.js')).map((f) => path.join(testDir, f));
+    let stdout;
+    try {
+      stdout = execFileSync(
+        'node',
+        ['--test', '--test-reporter=tap', '--test-reporter-destination=stdout', ...files],
+        {
+          cwd: tmpDir,
+          encoding: 'utf8',
+          maxBuffer: 64 * 1024 * 1024,
+          env: childEnv({ MOON_DOC_COUNTS_DEPTH: String(DEPTH + 1) }),
+        },
+      );
+    } catch (err) {
+      // node --test exits non-zero when any test fails -- we still want its TAP summary.
+      stdout = `${err.stdout || ''}`;
+    }
+    const testsMatch = stdout.match(/^# tests (\d+)/m);
+    const passMatch = stdout.match(/^# pass (\d+)/m);
+    if (!testsMatch || !passMatch) {
+      throw new Error(
+        `doc-counts: could not parse a TAP summary from \`node --test\` at commit ${sha} -- tail of output:\n${stdout.slice(-2000)}`,
+      );
+    }
+    return { tests: parseInt(testsMatch[1], 10), pass: parseInt(passMatch[1], 10) };
+  } finally {
+    if (added) {
+      try {
+        execFileSync('git', ['worktree', 'remove', '--force', tmpDir], { cwd: ROOT, encoding: 'utf8' });
+      } catch {
+        // best-effort; the rmSync below still clears the directory
+      }
+    }
+    try {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    } catch {
+      // best-effort cleanup
+    }
+  }
+}
+
+// Find every "Suite ..." bullet in `text` and extract the (cycle, tests,
+// passing) triples it claims. A bullet may state MORE THAN ONE claim
+// separated by ';' (REPORT.md's real "... at cycle 104 ...; ... at cycle
+// 105 ..." line does exactly this), so each ';'-delimited clause inside the
+// bullet is scanned independently. Within a clause, the "cycle N" NEAREST
+// (by character distance) to the test-count number is the one paired with
+// it -- needed because REPORT.md's "On that annotation" paragraph (not a
+// "Suite" bullet, so out of scope here, but the same shape could recur)
+// mentions two different cycles in one sentence, only one of which dates the
+// number.
+function extractSuiteClaims(text) {
+  const claims = [];
+  const bulletRe = /(^|\n)([ \t]*[-*][ \t]+Suite\b[^\n]*(?:\n(?![ \t]*[-*][ \t]|[ \t]*\n|#)[^\n]*)*)/gm;
+  let bm;
+  while ((bm = bulletRe.exec(text)) !== null) {
+    const region = bm[2];
+    let lastIndex = 0;
+    const clauses = [];
+    const clauseRe = /;/g;
+    let cm;
+    while ((cm = clauseRe.exec(region)) !== null) {
+      clauses.push(region.slice(lastIndex, cm.index));
+      lastIndex = cm.index + 1;
+    }
+    clauses.push(region.slice(lastIndex));
+
+    for (const clause of clauses) {
+      const cycleMatches = [...clause.matchAll(/\bcycle\s+(\d+)\b/gi)];
+      const testsMatch = clause.match(/\b(\d+)\s+tests?\b/i);
+      if (cycleMatches.length === 0 || !testsMatch) continue;
+      let nearest = cycleMatches[0];
+      let nearestDist = Math.abs(cycleMatches[0].index - testsMatch.index);
+      for (const cmm of cycleMatches) {
+        const d = Math.abs(cmm.index - testsMatch.index);
+        if (d < nearestDist) {
+          nearest = cmm;
+          nearestDist = d;
+        }
+      }
+      const passMatch = clause.match(/\b(\d+)\s+pass(?:ing|ed)?\b/i);
+      claims.push({
+        cycle: parseInt(nearest[1], 10),
+        testsClaimed: parseInt(testsMatch[1], 10),
+        passClaimed: passMatch ? parseInt(passMatch[1], 10) : null,
+        snippet: clause.trim(),
+      });
+    }
+  }
+  return claims;
+}
+
+// Measurements are cached by sha at MODULE scope (not per-call) -- this test
+// file calls verifyClaims() from several places (the RED proof, the GREEN
+// control, and the live-document checks), and cycle 104 / cycle 105 recur
+// across them. Without a shared cache a single `node --test` of this file
+// alone would worktree+measure the same commits repeatedly (observed: 5
+// spawns, ~22s, before this cache was added); with it, each distinct commit
+// is measured at most once per process (observed after: 2 spawns, ~9s) --
+// this is itself part of the cost bound, not just an optimization.
+const measureCache = new Map();
+
+// Verify each claim against the real commit its cycle names. Returns a list
+// of violations -- empty means every claim checked out true.
+function verifyClaims(claims) {
+  const violations = [];
+  for (const claim of claims) {
+    const shas = resolveCycleCommits(claim.cycle);
+    if (shas.length !== 1) {
+      violations.push({
+        ...claim,
+        reason:
+          shas.length === 0
+            ? `no commit matches \`git log --grep '^cycle ${claim.cycle}:'\` -- either a typo, or this names a ` +
+              `cycle that has not been committed yet and should not assert a definite count until it has`
+            : `${shas.length} commits match \`git log --grep '^cycle ${claim.cycle}:'\` (ambiguous): ${shas.join(', ')}`,
+      });
+      continue;
+    }
+    const sha = shas[0];
+    let measured = measureCache.get(sha);
+    if (!measured) {
+      measured = measureSuiteAt(sha);
+      measureCache.set(sha, measured);
+    }
+    const testsOk = measured.tests === claim.testsClaimed;
+    const passOk = claim.passClaimed === null || measured.pass === claim.passClaimed;
+    if (!testsOk || !passOk) {
+      violations.push({
+        ...claim,
+        sha,
+        measured,
+        reason:
+          `claims ${claim.testsClaimed} tests` +
+          (claim.passClaimed !== null ? `/${claim.passClaimed} passing` : '') +
+          ` at cycle ${claim.cycle} (commit ${sha}), but that commit actually measures ` +
+          `${measured.tests} tests/${measured.pass} passing`,
+      });
+    }
+  }
+  return violations;
+}
+
+function formatClaimViolations(violations) {
+  return violations.map((v) => `  cycle ${v.cycle}: ${v.reason}\n    from: ${JSON.stringify(v.snippet)}`).join('\n');
 }
 
 // ---------------------------------------------------------------------------
@@ -361,4 +628,210 @@ test('REPORT.md "known issues closed" sentence matches state.json resolved_issue
     `REPORT.md's sentence says "${sentenceMatch[1]}" (${WORD_NUMBERS[wordCount]}) known issues closed, ` +
       `but .swarm/state.json resolved_issues[] has ${stateIds.length}`,
   );
+});
+
+// ---------------------------------------------------------------------------
+// T-211: extraction unit test -- proves extractSuiteClaims reads the actual
+// claim shape correctly, independent of git, before anything below trusts it
+// to hand real cycle numbers to real worktree measurements.
+// ---------------------------------------------------------------------------
+
+test('extractSuiteClaims: parses a semicolon-joined "Suite ..." bullet into independent (cycle, tests, passing) claims', () => {
+  const text = [
+    '- T-206 (cycle 103): unrelated bullet, not a Suite claim, must not be picked up.',
+    '- Suite size, measured directly: 210 tests / 210 passing at cycle 104 (commit `ecdbcb8`); 208 tests / 208 passing at cycle 105 (this commit). Trailing prose that mentions no further numbers.',
+  ].join('\n');
+
+  const claims = extractSuiteClaims(text);
+  assert.strictEqual(claims.length, 2, `expected exactly 2 claims, got ${claims.length}: ${JSON.stringify(claims)}`);
+  assert.deepStrictEqual(
+    claims.map((c) => [c.cycle, c.testsClaimed, c.passClaimed]),
+    [[104, 210, 210], [105, 208, 208]],
+  );
+});
+
+test('extractSuiteClaims: a non-"Suite" bullet or prose sentence naming a cycle and a count is ignored', () => {
+  // Mirrors the real mutation-testing table row and "On that annotation" prose in
+  // REPORT.md today: both name a cycle near a test count, but neither is a claim
+  // about a real commit's real suite state, and neither starts with "Suite".
+  const text = [
+    '| id | note |',
+    '|---|---|',
+    '| A | with the new test present the suite reads 147 tests / 146 pass (cycle 47, re-run cycle 58) |',
+  ].join('\n');
+  assert.deepStrictEqual(extractSuiteClaims(text), []);
+});
+
+// ---------------------------------------------------------------------------
+// T-211: RED / GREEN-control proof for the truth-checker itself, run against
+// THIS repo's REAL git history (ecdbcb8 / 549af12 are real commits already in
+// this repo, so this is not a mock -- it is the exact conductor technique,
+// exercised for real). Skipped, loudly, past the recursion bound or under a
+// shallow clone for the same reasons the live-document tests below are.
+// ---------------------------------------------------------------------------
+
+test('verifyClaims: RED -- flags the exact pre-cycle-106 false line ("- Suite at cycle 104: 208 tests, 208 passing.")', (t) => {
+  if (DEPTH >= MAX_RECURSION_DEPTH) {
+    console.log(`[doc-counts] MOON_DOC_COUNTS_DEPTH=${DEPTH} >= ${MAX_RECURSION_DEPTH}: RED proof skipped by design (recursion bound)`);
+    return;
+  }
+  if (isShallowClone()) {
+    t.skip('shallow git clone -- cannot resolve cycle 104 to a commit to run this proof against real history');
+    return;
+  }
+  const falseText = '- Suite at cycle 104: 208 tests, 208 passing.';
+  const claims = extractSuiteClaims(falseText);
+  assert.strictEqual(claims.length, 1);
+  assert.deepStrictEqual([claims[0].cycle, claims[0].testsClaimed, claims[0].passClaimed], [104, 208, 208]);
+
+  const violations = verifyClaims(claims);
+  assert.strictEqual(
+    violations.length, 1,
+    `expected the false claim to be flagged, got ${violations.length} violations: ${formatClaimViolations(violations)}`,
+  );
+  assert.match(violations[0].reason, /actually measures 210 tests\/210 passing/);
+});
+
+test('verifyClaims: GREEN control -- a prose-only reword of the corrected line is NOT flagged (not a snapshot test)', (t) => {
+  if (DEPTH >= MAX_RECURSION_DEPTH) {
+    console.log(`[doc-counts] MOON_DOC_COUNTS_DEPTH=${DEPTH} >= ${MAX_RECURSION_DEPTH}: GREEN-control proof skipped by design (recursion bound)`);
+    return;
+  }
+  if (isShallowClone()) {
+    t.skip('shallow git clone -- cannot resolve cycle 104/105 to commits to run this proof against real history');
+    return;
+  }
+  // Same two real claims (cycle 104 -> 210/210, cycle 105 -> 208/208), entirely
+  // reworded prose, different punctuation and ordering of the qualifier clause.
+  // If this test failed on a wording change alone, it would be a snapshot test
+  // masquerading as an assertion -- it must only fail when a NUMBER is wrong.
+  const reworded =
+    '- Suite headcount, re-measured straight off the commits themselves rather than assumed: ' +
+    '210 tests, 210 passing, as of cycle 104 (commit `ecdbcb8`); 208 tests, 208 passing, as of ' +
+    'cycle 105 (this very commit). Nothing about coverage regressed -- some archived prose simply ' +
+    "moved to another file, which is why the two totals don't match.";
+  const claims = extractSuiteClaims(reworded);
+  assert.strictEqual(claims.length, 2, `expected 2 claims from the reworded text, got: ${JSON.stringify(claims)}`);
+
+  const violations = verifyClaims(claims);
+  assert.deepStrictEqual(
+    violations, [],
+    `a truthful reword must not be flagged, but got: ${formatClaimViolations(violations)}`,
+  );
+});
+
+// ---------------------------------------------------------------------------
+// T-211: recursion-bound proof -- a depth-1 child spawned on THIS repo's own
+// current tree must not itself spawn a depth-2 grandchild. Run for real (a
+// real child process, real env var), not asserted by reading the source.
+// ---------------------------------------------------------------------------
+
+test('MOON_DOC_COUNTS_DEPTH bounds recursion: a depth-1 run does not spawn a depth-2 child', () => {
+  // This test itself spawns a child -- it must only do so from depth 0, or a
+  // depth-1 run of this same file (spawned by the block below, or by a real
+  // historical-claim measurement) would spawn a depth-2 grandchild here,
+  // which is exactly the unbounded recursion this whole mechanism exists to
+  // prevent. Depth >= MAX_RECURSION_DEPTH: skip spawning, loudly, same as
+  // every other depth-gated check in this file.
+  if (DEPTH >= MAX_RECURSION_DEPTH) {
+    console.log(`[doc-counts] MOON_DOC_COUNTS_DEPTH=${DEPTH} >= ${MAX_RECURSION_DEPTH}: recursion-bound self-proof skipped by design (recursion bound)`);
+    return;
+  }
+  const start = Date.now();
+  const out = execFileSync(
+    'node', ['--test', '--test-reporter=tap', '--test-reporter-destination=stdout', __filename],
+    {
+      cwd: ROOT,
+      encoding: 'utf8',
+      env: childEnv({ MOON_DOC_COUNTS_DEPTH: '1' }),
+      maxBuffer: 64 * 1024 * 1024,
+    },
+  );
+  const elapsedMs = Date.now() - start;
+  // At depth 0 the RED/GREEN/live checks above each spawn a real worktree
+  // (~4s each). At depth 1 they must all short-circuit instead -- so the
+  // whole file re-run should finish in well under one worktree's worth of
+  // time. This is a real timing measurement, not a mock: if the depth guard
+  // were removed, this assertion would fail (this file would recurse and
+  // take 4s+ per level instead).
+  assert.ok(
+    elapsedMs < 3000,
+    `a depth-1 run of this file took ${elapsedMs}ms -- expected well under 3000ms if recursion was ` +
+      `correctly bounded (no worktrees spawned); it likely spawned a depth-2 child instead`,
+  );
+  assert.match(out, /# fail 0/, `depth-1 run of this file should still be fully green:\n${out.slice(-1500)}`);
+  const depthNotices = (out.match(/MOON_DOC_COUNTS_DEPTH=1 >= 1: .* skipped by design \(recursion bound\)/g) || []).length;
+  assert.ok(
+    depthNotices >= 1,
+    `expected at least one loud "skipped by design (recursion bound)" notice in depth-1 output, saw none:\n${out.slice(-1500)}`,
+  );
+});
+
+// ---------------------------------------------------------------------------
+// T-211: the live documents, scanned and TRUTH-checked fresh on every run.
+// This is the shipped, stronger guarantee: not just "this claim names an
+// anchor" (above) but "this claim is TRUE at the anchor it names".
+// ---------------------------------------------------------------------------
+
+test('REPORT.md actually contains a "Suite ..." claim for the checks below to have exercised (positive-engagement control)', () => {
+  const raw = readDocOrThrow(REPORT_PATH, 'REPORT.md');
+  const claims = extractSuiteClaims(raw);
+  assert.ok(
+    claims.length > 0,
+    'doc-counts: no "Suite ..." bullet found in REPORT.md at all -- either the extractor is broken, or the ' +
+      'summary line this section exists to police has been removed/reworded past recognition; either way the ' +
+      '"REPORT.md Suite claims are true" test below would be passing vacuously',
+  );
+});
+
+test("REPORT.md's \"Suite ...\" bullet(s) state a count that is TRUE at the cycle/commit they name", (t) => {
+  if (DEPTH >= MAX_RECURSION_DEPTH) {
+    console.log(`[doc-counts] MOON_DOC_COUNTS_DEPTH=${DEPTH} >= ${MAX_RECURSION_DEPTH}: REPORT.md truth-check skipped by design (recursion bound)`);
+    return;
+  }
+  const raw = readDocOrThrow(REPORT_PATH, 'REPORT.md');
+  const claims = extractSuiteClaims(raw);
+  if (claims.length === 0) return; // nothing of this shape to verify
+
+  if (claims.length > MAX_COMMITS_PER_RUN) {
+    assert.fail(
+      `doc-counts: ${claims.length} "Suite ..." claims found, exceeding the deliberate MAX_COMMITS_PER_RUN=` +
+        `${MAX_COMMITS_PER_RUN} cost bound -- raise the constant deliberately if this is legitimate growth, ` +
+        `rather than letting the extra claims go unverified`,
+    );
+  }
+  if (isShallowClone()) {
+    t.skip(
+      `shallow git clone detected (\`git rev-parse --is-shallow-repository\`) -- cannot resolve the ${claims.length} ` +
+        `cycle-named commit(s) this document's "Suite ..." claim(s) need to verify against; this is a SKIP, not a ` +
+        `pass. CI should run with full history (see .github/workflows/ci.yml fetch-depth) for this guarantee to hold`,
+    );
+    return;
+  }
+
+  const violations = verifyClaims(claims);
+  assert.deepStrictEqual(violations, [], `REPORT.md has a false "Suite ..." claim:\n${formatClaimViolations(violations)}`);
+});
+
+test("README.md's \"Suite ...\" bullet(s), if any, state a count that is TRUE at the cycle/commit they name", (t) => {
+  if (DEPTH >= MAX_RECURSION_DEPTH) {
+    console.log(`[doc-counts] MOON_DOC_COUNTS_DEPTH=${DEPTH} >= ${MAX_RECURSION_DEPTH}: README.md truth-check skipped by design (recursion bound)`);
+    return;
+  }
+  const raw = readDocOrThrow(README_PATH, 'README.md');
+  const claims = extractSuiteClaims(raw);
+  if (claims.length === 0) return; // README.md carries no such claim today -- scanned anyway, fail-closed for the future
+
+  if (claims.length > MAX_COMMITS_PER_RUN) {
+    assert.fail(
+      `doc-counts: ${claims.length} "Suite ..." claims found in README.md, exceeding MAX_COMMITS_PER_RUN=${MAX_COMMITS_PER_RUN}`,
+    );
+  }
+  if (isShallowClone()) {
+    t.skip('shallow git clone -- cannot resolve README.md\'s cycle-named commit(s) to verify against');
+    return;
+  }
+
+  const violations = verifyClaims(claims);
+  assert.deepStrictEqual(violations, [], `README.md has a false "Suite ..." claim:\n${formatClaimViolations(violations)}`);
 });

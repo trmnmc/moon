@@ -10,6 +10,15 @@ jobs:
         node-version: [20, 22]
     steps:
       - uses: actions/checkout@v7
+        with:
+          # T-211: test/doc-counts.test.js re-derives some REPORT.md/README.md
+          # count claims by `git worktree add`-ing the historical commit each
+          # claim names and re-running the suite there. The default
+          # fetch-depth (1) would make those commits simply absent, and the
+          # test degrades to a loud, visible `t.skip(...)` rather than a
+          # silent pass in that case -- but a full checkout is what lets the
+          # guarantee actually hold in CI instead of only degrading.
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}

@@ -2054,25 +2054,25 @@
       "id": "T-210",
       "title": "KI-2 row still says the patch is six allow-list lines; the ask has been four since swarm-budget.sh was granted",
       "kind": "fix",
-      "status": "todo",
+      "status": "done",
       "priority": 5,
       "effort": "S",
       "deps": [],
       "attempts": 0,
-      "model": "haiku",
+      "model": "sonnet",
       "packages": [],
       "files_hint": [
         "REPORT.md"
       ],
       "craft": null,
       "acceptance": "REPORT.md no longer leaves a reader with two different counts for the same ask. The KI-2 row's run-3 sentence \"The exact patch is six allow-list lines\" is SUPERSEDED by a dated clause naming the current ask (four lines, two scripts: swarm-playbook.sh and swarm-warmup.sh), not silently rewritten - a dated measurement records what was believed when. The four lines are still NOT restated in REPORT.md; the pointer to .swarm/KI-2-OWNER-ACTION.md carries them. REPORT.md stays at or under 25586 bytes and all three doc gates stay green.",
-      "notes": "Found by the conductor at cycle 105 while narrowing gate cell B4, which had wrongly flagged the pre-existing `Bash(` token in this row. The row is historical run-3 text and was true when written: at that time neither swarm-budget.sh nor swarm-playbook.sh was allowlisted, so the ask was six lines. swarm-budget.sh has since been granted - confirmed behaviourally, the probe ran at cycles 103, 104 and 105 - leaving four. The contradiction became visible on one screen because cycle 105 added a pointer, two rows below, to a file that says four."
+      "notes": "Found by the conductor at cycle 105 while narrowing gate cell B4, which had wrongly flagged the pre-existing `Bash(` token in this row. The row is historical run-3 text and was true when written: at that time neither swarm-budget.sh nor swarm-playbook.sh was allowlisted, so the ask was six lines. swarm-budget.sh has since been granted - confirmed behaviourally, the probe ran at cycles 103, 104 and 105 - leaving four. The contradiction became visible on one screen because cycle 105 added a pointer, two rows below, to a file that says four. | CYCLE 107: PASSED, gate 18/18 (.swarm/gates/cycle-107-gate.mjs). Superseded rather than rewritten: the run-3 \"six allow-list lines\" sentence survives byte-identically (cell B1) and a dated clause naming run 6 / cycle 107 / four lines / both remaining scripts was appended inside the same physical row. Cell B8 MEASURED the ask against the live /opt/swarm/.claude/settings.json rather than checking that a number was stated: swarm-playbook.sh and swarm-warmup.sh have zero entries, swarm-budget.sh and swarm-notify.sh have entries, KI-2-OWNER-ACTION.md lists exactly 4 -> ask = 4. C1 is its refutation control (grant playbook in a copy, the ask reads 2). Line count 222 -> 222, bytes 24044 -> 24399 (cap 25586), zero new Bash( tokens."
     },
     {
       "id": "T-211",
       "title": "doc-counts.test.js proves a count claim is ANCHORED, never that it is TRUE at that anchor",
       "kind": "fix",
-      "status": "todo",
+      "status": "done",
       "priority": 6,
       "effort": "M",
       "deps": [],
@@ -2080,11 +2080,12 @@
       "model": "sonnet",
       "packages": [],
       "files_hint": [
-        "test/doc-counts.test.js"
+        "test/doc-counts.test.js",
+        ".github/workflows/ci.yml"
       ],
       "craft": null,
       "acceptance": "A shipped repo test — not a conductor-only gate under .swarm/gates/ — fails closed when a doc states a suite-count that is false at the cycle or commit it names, in the way REPORT.md:220 was false from cycle 105 until cycle 106. It must be proven both ways: it fails against the exact pre-cycle-106 text of that line, and it stays GREEN on a prose-only mutation of the corrected line. If the check turns out to be genuinely infeasible as a repo test (a suite cannot re-run itself at another commit inside its own run without an unbounded cost or a recursion hazard), that is an acceptable outcome ONLY if the infeasibility is demonstrated with real command output and doc-counts.test.js gains a comment naming the limitation precisely, so the next reader does not mistake anchor-presence for anchor-truth.",
-      "notes": "Filed by the conductor at cycle 106. This is the third consecutive cycle in which a defect walked through a green EXISTENCE check: cycle 104 cell D5 checked that a denial count was stated while a wrong decomposition passed underneath; cycle 105 shipped \"Suite at cycle 104: 208 tests, 208 passing\" past doc-counts.test.js, which verified the claim named a cycle and had no way to verify the number was true at it; cycle 106 caught it only because the CONDUCTOR gate measured the suite in worktrees pinned to both commits. That measurement technique is proven and cheap (two git worktrees outside the target, ~4s each) but it lives in .swarm/gates/cycle-106-gate.mjs, which is a per-cycle conductor artifact, so the repo itself still cannot catch this class. HONEST SCOPE NOTE: a moon CLI user would never notice this, so it fails the \"would the target user notice\" ratchet as a product item; it earns its place only as the run's stated theme, which is machine-checked doc gates. Priority is set below T-210 accordingly."
+      "notes": "Filed by the conductor at cycle 106. This is the third consecutive cycle in which a defect walked through a green EXISTENCE check: cycle 104 cell D5 checked that a denial count was stated while a wrong decomposition passed underneath; cycle 105 shipped \"Suite at cycle 104: 208 tests, 208 passing\" past doc-counts.test.js, which verified the claim named a cycle and had no way to verify the number was true at it; cycle 106 caught it only because the CONDUCTOR gate measured the suite in worktrees pinned to both commits. That measurement technique is proven and cheap (two git worktrees outside the target, ~4s each) but it lives in .swarm/gates/cycle-106-gate.mjs, which is a per-cycle conductor artifact, so the repo itself still cannot catch this class. HONEST SCOPE NOTE: a moon CLI user would never notice this, so it fails the \"would the target user notice\" ratchet as a product item; it earns its place only as the run's stated theme, which is machine-checked doc gates. Priority is set below T-210 accordingly. | CYCLE 107: PASSED, gate 14/14 (.swarm/gates/cycle-107b-gate.mjs) plus a separate shallow-clone degrade proof (.swarm/gates/cycle-107c-shallow.mjs). The escape hatch was NOT taken: the technique is packaged in the shipped suite. Diff is purely additive (473 insertions, 0 deletions), so the existing anchor-presence checks are mechanically unweakened. Proven four ways: E2 RED (the exact pre-cycle-106 false line now fails, and E3 shows the message names the measured 210 against the stated 208); E4 ATTRIBUTION (HEAD's version of the same file passes that identical mutation, so the kill belongs to the new code); E5 DISCRIMINATOR (a one-digit mutation of a TRUE count fails, which a string-matcher for one known-bad line could not do); E6 TRUE-NEGATIVE (a conductor-authored prose-only reword stays green). Recursion bounded at depth 1 via MOON_DOC_COUNTS_DEPTH and shown to BITE (E8: 172 ms depth-marked vs 8635 ms unguarded). Suite 208 -> 216 in 4.2 s -> 9.9 s. CI hazard handled with fetch-depth: 0 plus a loud runtime degrade, both verified."
     }
   ]
 }
