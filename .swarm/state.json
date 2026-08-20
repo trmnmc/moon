@@ -1098,6 +1098,18 @@
     {
       "cycle": 108,
       "what": "Candidates REJECTED by the scan, recorded so run 7 does not re-derive them. (a) A CI leg exercising the shallow-clone degrade path, named unproven in the cycle-107 addendum: fails ratchet question 2 - it is a guard of a guard of a guard, the degrade path is already verified locally with a control, and it brushes the no-new-measurement-axis non-goal. (b) Exercising the 6-commit cost bound at 6 rather than 2: fails question 1, no reader-visible change. (c) KI-8 LICENSE file: blocked on the owner supplying a copyright line, which no agent may invent; already surfaced with what would settle it. (d) KI-4: needs a human look, no automated check possible. (e) KI-5 and KI-7: documented upstream facts, machine-pinned, and the astronomy core and glyph set are frozen non-goals. (f) KI-2 and KI-9: SWARM tooling, fenced by hard rule 5, and already escalated once this run per must-have 3. (g) L-046 wire-through gap: CHECKED and absent - every flag README documents (--block, --compact, --json, --north, --south) plus --help and two negative cases is exercised through a spawned bin/moon.js in test/cli.test.js. (h) L-043 unstable-SUBJECT: audited clean at kickoff and re-checked - the new anchor-truth guard binds to immutable historical commits, not to a moving pathspec."
+    },
+    {
+      "cycle": 109,
+      "what": "Arms D and E of the T-213 gate were authored by the conductor and deliberately WITHHELD from the builder dispatch. Arms A-C (mutation kills, attribution, converse control) were all named in the brief, and all three are satisfiable by a check that tests mere EXISTENCE and by a regex that merely matches today text - neither of which is what the acceptance says. D (path exists on disk but is NOT git-tracked) and E (zero-match parse must not render green) came back RED for the reason they name. Recorded because the choice, not the outcome, is what makes the gate a gate."
+    },
+    {
+      "cycle": 109,
+      "what": "A rot vector CREATED by this cycle repair, filed as a WRAP_UP obligation rather than a backlog item. REPORT.md now reads \"archived in full, not deleted, at A and B\"; run 6 record is in REPORT.md itself at ## Run 6, in NEITHER archive. True and reachable today - acceptance clause 4 was verified against it - but it becomes false the moment the run-6 section is archived at wrap-up, which is the T-212 failure shape one run later. The new T-213 gate CANNOT catch it: both paths will still resolve. Whoever archives the run-6 section must update both pointer sentences in the same edit."
+    },
+    {
+      "cycle": 109,
+      "what": "DONE was NOT declared even though the backlog reached 0 todo / 0 blocked and the run single must-have (L-043 FORM-and-DIRECTION clause as a machine-checked gate) closed. The definition-of-done check belongs to the cycle-110 percent-5 full SPEC re-read, not to the cycle that happens to empty the backlog. Recorded so a fresh session does not read the empty backlog as a stall."
     }
   ],
   "known_issues": [
