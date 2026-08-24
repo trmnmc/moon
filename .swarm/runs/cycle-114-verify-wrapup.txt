@@ -1,0 +1,12 @@
+[cell 2] archives on disk (by listing): [".swarm/REPORT-ARCHIVE-2026-08-18.md",".swarm/REPORT-ARCHIVE-2026-08-20.md",".swarm/REPORT-ARCHIVE-2026-08-24.md"]
+[cell 2] first-screen pointer candidates: 1 -> [".swarm/REPORT-ARCHIVE-2026-08-18.md",".swarm/REPORT-ARCHIVE-2026-08-20.md",".swarm/REPORT-ARCHIVE-2026-08-24.md"]
+[cell 2] closing italic candidates: 1 -> [".swarm/REPORT-ARCHIVE-2026-08-18.md",".swarm/REPORT-ARCHIVE-2026-08-20.md",".swarm/REPORT-ARCHIVE-2026-08-24.md"]
+[cell 2] first-screen set === disk set: true
+[cell 2] closing italic set === disk set: true
+[cell 3] "## Run N" headings in REPORT.md: 1 ["## Run 7 (2026-08-24)"]
+[cell 4] REPORT.md bytes: 25574 (budget 25582) -> PASS
+[cell 5] # tests 271
+[cell 5] # pass 271
+[cell 5] # fail 0
+[cell 5] # skipped 0
+[cell 1] failing report-pointer assertions: 0 (the live-tree case is green against the edit just made)

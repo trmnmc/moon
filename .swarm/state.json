@@ -3,7 +3,7 @@
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
   "phase": "DONE",
-  "cycle": 113,
+  "cycle": 114,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -1165,6 +1165,11 @@
       "cycle": 113,
       "what": "declare moon DONE for improvement run #7: every definition-of-done clause is met and no VALUE_LOOP candidate clears the ratchet",
       "why": "T-215 was the last open must-have and verified this cycle. The DoD was re-derived clause by clause against commands run this cycle, not against the journal's memory: paraphrase registry gate green (cycle 112), archive-pointer gate proven RED against the real pending edit then GREEN on the corrected one (this cycle), count claims already re-derived (cycle 111), KI-2 escalated once (cycle 112), suite 269 green 0 skipped vs a 244 floor, REPORT.md 25574 <= 25582. Every VALUE_LOOP candidate that would clear the \"would the user still care after 10 minutes\" ratchet (T-177 daily invariance, T-178 --date, T-179 frame alignment) is locked out by the trickle brief, and the spec names manufactured diligence as the failure mode to avoid. So: DONE, not stalled, and wrap rather than backfill."
+    },
+    {
+      "cycle": 114,
+      "what": "WRAP_UP executed in the cycle after the DONE call, not folded into it",
+      "why": "cycle 113 declared moon DONE and left both archive-pointer copies untouched on purpose, so the WRAP_UP edit its new gate was proven RED against could be made under that gate. Making the edit in 113 would have meant the gate judged its own author's pending change after the fact — the exact shape T-215 exists to prevent."
     }
   ],
   "known_issues": [

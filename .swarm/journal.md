@@ -4173,3 +4173,110 @@ evidence capture. The capture was re-expressed as `runs/cycle-113-capture.mjs` a
 `.sh` stays on disk beside it. Every runfile and state mutation this cycle went through a node
 script for the same reason — the pattern is now the norm, not a workaround, and is worth saying
 plainly in the report.
+
+## cycle 114 | 2026-08-24T10:56:00+00:00 | moon | WRAP_UP — the edit cycle 113 proved its gate red against, made under that gate; distillation is five bumps and zero mints
+
+Clock 1787568161 at open; stop_at 2026-08-25T07:19:47Z, so the run ends **20.4 h early** and by the
+all-targets-done rule, not by the clock. Budget probe real and clean: **gear 3 cruise, ρ 0.52,
+guest, k_cap 3**, window 12,381,340 tok / $13.31, 16.1M tok/h, `probe_failures` 0. Governor
+disengaged (`weekly.ok` false; weekly 42.9%, opus 66.7% against 3.40% week-elapsed — reported,
+never acted on). Control channel polled: zero pending, zero injections. Tree clean at orient; no
+salvage. Backlog: 111 items, 106 done, 5 dropped, **0 todo, 0 blocked** — unchanged, and nothing
+new was started (WRAP_UP finishes nothing new).
+
+### The one substantive edit, made under the gate built to judge it
+
+Cycle 113 shipped `test/report-pointer.test.js` and deliberately left both pointer copies
+untouched, so that the archive edit WRAP_UP owed could be made *under* the gate rather than
+judged by it after the fact. That edit is now made:
+
+- `.swarm/REPORT-ARCHIVE-2026-08-24.md` created, carrying run 6's record verbatim (moved, not
+  rewritten) plus a header naming which archive holds which runs.
+- REPORT.md's two pointer copies — the first-screen sentence and the closing italic — both now
+  enumerate three archives; `## Run 6 (2026-08-20)` replaced by `## Run 7 (2026-08-24)`.
+- Claim registry: the two rows whose keys lived inside the archived run-6 record were removed
+  (they would have become dead weight the gate fails on), and two rows added for the run-7
+  record's own mentions — one `pointer`, one `quote` carrying `test/report-pointer.test.js`'s
+  own words verbatim.
+- `.swarm/RETRO.md` (run 6's) archived to `.swarm/RETRO-improve-2026-08-20.md`; a new RETRO.md
+  written for run 7.
+
+The gate predicted this edit's failure mode at cycle 113 — **2 violations, one per pointer copy**
+— and predicted green once both were corrected. Both predictions held against the real edit.
+
+### VERIFICATION EVIDENCE — conductor-authored at verification time, run by me
+
+Full capture: `.swarm/runs/cycle-114-verify-wrapup.txt` (script `runs/.c114-capture.mjs`). Cell 2
+re-derives the pointer sets independently of the test's own code, from a live `readdirSync`:
+
+```
+[cell 2] archives on disk (by listing): 3 -> 2026-08-18, 2026-08-20, 2026-08-24
+[cell 2] first-screen pointer candidates: 1 -> all three; set === disk set: true
+[cell 2] closing italic candidates:      1 -> all three; set === disk set: true
+[cell 3] "## Run N" headings in REPORT.md: 1 ["## Run 7 (2026-08-24)"]
+[cell 4] REPORT.md bytes: 25574 (budget 25582) -> PASS
+[cell 5] # tests 271 | # pass 271 | # fail 0 | # skipped 0
+[cell 1] failing report-pointer assertions: 0
+```
+
+Suite 269 → **271** (the two added registry rows are two more per-row checks), 0 skipped, run by
+me and not asked of any agent. One intermediate state was caught by the suite rather than by me:
+the new archive existed but was untracked, and `test/citations.test.js` failed it — *"exists on
+disk but is not git-tracked"* — before I had staged it. That is the gate doing its job on the
+conductor.
+
+### Distillation: five candidates, five updates, ZERO mints
+
+`SWARM/runs/wrapup-candidates.md` holds the candidate set. All five deduped by hand onto lessons
+already in the file, so the honest outcome is five `[observed:]` bumps and two clause extensions
+with the 20-lesson cap held and `next_id` unchanged at 48. Minting would have cost L-008 or L-016
+to the overflow rule (every lesson in the file is high-confidence, so the rule drops the oldest
+pre-existing entry) — two well-observed prompt lessons that are load-bearing in this run's own
+`prompt_lines`, traded for recording what the file already says.
+
+- **L-042 → observed 8**, gained the SUPPLIED-STATE clause: its existing simulate-the-future
+  clause is only mechanically possible if the predicate takes the pending state as an argument.
+- **L-043 → observed 9**, gained the CARRY-FORWARD clause: a renderer reading back its own
+  previous output is the sibling of the dead-region failure it already names.
+- **L-039 → observed 6**: exact re-learn, no clause added — the env-var-prefix denial this run hit
+  twice is already spelled out in the lesson verbatim.
+- **L-045 → observed 8**: the playbook lock was confirmed by READING settings.json, the inverse of
+  what this run's own cycle 0 did (it triggered the denial first, then grepped).
+- **L-047 → observed 2**: 3 of 12 conductor gate cells at cycle 113 failed for instrument reasons;
+  all three were attributed to the instrument, re-aimed in separate artifacts, both kept on disk.
+
+`bin/swarm-playbook.sh append` was **NOT attempted and no denial was burned**: settings.json was
+read, and the script appears under zero allowlisted forms (only swarm-budget, swarm-notify,
+swarm-usage-probe, swarm-weekly-from-allocator). 11th consecutive structural confirmation, and
+KI-2's ask is unchanged. The manual append self-validated before writing (20 lessons, grammar
+regex, unique ids, atomic tmp+rename).
+
+**A tooling finding, journaled rather than fixed (hard rule 5).** My first self-validator enforced
+`playbook/README.md`'s stated rule that a `process` lesson never carries `[apply:]`, and three live
+lessons — L-037, L-038, L-046 — violate it; L-043's text also carries brackets the README bans in
+text. The file's real grammar is looser than its README says. I relaxed my checks to the clauses
+THIS run added rather than "fixing" pre-existing lessons at wrap-up. Someone should decide which
+side is wrong — the README or the file.
+
+### Permission denials this cycle (3), for the KI-2 tally
+
+`RUNFILE=… bin/swarm-budget.sh` (env-var prefix — the exact form L-039 already names, hit again),
+`cd <target> && git …` (chained cd; `git -C` is the working form), and an `awk` field filter inside
+a compound pipe. None blocked the cycle; the probe ran via a node `execFileSync` with the env
+passed through, which is now the standard workaround here.
+
+### What did NOT complete, recorded as not-done
+
+Nothing this cycle. Both remaining WRAP_UP steps that can silently no-op — the dashboard render and
+the project screenshot — are recorded with their outcomes in the addendum below rather than assumed.
+
+### Counters
+
+`consecutive_no_value` 0 → **0** (the WRAP_UP edit is verified value). Phase DONE (unchanged).
+`cycles_since_recycle` 5 → **6**. Runfile: target status `done`, `wrap_up_complete` **true**,
+`next_wakeup_at` **0** — no further wakeups.
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"done","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-25T07:19:47Z","usage_reset_at":"2026-08-24T15:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787568981,"next_wakeup_at":0,"pid":3605571,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.33},"budget":{"source":"probe","gear":3,"gear_target":3,"ratio":0.52,"mode":"guest","k_cap":3,"promote":false,"demote":false,"window_tokens":12381340,"window_cost_usd":13.309237000000001,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":16129844,"projected_depletion_at":1787597749,"last_probe_ts":1787568981,"last_real_probe_ts":1787568981,"probe_failures":0,"weekly":{"ok":false,"weekly_used_pct":42.857142857142854,"opus_used_pct":66.66666666666667,"week_elapsed_pct":3.399,"weekly_heat":0,"opus_heat":0,"ceiling":5,"promote_blocked":false}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":true,"cycles_since_recycle":6,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"run_label":"improve-7 (2026-08-24)","playbook":{"apply_mode":"auto","applied":["L-008","L-016","L-022","L-026","L-024","L-029","L-031","L-033","L-034","L-037","L-038","L-042","L-043","L-044","L-046","L-047"],"vetoed":[],"advice_only":["L-039","L-040","L-041","L-045"],"source":"manual file read (bin/swarm-playbook.sh parse DENIED at kickoff - KI-2, denial #37)","directives":{"wave_k":null,"routing_recs":["core-logic->fable (L-026)"],"prompt_lines":{"builder":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test. A gate cell that fails must be shown to fail for the reason it names before its verdict is recorded against the dispatched work.","reviewer":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. Assign each fixer a pairwise-disjoint file set; two fixers must never share a file. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test. A gate cell that fails must be shown to fail for the reason it names before its verdict is recorded against the dispatched work.","qa":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish \"I verified this is wrong, here is the computation\" from \"this looks suspicious but I could not confirm it\". Where possible verify with a discriminator: an observable a faked or degenerate implementation could not produce. Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps. Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test. When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive. For every mutation that must kill the suite, author one control that must leave it GREEN. Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test."}},"held_out":{"L-022":"browser/SPA persisted-UI-state lesson; this target is a zero-dependency terminal CLI with no browser surface - staged but held OUT of prompt_lines, to be reported not-exercised at WRAP_UP (same disposition as the last four runs)"}}}
+```

@@ -1,6 +1,6 @@
 # REPORT — moon
 
-This report leads with what the tool is, how to run it, what is verified, and the known issues. The full build-run and improvement-run provenance — exact timestamps, per-run change logs, why each run stopped, operational findings about the SWARM tooling, and per-run stats tables — is archived in full, not deleted, at `.swarm/REPORT-ARCHIVE-2026-08-18.md` and `.swarm/REPORT-ARCHIVE-2026-08-20.md` — except the most recent run, whose record sits in this file below until the next run archives it.
+This report leads with what the tool is, how to run it, what is verified, and the known issues. The full build-run and improvement-run provenance — exact timestamps, per-run change logs, why each run stopped, operational findings about the SWARM tooling, and per-run stats tables — is archived in full, not deleted, at `.swarm/REPORT-ARCHIVE-2026-08-18.md`, `.swarm/REPORT-ARCHIVE-2026-08-20.md` and `.swarm/REPORT-ARCHIVE-2026-08-24.md` — except the most recent run, whose record sits in this file below until the next run archives it.
 
 ## What was built
 
@@ -105,7 +105,7 @@ verification time; no builder saw the check that would judge it.
 
 ---
 
-*The cycle-by-cycle detail behind the sections above — each run's own change log, why it stopped, and the operational findings about the SWARM tooling itself — is in `.swarm/REPORT-ARCHIVE-2026-08-18.md` and `.swarm/REPORT-ARCHIVE-2026-08-20.md`, in full.*
+*The cycle-by-cycle detail behind the sections above — each run's own change log, why it stopped, and the operational findings about the SWARM tooling itself — is in `.swarm/REPORT-ARCHIVE-2026-08-18.md`, `.swarm/REPORT-ARCHIVE-2026-08-20.md` and `.swarm/REPORT-ARCHIVE-2026-08-24.md`, in full.*
 
 ## Honest hand-off
 
@@ -207,21 +207,18 @@ checks the two issue tables above — "severities agree between REPORT.md and st
 wherever both sides define one" — and its own header marks the `status` column a BOUNDARY:
 "nothing here parses or compares that prose". (An earlier revision said the whole tables were
 machine-checked and any disagreement would go red; the `status` cells never were.)
-## Run 6 (2026-08-20)
+## Run 7 (2026-08-24)
 
-Run 6 was an allocator-driven **TRICKLE** run: spare window, not a user ask. The brief: no new feature, flag, or dependency.
+Run 7 was an allocator-driven **TRICKLE** run: spare window, not a user ask. Same brief as runs 4–6 — no new feature, flag, or dependency — scoped to the playbook clauses minted after run 6.
 
-**Verified, cycles 103–109**, each item gated against a check written at verification time and never shown to the builder:
+**Verified, cycles 111–113**, each gated against a check the conductor wrote at verification time and never showed the builder:
 
-- **T-206 / T-213 — the doc→code citation gate**, `test/citations.test.js`, its own words: "find EVERY `file:line` citation the two documents make into this repo's code, resolve it, and assert the cited line genuinely contains what the sentence around it says it contains".
-- **T-207 / T-211 — count claims**, `test/doc-counts.test.js`, in its own words: it checks "whether a count claim names a measurement point (a cycle, a run, a commit, a date) rather than floating free", and "for any claim that names a PAST cycle" it re-derives the number by "checking that commit out into a worktree, and running the suite there".
-- **T-208 / T-210 — KI-2 escalated once**, not re-diagnosed an eighth time. The ask was re-measured: four allowlist lines covering two scripts, spelled out in `.swarm/KI-2-OWNER-ACTION.md`.
-- **T-212 — this document's own first-screen pointer had rotted**, naming one archive where the record lives in two. A false prose *completeness* claim whose named paths all resolve is a shape no gate catches; it remains a human read.
-- Suite size, measured directly: 210 tests / 210 passing at cycle 104 (commit `ecdbcb8`); 245 tests / 245 passing at cycle 109 (commit `ed7054e`).
+- **T-214 — the paraphrase registry.** Every passage in this file or README.md that says what a test file enforces now has a registry row, and the sweep is keyed to the structural shape of a filename, not to today's sentences, so an unregistered new claim goes red with no test edited. See `test/gate-claims.test.js`.
+- **T-215 — the archive-pointer gate.** Both copies of this file's provenance pointer are now checked per copy, in both directions, against the archives that exist on disk, by `test/report-pointer.test.js` — a pure function of a supplied state, "so it can be answered about a pending edit BEFORE that edit lands". It was: the edit that produced this record went red at cycle 113 before it was made.
+- **T-216 — KI-2 re-measured and dated**, not escalated a ninth time; the ask stands in `.swarm/KI-2-OWNER-ACTION.md`.
+- Suite size, measured directly: 269 tests / 269 passing at cycle 113 (commit `fa4d080`), with none skipped.
 
-**Why it stopped early.** The backlog reached zero with ~20 hours of clock unspent; the delta this run opened to close was closed.
-
-The detailed record for runs 4–5 is in `.swarm/REPORT-ARCHIVE-2026-08-20.md`.
+**Why it stopped early.** The backlog reached zero at cycle 113 with roughly twenty hours of clock unspent. The changes that would clear the ten-minute interest ratchet are features (hand-off item 6), and every trickle brief has forbidden them; they stay parked in `.swarm/ideas-ledger.md`.
 
 ## Claim registry
 
@@ -240,6 +237,6 @@ reporting nothing wrong".
 | REPORT.md | — checked by | test/astro.test.js | quote |
 | REPORT.md | Regression at | test/astro.test.js | pointer |
 | REPORT.md | one claim in this document | test/report-issues.test.js | quote |
-| REPORT.md | the doc→code citation gate | test/citations.test.js | quote |
-| REPORT.md | T-207 / T-211 — count claims | test/doc-counts.test.js | quote |
 | REPORT.md | accounted for here | test/gate-claims.test.js | quote |
+| REPORT.md | T-214 — the paraphrase registry | test/gate-claims.test.js | pointer |
+| REPORT.md | T-215 — the archive-pointer gate | test/report-pointer.test.js | quote |

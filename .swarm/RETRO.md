@@ -1,165 +1,136 @@
 # moon — run retro
 
-<!-- Written by /swarm WRAP_UP. Evidence rules apply here exactly as in the verification
-     gate: every entry cites cycle numbers from .swarm/journal.md. No cycle number, no
-     entry — vibes are not evidence. -->
-
-Run: 2026-08-20 (improve-6, allocator TRICKLE) | cycles run: 8 (103–110) | stop reason:
-definition of done met and re-derived at cycle 110's `% 5 == 0` SPEC re-read; the one
-VALUE_LOOP candidate that passed the two-part ratchet was this run's own REPORT record,
-which is WRAP_UP step 3's work rather than a backlog item — early DONE, ~20.2h of
-authorized clock unspent, by decision.
+Run: 2026-08-24 (improvement run #7, allocator-driven TRICKLE) | cycles run: 5 (0, 111–114) |
+stop reason: definition-of-done re-derived clause by clause and met at cycle 113, backlog at
+0 todo / 0 blocked, every remaining VALUE_LOOP candidate locked out by the brief — DONE, not
+stalled, with ~20.4 h of authorized clock deliberately unspent.
 
 ## What worked
 
-- **Building the gate instead of doing the pass a seventh time.** The whole run turns on
-  one call made at kickoff: L-043's FORM-and-DIRECTION clause named `moon` explicitly, and
-  the choice was to spend the window on a machine check rather than a hand audit. The
-  doc→code citation direction is now in `test/citations.test.js` and the count claims in
-  `test/doc-counts.test.js`; run 7 inherits checks, not a chore (cycles 103, 104, 106, 107,
-  109).
-- **Withholding gate arms from the dispatch.** At cycle 109 arms A–C were named in the
-  builder brief and arms D (path exists but is NOT git-tracked) and E (a zero-match parse
-  must not render green) were authored by the conductor and never shown. Both came back RED
-  for the reason they name. Arms A–C were all satisfiable by a mere existence check; D and E
-  are what made it a gate rather than a formality (cycle 109).
-- **Re-deriving instead of remembering.** Cycle 110 wrote "245 tests / 245 passing at cycle
-  109 (commit `ed7054e`)" only after measuring that commit in a detached worktree, and then
-  falsified the sentence to 999/999 and confirmed the suite went RED naming
-  `REPORT.md's "Suite ..." bullet(s) state a count that is TRUE at the cycle/commit they name`.
-  The number in the document is machine-checked, not asserted (cycle 110).
-- **Two failed conductor verifies caught real defects, not instrument noise.** T-208 failed
-  the read at cycle 104 and T-209 at cycle 105; both were genuine — a false provenance claim
-  and a suite-count anchor glued to the wrong number. Each was repaired and re-verified at the
-  next cycle (cycles 104–107).
-- **k=2 sequential waves merged clean.** Every wave this run was `min(k_current, gear cap 2)`
-  = 2, dispatched sequentially, zero reverts, zero merge conflicts across cycles 103–109.
+- **Direct-Agent build waves on fable in a review-gated headless session** merged clean twice
+  running: k=2 at cycle 112 (T-214 + the salvaged T-216), k=1 at cycle 113 (T-215). Zero
+  reverts, zero failed verifies, zero merge conflicts across the whole run; `wave_streak`
+  reached 1 and `k_current` held at 4 without ever being exercised past 2 (cycles 112, 113).
+- **Shaping the gate's predicate as a pure function of a supplied state** is what made the
+  run's central claim provable. T-215's `reportPointerViolations({reportText,
+  archiveFilenames})` never reads the tree, so cycle 113 could show it RED against the edit
+  WRAP_UP had not yet made — 2 violations, one per pointer copy — and green against the same
+  pending state corrected. Cycle 114 then made that exact edit and the live gate went green,
+  suite 269 → 271 (cycles 113, 114).
+- **Two-arm attribution against the live tree, not a fixture**: the mutation (create the
+  archive, touch neither pointer) failed exactly one named test with the gate present and was
+  invisible to all 256 pre-existing tests with it removed, with gate and document sha-checked
+  byte-identical either side (cycle 113).
+- **An adversarial inline PLAN** refuted a documented claim instead of filing work around it:
+  REPORT.md's "edit them into disagreement and the suite goes red" was falsified against the
+  live tree at cycle 111, which is what produced T-214 rather than a vague hardening item.
+- **Crashed-cycle salvage** recovered T-216 from a dead cycle rather than re-running it
+  (cycle 112 salvage commit `15cd6b1`).
 
 ## What thrashed
 
-- **Nothing hit `attempts ≥ 2`.** No item was blocked, no merge was reverted, no branch was
-  discarded this run (cycles 103–110). Recorded as an absence with its cycle range rather than
-  omitted, so the section is not silently empty.
-- **T-209 shipped a false anchor and needed a second cycle** — why: the cycle-105 write
-  anchored "208 tests" to cycle 104, whose commit actually measures 210. Anchor PRESENCE was
-  gated; anchor TRUTH was not. That gap became T-211 and is now closed by the worktree
-  re-derivation in `test/doc-counts.test.js` (cycles 105, 106, 107).
-- **A rot vector was created by cycle 109's own repair** — why: the repaired sentence read
-  "archived in full, not deleted, at `A` and `B`" while run 6's record sat in REPORT.md itself,
-  true on the day and false the moment that section is archived. Cycle 109 filed it as a
-  WRAP_UP obligation; cycle 110 killed it instead by rewording to a self-relative pointer
-  ("except the most recent run, whose record sits in this file below until the next run
-  archives it"), which does not decay when the next run archives (cycles 109, 110).
-- **KI-2 denied for the 33rd time** — why: structural, not an invocation-form error. The
-  `bin/swarm-playbook.sh` allowlist gap has no entry under any path form; hard rule 5 forbids
-  repairing it from inside a run. Escalated once at cycle 105/107, not re-diagnosed (cycles
-  105, 107, 110).
+- **The dashboard renderer, twice** (cycles 112, 113) — why: both renderers rebuilt state by
+  scraping their OWN previous render. Cycle 112's burn-up regex stopped matching when the
+  series gained a `title` attribute and silently picked up unrelated height spans — a wrong
+  series that still looked like a series; cycle 113 measured 403 timeline spans for 17 real
+  cycles because the template's `{{TIMELINE_HTML}}` placeholder occurs three times and a
+  whole-string substitution refills all three, compounding every render. Cycle 112 patched the
+  output; only cycle 113 fixed the mechanism (derive both series from the committed journal,
+  then measure the rendered file rather than assume the strings landed). SWARM tooling defect,
+  not a moon defect; the durable template fix is a human edit under hard rule 5.
+- **Three of twelve conductor gate cells at cycle 113 were mis-aimed** — why: each was authored
+  against an idealized tree rather than the one on disk. A `no-hardcoded-dates` cell went red on
+  a comment illustrating a heading format; a `failedNames` regex swallowed node:test's
+  `✖ failing tests:` summary header; a restore check demanded an exactly-clean tree while the
+  cycle's own gate scripts sat untracked. None was a defect in the shipped work. All three were
+  re-aimed and BOTH versions kept on disk (cycle 113).
+- **Permission denials in every cycle that counted them**: 5 at cycle 0, 4 at cycle 113, 3 at
+  cycle 114; cycles 111–112 did not tally theirs, so the run total is at least twelve and is
+  reported as a floor, not a count. Why: KI-2's allowlist gap, unchanged and structurally
+  re-confirmed for the eleventh consecutive run (settings.json read at cycle 114 — no denial
+  burned). Each had a working alternate form. The recurring shapes are worth naming because
+  they are mechanism, not luck: an env-var prefix (`RUNFILE=… script`) makes an otherwise
+  allowlisted script unanalyzable to the matcher (hit at cycle 0 and again at cycle 114),
+  `cd <target> && git …` is refused where `git -C <target>` is allowed, and a `jq` program
+  containing quoted strings parses as unanalyzable shell.
 
 ## Pacing honesty
 
-- Governor clamps: 8 of 8 cycles (ceiling hit: 2, every cycle — `weekly_used_pct` 100,
-  `weekly_heat` 2.12–2.13, `promote_blocked: true`); full-mode overrides: 0; promote-rung
-  promotions: 0. Gear was **2 in every cycle of the run** and was a *governed* result, not a
-  measured one: ρ ranged 0.39–0.89 (cycles 103–110), which would reach gear 4–5 in thermostat
-  mode, but guest mode clamps to 1–3 and the weekly ceiling clamps to 2. No window reset below
-  90% utilization during this run. `probe_failures` stayed 0 — `bin/swarm-budget.sh` is
-  allowlisted and ran for real every cycle.
+- Governor clamps: 0 cycles (ceiling 5, `weekly.ok` false both probes — disengaged, reported,
+  never acted on); full-mode overrides: 0; promote-rung promotions: 0. Both real probes landed
+  gear 3 cruise (ρ 0.62 at cycle 113, ρ 0.52 at cycle 114), guest mode with the dial forced to
+  1.00, `probe_failures` 0 throughout. The window reset between cycles 112 and 113 (20.8 M →
+  5.6 M tokens), so per-target burn attribution was skipped that cycle by rule rather than
+  estimated. This window will reset far under full utilization — the run ended 20.4 h early
+  with the gear at cruise the whole time. That is the trickle brief's scoping outcome, not a
+  thermostat failure: there was no authorized work left to spend it on.
 
 ## Config recommendations
 
-- [qa] A citation gate that proves a path RESOLVES has not proved the sentence AROUND it is
-  true — "archived in full, not deleted, at `A` and `B`" stayed false while both paths
-  resolved and stayed git-tracked, which is the defect the gate was built after and cannot
-  catch; so when a doc claim couples a locator to a COMPLETENESS word, gate the locator and
-  say plainly in the report that the completeness half remains a human read, rather than
-  letting a green suite imply the whole sentence was checked [confidence: high]
-  [source: 2026-08-20 moon run6] (evidence: cycles 109, 110 — T-212's actual defect, and the
-  "What the citation gate does not catch" paragraph now in REPORT.md)
-- [qa] Kill a decaying pointer by making it SELF-RELATIVE rather than filing it as a future
-  obligation — a sentence enumerating "archived at `A` and `B`" rots the next time an archive
-  is added, and handing that to the next run as a wrap-up note relies on a human reading a
-  journal; rewording it to name its own position ("except the most recent run, whose record
-  sits in this file below") is stable under the very edit that would have broken it, costs one
-  sentence, and needs no obligation carried anywhere [confidence: high]
-  [source: 2026-08-20 moon run6] (evidence: cycle 109 filed the rot vector, cycle 110 removed
-  the class)
-- [qa] A count claim that names a PAST cycle is machine-verifiable, not merely shape-checkable
-  — resolve "cycle N" to a commit through the repo's own `cycle N:` commit-message convention,
-  check that commit out into a throwaway worktree outside the repo, run the suite there, and
-  compare; bound the cost with a max-commits constant and a recursion-depth env var, and use a
-  plain early return rather than `test.skip` at the depth bound so a nested run's own pass
-  count stays identical to a normal run's — otherwise the skip corrupts the very number the
-  outer run is measuring [confidence: high] [source: 2026-08-20 moon run6] (evidence: cycles
-  106, 107 built it; cycle 110 falsified a live claim through it and got the named RED)
-- [process] When the only VALUE_LOOP candidate left is itself a WRAP_UP deliverable, wrap up
-  in that cycle instead of spending one cycle building it and a second cycle wrapping — the
-  extra lap produces a commit that reads as work and changes nothing a reader could detect,
-  which is the manufactured-diligence failure the same spec warns about [confidence: med]
-  [source: 2026-08-20 moon run6] (evidence: cycle 110 — stale run-6 REPORT record was the only
-  candidate passing the ratchet, and REPORT.md is WRAP_UP step 3)
-- [process] An environment-variable PREFIX defeats an exact-path allowlist entry: `RUNFILE=…
-  bin/swarm-budget.sh` was denied in the same cycle the bare `bin/swarm-budget.sh` ran clean,
-  so a helper script that needs configuration must take a `--flag`, not an env var, or it is
-  unreachable from an allowlisted session no matter how its path is spelled [confidence: high]
-  [source: 2026-08-20 moon run6] (evidence: cycle 110, both invocations in the same cycle)
+- [qa] Extend the sealed-gate lesson with the predicate's SHAPE: a check that can only read the
+  live tree can only be shown red after the edit lands, so make it a pure function of a supplied
+  state and prove it red against the pending edit first (evidence: cycles 113–114, T-215).
+- [qa] Extend the never-assert-against-a-regexed-prose lesson to renderers that carry state
+  forward out of their own previous output — derive from the committed source every time
+  (evidence: cycles 112, 113, both dashboard addenda).
+- [process] Extend the allowlist lesson with the env-prefix form: an allowlisted script invoked
+  with a leading environment assignment is denied; pass the environment through a child-process
+  spawn instead (evidence: cycles 0 and 114, the same shape twice).
+- [qa] Re-observed: attribute a failing gate cell to the instrument or to the work before the
+  verdict touches attempts (evidence: cycle 113, 3 of 12 cells).
+- [process] Re-observed: read the authoritative source rather than triggering the lock — the
+  playbook script's absence from the allowlist was confirmed by reading settings.json at cycle
+  114, burning no denial (evidence: cycle 114).
 
 ## House-rules proposals
 
-- [docs] A pointer sentence names its own position, never an enumeration that grows each run.
+- [docs] A document that points at its own archives must enumerate them from the directory
+  listing at check time, never from memory — and both copies of the pointer must be checked
+  independently, so a single drifting copy is attributed to that copy.
 
 ## Applied lessons check
 
-- L-008 (sole committer + scratch dir): re-observed — the directive rode every builder prompt;
-  zero builder commits and a clean tree at every orient (cycles 103–109).
-- L-016 (pairwise-disjoint fixer scopes): not-exercised — no review-fix wave ran this run (last
-  was cycle 73).
-- L-024 (verify with a discriminator): re-observed — cycle 109 arm D (a path that exists but is
-  untracked) and cycle 110 arm 1 (a falsified suite count) are observables a degenerate
-  existence-check could not produce (cycles 109, 110).
-- L-026 (correctness core → fable): not-exercised — no core-logic item this run; the astronomy
-  core was a frozen non-goal.
-- L-029 (failable AND attributable): re-observed — cycles 109 and 110 each ran the mutation
-  twice and named the distinct failing test (cycles 109, 110).
-- L-031 (measure untested surfaces, never infer): re-observed — zero tests were added for
-  count's sake; the spec's "no test added that cannot name its surface" non-goal held through
-  cycle 110.
-- L-033 (HOLE vs BOUNDARY before hardening): not-exercised — no mutation sweep this run, by
-  explicit non-goal.
-- L-034 (brief reviewers to REFUTE): re-observed — cycle 108's VALUE_LOOP scan refuted its own
-  candidates and recorded them so run 7 would not re-derive them; cycle 110 tried to falsify
-  its own new prose rather than confirm it (cycles 108, 110).
-- L-039 (allowlist by absolute path for the host): re-observed, and sharpened — the
-  every-path-FORM diagnostic confirmed KI-2 is structural, and cycle 110 added a NEW datum in
-  the same mechanism: an env-var prefix defeats an exact-path entry that otherwise matches
-  (cycles 105, 107, 110).
-- L-041 (an instrument must fail CLOSED): re-observed — the citation gate's self-check exists
-  precisely so a zero-match parse cannot render green, and cycle 109 arm E proved it does
-  (cycle 109).
-- L-042 (seal the gate before dispatch): re-observed — cycle 109 withheld arms D and E from the
-  builder dispatch entirely (cycle 109).
-- L-043 (enumerate every citation FORM and DIRECTION): re-observed and CLOSED for this repo —
-  the doc→code direction the clause named is now `test/citations.test.js`, and the bare-PATH
-  form was exactly the FORM a path-anchored sweep had been missing (cycles 103, 109).
-- L-044 (pair every kill with a converse control): re-observed — every gate this run shipped a
-  green arm: cycle 109 arm C and cycle 110 arm 3 both rewrote prose and stayed green (cycles
-  109, 110).
-- L-045 (read the authoritative source, both directions; go DONE early): re-observed — the DONE
-  call was made by cycle 110's full SPEC re-read, deliberately NOT by cycle 109's empty backlog,
-  and every count claim was re-derived at run time (cycles 108, 109, 110).
-- L-046 (wire-through at the outermost layer): not-exercised — no domain-capability item this
-  run; every item was docs or test.
-- L-047 (attribute a gate FAIL to the INSTRUMENT or the WORK): re-observed with the opposite
-  polarity to its source datum — attribution was performed on both failing verifies and both
-  landed on the WORK, not the instrument (a false provenance claim at cycle 104, a false
-  suite-count anchor at cycle 105); each was charged to the item and repaired next cycle
-  (cycles 104–107).
+- L-008: re-observed — sole-committer + in-repo scratch line carried in both waves; no builder
+  commit, no stray scratch tree (cycles 112, 113).
+- L-016: re-observed — the headless direct-Agent dispatch clause is now the norm here; two more
+  clean waves, zero cross-scope contamination (cycles 112, 113).
+- L-022: not-exercised — browser/SPA persisted-UI-state lesson, held out of prompt_lines at
+  kickoff; this target is a zero-dependency terminal CLI with no browser surface (fifth
+  consecutive run with this disposition).
+- L-024: not-exercised — no new domain computation shipped this run; the run's work was
+  document-truth gating, where the discriminator idea has no purchase.
+- L-026: re-observed — both waves routed core work to fable and both arrived verified on the
+  first attempt (cycles 112, 113).
+- L-029: re-observed — every added test was shown failable AND attributable by running the
+  mutation with and without it (cycle 113, arm1/arm2).
+- L-031: re-observed — T-214's surface was found by mutation-measuring documented claims, not by
+  reading the suite for gaps (cycle 112).
+- L-033: re-observed — T-215 classified three BOUNDARY items in its own header (archive content,
+  the future-tense promise, and recency ranking) rather than faking checks for them (cycle 113).
+- L-034: not-exercised — no review-fix pass ran; the run had no code surface to refute.
+- L-037: not-exercised — no spawn died on a usage limit this run. Five spawns after the 07:19
+  auto-kickoff, each followed by its own `cycle-done`; the last `cycle-failed` entries in the
+  pacer log are 04:35–04:56, before this run existed (cycles 0, 111–114).
+- L-038: re-observed — stop_at sits strictly inside the reset boundary and the run never reached
+  the emptiest part of the window; it ended for scope reasons first.
+- L-042: re-observed, and extended — sealed gates held, and cycle 113 added the supplied-state
+  shape that let the seal be proven red against an edit that did not exist yet.
+- L-043: re-observed, and contradicted in one direction — the lesson's own failure mode
+  reappeared in SWARM's renderer rather than in the target's tests: a carry-forward regex bound
+  to the shape of its own output (cycles 112, 113).
+- L-044: re-observed — every killing mutation was paired with a converse control that had to
+  stay green (cycle 113, `unrelated-edit` and `pending-edit-fixed`).
+- L-046: not-exercised — no new user-facing capability shipped; nothing to drive through an
+  outermost layer.
+- L-047: re-observed — 3 of 12 gate cells failed for instrument reasons and were attributed to
+  the instrument, not to the item's attempts counter (cycle 113).
 
-## Telemetry (squeeze slice, 2026-08-14)
+## Telemetry
 
-- Weekly utilization at this run: 100% overall / 100% premium, `week_elapsed_pct` 47.16,
-  `weekly_heat` 2.12 — the governor held the ceiling at gear 2 for all 8 cycles.
-- Allocator: TRICKLE posture, `allow_overall_pct: 0` / `allow_premium_pct: 0`. The run was
-  authorized as idle-capacity housekeeping and is reported as such.
-- Auto-kickoffs this run: 1 (allocator-driven, `runs/kickoff-hints.json`, `source: allocator`),
-  posture TRICKLE at start. No 3-strike queue drops.
-- Final-hours floor release: did not fire — the run wrapped ~20.2h before `stop_at`.
+- Weekly utilization at the last probe (cycle 114): overall 42.9 %, premium (opus) 66.7 %,
+  against 3.4 % of the week elapsed. Governor disengaged (`weekly.ok` false) throughout.
+- Allocator: posture `trickle` at every pacer decision this run; allowance granted was never the
+  binding constraint — the brief was.
+- Auto-kickoffs: 1 (this run, allocator-driven, hints consumed and deleted at cycle 0). No
+  3-strike queue drops.
+- Final-hours floor release: did not fire — the run wrapped 20.4 h before stop_at.
