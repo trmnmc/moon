@@ -199,8 +199,8 @@ Independently checked properties:
   from that window, not the physical range.
 
 `phaseName` and `illumination` come from two different Meeus series, so nothing
-guarantees they stay in step forever. Over the half-open range of years **1000–3000**,
-`test/astro.test.js` samples that domain and finds no contradiction between them;
+guarantees they stay in step forever. Over the half-open range of years **1000–3000** the
+pair is covered by `test/astro.test.js:491` (`KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)`);
 outside it, behavior is unspecified and the two fields may disagree.
 
 ## Non-goals

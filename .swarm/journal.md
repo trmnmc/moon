@@ -3853,3 +3853,129 @@ PLAN → **BUILD**. `cycles_since_recycle` 1. Backlog 111 items: 103 done, 5 dro
 Next: build wave on T-214 + T-216 (pairwise-disjoint), T-215 serialized behind T-214 by dep —
 they touch REPORT.md from opposite sides and running them concurrently would produce a spurious
 red.
+
+## cycle 112 | 2026-08-24T09:27:45+00:00 | moon | build-wave — T-214 fail-closed claim registry verified 8 ways; T-216 salvaged from a crashed cycle and re-derived
+
+Clock 1787563665. `stop_at` 1787642387 — 21.9h remaining, no admission pressure (build-wave 2700s
+budget fits with 76,022s to spare). Budget re-probed (last real probe 3000s old, past the 1800s
+anchor): **gear 3, ρ 0.02, guest clamp binding, k_cap 3, probe_ok true, probe_failures 0**;
+20,806,100 window tokens, 4.68M tokens/hour, projected depletion 1787658486. Weekly governor
+`ok: false` — governor disengaged, ceiling 5 unused.
+
+### Orient — a crashed cycle, and what it left behind
+
+`git status` showed one modified file, `.swarm/KI-2-OWNER-ACTION.md`, mtime 08:40:33. The runfile's
+previous heartbeat was pid **3482352** at 08:37:45; that pid is gone, and `pgrep -af "swarm cycle"`
+returns only my own pid 3487858. So a cycle started at 08:37, wrote T-216's deliverable at 08:40,
+and died before journalling anything. The pacer log shows it read `next=1787563365` (08:37:45 +
+2700, the worst-case wave budget) and spawned me at 09:27:40 — recovery worked exactly as designed,
+via the pacer, with the watchdog still blind (KI-9).
+
+Control channel polled: clean — `pending: []`, `applied: []`, no injections.
+
+Re-anchor: cycle 112, `112 % 5 != 0`, no full SPEC re-read. Scope remains the two-clause playbook
+delta; L-043's paraphrase clause is this run's primary question and T-214 is its answer.
+
+### T-216 — salvaged, then re-derived rather than trusted
+
+Coherent partial work, so cycle.md step 2 says salvage-commit. But the file's content is a factual
+claim about a file outside this repo, and hard rule 2 does not care that it looked finished. I
+re-measured it against the live `settings.json` before accepting a word of it:
+
+```
+A. swarm-* allow forms total = 11
+   breakdown: {"swarm-budget.sh":4,"swarm-notify.sh":3,"swarm-usage-probe.sh":2,"swarm-weekly-from-allocator.sh":2}
+   swarm-playbook.sh forms = 0 | swarm-warmup.sh forms = 0
+B. dated sections in doc: ["## 2026-08-24 re-measurement (denial #37)"]
+C. append-only? prior bytes preserved verbatim: true   (added 356 chars, 2 lines)
+D. all four required grant lines present in doc: true | none already in settings: true
+E. new-hypothesis/re-diagnosis language in appended block: false
+F. appended claim total 11 & zero/zero matches measurement: true
+   claimed breakdown vs measured: true true true true
+```
+
+Every clause of T-216's acceptance holds, including the two negative ones (exactly one dated datum;
+no re-diagnosis). Salvage-committed as `15cd6b1`. **Denial tally #37 stands.** Independently
+reproduced this cycle: `RUNFILE=... bin/swarm-budget.sh` was refused while the bare absolute form
+ran — the env-prefix defeat already recorded in §"SEPARATE TOOLING ISSUE" of that file.
+
+### T-214 — the fail-closed registry
+
+One-item build wave (T-215 is dep-serialized behind it; effective k was 3 but only one item was
+dispatchable). Dispatched as a direct Agent call on **fable** — Workflow is review-gated in a `-p`
+session, the documented fallback. Craft pack loaded clean, no degraded entries.
+
+What shipped: `test/gate-claims.test.js` (new), plus a `## Claim registry` table **owned by
+REPORT.md** (9 rows: `doc | key | test file | kind`). The sweep is structural —
+`/(?:test\/)?[A-Za-z0-9_-]+\.test\.js/g` over both documents — with no enumeration of today's
+passages anywhere in the source, which is what the acceptance clause demanded. All three drifts the
+PLAN pass reported were verified real by the builder against the test sources and fixed: the
+report-issues claim now quotes the test verbatim **and records the correction in the open**, the
+doc-counts claim is demoted to a bare `See` pointer, and the citations claim now carries the test's
+own sentence including its `this repo's code` qualifier.
+
+### VERIFICATION EVIDENCE — 8 cells, mine, authored at verification time
+
+Full capture: `.swarm/runs/cycle-112-verify-T-214.txt`; gate scripts
+`.swarm/runs/cycle-112-gate-T-214.mjs` and `-T-214b.mjs`. Cells deliberately used documents,
+test-file names and wordings **the builder never touched**, so this measures the gate rather than
+re-running its rehearsal.
+
+```
+[PASS] red-readme   RED  README.md:259 names test/manifest.test.js in prose, but no
+                         "## Claim registry" row in REPORT.md covers it.
+[PASS] red-report   RED  REPORT.md:63 names test/args.test.js ... (spliced mid-document)
+[PASS] green        GREEN new paragraph, same size, same place, naming NO test file -> 255/255
+[PASS] zero         RED  gate-claims: REPORT.md has no "## Claim registry" heading -- ...
+                         Zero rows is a FAILURE, not an empty success.
+[PASS] ghostrow     RED  REPORT.md:242: test file "test/nowhere.test.js" does not exist -- a
+                         registry row must name a real test, or it launders a claim against nothing
+[PASS] quote-report RED  quoted span is not test/report-issues.test.js's own words verbatim
+[PASS] quote-readme RED  quoted span is not test/astro.test.js's own words verbatim
+[PASS] pointer-mut  RED  gate-claims: pointer rows name the file and assert nothing about the rule
+```
+
+The `green` cell is the load-bearing one: without it, a gate that reddens on *any* edit would score
+identically. Byte ceiling holds at **25574 ≤ 25582**; `.swarm/state.json` untouched (`git diff
+--stat` empty), so the preserved KI-4/KI-2 disagreement — the live input this gate was proven
+against — is still in the tree; REPORT.md:3 and the closing italic untouched for T-215; builder
+scratch tree deleted.
+
+### One cell of mine failed, and is recorded as failed
+
+Gate cell 6 in the first script (`quotemut`) went red — but via `citations.test.js`, because my
+mutation picked a quoted span sitting outside any registry row's window. **Red for the wrong reason
+is not evidence.** It is recorded FAIL in the artifact, not quietly re-labelled, and re-aimed as
+cells 6-8 in a second script. Both scripts stay on disk, the mis-aimed one included.
+
+### The gate-avoidance I closed rather than accepted
+
+The builder's own return volunteered that it left REPORT.md:231's mention of the gate file
+**unbackticked** so `citations.test.js`'s backticked-bare-path rule (must exist AND be git-tracked)
+would not fire on a file not yet committed. No test was weakened — but prose shaped to sit outside a
+live gate is the very failure T-214 exists to remove, and it would have shipped as a permanent hole
+in the registry's own self-description. Backticked it, staged the file, funded the 2 bytes by
+dropping the word "enforcing":
+
+```
+$ node --test test/citations.test.js | grep gate-claims
+✔ citations: bare-path REPORT.md:231 "`test/gate-claims.test.js`" -> test/gate-claims.test.js
+  exists and is git-tracked (5.46654ms)
+```
+
+The suite moving **255 → 256** is that one added dynamic citation test — the coverage, not noise.
+
+### Counters
+
+`consecutive_no_value` 0 → **0** (two verified items). Wave was CLEAN — zero reverts, zero failed
+verifies — so `wave_streak` 1 → 2 → autotune fires: **`k_current` 3 → 4**, `wave_streak` reset to 0.
+Gear cap 3 still binds the effective wave size. Phase stays **BUILD**. `cycles_since_recycle` 4.
+Backlog 111 items: **105 done, 5 dropped, 1 todo**.
+
+Next: T-215, the archive-pointer gate — the last must-have, and the one whose acceptance requires
+being proven RED against this run's own pending REPORT.md edit *before* that edit is made.
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-25T07:19:47Z","usage_reset_at":"2026-08-24T10:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787563665,"next_wakeup_at":1787566365,"pid":3487858,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.33},"budget":{"source":"probe","gear":3,"gear_target":3,"ratio":0.02,"mode":"guest","k_cap":3,"promote":false,"demote":false,"window_tokens":20806100,"window_cost_usd":26.634621250000002,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":4682082,"projected_depletion_at":1787658486,"last_probe_ts":1787563665,"last_real_probe_ts":1787563665,"probe_failures":0,"weekly":{"ok":false,"weekly_used_pct":0,"opus_used_pct":0,"week_elapsed_pct":2.655,"weekly_heat":0,"opus_heat":0,"ceiling":5,"promote_blocked":false}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":4,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"run_label":"improve-7 (2026-08-24)","playbook":{"apply_mode":"auto","applied":["L-008","L-016","L-022","L-026","L-024","L-029","L-031","L-033","L-034","L-037","L-038","L-042","L-043","L-044","L-046","L-047"],"vetoed":[],"advice_only":["L-039","L-040","L-041","L-045"],"source":"manual file read (bin/swarm-playbook.sh parse DENIED at kickoff - KI-2, denial #37)","directives":{"wave_k":null,"routing_recs":["core-logic->fable (L-026)"],"prompt_lines":{"builder":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test. A gate cell that fails must be shown to fail for the reason it names before its verdict is recorded against the dispatched work.","reviewer":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. Assign each fixer a pairwise-disjoint file set; two fixers must never share a file. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test. A gate cell that fails must be shown to fail for the reason it names before its verdict is recorded against the dispatched work.","qa":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish \"I verified this is wrong, here is the computation\" from \"this looks suspicious but I could not confirm it\". Where possible verify with a discriminator: an observable a faked or degenerate implementation could not produce. Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps. Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test. When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive. For every mutation that must kill the suite, author one control that must leave it GREEN. Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test."}},"held_out":{"L-022":"browser/SPA persisted-UI-state lesson; this target is a zero-dependency terminal CLI with no browser surface - staged but held OUT of prompt_lines, to be reported not-exercised at WRAP_UP (same disposition as the last four runs)"}}}
+```

@@ -40,11 +40,9 @@ cycle 80 and stale by cycle 83, because two later cycles added tests. This is th
 hard-coded count in this file has decayed. It now carries the measurement point rather than a
 bare number — weaker but true, which is this repo's documented preference. The durable fix was
 the T-180 treatment: have a test parse the annotation. That was filed as a candidate for the
-next run at the time, and it is now done, as T-207: `test/doc-counts.test.js` fails closed on
-any test- or issue-count claim in README.md or REPORT.md that does not name a cycle, run,
-commit, or date, so a future bare number is caught the moment it lands instead of decaying
-silently a fourth time. The `171` above needed no correction — it already names its measurement
-point and remains true — so it is untouched.*
+next run at the time, and it is now done, as T-207. See `test/doc-counts.test.js`. The `171`
+above needed no correction — it already names its measurement point and remains true — so it
+is untouched.*
 
 ## Known issues (6)
 
@@ -55,8 +53,8 @@ now stands, so the two never collide.
 |---|---|---|---|
 | KI-2 | medium | open, blocking — **root cause now conclusive; structurally unclosable by the swarm** | **Run 3 update (cycles 68–83, 13 further denials).** Cycle 83 killed the last standing hypothesis by re-attempting the probe at the **absolute** path `/opt/swarm/bin/swarm-budget.sh` — every prior attempt across three runs used the relative form — and it was refused identically. The cause was then read straight out of `SWARM/.claude/settings.json`: the allow list carries `Bash(bin/swarm-notify.sh:*)` plus a **stale macOS** `Bash(/Users/truman/Projects/SWARM/bin/swarm-notify.sh:*)`, and **no entry for `swarm-budget.sh` or `swarm-playbook.sh` at any path**. It is a missing entry, not a path-form mismatch, so no invocation form can ever succeed. Worse: the `Edit` that KICKOFF step 5 *explicitly authorises* to repair this was denied at all three kickoffs, so the one sanctioned repair path is itself blocked and **this issue cannot close from inside a run, in any mode**. Deliberately NOT routed around via `python3`/`node` (both allowlisted) — that would produce a green artifact over a boundary the user never granted. **The exact patch is six allow-list lines; see "Operational findings from run 3" (that section no longer exists in this file).** **Superseded 2026-08-20 (run 6, cycle 107):** `swarm-budget.sh` is now allowlisted -- the probe ran cleanly at cycles 103, 104, 105 and 107 -- and the remaining ask is four allow-list lines covering two scripts, `swarm-playbook.sh` and `swarm-warmup.sh`; see `.swarm/KI-2-OWNER-ACTION.md` for the exact lines. Original text follows. `settings.json` allowlist edit was denied at all three kickoffs, so `permissions.additionalDirectories` is `[]` and **`bin/swarm-budget.sh` and `bin/swarm-playbook.sh` are not allowlisted at any path**. `swarm-notify.sh` *is* reachable on this host — its relative allowlist entry matches whenever the conductor's cwd is the SWARM root, even though the macOS absolute entry does not match `/opt/swarm/bin/...`. Degraded across run 2: the budget probe (never invoked in 65 cycles) and the playbook append (hand-edited fallback for the second run running). The notification channel is not part of this gap — see the Run 2 stats table for what actually happened to it, which KI-2 does not explain. It is also masking the curator deadlock — see Operational findings 1, and fix the two together. Headless relaunches must pass `--add-dir`. SWARM tooling gap, not a product defect. |
 | KI-4 | low | open, unverified | Terminal font variance beyond width (ligatures, exotic fonts) remains unverified — no automated check can cover it; needs a human look. |
-| KI-5 | medium | pinned by test, not fixed | **Glyph width.** The disc mixes East Asian Width classes (`░` `▐` are Neutral; `▒ ▓ █ ▌ ▏ ▕` are Ambiguous). In terminals rendering ambiguous-width as double (CJK locales, iTerm2 setting, `xterm -cjk_width`) the disc is 5–9 columns instead of 5: the line jitters between nights, the two-line form stops aligning, and the `--block` frame does not close. Correct in default Western-locale terminals. `test/render.test.js:829` (`KI-5 pin: disc glyph set matches the documented East Asian Width partition`) pins that the Block Element glyph set the disc actually draws (from `renderLine`/`renderBlock` output) matches the partition documented in README.md, which straddles two East Asian Width classes (Neutral: `░ ▐`; Ambiguous: `▒ ▓ █ ▌ ▏ ▕`). Glyph-set changes crossing EAW classes fail the suite's exact-output tests (T-134 README fence, explicit renderLine/renderBlock checks); the pin uniquely establishes this width-class boundary. The glyph-set redesign that would actually fix the width problem is still deferred — this is a pin, not a fix. |
-| KI-7 | low | bounded (sampled), not fixed | At epochs far outside normal use (empirically found around ±270,000 years) `phaseName` and `illumination` can contradict, since the ch.49 and ch.48 Meeus series diverge. `src/astro.js`'s exported `PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` (astro.js:71-74) declares the domain over which the two are known to stay consistent — the half-open range of calendar years **1000–3000** — and `test/astro.test.js:491` (`KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)`) strides **4000** deterministic points across that domain with zero band violations. This is a sampled bound, not a proof, and nothing enforces it at runtime. |
+| KI-5 | medium | pinned by test, not fixed | **Glyph width.** The disc mixes East Asian Width classes (`░` `▐` are Neutral; `▒ ▓ █ ▌ ▏ ▕` are Ambiguous). In terminals rendering ambiguous-width as double (CJK locales, iTerm2 setting, `xterm -cjk_width`) the disc is 5–9 columns instead of 5: the line jitters between nights, the two-line form stops aligning, and the `--block` frame does not close. Correct in default Western-locale terminals. Pinned by `test/render.test.js:829` (`KI-5 pin: disc glyph set matches the documented East Asian Width partition`). The glyph-set redesign that would actually fix the width problem is still deferred — this is a pin, not a fix. |
+| KI-7 | low | bounded (sampled), not fixed | At epochs far outside normal use (empirically found around ±270,000 years) `phaseName` and `illumination` can contradict, since the ch.49 and ch.48 Meeus series diverge. `src/astro.js`'s exported `PHASE_ILLUMINATION_CONSISTENCY_DOMAIN` (astro.js:71-74) declares the domain over which the two are known to stay consistent — the half-open range of calendar years **1000–3000** — checked by `test/astro.test.js:491` (`KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)`). This is a sampled bound, not a proof, and nothing enforces it at runtime. |
 | KI-9 | medium | open, needs a human — found at cycle 84 | **The watchdog never armed for any of the three improvement runs, and the record says so in its own log.** `bin/swarm-watchdog.sh:275-285` exits `all-done` if `REPORT.md` exists in every target — unconditionally, with no reference to target status, cycle number, or run start time. On a first-build run that file cannot exist before wrap-up, so the check is the safety net cycle.md intends. On an **improvement** run over a shipped repo it always exists, so the guard fires on the watchdog's very first firing and never stops. Measured: run 3 kicked off 16:12:20Z; the next watchdog firing at 16:37:17Z logged `decision=all-done detail=reports-present`, as did all 20 firings through wrap-up. `REPORT.md` has been in this repo since run 1's wrap-up commit `9bc8a0f`, so runs 2 and 3 were both unprotected end to end. **Severity is medium rather than high, and the reason matters:** on the VPS the actual firing mechanism is `bin/swarm-pacer.sh`, which spawns a cycle whenever `heartbeat.next_wakeup_at` is due, so a dead conductor still gets recovered on the next pacer tick. What three runs lost is the *redundant* layer — stale-heartbeat detection, PID identity check, kill, relaunch — not all recovery. **What would settle it:** gate the `REPORT.md` branch on evidence the file belongs to *this* run (mtime at or after the runfile's creation), or require every target's status to be `done`/`stalled` alongside it, or drop the file check now that `wrap_up_complete` has proven itself across 33 recorded `run-complete` decisions. One condition in one file; hard rule 5 forbids doing it from inside a run. |
 | KI-8 | low | open, needs the repo owner | `package.json` declares `"license": "MIT"` and `"private": false`, but **there is no LICENSE file at the repo root** (re-verified at cycle 47). A repo that declares a license without shipping its text is legally ambiguous to the next person who wants to reuse it. Deliberately not fixed here: the MIT body needs a copyright line naming a legal person, which is the owner's decision and not one a build agent or the conductor may invent. **What would settle it:** the owner supplies `Copyright (c) <year> <holder>`; wrapping the standard MIT body around it is then a one-file mechanical change. |
 
@@ -204,25 +202,44 @@ document has a command behind it, and those commands are pasted in `.swarm/journ
 (runs 1–2 in `.swarm/journal-archive-through-2026-08-17.md`). If any claim here matters to
 you, the evidence is on disk — read it rather than believing this file.
 
-And one claim in this document is now enforced rather than asserted: the two issue tables
-above are machine-checked against `.swarm/state.json` by `test/report-issues.test.js`. Edit
-them into disagreement and the suite goes red. That check was itself validated by a converse
-control — rewording prose inside a description cell must leave the suite **green** — so it
-reads structure, not sentences.
+And one claim in this document is enforced rather than asserted: `test/report-issues.test.js`
+checks the two issue tables above — "severities agree between REPORT.md and state.json
+wherever both sides define one" — and its own header marks the `status` column a BOUNDARY:
+"nothing here parses or compares that prose". (An earlier revision said the whole tables were
+machine-checked and any disagreement would go red; the `status` cells never were.)
 ## Run 6 (2026-08-20)
 
-Run 6 is an allocator-driven **TRICKLE** run: it existed because there was spare window, not because a user asked. No new feature, flag, or dependency — that is the brief.
+Run 6 was an allocator-driven **TRICKLE** run: spare window, not a user ask. The brief: no new feature, flag, or dependency.
 
-**Verified, cycles 103–109.** Each item was gated against a check the conductor wrote at verification time and never showed the builder:
+**Verified, cycles 103–109**, each item gated against a check written at verification time and never shown to the builder:
 
-- **T-206 / T-213 — the doc→code citation gate**, `test/citations.test.js`. Every `file:line` citation README.md and REPORT.md make into the code is re-derived against the line it points at; the bare `:N` shorthand is enumerated rather than silently missed; and every backticked path with no line number must exist *and* be git-tracked. A self-check makes a parse that locates no citations fail rather than render green.
-- **T-207 / T-211 — count claims**, `test/doc-counts.test.js`. A test- or issue-count claim must name a cycle, run, commit or date; any claim naming a past cycle is then re-derived by checking that commit out into a throwaway worktree and running the suite there. Shape *and* truth, not shape alone.
+- **T-206 / T-213 — the doc→code citation gate**, `test/citations.test.js`, its own words: "find EVERY `file:line` citation the two documents make into this repo's code, resolve it, and assert the cited line genuinely contains what the sentence around it says it contains".
+- **T-207 / T-211 — count claims**, `test/doc-counts.test.js`, in its own words: it checks "whether a count claim names a measurement point (a cycle, a run, a commit, a date) rather than floating free", and "for any claim that names a PAST cycle" it re-derives the number by "checking that commit out into a worktree, and running the suite there".
 - **T-208 / T-210 — KI-2 escalated once**, not re-diagnosed an eighth time. The ask was re-measured: four allowlist lines covering two scripts, spelled out in `.swarm/KI-2-OWNER-ACTION.md`.
-- **T-212 — this document's own first-screen pointer had rotted**, naming one archive where the record lives in two.
+- **T-212 — this document's own first-screen pointer had rotted**, naming one archive where the record lives in two. A false prose *completeness* claim whose named paths all resolve is a shape no gate catches; it remains a human read.
 - Suite size, measured directly: 210 tests / 210 passing at cycle 104 (commit `ecdbcb8`); 245 tests / 245 passing at cycle 109 (commit `ed7054e`).
 
-**What the citation gate does not catch.** It fails a citation pointing at the wrong line, a path that does not exist, and a path that exists but is untracked. It does not fail a prose *completeness* claim — "archived in full" — that is false while every path inside it still resolves. That was T-212's actual defect, and that shape remains a human read.
-
-**Why it stopped early.** The backlog reached zero with roughly twenty hours of clock unspent. The delta this run opened to close was closed; a sixth mutation sweep would have read as diligence without changing anything a reader could detect.
+**Why it stopped early.** The backlog reached zero with ~20 hours of clock unspent; the delta this run opened to close was closed.
 
 The detailed record for runs 4–5 is in `.swarm/REPORT-ARCHIVE-2026-08-20.md`.
+
+## Claim registry
+
+Every passage in this file or README.md that characterizes what a test file enforces is
+accounted for here, one row per passage: kind `quote` means the passage carries that test's
+own words verbatim, kind `pointer` means it names the file and asserts nothing about the
+rule. The sweep (`test/gate-claims.test.js`) is fail-closed, in its own words: "a
+sweep that locates zero mentions, or a registry that parses to zero rows, FAILS rather than
+reporting nothing wrong".
+
+| doc | key | test file | kind |
+|---|---|---|---|
+| README.md | guarantees they stay in step forever | test/astro.test.js | quote |
+| REPORT.md | it is now done, as T-207 | test/doc-counts.test.js | pointer |
+| REPORT.md | Pinned by | test/render.test.js | quote |
+| REPORT.md | — checked by | test/astro.test.js | quote |
+| REPORT.md | Regression at | test/astro.test.js | pointer |
+| REPORT.md | one claim in this document | test/report-issues.test.js | quote |
+| REPORT.md | the doc→code citation gate | test/citations.test.js | quote |
+| REPORT.md | T-207 / T-211 — count claims | test/doc-counts.test.js | quote |
+| REPORT.md | accounted for here | test/gate-claims.test.js | quote |

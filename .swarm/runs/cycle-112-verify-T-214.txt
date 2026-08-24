@@ -1,0 +1,100 @@
+T-214 VERIFICATION EVIDENCE — cycle 112, conductor-run. Verbatim capture.
+Gate scripts (authored at verification time, builder never saw them):
+  .swarm/runs/cycle-112-gate-T-214.mjs   (cells 1-5)
+  .swarm/runs/cycle-112-gate-T-214b.mjs  (cells 6-8, re-targeted)
+
+Each red cell mutates a throwaway copy of the repo and must fail FOR THE REASON IT NAMES.
+Cells deliberately use documents, test-file names and wordings the builder never touched.
+
+=== $ node --test test/*.test.js   (final tree, real repo) ===
+i tests 256
+i suites 0
+i pass 256
+i fail 0
+i cancelled 0
+i skipped 0
+i todo 0
+
+=== $ node .swarm/runs/cycle-112-gate-T-214.mjs   (final tree) ===
+[PASS] red-readme: expected RED, got RED
+  tests 256 / pass 255 / fail 1 / skipped 0
+  failing test(s): gate-claims: every prose mention of a test file in README.md and REPORT.md is registered
+  reason> README.md:259 names test/manifest.test.js in prose, but no "## Claim registry" row in
+          REPORT.md covers it. Every passage characterizing what a test file enforces must be
+          registered there, as either a verbatim quote of that test's own words (kind: quote)
+          or a bare pointer that asserts nothing (kind: pointer).
+[PASS] red-report: expected RED, got RED
+  tests 256 / pass 255 / fail 1 / skipped 0
+  failing test(s): gate-claims: every prose mention of a test file in README.md and REPORT.md is registered
+  reason> REPORT.md:63 names test/args.test.js in prose, but no "## Claim registry" row in
+          REPORT.md covers it. [...]
+[PASS] green: expected GREEN, got GREEN
+  tests 255 / pass 255 / fail 0 / skipped 0
+  (new paragraph of the same size in the same place as red-readme, naming NO test file:
+   the gate does not fire. This is the control proving it is a gate, not a tripwire.)
+[PASS] zero: expected RED, got RED
+  tests 244 / pass 243 / fail 1 / skipped 0
+  failing test(s): test/gate-claims.test.js
+  reason> AssertionError [ERR_ASSERTION]: gate-claims: REPORT.md has no "## Claim registry"
+          heading -- the registry the documents own is missing, so every claim-about-a-test
+          passage is unaccounted for. Zero rows is a FAILURE, not an empty success.
+[PASS] ghostrow: expected RED, got RED
+  tests 255 / pass 252 / fail 3 / skipped 0
+  reason> REPORT.md:242: test file "test/nowhere.test.js" does not exist -- a registry row must
+          name a real test, or it launders a claim against nothing
+[FAIL] quotemut: expected RED, got RED  <-- SUPERSEDED, NOT COUNTED AS A PASS
+  The mutation picked a quoted span that was NOT inside a registry quote row's window, so the
+  cell reddened the citations test instead of the quote-verbatim check. It failed for a reason
+  other than the one it names, so it is recorded FAIL, not passed. Re-aimed as cells 6-8 below.
+GATE (script A): 5/6 cells; cell 6 superseded by script B.
+
+=== $ node .swarm/runs/cycle-112-gate-T-214b.mjs   (final tree) ===
+[PASS] quote-report: expected RED, got RED
+  mutated: "severities agree between REPORT.md and state.json wherever both sides define one"
+  failing: gate-claims: quote rows carry the named test file's own words, verbatim
+  reason> REPORT.md:205 (registry row REPORT.md:241): quoted span is not
+          test/report-issues.test.js's own words verbatim (checked against its source with
+          whitespace collapsed and // markers stripped): "every issue field is compared
+          against state.json, so any disagreement is caught"
+[PASS] quote-readme: expected RED, got RED
+  mutated: (`KI-7: phaseName/illumination band discriminator holds across the declared domain (sampled)`)
+  failing: citations: README.md:203 [...] | gate-claims: quote rows carry the named test file's own words, verbatim
+  reason> README.md:203 (registry row REPORT.md:237): quoted span is not test/astro.test.js's
+          own words verbatim [...]: "KI-7: the two series are proven to agree at every instant
+          in the declared domain"
+[PASS] pointer-mut: expected RED, got RED
+  mutated: Regression at `test/astro.test.js:294`.  ->  ..., which proves every out-of-range input throws.
+  failing: gate-claims: pointer rows name the file and assert nothing about the rule
+CELLS 6-8: PASS
+
+=== structural checks ($ git -C /opt/targets/moon ...) ===
+byte ceiling:            wc -c REPORT.md = 25574  (<= 25582 ceiling)
+state.json untouched:    git diff --stat -- .swarm/state.json = (empty)
+T-215 territory intact:  no +/- on "This report leads with" or "*The cycle-by-cycle" = (empty)
+builder scratch removed: ls .scratch-T-214 -> No such file or directory
+files changed:           README.md, REPORT.md, test/gate-claims.test.js (new)
+
+=== conductor's own follow-up edit (not the builder's) ===
+The builder left REPORT.md:231's mention of the gate file UNBACKTICKED, by its own account so
+that citations.test.js's backticked-bare-path rule (path must exist AND be git-tracked) would
+not fire on a not-yet-committed file. That is prose shaped to dodge a live gate. Closed by the
+conductor: the mention is backticked and the file staged, funded by dropping the word
+"enforcing" so the byte ceiling still holds. The citation gate now covers it:
+  $ node --test test/citations.test.js | grep gate-claims
+  ok citations: bare-path REPORT.md:231 "`test/gate-claims.test.js`" -> test/gate-claims.test.js
+     exists and is git-tracked (5.46654ms)
+Suite count moved 255 -> 256 for exactly that reason: one new dynamic citation test.
+
+=== ACCEPTANCE, clause by clause ===
+sweep cannot miss a newly-added passage ... PASS (cells red-readme, red-report: two documents,
+    two unregistered files, one appended and one spliced mid-document; structural token match,
+    no enumeration of today's passages anywhere in the test source)
+accounted for by a table the documents own ... PASS ("## Claim registry" in REPORT.md, 9 rows,
+    parsed at load; a JS-literal registry would not satisfy this and is not what shipped)
+verbatim quote or content-free pointer ..... PASS (cells quote-report, quote-readme, pointer-mut)
+zero passages or zero rows must FAIL ....... PASS (cell zero; plus in-file fail-closed fixtures)
+three kickoff drifts made true or removed .. PASS (report-issues claim rewritten to quote the
+    test verbatim AND record the correction; doc-counts claim demoted to a bare "See" pointer;
+    citations claim now quotes the test's own sentence including "this repo's code")
+detector-keyed-off-today's-passages rejected PASS (see sweep clause; my red cells used files and
+    wordings the builder never exercised)
