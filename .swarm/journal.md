@@ -4280,3 +4280,38 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"done","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-25T07:19:47Z","usage_reset_at":"2026-08-24T15:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787568981,"next_wakeup_at":0,"pid":3605571,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.33},"budget":{"source":"probe","gear":3,"gear_target":3,"ratio":0.52,"mode":"guest","k_cap":3,"promote":false,"demote":false,"window_tokens":12381340,"window_cost_usd":13.309237000000001,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":16129844,"projected_depletion_at":1787597749,"last_probe_ts":1787568981,"last_real_probe_ts":1787568981,"probe_failures":0,"weekly":{"ok":false,"weekly_used_pct":42.857142857142854,"opus_used_pct":66.66666666666667,"week_elapsed_pct":3.399,"weekly_heat":0,"opus_heat":0,"ceiling":5,"promote_blocked":false}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":true,"cycles_since_recycle":6,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"run_label":"improve-7 (2026-08-24)","playbook":{"apply_mode":"auto","applied":["L-008","L-016","L-022","L-026","L-024","L-029","L-031","L-033","L-034","L-037","L-038","L-042","L-043","L-044","L-046","L-047"],"vetoed":[],"advice_only":["L-039","L-040","L-041","L-045"],"source":"manual file read (bin/swarm-playbook.sh parse DENIED at kickoff - KI-2, denial #37)","directives":{"wave_k":null,"routing_recs":["core-logic->fable (L-026)"],"prompt_lines":{"builder":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test. A gate cell that fails must be shown to fail for the reason it names before its verdict is recorded against the dispatched work.","reviewer":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. Assign each fixer a pairwise-disjoint file set; two fixers must never share a file. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test. A gate cell that fails must be shown to fail for the reason it names before its verdict is recorded against the dispatched work.","qa":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish \"I verified this is wrong, here is the computation\" from \"this looks suspicious but I could not confirm it\". Where possible verify with a discriminator: an observable a faked or degenerate implementation could not produce. Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps. Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test. When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive. For every mutation that must kill the suite, author one control that must leave it GREEN. Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test."}},"held_out":{"L-022":"browser/SPA persisted-UI-state lesson; this target is a zero-dependency terminal CLI with no browser surface - staged but held OUT of prompt_lines, to be reported not-exercised at WRAP_UP (same disposition as the last four runs)"}}}
 ```
+
+## cycle 114 addendum | the two WRAP_UP steps that did NOT complete, recorded as not-done
+
+Both are infrastructure, neither touches the product, and neither is reported as done.
+
+**1. The watchdog timer is still armed.** `systemctl disable --now swarm-watchdog.timer` was
+refused: `Failed to disable unit: Interactive authentication required` — the run user cannot
+disable a system unit without polkit. `is-active: active`, `is-enabled: enabled`, unchanged.
+This is safe but should be understood rather than assumed safe: the timer keeps firing every
+30 min, and each firing now hits the DONE-guard at `bin/swarm-watchdog.sh:270`, which reads
+`wrap_up_complete` from the runfile — set `true` this cycle — and logs `run-complete` without
+relaunching anything. The guard, not the disable, is what actually stops relaunches; the
+disable is the belt to that suspenders and it is missing. **Owner action:** either grant the
+run user a polkit rule for these units, or accept the guard alone and delete the disable step
+from the manual's Linux path. Filed for the morning; hard rule 5 forbids editing the manual
+from inside a run.
+
+**2. The public-project screenshot was skipped.** The registry resolved cleanly —
+`{"slug":"moon","url":"https://swarm.fenley.ai/projects/moon"}` — but
+`~/.claude/skills/gstack/browse/dist/browse` does not exist on this host, so there is no
+capture tool. Logged per the step's own rule: `project screenshot skipped: moon: browse CLI
+not installed`. Best-effort by design; it never gated the wrap-up.
+
+**Everything else in the WRAP_UP list completed and is verified above:** verified-only commit
+(3a55373), RETRO.md + REPORT.md, tag `v0.1-improve7` created AND pushed (a lightweight tag does
+not travel with `--follow-tags`, so it was pushed explicitly and confirmed against
+`ls-remote --tags`), final dashboard render (22-cycle burn-up derived from the journal, zero
+unsubstituted placeholders, measured in the rendered file rather than assumed),
+`wrap_up_complete=true`, wrap-up push sent (`notify.log`: `send wrap-up ok`), control channel
+archived to `control.json.1787569100` / `notify.log.1787569100`. No caffeinate to kill
+(`caffeinate_pid` 0 — Linux host, none was ever spawned). Artifact publishing was skipped: the
+Artifact tool does not exist in a headless VPS session, which is not a publish failure, so
+`publish_failures` stays 0.
+
+**No further wakeups.** `heartbeat.next_wakeup_at` is 0 and the pacer reads that as nothing due.
