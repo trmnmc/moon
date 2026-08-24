@@ -2152,7 +2152,7 @@
       "id": "T-215",
       "title": "Gate REPORT.md's self-relative archive pointer against the move this run will make",
       "kind": "test",
-      "status": "todo",
+      "status": "done",
       "effort": "M",
       "priority": 20,
       "files_hint": [
@@ -2166,7 +2166,8 @@
       "model": "fable",
       "craft": null,
       "acceptance": "REPORT.md's first-screen archive-pointer sentence AND its closing restatement of the same enumeration are both enforced against the archive files that actually exist on disk and the run records actually present in the document, so that adding a run record or archiving run #6's record without updating both pointers is a detected violation. The check's predicate must be answerable about a SUPPLIED document-and-archive-list state, not only about the tree as it currently sits.",
-      "notes": "The supplied-state clause is load-bearing and is why it is written into acceptance: the must-have requires the gate be proven RED against this run's REAL pending edit BEFORE that edit is made, and a predicate that reads only the live tree can only be shown red AFTER the edit, which is the ordering L-042 rejects. TWO copies of the enumeration must stay in step: REPORT.md:3 and the closing italic near REPORT.md:110. A rot of exactly this shape was T-212's defect last run, so the duplicate is the KNOWN failure mode. Discover archives by listing .swarm/REPORT-ARCHIVE-*.md, never from a literal list, or the gate reproduces the rot it exists to catch. Serialized behind T-214 by dep because T-214 edits REPORT.md while this guard parses it - do NOT run them concurrently despite the disjoint files_hint."
+      "notes": "The supplied-state clause is load-bearing and is why it is written into acceptance: the must-have requires the gate be proven RED against this run's REAL pending edit BEFORE that edit is made, and a predicate that reads only the live tree can only be shown red AFTER the edit, which is the ordering L-042 rejects. TWO copies of the enumeration must stay in step: REPORT.md:3 and the closing italic near REPORT.md:110. A rot of exactly this shape was T-212's defect last run, so the duplicate is the KNOWN failure mode. Discover archives by listing .swarm/REPORT-ARCHIVE-*.md, never from a literal list, or the gate reproduces the rot it exists to catch. Serialized behind T-214 by dep because T-214 edits REPORT.md while this guard parses it - do NOT run them concurrently despite the disjoint files_hint.",
+      "verified_cycle": 113
     },
     {
       "id": "T-216",

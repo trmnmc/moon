@@ -1,0 +1,66 @@
+=== conductor gate cells (cycle 113, T-215) — authored at verification time ===
+$ node .swarm/runs/cycle-113-gate-T-215.mjs
+[PASS] pending-edit        RED    2 violation(s); both copies flag the pending archive: true
+  report-pointer: the first-screen pointer is out of step — it does not name `.swarm/REPORT-ARCHIVE-2026-08-24.md`, which exists on disk
+  report-pointer: the closing italic pointer is out of step — it does not name `.swarm/REPORT-ARCHIVE-2026-08-24.md`, which exists on disk
+[PASS] pending-edit-fixed  GREEN  0 violation(s) — the corrected edit is accepted
+[PASS] unrelated-edit      GREEN  0 violation(s) — prose edits away from the pointers do not redden the gate
+[PASS] t212-replay         RED    1 violation(s); attributed to the first-screen copy alone (closing italic hits: 0)
+  report-pointer: the first-screen pointer is out of step — it does not name `.swarm/REPORT-ARCHIVE-2026-08-20.md`, which exists on disk
+[PASS] dead-region         RED    1 violation(s); unlocatable-first-screen: 1
+  report-pointer: could not locate the first-screen pointer sentence (a line before the first "## " heading naming a backticked .swarm/REPORT-ARCHIVE-*.md path) — fail-closed: an unlocatable pointer is a violation, never a vacuous pass
+[PASS] hard-wrap           RED    1 violation(s)
+  report-pointer: located 2 candidate lines for the first-screen pointer — exactly one is required; fail-closed on ambiguity
+[PASS] live-tree           GREEN  0 violation(s); live archives discovered: 2 [".swarm/REPORT-ARCHIVE-2026-08-18.md",".swarm/REPORT-ARCHIVE-2026-08-20.md"]
+[FAIL] no-hardcoded-dates  STRUCT hardcoded live-archive dates in source: 1; archives discovered by readdir: true
+
+7/8 conductor cells passed
+(exit 1)
+
+=== re-aimed cell 8 (the mis-aimed no-hardcoded-dates cell, measured properly) ===
+$ node .swarm/runs/cycle-113-gate-T-215b.mjs
+[PASS] 8b-no-live-archive-name  real archive filenames anywhere in the file: 0 []
+[PASS] 8c-no-live-dates-in-code live archive dates in EXECUTABLE source: 0 []
+[PASS] 8d-only-hit-is-a-comment dates in file: 1; of those in executable code: 0
+[PASS] 8e-discovered-not-listed archive set built by readdir + pattern filter: true
+
+4/4 re-aimed cells passed
+(exit 0)
+
+=== re-aimed two-arm attribution proof against the live tree ===
+$ node .swarm/runs/cycle-113-gate-T-215-twoarmb.mjs
+[PASS] arm1-red-and-attributed exit 1 | ℹ tests 269 | ℹ pass 268 | ℹ fail 1 | ℹ skipped 0
+         the one distinct failing test, BY NAME: "report-pointer (a) the live tree: real REPORT.md text against the real .swarm/ listing passes"
+[PASS] arm2-green-without-gate exit 0 | ℹ tests 256 | ℹ pass 256 | ℹ fail 0 | ℹ skipped 0 — the same mutation is invisible to all 256 pre-existing tests
+[PASS] mutation-removed        the injected archive file is gone: true
+[PASS] gate-byte-identical     gate sha b84596040712cc07 -> b84596040712cc07
+[PASS] report-untouched        REPORT.md sha 2fdb3386efa25399 -> 2fdb3386efa25399
+[PASS] no-tracked-drift        tracked changes -> "A  test/report-pointer.test.js"
+
+6/6 re-aimed two-arm cells passed
+(exit 0)
+
+=== full suite, run by the conductor ===
+$ node --test test/*.test.js | tail -10
+✔ report-pointer self-check: the live .swarm/ listing and both live pointer locators found something real (0.281302ms)
+✔ report-pointer: a malformed supplied state is a caller TypeError, not a document violation (0.691872ms)
+ℹ tests 269
+ℹ suites 0
+ℹ pass 269
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14132.515325
+(exit 0)
+
+=== REPORT.md byte count (ceiling 25582) ===
+$ wc -c REPORT.md
+25574 REPORT.md
+(exit 0)
+
+=== dependency surface (the zero-dep property) ===
+$ node -e 'const p=require("./package.json");console.log("dependencies:",JSON.stringify(p.dependencies||{}),"devDependencies:",JSON.stringify(p.devDependencies||{}))'
+dependencies: {} devDependencies: {}
+(exit 0)
+

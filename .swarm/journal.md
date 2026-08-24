@@ -3997,3 +3997,130 @@ young run rather than a lost series, and the dashboard is read at a glance.
 
 No notification emitted this cycle: phase unchanged (BUILD → BUILD), no stall, no publish
 failures. `.ntfy.json` present, channel healthy.
+
+## cycle 113 | 2026-08-24T10:33:43+00:00 | moon | build-wave — T-215's archive-pointer gate proven RED against this run's REAL pending edit before making it; every DoD clause re-derived, moon declared DONE
+
+Clock 1787567623. Budget probe real and clean: **gear 3 cruise, ρ 0.62, guest, k_cap 3**, window 5,602,587 tok
+/ $4.49, 18.2M tok/h, projected depletion 2026-08-24T17:54Z, `probe_failures` 0. The window RESET
+between cycles (20.8M → 5.6M), so `usage_reset_at` rolled forward to 15:00Z and per-target burn
+attribution is SKIPPED this cycle — a negative delta is a reset, not a measurement. Governor
+disengaged (`weekly.ok` false; weekly 28.6%, opus 66.7% against 3.15% week-elapsed — reported, not
+acted on). Control channel polled: zero pending, zero injections. Tree clean at orient; no salvage.
+Workflow is review-gated in a `-p` session, so the wave went out as a DIRECT Agent call on **fable** —
+the documented fallback. Craft pack loaded with `degraded: []`.
+
+### T-215 — the gate that had to be red before the edit, not after
+
+One-item wave (it was the only dispatchable item; effective k was 3). Shipped
+`test/report-pointer.test.js`: a predicate `reportPointerViolations({reportText, archiveFilenames})`
+that is a **pure function of a supplied state** and never reads the tree itself, with the live tree
+as one call site among eleven table cases. That shape is the whole point of the item — L-042 rejects
+proving a gate red only AFTER the edit lands, and a predicate that can only read the live tree can
+only be shown red afterwards.
+
+Both copies of the enumeration — REPORT.md:3 and the closing italic at REPORT.md:108 — are checked
+independently against the archive set, in both directions (on disk but unnamed; named but absent),
+so either copy drifting alone is attributed to THAT copy. That duplicate is the known failure mode:
+it is exactly T-212's defect from run #6. Archives are discovered by `readdirSync` + pattern filter,
+never from a literal list, and the fixtures use synthetic 1111/2222/3333 names.
+
+### VERIFICATION EVIDENCE — 8 conductor cells, authored at verification time
+
+Cells deliberately used the REAL REPORT.md text rather than the file's own synthetic fixtures, so
+this measures the gate instead of re-running its rehearsal. Full capture:
+`.swarm/runs/cycle-113-verify-T-215.txt`; scripts `.swarm/runs/cycle-113-gate-T-215.mjs`,
+`-T-215b.mjs`, `-T-215-twoarm.mjs`, `-T-215-twoarmb.mjs`.
+
+```
+[PASS] pending-edit    RED   the REAL pending edit — run #6's record archived to
+                             .swarm/REPORT-ARCHIVE-2026-08-24.md, ## Run 6 heading becoming
+                             ## Run 7 — yields exactly 2 violations, one per pointer copy,
+                             each naming the unnamed archive. RED BEFORE THE EDIT IS MADE.
+[PASS] pending-edit-fixed GREEN the same pending state with both pointers corrected -> 0
+                             violations. A gate that reddened here too could not tell a right
+                             answer from a wrong one.
+[PASS] unrelated-edit  GREEN inserting a paragraph and renaming an unrelated ## heading in the
+                             real REPORT.md -> 0 violations (converse control, L-044).
+[PASS] t212-replay     RED   run #6's ACTUAL defect replayed on the real document (line 3 names
+                             one archive, the record lives in two) -> 1 violation, attributed to
+                             the first-screen copy alone; closing-italic hits 0.
+[PASS] dead-region     RED   backticks stripped from the live line 3 -> "could not locate ...
+                             fail-closed", never a vacuous pass over a dead region.
+[PASS] hard-wrap       RED   the live sentence hard-wrapped across two lines -> "located 2
+                             candidate lines ... fail-closed on ambiguity".
+[PASS] live-tree       GREEN the shipped state: 0 violations, 2 archives discovered by listing.
+[FAIL] no-hardcoded-dates    1 date found in the source.
+```
+
+### The one cell of mine that failed, recorded as failed
+
+`no-hardcoded-dates` went red — but its single hit is line 28, a COMMENT illustrating the run-heading
+format (`e.g. "## Run 6 (2026-08-20)"`), not an archive path and not the enumeration's source. **Red
+for the wrong reason is not evidence.** It stands FAIL in the first script, which stays on disk, and
+was re-aimed at the property it meant to measure:
+
+```
+[PASS] 8b-no-live-archive-name  real archive filenames anywhere in the file: 0 []
+[PASS] 8c-no-live-dates-in-code live archive dates in EXECUTABLE source: 0 []
+[PASS] 8d-only-hit-is-a-comment dates in file: 1; of those in executable code: 0
+[PASS] 8e-discovered-not-listed archive set built by readdir + pattern filter: true
+```
+
+### Two-arm attribution against the LIVE tree (L-029)
+
+The mutation is the real one: create the archive file, touch neither pointer.
+
+```
+[PASS] arm1-red-and-attributed exit 1 | tests 269 | pass 268 | fail 1 | skipped 0
+         the one distinct failing test, BY NAME:
+         "report-pointer (a) the live tree: real REPORT.md text against the real .swarm/ listing passes"
+[PASS] arm2-green-without-gate exit 0 | tests 256 | pass 256 | fail 0 | skipped 0
+         — the same mutation is invisible to all 256 pre-existing tests
+[PASS] mutation-removed        the injected archive file is gone: true
+[PASS] gate-byte-identical     gate sha b84596040712cc07 -> b84596040712cc07
+[PASS] report-untouched        REPORT.md sha 2fdb3386efa25399 -> 2fdb3386efa25399
+[PASS] no-tracked-drift        tracked changes -> "A  test/report-pointer.test.js"
+```
+
+The first two-arm script ALSO recorded two failures of my own making — a `failedNames` regex that
+swallowed node:test's `✖ failing tests:` summary header, and a restore check that demanded an
+exactly-clean tree while this cycle's own gate scripts sat untracked in `.swarm/runs/`. Both stand
+recorded FAIL in `-twoarm.mjs`, which stays on disk beside the re-aimed `-twoarmb.mjs`. Three of my
+twelve cells were mis-aimed this cycle; none of the three was a defect in the shipped gate, and
+saying which is which is the point of keeping both scripts.
+
+Full suite, run by me, not asked of the agent: **269 tests, 269 pass, 0 fail, 0 skipped** (256 → 269;
+the 13 added tests are the 11 supplied-state table cases, the located-rows self-check, and the
+malformed-state TypeError case — each names the surface it closes in the file's HOLE/BOUNDARY header).
+Zero new dependencies. REPORT.md untouched at **25574 ≤ 25582** bytes, both pointer lines left exactly
+as they were for WRAP_UP to edit under the gate.
+
+### Definition of done, re-derived clause by clause — my commands this cycle, not the journal's memory
+
+| clause | verdict | evidence |
+|---|---|---|
+| paraphrase registry gate ships, fail-closed, two-arm + converse | MET | cycle 112, 8 cells |
+| archive-pointer gate proven RED against the real pending edit, then green | **MET this cycle** | `pending-edit` / `pending-edit-fixed` above |
+| every count-citing claim re-derived at run time | MET | cycle 111, conductor worktree measurements |
+| KI-2 escalated ONCE, exact config lines named, not re-diagnosed | MET | cycle 112, `.swarm/KI-2-OWNER-ACTION.md` |
+| suite ≥ 244 green, 0 skipped | MET | 269/269, 0 skipped, run above |
+| REPORT.md ≤ 25582 bytes; report-issues.test.js green | MET | 25574 bytes; in the green suite |
+| zero tests added that cannot name their surface | MET | HOLE/BOUNDARY header, 3 BOUNDARY classifications stated |
+
+**moon is DONE, not stalled.** Backlog: 111 items, 106 done, 5 dropped, **0 todo, 0 blocked**. Every
+VALUE_LOOP candidate that would clear the ten-minute ratchet — T-177 daily invariance, T-178 `--date`,
+T-179 frame alignment — is locked out by the trickle brief, and the spec names manufactured diligence
+as the failure mode to avoid. Backfilling a mutation sweep to fill the remaining 20 hours would be
+exactly that. Runfile target status set to `done`; next wakeup routes to WRAP_UP, which will make the
+REPORT.md edit this cycle's gate now guards — and the gate is already proven red against it.
+
+### Counters
+
+`consecutive_no_value` 0 → **0** (one verified item). Wave CLEAN — zero reverts, zero failed verifies —
+so `wave_streak` 0 → **1**; `k_current` stays **4** (autotune fires at streak 2). Phase BUILD → **DONE**.
+`cycles_since_recycle` 5.
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"done","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-25T07:19:47Z","usage_reset_at":"2026-08-24T15:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787567623,"next_wakeup_at":1787567743,"pid":3578863,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.33},"budget":{"source":"probe","gear":3,"gear_target":3,"ratio":0.62,"mode":"guest","k_cap":3,"promote":false,"demote":false,"window_tokens":5602587,"window_cost_usd":4.494306000000001,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":18211717,"projected_depletion_at":1787594073,"last_probe_ts":1787566747,"last_real_probe_ts":1787566747,"probe_failures":0,"weekly":{"ok":false,"weekly_used_pct":28.571428571428573,"opus_used_pct":66.66666666666667,"week_elapsed_pct":3.15,"weekly_heat":0,"opus_heat":0,"ceiling":5,"promote_blocked":false}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":5,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"run_label":"improve-7 (2026-08-24)","playbook":{"apply_mode":"auto","applied":["L-008","L-016","L-022","L-026","L-024","L-029","L-031","L-033","L-034","L-037","L-038","L-042","L-043","L-044","L-046","L-047"],"vetoed":[],"advice_only":["L-039","L-040","L-041","L-045"],"source":"manual file read (bin/swarm-playbook.sh parse DENIED at kickoff - KI-2, denial #37)","directives":{"wave_k":null,"routing_recs":["core-logic->fable (L-026)"],"prompt_lines":{"builder":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test. A gate cell that fails must be shown to fail for the reason it names before its verdict is recorded against the dispatched work.","reviewer":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. Assign each fixer a pairwise-disjoint file set; two fixers must never share a file. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test. A gate cell that fails must be shown to fail for the reason it names before its verdict is recorded against the dispatched work.","qa":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish \"I verified this is wrong, here is the computation\" from \"this looks suspicious but I could not confirm it\". Where possible verify with a discriminator: an observable a faked or degenerate implementation could not produce. Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps. Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test. When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive. For every mutation that must kill the suite, author one control that must leave it GREEN. Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test."}},"held_out":{"L-022":"browser/SPA persisted-UI-state lesson; this target is a zero-dependency terminal CLI with no browser surface - staged but held OUT of prompt_lines, to be reported not-exercised at WRAP_UP (same disposition as the last four runs)"}}}
+```

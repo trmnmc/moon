@@ -2,8 +2,8 @@
   "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
-  "phase": "BUILD",
-  "cycle": 112,
+  "phase": "DONE",
+  "cycle": 113,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -1160,6 +1160,11 @@
       "cycle": 112,
       "what": "T-216 was recovered from a crashed cycle rather than rebuilt, and re-derived before being trusted",
       "why": "Cycle 112 (pid 3482352) died at 08:40 after writing .swarm/KI-2-OWNER-ACTION.md and before journalling anything. The file is coherent partial work, so cycle.md step 2 salvage applies — but its content is a factual claim, so it was re-measured against the live settings.json (11 swarm-* allow forms, breakdown 4/3/2/2, zero for swarm-playbook.sh and swarm-warmup.sh) rather than accepted because it looked finished."
+    },
+    {
+      "cycle": 113,
+      "what": "declare moon DONE for improvement run #7: every definition-of-done clause is met and no VALUE_LOOP candidate clears the ratchet",
+      "why": "T-215 was the last open must-have and verified this cycle. The DoD was re-derived clause by clause against commands run this cycle, not against the journal's memory: paraphrase registry gate green (cycle 112), archive-pointer gate proven RED against the real pending edit then GREEN on the corrected one (this cycle), count claims already re-derived (cycle 111), KI-2 escalated once (cycle 112), suite 269 green 0 skipped vs a 244 floor, REPORT.md 25574 <= 25582. Every VALUE_LOOP candidate that would clear the \"would the user still care after 10 minutes\" ratchet (T-177 daily invariance, T-178 --date, T-179 frame alignment) is locked out by the trickle brief, and the spec names manufactured diligence as the failure mode to avoid. So: DONE, not stalled, and wrap rather than backfill."
     }
   ],
   "known_issues": [
@@ -1219,14 +1224,14 @@
     "last_look_cycle": 76,
     "last_taste_cycle": 81,
     "last_review_fix_cycle": 73,
-    "last_build_wave_cycle": 109,
+    "last_build_wave_cycle": 113,
     "last_wrap_up_cycle": 110
   },
   "counters": {
     "consecutive_no_value": 0,
     "consecutive_failures": 0,
     "k_current": 4,
-    "wave_streak": 0,
+    "wave_streak": 1,
     "window_tokens_attributed": 0
   },
   "last_cycle": {
