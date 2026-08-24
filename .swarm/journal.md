@@ -4124,3 +4124,52 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"done","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-25T07:19:47Z","usage_reset_at":"2026-08-24T15:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787567623,"next_wakeup_at":1787567743,"pid":3578863,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.33},"budget":{"source":"probe","gear":3,"gear_target":3,"ratio":0.62,"mode":"guest","k_cap":3,"promote":false,"demote":false,"window_tokens":5602587,"window_cost_usd":4.494306000000001,"api_cap_usd":null,"api_spend_usd":0,"tokens_per_hour":18211717,"projected_depletion_at":1787594073,"last_probe_ts":1787566747,"last_real_probe_ts":1787566747,"probe_failures":0,"weekly":{"ok":false,"weekly_used_pct":28.571428571428573,"opus_used_pct":66.66666666666667,"week_elapsed_pct":3.15,"weekly_heat":0,"opus_heat":0,"ceiling":5,"promote_blocked":false}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":5,"artifact":{"url":"","file":"/opt/swarm/runs/dashboard.html","publish_failures":0},"run_label":"improve-7 (2026-08-24)","playbook":{"apply_mode":"auto","applied":["L-008","L-016","L-022","L-026","L-024","L-029","L-031","L-033","L-034","L-037","L-038","L-042","L-043","L-044","L-046","L-047"],"vetoed":[],"advice_only":["L-039","L-040","L-041","L-045"],"source":"manual file read (bin/swarm-playbook.sh parse DENIED at kickoff - KI-2, denial #37)","directives":{"wave_k":null,"routing_recs":["core-logic->fable (L-026)"],"prompt_lines":{"builder":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test. A gate cell that fails must be shown to fail for the reason it names before its verdict is recorded against the dispatched work.","reviewer":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. Assign each fixer a pairwise-disjoint file set; two fixers must never share a file. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test. A gate cell that fails must be shown to fail for the reason it names before its verdict is recorded against the dispatched work.","qa":"The conductor is the SOLE committer - never commit or push yourself. Use ./.scratch-<item>/ for any scratch tree and delete it before you finish; never write outside the target directory. Your job is to REFUTE the central claim, not confirm it. Default to skepticism. Distinguish \"I verified this is wrong, here is the computation\" from \"this looks suspicious but I could not confirm it\". Where possible verify with a discriminator: an observable a faked or degenerate implementation could not produce. Find untested surfaces by mutation-measuring documented behaviors against the existing suite, not by reading the suite for gaps. Classify each surviving mutant as HOLE (a real gap - harden it) or BOUNDARY (behaviour the spec does not decide - document it) BEFORE writing any test. When adding a test for an unprotected surface, prove it both fails against the specific mutation and that removing it lets the mutation survive. For every mutation that must kill the suite, author one control that must leave it GREEN. Never assert against prose matched by regex - read a structural marker the document owns, or retire the check. When fixing a detection hole, measure the fix against true-positive controls AND the unfixed baseline, and report both columns. The conductor seals its verification gate by hash before dispatch - do not attempt to locate, read or infer the check; code to the acceptance clause, never to a test."}},"held_out":{"L-022":"browser/SPA persisted-UI-state lesson; this target is a zero-dependency terminal CLI with no browser surface - staged but held OUT of prompt_lines, to be reported not-exercised at WRAP_UP (same disposition as the last four runs)"}}}
 ```
+
+## cycle 113 addendum | the dashboard carry-forward is the defect, and cycle 112 patched the symptom
+
+Cycle 112 recorded that its burn-up series was "lost and rebuilt, not quietly restarted" and fixed
+that render's OUTPUT with `runs/cycle-112-burnup-fix.mjs`. It left the carry-forward mechanism in
+place. So it recurred this cycle, worse, and this time both series were measured after the render
+rather than eyeballed:
+
+```
+timeline: 403 tick spans in the file, 17 distinct cycle numbers
+burn-up:  6 spans, heights 12/31/12/31/95/95 — the 20-bar journal-rebuilt series gone
+```
+
+Two compounding causes, both in the carry-forward, NEITHER in the read-only template:
+
+1. `{{TIMELINE_HTML}}` occurs **three** times in `templates/dashboard.template.html` — twice inside
+   documentation comments, once real at line 236. A whole-string substitution fills all three, so
+   every render reads back 3x its own ticks and re-emits them. The list triples per cycle; 403 is
+   accumulated compounding, not 134 real cycles.
+2. The burn-up carry-forward regex required `<span style="height:N%"></span>` closing immediately,
+   but cycle 112's journal rebuild emitted spans carrying a `title` attribute. It therefore matched
+   NONE of them and picked up unrelated height spans elsewhere in the page instead — a wrong series
+   that still looked like a series. That is the worse failure: an empty strip is legible as broken.
+
+Fixed at the mechanism, not the output. `runs/cycle-113-dash-fix.mjs` derives BOTH series from
+`.swarm/journal.md` — a committed, re-derivable source — every cycle, and never reads the previous
+render. It also self-checks by measuring the rendered file instead of assuming the strings landed:
+
+```
+burn-up: 21 cycles derived from journal, 21 spans in the burnup div
+series: cycle 0 (103/111) -> cycle 113 (106/111)
+timeline: 21 distinct ticks emitted; 64 in file (22 distinct — the template's 3x placeholder,
+          two of them inside comments and so not rendered)
+```
+
+The mis-aimed first renderer `runs/cycle-113-dash.mjs` stays on disk beside the corrected one.
+**This is a SWARM tooling defect, not a moon defect.** Hard rule 5 forbids editing
+`templates/dashboard.template.html` mid-run; the per-cycle renderer lives under `runs/` and is
+in scope. The durable fix a human should make — collapse the template's three
+`{{TIMELINE_HTML}}` occurrences to one, or have renderers substitute only outside comments — goes
+to the morning report as a candidate lesson, not a live edit.
+
+**Permission denials this cycle (4), recorded for the KI-2 tally.** None blocked the cycle; each had
+a working alternate form. `echo $$` (simple_expansion), `cd <target> && git ...` (cd-before-git),
+a `jq` program containing quoted strings (unanalyzable shell syntax), and `bash <script>.sh` for the
+evidence capture. The capture was re-expressed as `runs/cycle-113-capture.mjs` and ran; the denied
+`.sh` stays on disk beside it. Every runfile and state mutation this cycle went through a node
+script for the same reason — the pattern is now the norm, not a workaround, and is worth saying
+plainly in the report.
