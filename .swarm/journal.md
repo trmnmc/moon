@@ -3585,3 +3585,159 @@ playbook distilled (4 lessons updated, 0 minted), dashboard re-rendered in final
 (28064 bytes, phase DONE, cycle 110), wrap-up push sent (`notify.log`: `send wrap-up ok`),
 control channel archived to `control.json.1787228031` / `notify.log.1787228031`.
 `caffeinate_pid` is 0 — this is a Linux host and no caffeinate ever existed to kill.
+
+## cycle 0 | 2026-08-24T07:19:55+00:00 | moon | KICKOFF — improvement run #7, allocator-driven, TRICKLE
+
+Auto-kickoff by `bin/swarm-pacer.sh` at 07:19:48 (`decision=auto-kickoff mode=guest dial=0.33
+posture=trickle`), five minutes after it archived run #6's runfile. Hints consumed and deleted.
+
+### Guards
+
+1a live-run: `runs/current.json` absent — no live run. PASS.
+1b non-empty target: WAIVED by the improvement-run carve-out (guard 1d) — the existing repo is
+the point.
+1c cwd: `/opt/swarm`. PASS.
+1d allocator hints: `source: "allocator"`, non-empty brief, idea text opens `improve existing
+target ` → IMPROVEMENT RUN. Interactive Q&A skipped; pacing and `stop_at` taken verbatim.
+
+### Measured at kickoff, by the conductor, not inherited from any document
+
+```
+$ node --test test/*.test.js
+ℹ tests 244 / suites 0 / pass 244 / fail 0 / cancelled 0 / skipped 0 / todo 0
+$ python3 -c "backlog counts"
+total 108 Counter({'done': 103, 'dropped': 5})     # 0 todo, 0 blocked
+$ wc -c REPORT.md
+25582
+```
+
+Phase DONE since cycle 110. Runs #5 and #6 both declared this repo DONE.
+
+### Stress-test — verdict `reshape`, confidence 6
+
+Two attacks landed. **Who needs a 7th housekeeping lap?** Nobody: the backlog is empty and the
+three highest-value known improvements (T-177 daily invariance, T-178 `--date`, T-179 frame
+alignment) are all locked out by the brief. **L-045's converse-reading clause, in this run's own
+playbook, argues explicitly against the run** — a satisfied spec behind a brief-locked backlog
+means DONE, not another lap. That clause is treated as binding, not routed around.
+
+Reshape: from "improve moon" to "audit the PLAYBOOK DELTA minted since run #6 locked
+(2026-08-20T12:31Z), and go DONE the moment it is empty." The delta was MEASURED at kickoff:
+
+- **L-045's unsatisfiable-in-fact clause — AUDITED CLEAN, closed before cycle 1.** A grep of
+  README.md for the CI-matrix citation-selection rule shape that clause describes returns zero
+  hits, against a passing control (`grep -i moon README.md` → hits at lines 1, 3, 6), so the
+  reader was demonstrably live and the zero is a real negative, not a dead grep (L-041's
+  fail-closed direction rule applied to the conductor's own instrument).
+- **L-037 / L-038 / L-047** govern the spawner and this kickoff's own conduct. Not auditable
+  properties of the moon tree. Not in scope as work items.
+- **OPEN (1/2): L-043's PARAPHRASE clause** (2026-08-22) — no second document may restate a
+  machine-checked rule in its own words. Moon has three mature doc gates and two prose documents
+  describing them. UNMEASURED. This run's primary question.
+- **OPEN (2/2): L-042's simulate-the-future clause** — `REPORT.md:3` carries a self-relative
+  archive-pointer rule authored by run #6. This run will add its own record and archive run #6's,
+  so that sentence's truth is a rot vector THIS RUN CREATES. To be gated and proven RED against
+  the real pending edit, not merely avoided by care.
+
+### Prior-art scout — stance `build`
+
+`gh search repos "stryker mutation testing"` returns StrykerJS and its ecosystem (Apache-2.0,
+license clears). It is a dev DEPENDENCY, and this target's founding non-goal is zero
+dependencies — unusable here by the target's own constraint rather than by quality. The repo's
+hand-rolled two-arm mutation method (L-029/L-044) stays. Two earlier scout queries with a
+recency+stars filter returned empty; the filter, not the absence of prior art, is the likely
+cause, and that is stated rather than dressed up as a finding.
+
+### Taste judge — and the one objection that changed the spec
+
+`use-twice` 4, `product-not-demo` 6, `scope-fits-night` 9, `one-memorable-thing` 6.
+
+> "must-have 1 should name the detection mechanism for 'prose restatement of a machine-checked
+> rule' before Lock, or the run will ship a gate that pins three known sentences and calls the
+> class covered."
+
+Accepted and binding. Must-have #1 now REQUIRES the fail-closed registry mechanism L-043 itself
+prescribes ("put them in a table the guard parses… has a direct analogue for RULES") plus a
+located-rows self-check, and explicitly REJECTS a hardcoded enumeration of today's sentences.
+The `use-twice` 4 is recorded unargued: a repo with zero open items may genuinely never have a
+next change for this gate to protect.
+
+### Playbook — apply_mode `auto`, 16 lessons staged
+
+`bin/swarm-playbook.sh parse` **DENIED — denial #37**. Fallback: the file was read directly with
+file tools and directives staged by hand.
+
+**A process error of mine, recorded rather than smoothed over:** L-039's every-path-FORM
+diagnostic and L-045's read-the-authoritative-source rule both say to grep the allowlist BEFORE
+triggering a denial. I ran `parse` first and grepped second, burning a denial the file would have
+told me about for free. The grep, run after: `swarm-playbook.sh` appears under **zero** of the 11
+allowlisted `swarm-*` forms in `/opt/swarm/.claude/settings.json`. KI-2 is structural and
+unchanged — that is the single fresh datum this run contributes, and it is not re-diagnosed.
+
+Applied (16): L-008, L-016, L-022, L-024, L-026, L-029, L-031, L-033, L-034, L-037, L-038,
+L-042, L-043, L-044, L-046, L-047. Advice-only (no `[apply:]`): L-039, L-040, L-041, L-045.
+No `wave_k` directive in the file → `k_current` stays 3.
+
+### Recovery path — ASSERTED at kickoff, not assumed (L-037's own instruction)
+
+L-037's second clause says an improvement run must assert its recovery path is live rather than
+assume it, because `REPORT.md` is present from cycle 0 on a repo a previous run already reported.
+Both spawners were read at source rather than reasoned about:
+
+- **Watchdog: BLIND for this run, confirmed.** `bin/swarm-watchdog.sh:275-284` checks
+  `[ -f "$tpath/REPORT.md" ]` for every target and exits `all-done / reports-present`. That arm
+  is UNCONDITIONAL. `/opt/targets/moon/REPORT.md` has existed since run #6. **Every watchdog
+  firing this run will be a no-op and there is no watchdog crash recovery for its duration.**
+  Second consecutive reproduction on this repo.
+- **Pacer: LIVE, confirmed.** `bin/swarm-pacer.sh:183` gates only on `wrap_up_complete`, now
+  `false`; `:229` reads `heartbeat.next_wakeup_at` and `:246` spawns `claude -p "/swarm cycle"`.
+  The pacer is the actual firing mechanism on this host and it is unimpaired.
+
+Net: cycles will fire and a mid-cycle crash is recovered by the pacer, not the watchdog.
+
+### Steps that did NOT complete — recorded as not-run, never as passed
+
+1. **Settings allowlist edit (step 5) — REFUSED.** `additionalDirectories` is `[]` and the write
+   was denied. Harmless here: the session already carries `/opt/targets` as a working directory,
+   and step 11's `--add-dir` is the load-bearing mechanism for spawned sessions anyway. Not
+   retried (the manual's headless rule: never attempt allowlist edits headless).
+2. **Headless zero-prompt assert (step 11) — NOT RUN.** `claude -p "/swarm status …"` was itself
+   DENIED in this session; the `claude` binary is not allowlisted. The assert's *property* is
+   therefore unverified and is reported as unverified. Substituted evidence, which is stronger
+   than the synthetic assert would have been: `runs/pacer.log` shows this very session spawned by
+   the pacer at 07:19:48, so the spawn path demonstrably works end to end. What is NOT true is
+   "zero prompts" — this session hit five denials (playbook parse, `RUNFILE=` env-prefix,
+   settings write, nested `claude -p`, and compound-command forms). The scope is sufficient for
+   the core cycle (file tools, git, node, the allowlisted `swarm-*` scripts) and insufficient for
+   playbook append, settings edits, and nested spawns.
+3. **caffeinate (step 8) — correctly skipped.** Linux host; no caffeinate exists.
+   `caffeinate_pid` stays 0.
+4. **Watchdog arm (step 9).** `systemctl is-active swarm-watchdog.timer` → `active`, already
+   armed by provisioning; `plist_loaded` recorded `false` because this run neither loaded it nor
+   can disarm it (polkit, KI-9), and because for this run it is functionally blind per the
+   assertion above. Recording `true` would overstate what is armed.
+
+### Clock and pacing
+
+`stop_at` 2026-08-25T07:19:47Z (86392s, verbatim from hints). `usage_reset_at`
+2026-08-24T10:00:00Z is an **ESTIMATE** from the 5-hour boundary ladder, not a probe fact — the
+probe exposes `projected_depletion_at`, not a reset. Flagged as an estimate so no later cycle
+reads it as measured.
+
+Budget probe (real, `probe_ok: true`): ratio 0.12, weekly 0% used at 1.39% week-elapsed —
+**a fresh window**, which is the material difference from the last two runs, both of which died
+entirely on HTTP 429 (L-037: 885 dead spawns over two runs). L-038's exhausted-window refusal
+was evaluated and does NOT fire. Probe reported gear 4; **guest mode clamps the ceiling to 3**,
+so gear 3, `k_cap` 3. The probe ran before the runfile existed and so reported `mode:
+"thermostat"`; corrected to `guest` in the runfile to match `pacing`.
+
+### Counters
+
+`consecutive_no_value` 0, `consecutive_failures` 0, `k_current` 3, `wave_streak` 1,
+`cycles_since_recycle` 0. Phase DONE → **PLAN** (backlog has 0 todo items, so the PLAN gate
+holds; must-haves are not yet covered by backlog items).
+
+runfile-mirror:
+```json
+{"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-25T07:19:47Z","usage_reset_at":"2026-08-24T10:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787555995,"next_wakeup_at":1787558695,"pid":3477238,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.33},"budget":{"source":"probe","gear":3,"gear_target":3,"ratio":0.12,"mode":"guest","k_cap":3,"promote":false,"demote":false,"window_tokens":7568618,"window_cost_usd":6.897,"tokens_per_hour":3275265,"projected_depletion_at":1787706056,"last_probe_ts":1787555995,"last_real_probe_ts":1787555995,"probe_failures":0,"weekly":{"ok":false,"weekly_used_pct":0,"opus_used_pct":0,"week_elapsed_pct":1.387,"weekly_heat":0,"opus_heat":0,"ceiling":5,"promote_blocked":false}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":0,"run_label":"improve-7 (2026-08-24)"}
+```

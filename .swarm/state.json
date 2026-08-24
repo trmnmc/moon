@@ -2,7 +2,7 @@
   "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
-  "phase": "DONE",
+  "phase": "PLAN",
   "cycle": 110,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
@@ -10,7 +10,7 @@
     "launch_name": "",
     "port": 0
   },
-  "spec_digest": "sixth improvement run on the shipped moon CLI, TRICKLE posture, over a repo declared DONE on 2026-08-19 by run #5 (which found 0 defects and left 22.3h unspent). Scope is the PLAYBOOK DELTA minted after 2026-08-19T23:55Z plus claims that rot. Delta measured AT KICKOFF: L-043 unstable-SUBJECT clause AUDITED CLEAN (zero git-bound guards in the repo); L-039 path-FORM diagnostic APPLIED (KI-2 confirmed structural); L-047 governs conduct not the tree; L-021 inapplicable. The ONE open item is L-043's FORM-and-DIRECTION clause, minted at run #5's own wrap-up and naming THIS repo: the doc->code citation direction is hand-audited and unprotected. That becomes a machine-checked gate - the run's only durable output. Then re-derive count claims, escalate KI-2 ONCE (not a 7th re-diagnosis), keep REPORT from growing. NO new features, NO new deps, NO sixth sweep, NO new axis. Early DONE is the EXPECTED outcome.",
+  "spec_digest": "SEVENTH improvement run on the shipped moon CLI, TRICKLE posture, over a repo declared DONE by BOTH run #5 and run #6. Measured at kickoff by the conductor, not inherited: 244/244 green with 0 skipped, backlog 0 todo (103 done, 5 dropped), phase DONE. Scope is the PLAYBOOK DELTA minted after run #6 locked (2026-08-20T12:31Z). Delta measured AT KICKOFF: L-045's unsatisfiable-in-fact clause AUDITED CLEAN (zero CI-matrix citation-selection rule in README, against a passing control grep); L-037/L-038/L-047 govern the spawner and conductor conduct, not this tree. TWO open clauses, both naming properties of THIS repo: (1) L-043's PARAPHRASE clause - no second document may restate a machine-checked rule in its own words - UNMEASURED here, and the run's primary question; the kickoff taste judge's binding objection is that the check must ENUMERATE the class fail-closed via a parsed registry table, never a hardcoded list of today's sentences. (2) L-042's simulate-the-future clause - REPORT.md:3's self-relative archive-pointer rule is a rot vector THIS RUN CREATES by adding its own record, so it is gated and proven RED against the real pending edit, not merely avoided by care. Then re-derive count claims, escalate KI-2 ONCE (not an 8th re-diagnosis), keep REPORT <= 25582 bytes. NO new features, NO new deps, NO sixth sweep, NO new axis. Early DONE is the EXPECTED and PREFERRED outcome, and wraps in the SAME cycle rather than spending a second lap.",
   "decisions": [
     {
       "cycle": 0,
@@ -1204,7 +1204,7 @@
     "work": "WRAP_UP: %5 SPEC re-read + backlog hygiene, DoD re-derived clause by clause, REPORT.md run-6 record refreshed and the cycle-109 rot vector removed rather than inherited",
     "outcome": "DONE declared; 244/244 green, skipped 0; REPORT 25582 <= 25586 ceiling; playbook 4 lessons updated, 0 minted; denial #33 recorded"
   },
-  "run_label": "improve-6 (2026-08-20)",
+  "run_label": "improve-7 (2026-08-24)",
   "resolved_issues": [
     {
       "id": "KI-1",
