@@ -2126,6 +2126,64 @@
       "acceptance": "test/citations.test.js gains the bare-PATH citation form: every backticked repo-relative file path appearing in README.md or REPORT.md that carries no line number resolves to a file that EXISTS and is GIT-TRACKED (git ls-files --error-unmatch), and the check fails closed. It must carry a self-check proving it located at least one such reference in each document, so a zero-match parse can never render as green (L-043 green-over-a-dead-region; L-041 fail-CLOSED direction). It ships with the two-arm proof (L-029): a mutation introducing a dangling backticked path turns the suite red AND the distinct failing test is the new one BY NAME, and the same mutation with the new check removed goes green. It also ships a converse control that must leave the suite GREEN (L-044) - a reworded but still-resolving pointer must not be flagged, so the check is not a snapshot of REPORT.md current text. Both arms real output goes in the journal. No assertion may be bound to prose matched by regex (L-043): the subject is path resolution and git-tracked status, both structural. Zero new dependencies.",
       "notes": "Filed by the conductor at cycle 108 alongside T-212, as its durable half. MEASURED, not inferred: test/citations.test.js:45 sets DOC_NAMES = [README.md, REPORT.md]; its two scanner forms are a path-anchored citation and BARE_CITATION_RE at line 58 (a backticked colon-then-digits), and its fail-closed sweep ANY_COLON_NUMBER_RE at line 61 is likewise anchored on colon-then-digits. Every form the gate knows is therefore keyed to a line number. A backticked repo-relative path with NO line number - exactly the form of the .swarm/REPORT-ARCHIVE-*.md pointers T-212 repairs - is invisible to it, so such a pointer can rot to a renamed, deleted or untracked file and the suite stays green. That is precisely L-043 enumerate-every-citation-FORM clause, the clause this run must-have #1 was written from, applied to a form the run own gate did not enumerate. HONEST SCOPE LIMIT, stated so nobody over-reads this gate: it would NOT have caught T-212 defect. In that case the named file exists, is tracked, and IS referenced - the falsehood lives in the words \"in full\", a prose completeness claim, and L-043 forbids binding an assertion to prose by regex. T-213 closes the DANGLING-pointer shape only; the incomplete-claim shape stays a human read, and REPORT.md should say so rather than imply broader cover. SPEC tension, stated rather than hidden: the non-goals bar a new measurement axis. This is the same axis (doc-to-artifact citations) extended to a form the governing lesson names, not a new one - but a builder who cannot close it in S/M effort without widening scope should return blocked rather than grow the axis. DEPENDS ON T-212 and must be dispatched SEQUENTIALLY after it (L-016 necessary-not-sufficient): this item acceptance is a measurement OF REPORT.md, which T-212 edits.",
       "verified_cycle": 109
+    },
+    {
+      "id": "T-214",
+      "title": "Fail-closed registry for prose claims about what the test suite enforces",
+      "kind": "test",
+      "status": "todo",
+      "effort": "L",
+      "priority": 10,
+      "files_hint": [
+        "test/gate-claims.test.js",
+        "REPORT.md",
+        "README.md"
+      ],
+      "packages": [],
+      "deps": [],
+      "attempts": 0,
+      "model": "fable",
+      "craft": null,
+      "acceptance": "Every passage in README.md or REPORT.md that characterizes what a test file enforces is located by a sweep that cannot miss a newly-added one, is accounted for by a row in a table the documents themselves own naming the passage and the test file owning that rule, and is either a verbatim quote of that test file's own words or a pointer that says nothing about the rule's content. A parse locating zero passages or zero rows must FAIL rather than report nothing wrong. The three passages measured as drifted at kickoff are made true or removed. A detector keyed off today's known passages does NOT satisfy this: adding a NINTH claim-about-a-test sentence naming an unregistered test file must turn the suite red with no test edited.",
+      "notes": "CONDUCTOR-VERIFIED DRIFT, not agent-claimed. I re-derived the strongest finding myself: REPORT.md:209 asserts 'Edit them into disagreement and the suite goes red' about test/report-issues.test.js, and the two documents ARE in disagreement RIGHT NOW while the suite is 244/244 green - REPORT.md:57 KI-4 status='open, unverified' vs state.json KI-4 status absent; REPORT.md:56 KI-2 status='open, blocking - root cause now conclusive' vs state.json KI-2 status='open, NARROWED cycle 104 ... 1 load-bearing script'. report-issues.test.js names the status column a BOUNDARY in its own header and compares only id sets, severity where both define it, and the (N) heading count. Two further drifts reported by the PLAN pass and NOT yet conductor-verified (verify before acting on them): REPORT.md:43-45 states doc-counts.test.js's ANCHOR_RE as four anchor kinds where the code reportedly accepts seven, and calls COUNT_PATTERNS 'any count claim' where it is three narrow shapes; REPORT.md:218 says 'Every file:line citation' where citations.test.js explicitly excludes out-of-repo swarm-* citations. STATED BOUNDARY REQUIRED (do not let it pass silently): README.md:220 'Timezone is pinned explicitly in every date-sensitive test' is rule-shaped but names NO test file, so a filename-keyed sweep cannot see it; declare it out of scope in the header comment. BYTE PRESSURE: REPORT.md is at its 25582 ceiling exactly, so a registry table must be funded by writing run #7's record shorter than the run #6 tail it replaces."
+    },
+    {
+      "id": "T-215",
+      "title": "Gate REPORT.md's self-relative archive pointer against the move this run will make",
+      "kind": "test",
+      "status": "todo",
+      "effort": "M",
+      "priority": 20,
+      "files_hint": [
+        "test/report-pointer.test.js"
+      ],
+      "packages": [],
+      "deps": [
+        "T-214"
+      ],
+      "attempts": 0,
+      "model": "fable",
+      "craft": null,
+      "acceptance": "REPORT.md's first-screen archive-pointer sentence AND its closing restatement of the same enumeration are both enforced against the archive files that actually exist on disk and the run records actually present in the document, so that adding a run record or archiving run #6's record without updating both pointers is a detected violation. The check's predicate must be answerable about a SUPPLIED document-and-archive-list state, not only about the tree as it currently sits.",
+      "notes": "The supplied-state clause is load-bearing and is why it is written into acceptance: the must-have requires the gate be proven RED against this run's REAL pending edit BEFORE that edit is made, and a predicate that reads only the live tree can only be shown red AFTER the edit, which is the ordering L-042 rejects. TWO copies of the enumeration must stay in step: REPORT.md:3 and the closing italic near REPORT.md:110. A rot of exactly this shape was T-212's defect last run, so the duplicate is the KNOWN failure mode. Discover archives by listing .swarm/REPORT-ARCHIVE-*.md, never from a literal list, or the gate reproduces the rot it exists to catch. Serialized behind T-214 by dep because T-214 edits REPORT.md while this guard parses it - do NOT run them concurrently despite the disjoint files_hint."
+    },
+    {
+      "id": "T-216",
+      "title": "KI-2: record one fresh dated datum, then stop",
+      "kind": "docs",
+      "status": "todo",
+      "effort": "S",
+      "priority": 30,
+      "files_hint": [
+        ".swarm/KI-2-OWNER-ACTION.md"
+      ],
+      "packages": [],
+      "deps": [],
+      "attempts": 0,
+      "model": "haiku",
+      "craft": null,
+      "acceptance": ".swarm/KI-2-OWNER-ACTION.md carries a single dated 2026-08-24 datum recording that none of the eleven swarm-* allowlist forms present in SWARM's settings.json covers swarm-playbook.sh or swarm-warmup.sh, alongside the exact lines a human must add, with NO re-diagnosis of the root cause and NO new hypothesis. The existing four lines are already correct and need no revision.",
+      "notes": "Conductor-measured at kickoff by direct grep: 11 swarm-* allow forms covering swarm-budget.sh, swarm-notify.sh (twice, one a stale macOS path), swarm-usage-probe.sh and swarm-weekly-from-allocator.sh; ZERO for swarm-playbook.sh, ZERO for swarm-warmup.sh. Denial tally now #37. This item is a dated re-confirmation and a tally bump, nothing more - hard rule 5 forbids repairing it from inside a run."
     }
   ]
 }

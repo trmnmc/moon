@@ -3741,3 +3741,115 @@ runfile-mirror:
 ```json
 {"version":1,"targets":[{"path":"/opt/targets/moon","status":"active","weight":1}],"rotation_cursor":0,"rotation_schedule":[0],"stop_at":"2026-08-25T07:19:47Z","usage_reset_at":"2026-08-24T10:00:00Z","model_policy":"value-routing","auth_mode":"subscription","heartbeat":{"ts":1787555995,"next_wakeup_at":1787558695,"pid":3477238,"limp":false,"degraded_tiers":[]},"pacing":{"mode":"guest","dial":0.33},"budget":{"source":"probe","gear":3,"gear_target":3,"ratio":0.12,"mode":"guest","k_cap":3,"promote":false,"demote":false,"window_tokens":7568618,"window_cost_usd":6.897,"tokens_per_hour":3275265,"projected_depletion_at":1787706056,"last_probe_ts":1787555995,"last_real_probe_ts":1787555995,"probe_failures":0,"weekly":{"ok":false,"weekly_used_pct":0,"opus_used_pct":0,"week_elapsed_pct":1.387,"weekly_heat":0,"opus_heat":0,"ceiling":5,"promote_blocked":false}},"watchdog":{"mode":"normal","plist_loaded":false,"lockfile":"/opt/swarm/runs/watchdog.lock","relaunch_attempts":0},"caffeinate_pid":0,"wrap_up_complete":false,"cycles_since_recycle":0,"run_label":"improve-7 (2026-08-24)"}
 ```
+
+## cycle 111 | 2026-08-24T07:52:00+00:00 | moon | PLAN (inline) — 3 items filed; the run's primary question answered, and NOT in the run's favour
+
+Clock 1787557030. `stop_at` 1787642387 — 23.7h remaining, no admission pressure. Tree clean at
+orient (kickoff commit `71e4ad2` pushed). Control channel polled: no pending commands, no
+injections. Budget carried from the kickoff probe (well inside the 30-min re-probe window): gear
+3, ρ 0.12, guest clamp binding.
+
+Re-anchor: audit the two open playbook-delta clauses against this tree; wrap the moment the delta
+is empty. Cycle 111, `111 % 5 != 0`, so no full SPEC re-read — it was authored 30 minutes ago.
+
+### Work: inline PLAN. The PLAN gate held (0 todo items, must-haves uncovered).
+
+The dispatched Plan agent was told to MEASURE the primary question before proposing anything
+against it (L-031: an inferred coverage gap is a churn generator, not a work item). It did, and
+the answer is **the audit is NOT empty** — so the early-DONE clause does not fire, and this run
+has real work.
+
+### VERIFICATION EVIDENCE — the central finding, re-derived by the conductor, not taken on trust
+
+The agent's strongest claim is that `REPORT.md` asserts a coverage its gate does not have. Hard
+rule 2 forbids accepting that as fact, so I re-derived it independently:
+
+```
+$ sed -n '207,211p' REPORT.md
+And one claim in this document is now enforced rather than asserted: the two issue tables
+above are machine-checked against `.swarm/state.json` by `test/report-issues.test.js`. Edit
+them into disagreement and the suite goes red.
+
+$ grep -n "KI-4" REPORT.md
+57:| KI-4 | low | open, unverified | Terminal font variance beyond width ...
+
+$ python3 - <<'  state.json known_issues status fields'
+KI-2 | status= 'open, NARROWED cycle 104 — scope corrected from 2 scripts to 1 load-bearing script...'
+KI-4 | status= None
+```
+
+`REPORT.md` says *"Edit them into disagreement and the suite goes red."* The two documents **are
+in disagreement right now** — KI-4's status reads `open, unverified` in REPORT.md and is **absent
+entirely** from `state.json`; KI-2's status texts differ materially. And the suite is green:
+
+```
+ℹ tests 244 / pass 244 / fail 0 / skipped 0
+```
+
+**The sentence is falsified by the tree it describes.** `test/report-issues.test.js` names the
+status column a BOUNDARY in its own header and compares only id sets, severity where both sides
+define one, and the `(N)` heading count. This is precisely the L-043 defect — a second document
+restating a machine-checked rule in its own words, drifting, and invisible because no guard reads
+the restating document — found in the wild with the counterexample already sitting in the repo,
+rather than argued for hypothetically.
+
+Two further drifts were reported and are recorded as **NOT yet conductor-verified**, to be
+verified before they are acted on: `REPORT.md:43-45` reportedly states four anchor kinds where
+`doc-counts.test.js` accepts seven and calls three narrow patterns "any count claim"; and
+`REPORT.md:218` reportedly says "Every `file:line` citation" where `citations.test.js` documents
+an out-of-repo `swarm-*` exclusion.
+
+### Items filed (3)
+
+- **T-214** (L, fable, prio 10) — the fail-closed registry. Acceptance carries the taste judge's
+  discriminator verbatim: adding a NINTH claim-about-a-test sentence naming an unregistered test
+  file must turn the suite red with no test edited. A detector keyed off today's eight passages
+  is a hardcoded list wearing a table's clothes and gets rejected at the gate.
+- **T-215** (M, fable, prio 20, deps T-214) — the archive-pointer gate, with the supplied-state
+  clause written into acceptance because that is the only shape that can be proven red BEFORE
+  this run makes the edit. Two copies of the enumeration must stay in step (`REPORT.md:3` and the
+  closing italic ~`:110`); archives discovered by globbing `.swarm/REPORT-ARCHIVE-*.md`, never a
+  literal list, or the gate reproduces the rot it exists to catch.
+- **T-216** (S, haiku, prio 30) — KI-2, one dated datum, then stop.
+
+### One must-have closed with NO item, deliberately
+
+**"Every count-citing claim is re-derived at run time" is ALREADY SATISFIED.** `doc-counts.test.js`
+does both halves — shape enforcement, and since T-211 actual truth re-derivation by resolving
+"cycle N" to a commit, checking it out into a throwaway worktree and running the suite there. The
+kickoff measurement of **0 skipped** is the discriminator proving that path executed rather than
+degrading to a skip. The obligation this must-have places on run #7 is a conductor verification
+with real output, not a code change; filing an item would be re-shipping T-207/T-211. This is
+L-045's read-the-authoritative-source rule applied in the direction that REMOVES work.
+
+**"REPORT.md does not grow" was declined as a gate, on argument.** A byte-count assertion is a
+hardcoded snapshot of today's number — the exact shape must-have #1 rejects — and would go red
+next run for something that is not a defect. It stays a constraint on this run's edits, recorded
+in T-214's and T-215's notes.
+
+### Decisions recorded (3) — including one that deliberately leaves a defect in place
+
+1. **The status disagreement is PRESERVED, not fixed.** It is the live input T-214's gate must be
+   proven RED against. Correcting `state.json` now would destroy the evidence and leave the gate
+   provable only against an artificial mutation — the weaker proof L-042 rejects. Held until
+   T-214 ships, then closed in the same cycle. Recorded so a later reader cannot mistake a
+   preserved counterexample for neglect.
+2. **`state.json`'s KI-2 status is knowingly left stale** for the same reason. It says "1
+   load-bearing script"; the kickoff grep measures TWO (`swarm-playbook.sh`, `swarm-warmup.sh`),
+   which is what REPORT.md and `KI-2-OWNER-ACTION.md` both say.
+3. **The PLAN subagent read a SWARM path.** Hard rule 5 says agents get target paths only; my
+   prompt complied and named only `/opt/targets/moon` files, but the agent navigated to
+   `/opt/swarm/.claude/settings.json` itself and reported allowlist contents. Its finding matched
+   my own independent grep so nothing false entered the backlog — but **the fence held by the
+   agent's good behaviour, not by construction**. Prompt-level scoping is not a sandbox. First
+   crossing this run; recorded for the retro.
+
+### Counters
+
+`consecutive_no_value` 0 → **0** (verified value: a falsified doc claim, re-derived by the
+conductor). `k_current` 3, `wave_streak` 1 — no build wave ran, autotune does not move. Phase
+PLAN → **BUILD**. `cycles_since_recycle` 1. Backlog 111 items: 103 done, 5 dropped, **3 todo**.
+
+Next: build wave on T-214 + T-216 (pairwise-disjoint), T-215 serialized behind T-214 by dep —
+they touch REPORT.md from opposite sides and running them concurrently would produce a spurious
+red.

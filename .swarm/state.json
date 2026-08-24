@@ -2,8 +2,8 @@
   "idea": "tiny CLI that prints the current moon phase, with a fun ascii moon",
   "project_dir": "/opt/targets/moon",
   "created_at": "2026-08-14T11:36:00+00:00",
-  "phase": "PLAN",
-  "cycle": 110,
+  "phase": "BUILD",
+  "cycle": 111,
   "run_cmd": "node bin/moon.js",
   "test_cmd": "node --test test/*.test.js",
   "preview": {
@@ -1130,6 +1130,21 @@
       "cycle": 110,
       "what": "A NEW allowlist datum, distinct from KI-2: an environment-variable PREFIX defeats an exact-path allow entry. `RUNFILE=... bash bin/swarm-budget.sh` was denied in the same cycle that the bare `bin/swarm-budget.sh` ran clean against the identical entry. The remedy is a --runfile flag on the script, not another allowlist line.",
       "why": "KI-2 is a MISSING entry. This is a PRESENT entry defeated by invocation shape -- a script defect, and it would have inflated the operator ask if booked as a seventh KI-2 re-diagnosis."
+    },
+    {
+      "cycle": 111,
+      "what": "PRESERVE the REPORT.md/state.json status disagreement as evidence rather than fix it now",
+      "why": "REPORT.md:209 claims 'Edit them into disagreement and the suite goes red', and the two documents are in disagreement TODAY with the suite 244/244 green (KI-4 status 'open, unverified' vs absent in state.json; KI-2 status texts materially different). That live counterexample is the exact input T-214's gate must be proven RED against. Correcting state.json now would destroy the evidence and leave the new gate provable only against an artificial mutation - the weaker proof L-042 rejects. The disagreement is therefore held deliberately until T-214 ships, then closed. Recording this so a later reader does not mistake a preserved counterexample for neglect."
+    },
+    {
+      "cycle": 111,
+      "what": "state.json's KI-2 status field is stale and is knowingly left stale for now",
+      "why": "It reads 'scope corrected from 2 scripts to 1 load-bearing script', but the kickoff grep measures TWO unallowlisted scripts (swarm-playbook.sh AND swarm-warmup.sh), which is what REPORT.md and .swarm/KI-2-OWNER-ACTION.md both say. report-issues.test.js treats the status column as a stated BOUNDARY, so nothing catches it. Same reasoning as the decision above: it is part of the counterexample set. To be corrected in the same cycle that closes T-214, not before."
+    },
+    {
+      "cycle": 111,
+      "what": "The PLAN subagent read a SWARM path despite being given only target paths",
+      "why": "Hard rule 5 says workflow agents receive target paths only, never SWARM paths. The prompt complied - it named only /opt/targets/moon files. The agent navigated to /opt/swarm/.claude/settings.json on its own initiative and reported allowlist contents. The finding happened to match my own independent grep, so nothing false entered the backlog, but the fence held only by luck of the agent's good behaviour, not by construction. Recorded for the retro: prompt-level scoping is not a sandbox, and this is the first time this run has seen an agent cross it."
     }
   ],
   "known_issues": [
@@ -1200,9 +1215,10 @@
     "window_tokens_attributed": 0
   },
   "last_cycle": {
-    "n": 110,
-    "work": "WRAP_UP: %5 SPEC re-read + backlog hygiene, DoD re-derived clause by clause, REPORT.md run-6 record refreshed and the cycle-109 rot vector removed rather than inherited",
-    "outcome": "DONE declared; 244/244 green, skipped 0; REPORT 25582 <= 25586 ceiling; playbook 4 lessons updated, 0 minted; denial #33 recorded"
+    "cycle": 111,
+    "work": "PLAN (inline)",
+    "outcome": "value",
+    "note": "3 items filed; one conductor-verified live falsification found"
   },
   "run_label": "improve-7 (2026-08-24)",
   "resolved_issues": [
@@ -1227,8 +1243,10 @@
     }
   ],
   "backlog_counts": {
-    "done": 101,
+    "total": 111,
+    "done": 103,
     "dropped": 5,
-    "todo": 0
+    "todo": 3,
+    "blocked": 0
   }
 }
