@@ -32,3 +32,7 @@ Do not add grant lines for `swarm-budget.sh` or `swarm-notify.sh`. Both are now 
 ## FULL FORENSIC HISTORY
 
 For the complete eight-probe evidence table, see `/opt/swarm/playbook/HANDOFF-allowlist-2026-08-17.md`.
+
+## 2026-08-24 re-measurement (denial #37)
+
+Eleven `swarm-*` allow-list entries confirmed: swarm-budget.sh (4 forms), swarm-notify.sh (3 forms), swarm-usage-probe.sh (2 forms), swarm-weekly-from-allocator.sh (2 forms). Zero entries for `swarm-playbook.sh`. Zero entries for `swarm-warmup.sh`. Required grant lines remain the four listed above (unchanged).
